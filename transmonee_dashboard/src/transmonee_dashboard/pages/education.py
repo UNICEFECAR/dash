@@ -17,6 +17,7 @@ import plotly.io as pio
 from mapbox import Geocoder
 
 from ..app import app
+from ..components import fa
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
@@ -29,27 +30,43 @@ pio.templates.default = "plotly_white"
 indicators_dict = {
     "EDU_SDG_STU_L2_MATH": {
         "name": "Proportion of children at the end of lower secondary education reaching minimum proficiency in math",
-        "compare": [
-            "EDU_SDG_STU_L2_READING",
-            "EDU_SDG_STU_L1_GLAST_MATH",
-            "EDU_SDG_STU_L1_G2OR3_MATH",
-            "EDUNF_NERA_L2",
-        ],
+        "compare": {
+            "EDU_SDG_STU_L2_READING": "Proportion of children at the end of lower secondary education reaching minimum proficiency in reading",
+            "EDU_SDG_STU_L1_GLAST_MATH": "Proportion of children at the end of primary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_G2OR3_MATH": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+            "EDUNF_NERA_L2": "Adjusted net enrolment: lower secondary",
+        },
     },
     "EDU_SDG_STU_L2_READING": {
         "name": "Proportion of children at the end of lower secondary education reaching minimum proficiency in reading",
-        "compare": [
-            "EDUNF_ROFST_L2",
-            "EDU_SDG_STU_L2_MATH",
-            "EDU_SDG_STU_L1_GLAST_READING",
-            "EDU_SDG_STU_L1_G2OR3_READING",
-            "EDUNF_NERA_L2",
-        ],
+        "compare": {
+            "EDUNF_ROFST_L2": "Out of school children rate: Lower secondary education",
+            "EDU_SDG_STU_L2_MATH": "Proportion of children at the end of lower secondary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_GLAST_MATH": "Proportion of children at the end of primary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_G2OR3_READING": "Proportion of children in grade 2 or 3 reaching minimum proficiency in reading",
+            "EDUNF_NERA_L2": "Adjusted net enrolment: lower secondary",
+        },
     },
     "EDU_SDG_STU_L1_GLAST_MATH": {
         "name": "Proportion of children at the end of primary education reaching minimum proficiency in math",
-        "compare": ["EDU_SDG_STU_L1_GLAST_READING", "EDUNF_NERA_L1_PT"],
+        "compare": {
+            "EDU_SDG_STU_L1_GLAST_READING": "Proportion of children at the end of primary education reaching minimum proficiency in reading",
+            "EDUNF_NERA_L1_PT": "Adjusted net enrolment: primary education"
+        },
     },
+    "EDU_SDG_STU_L1_G2OR3_READING": {
+        "name": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+        "compare": {
+            "EDUNF_ROFST_L1": "Out of school children rate: Primary education"
+        },
+    },
+    "EDU_SDG_STU_L1_G2OR3_MATH": {
+        "name": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+        "compare": {
+            "EDU_SDG_STU_L1_GLAST_READING": "Proportion of children at the end of primary education reaching minimum proficiency in reading"
+        },
+    },
+    "EDU_SDG_GER_L01": {"compare": {}}
 }
 
 data = pd.DataFrame()
@@ -73,6 +90,13 @@ years = [i for i in range(2010, 2020)]
 
 indicators = data["Indicator"].unique()
 
+reading = go.Figure(go.Indicator(
+    mode = "number",
+    value = data.query("CODE == 'EDU_SDG_STU_L2_READING' & Sex == 'Total'").mean(),
+    number = {'prefix': "$"},
+px.bar(
+    data.query("CODE == 'EDU_SDG_STU_L2_READING' & Sex == 'Total'").groupby(['Sex']).mean().reset_index(), 
+    x='Sex', y='OBS_VALUE', color='Sex', range_y=[0, 100], le)
 
 def get_layout(**kwargs):
 
@@ -85,7 +109,8 @@ def get_layout(**kwargs):
                             dbc.CardHeader("Data Explorer Controls"),
                         dbc.CardBody(
                             [
-                                html.P("Filter by year:", className="control_label",),
+                                html.P("Filter by year:",
+                                       className="control_label",),
                                 dcc.RangeSlider(
                                     id="year_slider",
                                     min=0,
@@ -98,12 +123,14 @@ def get_layout(**kwargs):
                                     value=[0, len(years)],
                                     className="dcc_control",
                                 ),
-                                html.P("Filter by Country:", className="control_label"),
+                                html.P("Filter by Country:",
+                                       className="control_label"),
                                 dcc.Dropdown(
                                     id="country_selector",
                                     options=county_options,
                                     multi=True,
-                                    value=[item["value"] for item in county_options],
+                                    value=[item["value"]
+                                        for item in county_options],
                                     className="dcc_control",
                                 ),
                             ]
@@ -119,63 +146,22 @@ def get_layout(**kwargs):
                                     dbc.Col(
                                         dbc.Card(
                                             [
-                                                dbc.CardHeader("Card header"),
+                                                dbc.CardHeader([fa('fa fa-book fa-2x')," Reading"]),
                                                 dbc.CardBody(
                                                     [
                                                         html.H5(
                                                             "Card title",
                                                             className="card-title",
                                                         ),
+                                                        dcc.Graph(figure=reading),
                                                         html.P(
-                                                            "This is some card content that we'll reuse",
+                                                            "Proportion of children at the end of lower secondary education reaching minimum proficiency in reading",
                                                             className="card-text",
                                                         ),
                                                     ]
                                                 ),
                                             ],
                                             color="primary",
-                                            outline=True,
-                                        )
-                                    ),
-                                    dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="secondary",
-                                            outline=True,
-                                        )
-                                    ),
-                                    dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="info",
                                             outline=True,
                                         )
                                     ),
@@ -203,20 +189,24 @@ def get_layout(**kwargs):
                                 ],
                                 # className="mb-4",
                             ),
-                            html.Br(),
-                            dbc.Card(
-                                dbc.CardBody(dcc.Graph(id="count_graph")),
-                                # id="countGraphContainer",
-                                # className="pretty_container",
-                            ),
-                            html.Br()
+                            dbc.Row(
+                                dbc.Col([
+                                    html.Br(),
+                                    dbc.Card(
+                                        dbc.CardBody(dcc.Graph(id="count_graph")),
+                                            # id="countGraphContainer",
+                                            # className="pretty_container",
+                                    ),
+                                    html.Br()
+                                ])
+                            )
                         ],
-                        id="right-column",
-                        # className="eight columns",
-                        width=8,
-                    ),
-                ],
                 # className="row flex-display",
+                        id="right-column",
+                                # className="eight columns",
+                        width=8
+                    ),
+                ]
             ),
             dbc.Row(
                 [
@@ -231,12 +221,12 @@ def get_layout(**kwargs):
                             dcc.Dropdown(
                                 id="maths-xaxis-column",
                                 options=[
-                                    {"label": item["Indicator"], "value": item["CODE"]}
+                                    {"label": item["Indicator"],
+                                        "value": item["CODE"]}
                                     for item in data[
                                         data["CODE"].isin(
-                                            indicators_dict["EDU_SDG_STU_L2_MATH"][
-                                                "compare"
-                                            ]
+                                            indicators_dict["EDU_SDG_STU_L2_MATH"]["compare"].keys(
+                                            )
                                         )
                                     ][["CODE", "Indicator"]]
                                     .drop_duplicates()
@@ -261,12 +251,12 @@ def get_layout(**kwargs):
                             dcc.Dropdown(
                                 id="reading-xaxis-column",
                                 options=[
-                                    {"label": item["Indicator"], "value": item["CODE"]}
+                                    {"label": item["Indicator"],
+                                        "value": item["CODE"]}
                                     for item in data[
                                         data["CODE"].isin(
-                                            indicators_dict["EDU_SDG_STU_L2_READING"][
-                                                "compare"
-                                            ]
+                                            indicators_dict["EDU_SDG_STU_L2_READING"]["compare"].keys(
+                                            )
                                         )
                                     ][["CODE", "Indicator"]]
                                     .drop_duplicates()
@@ -309,7 +299,7 @@ def geocode_address(address):
     return coords
 
 # Slider -> count graph
-@app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
+@ app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
 def update_year_slider(count_graph_selected):
 
     if count_graph_selected is None:
@@ -318,7 +308,7 @@ def update_year_slider(count_graph_selected):
     nums = [int(point["pointNumber"]) for point in count_graph_selected["points"]]
     return [min(nums) + years[0], max(nums) + years[-1]]
 
-@app.callback(
+@ app.callback(
     Output("count_graph", "figure"),
     [
         Input("year_slider", "value"),
@@ -330,15 +320,15 @@ def make_map(year_slider, country_selector):
 
     px.set_mapbox_access_token(mapbox_access_token)
     df = data[
-        (data['CODE'] == 'EDUNF_ROFST_L2') & 
+        (data['CODE'] == 'EDUNF_ROFST_L2') &
         (data['Geographic area'].isin(country_selector))
     ].groupby(['Geographic area', 'CODE', 'Indicator']).agg(
         {'TIME_PERIOD': 'max', 'OBS_VALUE': 'max'}
     ).reset_index()
     # 2- - create location column
-    df[['longitude','latitude']] = df.apply(lambda row: pd.Series(geocode_address(row['Geographic area'])), axis=1)
+    df[['longitude', 'latitude']]= df.apply(lambda row: pd.Series(geocode_address(row['Geographic area'])), axis=1)
 
-    fig = px.scatter_mapbox(
+    fig=px.scatter_mapbox(
         df,
         lat='latitude',
         lon='longitude',
@@ -346,15 +336,15 @@ def make_map(year_slider, country_selector):
         text="Geographic area",
         color="OBS_VALUE",
         color_continuous_scale=px.colors.sequential.Jet,
-        size_max=25, 
+        size_max=25,
         zoom=2
     )
-    
+
     return fig
 
 
 # Selectors -> maths graph
-@app.callback(
+@ app.callback(
     Output("maths_graph", "figure"),
     [
         Input("year_slider", "value"),
@@ -363,9 +353,9 @@ def make_map(year_slider, country_selector):
 #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_maths_figure(year_slider, xaxis):
-    indicator = 'EDU_SDG_STU_L2_MATH'
-    dff = data
-    fig = go.Figure()
+    indicator='EDU_SDG_STU_L2_MATH'
+    dff=data
+    fig=go.Figure()
     fig.add_trace(
             go.Bar(
                 x=years,
@@ -379,7 +369,7 @@ def make_maths_figure(year_slider, xaxis):
                 go.Bar(
                     x=years,
                     y=data[data['CODE'] == value]['OBS_VALUE'],
-                    name=data[data['CODE'] == value]['Indicator'].unique()[0],
+                    name=indicators_dict[indicator]['compare'][value],
                 ),
             )
     fig.update_layout(
@@ -399,13 +389,13 @@ def make_maths_figure(year_slider, xaxis):
 #         bargroupgap=0.1 # gap between bars of the same location coordinate.
     )
 
-    
+
 #     figure = dict(data=traces, layout=layout)
     return fig
 
 
 # Selectors -> reading graph
-@app.callback(
+@ app.callback(
     Output("reading_graph", "figure"),
     [
         Input("year_slider", "value"),
@@ -414,16 +404,17 @@ def make_maths_figure(year_slider, xaxis):
 #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_reading_figure(year_slider, xaxis):
-    indicator = 'EDU_SDG_STU_L2_READING'
-    dff = data
-    fig = go.Figure()
+    indicator='EDU_SDG_STU_L2_READING'
+    dff=data
+    fig=go.Figure()
     fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
                 name=indicators_dict[indicator]['name'],
                 x=years,
                 y=data[data['CODE'] == indicator]['OBS_VALUE'],
-                line=dict(shape="spline", smoothing=1.3, width=1, color="#fac1b7"),
+                line=dict(shape="spline", smoothing=1.3,
+                          width=1, color="#fac1b7"),
                 marker=dict(symbol="diamond-open"),
             ),
         )
@@ -432,7 +423,8 @@ def make_reading_figure(year_slider, xaxis):
             fig.add_trace(
                 go.Scatter(
                     mode="lines+markers",
-                        name=data[data['CODE'] == value]['Indicator'].unique()[0],
+                        name=data[data['CODE'] == value]['Indicator'].unique()[
+                                                                             0],
                         x=years,
                         y=data[data['CODE'] == value]['OBS_VALUE'],
                         line=dict(shape="spline", smoothing=1.3, width=1),
@@ -459,7 +451,7 @@ def make_reading_figure(year_slider, xaxis):
     return fig
 
 # Selectors -> reading graph
-@app.callback(
+@ app.callback(
     Output("pie_graph", "figure"),
     [
         Input("year_slider", "value"),
@@ -470,17 +462,17 @@ def make_compare_figure(year_slider):
     import plotly.figure_factory as ff
 
     # Group data together
-    hist_data = [
+    hist_data=[
         data[data['CODE'] == 'EDU_SDG_STU_L1_GLAST_MATH']['OBS_VALUE'],
         data[data['CODE'] == 'EDU_SDG_STU_L1_GLAST_READING']['OBS_VALUE'],
     ]
 
-    group_labels = [
-        'Proportion of children at the end of primary education reaching minimum proficiency in math', 
+    group_labels=[
+        'Proportion of children at the end of primary education reaching minimum proficiency in math',
         'Proportion of children at the end of primary education reaching minimum proficiency in reading'
     ]
 
     # Create distplot with custom bin_size
-    fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    
+    fig=ff.create_distplot(hist_data, group_labels, bin_size=5)
+
     return fig
