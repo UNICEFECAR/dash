@@ -13,18 +13,9 @@ import dash_bootstrap_components as dbc
 
 import plotly.graph_objects as go
 import plotly.express as px
-import plotly.io as pio
-from mapbox import Geocoder
 
-from ..app import app
+from ..app import app, mapbox_access_token, geocoder, sdmx_url
 
-mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
-
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv"
-
-geocoder = Geocoder(access_token=mapbox_access_token)
-
-pio.templates.default = "plotly_white"
 
 indicators_dict = {
     "EDU_SDG_STU_L2_MATH": {
@@ -52,13 +43,31 @@ indicators_dict = {
     },
 }
 
+codes = [
+    "EDU_SDG_STU_L2_MATH",
+    "EDU_SDG_STU_L2_READING",
+    "EDU_SDG_STU_L1_GLAST_MATH",
+    "EDU_SDG_STU_L1_G2OR3_MATH",
+    "EDU_SDG_STU_L1_GLAST_READING",
+    "EDU_SDG_STU_L1_G2OR3_READING",
+    "EDUNF_NERA_L2",
+    "EDUNF_NERA_L1_PT",
+    "EDU_SDG_GER_L01",
+    "EDUNF_LR_L02",
+    "EDUNF_ROFST_L2",
+    "EDU_SDG_QUTP_L02",
+    "EDU_SDG_QUTP_L1",
+    "EDU_SDG_QUTP_L2",
+    "EDU_SDG_QUTP_L3",
+    "EDU_SDG_TRTP_L02",
+    "EDU_SDG_TRTP_L1",
+    "EDU_SDG_TRTP_L2",
+    "EDU_SDG_TRTP_L3",
+]
+
 data = pd.DataFrame()
 inds = set()
-for key, value in indicators_dict.items():
-    inds.add(key)
-    inds.update(value["compare"])
-
-for ind in inds:
+for ind in codes:
     sdmx = pd.read_csv(sdmx_url.format(ind))
     sdmx["CODE"] = ind
     data = data.append(sdmx)
@@ -69,9 +78,44 @@ county_options = [
     for country in data["Geographic area"].unique()
 ]
 
-years = [i for i in range(2010, 2020)]
+years = [i for i in range(2008, 2020)]
 
 indicators = data["Indicator"].unique()
+
+
+def indicator_card(indicator):
+    mean_value = (
+        data[data["CODE"] == indicator]
+        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])["OBS_VALUE"]
+        .tail(1)
+        .mean()
+    )
+    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    fig = go.Figure(
+        go.Indicator(
+            value=mean_value,
+            number={"suffix": "%"},
+            domain = {'x': [0, 1], 'y': [0, 1]},
+        )
+    )
+    fig.update_layout(height=200)
+    card = dbc.Card(
+        [
+            dbc.CardHeader("Card header"),
+            dbc.CardBody(
+                [
+                    dcc.Graph(figure=fig),
+                    html.P(
+                        name,
+                        className="card-text",
+                    ),
+                ]
+            ),
+        ],
+        color="primary",
+        outline=True,
+    )
+    return card
 
 
 def get_layout(**kwargs):
@@ -81,33 +125,44 @@ def get_layout(**kwargs):
             dbc.Row(
                 [
                     dbc.Col(
-                        dbc.Card([
-                            dbc.CardHeader("Data Explorer Controls"),
-                        dbc.CardBody(
+                        dbc.Card(
                             [
-                                html.P("Filter by year:", className="control_label",),
-                                dcc.RangeSlider(
-                                    id="year_slider",
-                                    min=0,
-                                    max=len(years),
-                                    step=None,
-                                    marks={
-                                        index: str(year)
-                                        for index, year in enumerate(years)
-                                    },
-                                    value=[0, len(years)],
-                                    className="dcc_control",
-                                ),
-                                html.P("Filter by Country:", className="control_label"),
-                                dcc.Dropdown(
-                                    id="country_selector",
-                                    options=county_options,
-                                    multi=True,
-                                    value=[item["value"] for item in county_options],
-                                    className="dcc_control",
+                                dbc.CardHeader("Data Explorer Controls"),
+                                dbc.CardBody(
+                                    [
+                                        html.P(
+                                            "Filter by year:",
+                                            className="control_label",
+                                        ),
+                                        dcc.RangeSlider(
+                                            id="year_slider",
+                                            min=0,
+                                            max=len(years),
+                                            step=None,
+                                            marks={
+                                                index: str(year)
+                                                for index, year in enumerate(years)
+                                            },
+                                            value=[0, len(years)],
+                                            className="dcc_control",
+                                        ),
+                                        html.P(
+                                            "Filter by Country:",
+                                            className="control_label",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="country_selector",
+                                            options=county_options,
+                                            multi=True,
+                                            value=[
+                                                item["value"] for item in county_options
+                                            ],
+                                            className="dcc_control",
+                                        ),
+                                    ]
                                 ),
                             ]
-                        )]),
+                        ),
                         # className="pretty_container four columns",
                         id="cross-filter-options",
                         width=4,
@@ -117,88 +172,16 @@ def get_layout(**kwargs):
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="primary",
-                                            outline=True,
-                                        )
+                                        indicator_card("EDU_SDG_GER_L01")
                                     ),
                                     dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="secondary",
-                                            outline=True,
-                                        )
+                                        indicator_card("EDU_SDG_STU_L2_READING")
                                     ),
                                     dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="info",
-                                            outline=True,
-                                        )
+                                        indicator_card("EDUNF_LR_L02")
                                     ),
                                     dbc.Col(
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader("Card header"),
-                                                dbc.CardBody(
-                                                    [
-                                                        html.H5(
-                                                            "Card title",
-                                                            className="card-title",
-                                                        ),
-                                                        html.P(
-                                                            "This is some card content that we'll reuse",
-                                                            className="card-text",
-                                                        ),
-                                                    ]
-                                                ),
-                                            ],
-                                            color="info",
-                                            outline=True,
-                                        )
+                                        indicator_card("EDU_SDG_GER_L01")
                                     ),
                                 ],
                                 # className="mb-4",
@@ -209,7 +192,7 @@ def get_layout(**kwargs):
                                 # id="countGraphContainer",
                                 # className="pretty_container",
                             ),
-                            html.Br()
+                            html.Br(),
                         ],
                         id="right-column",
                         # className="eight columns",
@@ -223,62 +206,79 @@ def get_layout(**kwargs):
                     dbc.Col(
                         [
                             dbc.Card(
-                        dbc.CardBody([
-                            html.Div(
-                                [dcc.Graph(id="maths_graph")],
-                                className="pretty_container",
+                                dbc.CardBody(
+                                    [
+                                        html.Div(
+                                            [dcc.Graph(id="maths_graph")],
+                                            className="pretty_container",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="maths-xaxis-column",
+                                            options=[
+                                                {
+                                                    "label": item["Indicator"],
+                                                    "value": item["CODE"],
+                                                }
+                                                for item in data[
+                                                    data["CODE"].isin(
+                                                        [
+                                                            "EDU_SDG_STU_L2_MATH",
+                                                            "EDU_SDG_STU_L2_READING",
+                                                            "EDU_SDG_STU_L1_GLAST_MATH",
+                                                            "EDU_SDG_STU_L1_G2OR3_MATH",
+                                                            "EDU_SDG_STU_L1_GLAST_READING",
+                                                            "EDU_SDG_STU_L1_G2OR3_READING",
+                                                        ]
+                                                    )
+                                                ][["CODE", "Indicator"]]
+                                                .drop_duplicates()
+                                                .to_dict("records")
+                                            ],
+                                            value="EDU_SDG_STU_L2_READING",
+                                            className="dcc_control",
+                                        ),
+                                    ]
+                                )
                             ),
-                            dcc.Dropdown(
-                                id="maths-xaxis-column",
-                                options=[
-                                    {"label": item["Indicator"], "value": item["CODE"]}
-                                    for item in data[
-                                        data["CODE"].isin(
-                                            indicators_dict["EDU_SDG_STU_L2_MATH"][
-                                                "compare"
-                                            ]
-                                        )
-                                    ][["CODE", "Indicator"]]
-                                    .drop_duplicates()
-                                    .to_dict("records")
-                                ],
-                                multi=True,
-                                #                             value=[item for item in indicators],
-                                className="dcc_control",
-                            )])),
                         ],
                         # className="six columns",
-                        width=6
+                        width=6,
                     ),
                     dbc.Col(
                         [
                             dbc.Card(
-                        dbc.CardBody([
-                            html.Div(
-                                [dcc.Graph(id="reading_graph")],
-                                className="pretty_container",
+                                dbc.CardBody(
+                                    [
+                                        html.Div(
+                                            [dcc.Graph(id="reading_graph")],
+                                            className="pretty_container",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="reading-xaxis-column",
+                                            options=[
+                                                {
+                                                    "label": item["Indicator"],
+                                                    "value": item["CODE"],
+                                                }
+                                                for item in data[
+                                                    data["CODE"].isin(
+                                                        indicators_dict[
+                                                            "EDU_SDG_STU_L2_READING"
+                                                        ]["compare"]
+                                                    )
+                                                ][["CODE", "Indicator"]]
+                                                .drop_duplicates()
+                                                .to_dict("records")
+                                            ],
+                                            multi=True,
+                                            className="dcc_control",
+                                        ),
+                                    ]
+                                )
                             ),
-                            dcc.Dropdown(
-                                id="reading-xaxis-column",
-                                options=[
-                                    {"label": item["Indicator"], "value": item["CODE"]}
-                                    for item in data[
-                                        data["CODE"].isin(
-                                            indicators_dict["EDU_SDG_STU_L2_READING"][
-                                                "compare"
-                                            ]
-                                        )
-                                    ][["CODE", "Indicator"]]
-                                    .drop_duplicates()
-                                    .to_dict("records")
-                                ],
-                                multi=True,
-                                #                             value=[item for item in indicators],
-                                className="dcc_control",
-                            )])),
                         ],
                         # className="six columns",
-                        width=6
+                        width=6,
                     ),
                 ],
                 # className="row flex-display",
@@ -303,10 +303,11 @@ def get_layout(**kwargs):
 def geocode_address(address):
     """Geocode street address into lat/long."""
     response = geocoder.forward(address)
-    coords = response.json()['features'][0]['center']
+    coords = response.json()["features"][0]["center"]
     # coords = coords.replace(']', '')
     # coords = coords.replace('[', '')
     return coords
+
 
 # Slider -> count graph
 @app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
@@ -318,169 +319,175 @@ def update_year_slider(count_graph_selected):
     nums = [int(point["pointNumber"]) for point in count_graph_selected["points"]]
     return [min(nums) + years[0], max(nums) + years[-1]]
 
+
 @app.callback(
     Output("count_graph", "figure"),
-    [
-        Input("year_slider", "value"),
-        Input("country_selector", "value")
-    ],
-#     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+    [Input("year_slider", "value"), Input("country_selector", "value")],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_map(year_slider, country_selector):
 
     px.set_mapbox_access_token(mapbox_access_token)
-    df = data[
-        (data['CODE'] == 'EDUNF_ROFST_L2') & 
-        (data['Geographic area'].isin(country_selector))
-    ].groupby(['Geographic area', 'CODE', 'Indicator']).agg(
-        {'TIME_PERIOD': 'max', 'OBS_VALUE': 'max'}
-    ).reset_index()
+    static = {
+        'Country': ['Albania', 'Belarus', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 
+                    'Georgia, Europe, Asia', 'Kazakhstan', 'Kosovo', 'Moldova', 'Montenegro', 
+                    'North Macedonia', 'Romania', 'Serbia', 'Turkey', 'Ukraine'],
+        'Reading': [52, 23, 54, 47, 22, 64, 64, 79, 43, 44, 55, 41, 38, 26, 26],
+        'Math': [42, 29, 58, 44, 31, 61, 49, 77, 50, 46, 61, 47, 40, 37, 36],
+        'Science': [47, 24, 57, 47, 25, 64, 60, 77, 43, 48, 49, 44, 38, 25, 26]
+    }
+    df = pd.DataFrame(static, columns = ['Country', 'Reading', 'Math', 'Science'])
     # 2- - create location column
-    df[['longitude','latitude']] = df.apply(lambda row: pd.Series(geocode_address(row['Geographic area'])), axis=1)
+    df[["longitude", "latitude"]] = df.apply(
+        lambda row: pd.Series(geocode_address(row["Country"])), axis=1
+    )
 
     fig = px.scatter_mapbox(
         df,
-        lat='latitude',
-        lon='longitude',
-        size="OBS_VALUE",
-        text="Geographic area",
-        color="OBS_VALUE",
+        lat="latitude",
+        lon="longitude",
+        size="Reading",
+        text="Country",
+        color="Reading",
         color_continuous_scale=px.colors.sequential.Jet,
-        size_max=25, 
-        zoom=2
+        size_max=30,
+        zoom=2.5,
+        title='Percentage of students performing below level 2/basic proficiency in all 3 subjects'
     )
-    
+
     return fig
 
 
 # Selectors -> maths graph
 @app.callback(
     Output("maths_graph", "figure"),
-    [
-        Input("year_slider", "value"),
-        Input("maths-xaxis-column", "value"),
-    ],
-#     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+    [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_maths_figure(year_slider, xaxis):
-    indicator = 'EDU_SDG_STU_L2_MATH'
-    dff = data
-    fig = go.Figure()
-    fig.add_trace(
-            go.Bar(
-                x=years,
-                y=data[data['CODE'] == indicator]['OBS_VALUE'],
-                name=indicators_dict[indicator]['name'],
-            ),
-        )
-    if xaxis:
-        for value in xaxis:
-            fig.add_trace(
-                go.Bar(
-                    x=years,
-                    y=data[data['CODE'] == value]['OBS_VALUE'],
-                    name=data[data['CODE'] == value]['Indicator'].unique()[0],
-                ),
-            )
-    fig.update_layout(
-        title='Maths',
-#         xaxis_tickfont_size=14,
-        yaxis=dict(
-            title='Proportion in %',
-#             titlefont_size=16,
-#             tickfont_size=14,
-        ),
-        legend=dict(
-            orientation="h",
-            y=-0.2
-        ),
+    indicator = xaxis
+
+    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    df = data[(data["CODE"] == indicator) & (data['Sex'] != 'Total')].groupby(
+        ['CODE', 'Indicator', 'Geographic area', 'Sex']
+    ).agg({'TIME_PERIOD': 'last', 'OBS_VALUE': 'last'}).reset_index()
+    # fig = go.Figure()
+    # fig.add_trace(
+    #     go.Bar(
+    #         x=years,
+    #         y=data[data["CODE"] == indicator]["OBS_VALUE"],
+    #         name=data[data["CODE"] == indicator]["Indicator"].unique()[0],
+    #     ),
+    # )
+    # if xaxis:
+    #     for value in xaxis:
+    #         fig.add_trace(
+    #             go.Bar(
+    #                 x=years,
+    #                 y=data[data["CODE"] == value]["OBS_VALUE"],
+    #                 name=data[data["CODE"] == value]["Indicator"].unique()[0],
+    #             ),
+    #         )
+
+    fig = px.bar(
+        df, 
+        x="Geographic area", 
+        y="OBS_VALUE", 
+        color='Sex', 
         barmode='group',
-#         bargap=0.15, # gap between bars of adjacent location coordinates.
-#         bargroupgap=0.1 # gap between bars of the same location coordinate.
+        title=name,
+        text="TIME_PERIOD"
+        # range_y=[0, 100]
+        # height=400
     )
 
-    
-#     figure = dict(data=traces, layout=layout)
+    # fig.update_layout(
+    #     title="Maths",
+    #     #         xaxis_tickfont_size=14,
+    #     yaxis=dict(
+    #         title="Proportion in %",
+    #         #             titlefont_size=16,
+    #         #             tickfont_size=14,
+    #     ),
+    #     legend=dict(orientation="h", y=-0.2),
+    #     barmode="group",
+    #     #         bargap=0.15, # gap between bars of adjacent location coordinates.
+    #     #         bargroupgap=0.1 # gap between bars of the same location coordinate.
+    # )
+
+    #     figure = dict(data=traces, layout=layout)
     return fig
 
 
 # Selectors -> reading graph
 @app.callback(
     Output("reading_graph", "figure"),
-    [
-        Input("year_slider", "value"),
-        Input("reading-xaxis-column", "value"),
-    ],
-#     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+    [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_reading_figure(year_slider, xaxis):
-    indicator = 'EDU_SDG_STU_L2_READING'
-    dff = data
+    indicator = xaxis
+    compare = "Sex"
+
+    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    df = data[(data["CODE"] == indicator) & (data['Sex'] != 'Total')].groupby(
+            ['CODE', 'Indicator', 'TIME_PERIOD', 'Geographic area']
+    ).agg({'TIME_PERIOD':'last', 'OBS_VALUE': 'mean'}).reset_index()
+    df = df.set_index('TIME_PERIOD')
+
     fig = go.Figure()
-    fig.add_trace(
+    for country in data['Geographic area'].unique():
+        fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
-                name=indicators_dict[indicator]['name'],
+                name=country,
                 x=years,
-                y=data[data['CODE'] == indicator]['OBS_VALUE'],
-                line=dict(shape="spline", smoothing=1.3, width=1, color="#fac1b7"),
+                y=df[df['Geographic area'] == country]["OBS_VALUE"],
+                line=dict(shape="spline", smoothing=1.3, width=1),
                 marker=dict(symbol="diamond-open"),
+                
             ),
         )
-    if xaxis:
-        for value in xaxis:
-            fig.add_trace(
-                go.Scatter(
-                    mode="lines+markers",
-                        name=data[data['CODE'] == value]['Indicator'].unique()[0],
-                        x=years,
-                        y=data[data['CODE'] == value]['OBS_VALUE'],
-                        line=dict(shape="spline", smoothing=1.3, width=1),
-                        marker=dict(symbol="diamond-open"),
-                ),
-            )
+
     fig.update_layout(
-        title='Reading',
-#         xaxis_tickfont_size=14,
+        title=name,
+        
+        #         xaxis_tickfont_size=14,
         yaxis=dict(
-            title='Proportion in %',
-#             titlefont_size=16,
-#             tickfont_size=14,
+            title="Proportion in %",
+            #             titlefont_size=16,
+            #             tickfont_size=14,
         ),
-        legend=dict(
-            orientation="h",
-            y=-0.2
-        ),
-#         barmode='group',
-#         bargap=0.15, # gap between bars of adjacent location coordinates.
-#         bargroupgap=0.1 # gap between bars of the same location coordinate.
+        # legend=dict(orientation="h", y=-0.2),
+        #         barmode='group',
+        #         bargap=0.15, # gap between bars of adjacent location coordinates.
+        #         bargroupgap=0.1 # gap between bars of the same location coordinate.
     )
-#     figure = dict(data=traces, layout=layout)
+    #     figure = dict(data=traces, layout=layout)
     return fig
+
 
 # Selectors -> reading graph
 @app.callback(
     Output("pie_graph", "figure"),
-    [
-        Input("year_slider", "value"),
-    ],
-#     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+    [Input("year_slider", "value"),],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_compare_figure(year_slider):
     import plotly.figure_factory as ff
 
     # Group data together
     hist_data = [
-        data[data['CODE'] == 'EDU_SDG_STU_L1_GLAST_MATH']['OBS_VALUE'],
-        data[data['CODE'] == 'EDU_SDG_STU_L1_GLAST_READING']['OBS_VALUE'],
+        data[data["CODE"] == "EDU_SDG_STU_L1_GLAST_MATH"]["OBS_VALUE"],
+        data[data["CODE"] == "EDU_SDG_STU_L1_GLAST_READING"]["OBS_VALUE"],
     ]
 
     group_labels = [
-        'Proportion of children at the end of primary education reaching minimum proficiency in math', 
-        'Proportion of children at the end of primary education reaching minimum proficiency in reading'
+        "Proportion of children at the end of primary education reaching minimum proficiency in math",
+        "Proportion of children at the end of primary education reaching minimum proficiency in reading",
     ]
 
     # Create distplot with custom bin_size
     fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
-    
+
     return fig
