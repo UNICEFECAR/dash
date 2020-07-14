@@ -20,27 +20,43 @@ from ..app import app, mapbox_access_token, geocoder, sdmx_url
 indicators_dict = {
     "EDU_SDG_STU_L2_MATH": {
         "name": "Proportion of children at the end of lower secondary education reaching minimum proficiency in math",
-        "compare": [
-            "EDU_SDG_STU_L2_READING",
-            "EDU_SDG_STU_L1_GLAST_MATH",
-            "EDU_SDG_STU_L1_G2OR3_MATH",
-            "EDUNF_NERA_L2",
-        ],
+        "compare": {
+            "EDU_SDG_STU_L2_READING": "Proportion of children at the end of lower secondary education reaching minimum proficiency in reading",
+            "EDU_SDG_STU_L1_GLAST_MATH": "Proportion of children at the end of primary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_G2OR3_MATH": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+            "EDUNF_NERA_L2": "Adjusted net enrolment: lower secondary",
+        },
     },
     "EDU_SDG_STU_L2_READING": {
         "name": "Proportion of children at the end of lower secondary education reaching minimum proficiency in reading",
-        "compare": [
-            "EDUNF_ROFST_L2",
-            "EDU_SDG_STU_L2_MATH",
-            "EDU_SDG_STU_L1_GLAST_READING",
-            "EDU_SDG_STU_L1_G2OR3_READING",
-            "EDUNF_NERA_L2",
-        ],
+        "compare": {
+            "EDUNF_ROFST_L2": "Out of school children rate: Lower secondary education",
+            "EDU_SDG_STU_L2_MATH": "Proportion of children at the end of lower secondary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_GLAST_MATH": "Proportion of children at the end of primary education reaching minimum proficiency in math",
+            "EDU_SDG_STU_L1_G2OR3_READING": "Proportion of children in grade 2 or 3 reaching minimum proficiency in reading",
+            "EDUNF_NERA_L2": "Adjusted net enrolment: lower secondary",
+        },
     },
     "EDU_SDG_STU_L1_GLAST_MATH": {
         "name": "Proportion of children at the end of primary education reaching minimum proficiency in math",
-        "compare": ["EDU_SDG_STU_L1_GLAST_READING", "EDUNF_NERA_L1_PT"],
+        "compare": {
+            "EDU_SDG_STU_L1_GLAST_READING": "Proportion of children at the end of primary education reaching minimum proficiency in reading",
+            "EDUNF_NERA_L1_PT": "Adjusted net enrolment: primary education"
+        },
     },
+    "EDU_SDG_STU_L1_G2OR3_READING": {
+        "name": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+        "compare": {
+            "EDUNF_ROFST_L1": "Out of school children rate: Primary education"
+        },
+    },
+    "EDU_SDG_STU_L1_G2OR3_MATH": {
+        "name": "Proportion of children in grade 2 or 3 reaching minimum proficiency in math",
+        "compare": {
+            "EDU_SDG_STU_L1_GLAST_READING": "Proportion of children at the end of primary education reaching minimum proficiency in reading"
+        },
+    },
+    "EDU_SDG_GER_L01": {"compare": {}}
 }
 
 codes = [
@@ -82,6 +98,13 @@ years = [i for i in range(2008, 2020)]
 
 indicators = data["Indicator"].unique()
 
+reading = go.Figure(go.Indicator(
+    mode = "number",
+    value = data.query("CODE == 'EDU_SDG_STU_L2_READING' & Sex == 'Total'").mean(),
+    number = {'prefix': "$"},
+px.bar(
+    data.query("CODE == 'EDU_SDG_STU_L2_READING' & Sex == 'Total'").groupby(['Sex']).mean().reset_index(), 
+    x='Sex', y='OBS_VALUE', color='Sex', range_y=[0, 100], le)
 
 def indicator_card(indicator):
     mean_value = (
@@ -194,12 +217,12 @@ def get_layout(**kwargs):
                             ),
                             html.Br(),
                         ],
-                        id="right-column",
-                        # className="eight columns",
-                        width=8,
-                    ),
-                ],
                 # className="row flex-display",
+                        id="right-column",
+                                # className="eight columns",
+                        width=8
+                    ),
+                ]
             ),
             dbc.Row(
                 [
@@ -310,7 +333,7 @@ def geocode_address(address):
 
 
 # Slider -> count graph
-@app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
+@ app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
 def update_year_slider(count_graph_selected):
 
     if count_graph_selected is None:
@@ -342,7 +365,7 @@ def make_map(year_slider, country_selector):
         lambda row: pd.Series(geocode_address(row["Country"])), axis=1
     )
 
-    fig = px.scatter_mapbox(
+    fig=px.scatter_mapbox(
         df,
         lat="latitude",
         lon="longitude",
@@ -359,7 +382,7 @@ def make_map(year_slider, country_selector):
 
 
 # Selectors -> maths graph
-@app.callback(
+@ app.callback(
     Output("maths_graph", "figure"),
     [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
@@ -420,7 +443,7 @@ def make_maths_figure(year_slider, xaxis):
 
 
 # Selectors -> reading graph
-@app.callback(
+@ app.callback(
     Output("reading_graph", "figure"),
     [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
@@ -448,7 +471,6 @@ def make_reading_figure(year_slider, xaxis):
                 
             ),
         )
-
     fig.update_layout(
         title=name,
         
@@ -468,7 +490,7 @@ def make_reading_figure(year_slider, xaxis):
 
 
 # Selectors -> reading graph
-@app.callback(
+@ app.callback(
     Output("pie_graph", "figure"),
     [Input("year_slider", "value"),],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
