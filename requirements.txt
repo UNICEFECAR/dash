@@ -3,3 +3,4 @@ scipy
 jupyterlab
 jupyter-dash
 -e transmonee_dashboard
+mapbox
