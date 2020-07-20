@@ -99,15 +99,15 @@ indicators = data["Indicator"].unique()
 regions = [
     {
         "label": "Western Balkans",
-        "value": "Albania, Bosnia and Herzegovina, Kosovo, North Macedonia, Montenegro, Serbia",
+        "value": "Albania,Bosnia and Herzegovina,Kosovo,North Macedonia,Montenegro, Serbia",
     },
-    {"label": "EU countries of ECAR", "value": "Bulgaria, Croatia, Romania"},
-    {"label": "B+M+U", "value": "Belarus, Moldova, Ukraine"},
-    {"label": "Caucasus", "value": "Armenia, Azerbaijan, Georgia"},
+    {"label": "EU countries of ECAR", "value": "Bulgaria,Croatia,Romania"},
+    {"label": "B+M+U", "value": "Belarus,Moldova,Ukraine"},
+    {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
     {"label": "Turkey", "value": "Turkey"},
     {
         "label": "Central Asia",
-        "value": "Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan, Uzbekistan",
+        "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
     },
 ]
 
@@ -212,15 +212,14 @@ def get_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         dcc.Graph(id="count_graph"),
-                                        dbc.ButtonGroup(
-                                            [
-                                                dbc.Button("Left"),
-                                                dbc.Button("Middle"),
-                                                dbc.Button("Right"),
+                                        dcc.RadioItems(
+                                            id="subjet_radio",
+                                            options=[
+                                                {"label": "Reading", "value": "Reading"},
+                                                {"label": "Math", "value": "Math"},
+                                                {"label": "Science", "value": "Science"},
                                             ],
-                                            size="sm",
-                                            style='p'
-                                            
+                                            value="Reading",
                                         )
                                     ]
                                 ),
@@ -321,12 +320,8 @@ def get_layout(**kwargs):
             dbc.Row(
                 [
                     dbc.Col(
-                        [dcc.Graph(id="pie_graph")],
-                        className="pretty_container seven columns",
-                    ),
-                    dbc.Col(
-                        [dcc.Graph(id="aggregate_graph")],
-                        className="pretty_container five columns",
+                        [dcc.Graph(id="time_graph")],
+                        # className="pretty_container seven columns",
                     ),
                 ],
                 # className="row flex-display",
@@ -356,11 +351,22 @@ def update_year_slider(count_graph_selected):
 
 
 @app.callback(
-    Output("count_graph", "figure"),
-    [Input("year_slider", "value"), ],
+    Output("country_selector", "value"),
+    [Input("region_selector", "value")],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def make_map(year_slider, country_selector):
+def select_region(region):
+    if region:
+        return region.split(',')
+    else:
+        return [item["value"] for item in county_options]
+
+@app.callback(
+    Output("count_graph", "figure"),
+    [Input("subjet_radio", "value")],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+)
+def make_map(subject):
 
     px.set_mapbox_access_token(mapbox_access_token)
     static = {
@@ -395,9 +401,9 @@ def make_map(year_slider, country_selector):
         df,
         lat="latitude",
         lon="longitude",
-        size="Reading",
+        size=subject,
         text="Country",
-        color="Reading",
+        color=subject,
         color_continuous_scale=px.colors.sequential.Jet,
         size_max=30,
         zoom=2.5,
@@ -410,10 +416,14 @@ def make_map(year_slider, country_selector):
 # Selectors -> maths graph
 @app.callback(
     Output("maths_graph", "figure"),
-    [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
+    [
+        Input("year_slider", "value"),
+        Input("country_selector", "value"),
+        Input("maths-xaxis-column", "value"),
+    ],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def make_maths_figure(year_slider, xaxis):
+def make_maths_figure(year_slider, countries, xaxis):
     indicator = xaxis
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
@@ -422,6 +432,7 @@ def make_maths_figure(year_slider, xaxis):
             (data["CODE"] == indicator)
             & (data["Sex"] != "Total")
             & (data["TIME_PERIOD"].isin(years))
+            & (data["Geographic area"].isin(countries))
         ]
         .groupby(["CODE", "Indicator", "Geographic area", "Sex"])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
@@ -478,10 +489,14 @@ def make_maths_figure(year_slider, xaxis):
 # Selectors -> reading graph
 @app.callback(
     Output("reading_graph", "figure"),
-    [Input("year_slider", "value"), Input("maths-xaxis-column", "value"),],
+    [
+        Input("year_slider", "value"),
+        Input("country_selector", "value"),
+        Input("maths-xaxis-column", "value"),
+    ],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def make_reading_figure(year_slider, xaxis):
+def make_reading_figure(year_slider, countries, xaxis):
     indicator = xaxis
     compare = "Sex"
 
@@ -491,6 +506,7 @@ def make_reading_figure(year_slider, xaxis):
             (data["CODE"] == indicator)
             & (data["Sex"] != "Total")
             & (data["TIME_PERIOD"].isin(years))
+            & (data["Geographic area"].isin(countries))
         ]
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "mean"})
@@ -530,25 +546,50 @@ def make_reading_figure(year_slider, xaxis):
 
 # Selectors -> reading graph
 @app.callback(
-    Output("pie_graph", "figure"),
+    Output("time_graph", "figure"),
     [Input("year_slider", "value"),],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def make_compare_figure(year_slider):
-    import plotly.figure_factory as ff
+    
+    qutp = data[
+    (data["CODE"].isin([
+            "EDU_SDG_QUTP_L02",
+            "EDU_SDG_QUTP_L1",
+            "EDU_SDG_QUTP_L2",
+            "EDU_SDG_QUTP_L3",
+        ])) & (data["TIME_PERIOD"].isin(years))
+    ].groupby(["TIME_PERIOD", "Geographic area"]
+    ).agg({"OBS_VALUE": "mean"}
+    ).reset_index()
+    qutp['Indicator'] = 'Proportion of teachers qualified according to national standards'
 
-    # Group data together
-    hist_data = [
-        data[data["CODE"] == "EDU_SDG_STU_L1_GLAST_MATH"]["OBS_VALUE"],
-        data[data["CODE"] == "EDU_SDG_STU_L1_GLAST_READING"]["OBS_VALUE"],
-    ]
+    trtp = data[
+        (data["CODE"].isin([
+                "EDU_SDG_TRTP_L02",
+                "EDU_SDG_TRTP_L1",
+                "EDU_SDG_TRTP_L2",
+                "EDU_SDG_TRTP_L3",
+            ])) & (data["TIME_PERIOD"].isin(years))
+    ].groupby(["TIME_PERIOD", "Geographic area"]
+    ).agg({"OBS_VALUE": "mean"}
+    ).reset_index()
+    trtp['Indicator'] = 'Proportion of teachers who have received at least the minimum organized teacher training'
 
-    group_labels = [
-        "Proportion of children at the end of primary education reaching minimum proficiency in math",
-        "Proportion of children at the end of primary education reaching minimum proficiency in reading",
-    ]
+    df = qutp.append(trtp)
+    df.sort_values('TIME_PERIOD')
+    df.set_index('TIME_PERIOD')
 
-    # Create distplot with custom bin_size
-    fig = ff.create_distplot(hist_data, group_labels, bin_size=5)
+    fig = px.bar(
+        df, 
+        x="Geographic area", 
+        y="OBS_VALUE",
+        color="Indicator",
+        barmode="group",
+        animation_frame="TIME_PERIOD", 
+        animation_group="Geographic area",
+        range_y=[0,100]
+    )
+    fig.update_layout(legend=dict(orientation="h", yanchor="bottom",))
 
     return fig
