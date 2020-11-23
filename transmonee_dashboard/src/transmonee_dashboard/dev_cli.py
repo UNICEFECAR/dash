@@ -17,7 +17,7 @@ from .app import app
 @click.option(
     "-h",
     "--host",
-    default="127.0.0.1",
+    default="0.0.0.0",
     metavar="HOST",
     help=(
         "The hostname to listen on. Set this to '0.0.0.0' to have the server "

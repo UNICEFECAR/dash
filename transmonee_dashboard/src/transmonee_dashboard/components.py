@@ -18,10 +18,10 @@ def make_brand(**kwargs):
         children=dcc.Link(
             href=get_url(""),
             children=[
-                html.Img(
-                    src=get_url('/static/UNICEFLogo.png'),
-                    id="unicef-logo",
-                ),
+                # html.Img(
+                #     src=get_url('/static/UNICEFLogo.png'),
+                #     id="unicef-logo",
+                # ),
                 html.H1([fa("far fa-chart-bar"), server.config["TITLE"]]),
             ]
         ),
