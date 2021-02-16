@@ -22,6 +22,7 @@ app = create_dash(server)
 
 # define a cache instance
 #TODO: Move configuration to settings
+#TODO: for prod move to redis or similar
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'

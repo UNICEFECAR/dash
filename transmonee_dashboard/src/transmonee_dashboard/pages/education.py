@@ -1,4 +1,5 @@
 # Import required libraries
+import urllib
 import pickle
 import copy
 import pathlib
@@ -16,10 +17,7 @@ import plotly.express as px
 
 from ..app import app, cache, mapbox_access_token, geocoder, sdmx_url
 
-CARD_TEXT_STYLE = {
-    'textAlign': 'center',
-    'color': '#0074D9'
-}
+CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 # @cache.memoize
 def geocode_address(address):
@@ -27,6 +25,7 @@ def geocode_address(address):
     response = geocoder.forward(address)
     coords = response.json()["features"][0]["center"]
     return dict(longitude=coords[0], latitude=coords[1])
+
 
 px.set_mapbox_access_token(mapbox_access_token)
 static_data = {
@@ -51,28 +50,24 @@ static_data = {
     "Math": [42, 29, 58, 44, 31, 61, 49, 77, 50, 46, 61, 47, 40, 37, 36],
     "Science": [47, 24, 57, 47, 25, 64, 60, 77, 43, 48, 49, 44, 38, 25, 26],
 }
-main_graph_df = pd.DataFrame(static_data, columns=["Country", "Reading", "Math", "Science"])
+main_graph_df = pd.DataFrame(
+    static_data, columns=["Country", "Reading", "Math", "Science"]
+)
 
 
 def generate_map(title, data, options):
-    return px.scatter_mapbox(
-        data,
-        title=title,
-        **options
-    )
+    return px.scatter_mapbox(data, title=title, **options)
 
 
 codes = [
-    "EDU_SDG_STU_L2_MATH",
-    "EDU_SDG_STU_L2_READING",
-    "EDU_SDG_STU_L1_GLAST_MATH",
-    "EDU_SDG_STU_L1_G2OR3_MATH",
-    "EDU_SDG_STU_L1_GLAST_READING",
-    "EDU_SDG_STU_L1_G2OR3_READING",
-    "EDUNF_NERA_L2",
-    "EDUNF_NERA_L1_PT",
+    "EDU_SDG_STU_L2_GLAST_MAT",
+    "EDU_SDG_STU_L2_GLAST_REA",
+    "EDU_SDG_STU_L1_GLAST_MAT",
+    "EDU_SDG_STU_L1_G2OR3_MAT",
+    "EDU_SDG_STU_L1_GLAST_REA",
+    "EDU_SDG_STU_L1_G2OR3_REA",
     "EDU_SDG_GER_L01",
-    "EDUNF_LR_L02",
+    "EDUNF_PRP_L02",
     "EDUNF_ROFST_L2",
     "EDU_SDG_QUTP_L02",
     "EDU_SDG_QUTP_L1",
@@ -82,31 +77,41 @@ codes = [
     "EDU_SDG_TRTP_L1",
     "EDU_SDG_TRTP_L2",
     "EDU_SDG_TRTP_L3",
-    "EDUNF_ROFST_L1", 
-    "EDUNF_ROFST_L2", 
-    "EDUNF_ROFST_L3", 
-    "EDUNF_OFST_L1", 
-    "EDUNF_OFST_L2", 
+    "EDUNF_ROFST_L1",
+    "EDUNF_ROFST_L2",
+    "EDUNF_ROFST_L3",
+    "EDUNF_OFST_L1",
+    "EDUNF_OFST_L2",
     "EDUNF_OFST_L3",
-    "EDUNF_NERA_L1_GPIA",
     "EDUNF_NIR_L1_ENTRYAGE",
     "EDUNF_CR_L3",
     "EDUNF_NER_L02",
-    "EDUNF_NERA_L1_GPIA",
-    "EDUNF_NERA_L1_PT",
+    "EDUNF_NERA_L1_UNDER1",
+    "EDUNF_NERA_L1",
+    "EDUNF_NERA_L2",
     "EDUNF_GER_L1",
     "EDUNF_GER_L2",
-    "EDUNF_GER_L3_T",
+    "EDUNF_GER_L3",
     "EDUNF_NIR_L1_ENTRYAGE",
     "EDUNF_STU_L1_TOT",
     "EDUNF_STU_L2_TOT",
-    "EDUNF_STU_L3_TOT"
+    "EDUNF_STU_L3_TOT",
+    "EDU_SDG_SCH_L1",
+    "EDU_SDG_SCH_L2",
+    "EDU_SDG_SCH_L3",
+    "EDUNF_PRP_L02"
 ]
+
 
 data = pd.DataFrame()
 inds = set(codes)
 for ind in inds:
-    sdmx = pd.read_csv(sdmx_url.format(ind))
+    try:
+        sdmx = pd.read_csv(sdmx_url.format(ind))
+    except urllib.error.HTTPError as e:
+        print(ind)
+        raise e
+
     sdmx["CODE"] = ind
     data = data.append(sdmx)
 
@@ -116,8 +121,8 @@ data = data.merge(
     right=pd.DataFrame(
         [dict(country=country, **geocode_address(country)) for country in countries]
     ),
-    left_on='Geographic area',
-    right_on='country'
+    left_on="Geographic area",
+    right_on="country",
 )
 
 # Create controls
@@ -149,25 +154,45 @@ indicators_dict = {
     "PARTICIPATION": {
         "NAME": "Participation",
         "CARDS": [
-            {"name": "Out of School Total", "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3", "suffix": ""},
-            {"name": "Participation in organized learning", "indicator": "EDUNF_NERA_L1_GPIA", "suffix": "%"},
-            {"name": "Net Intake Rate", "indicator": "EDUNF_NIR_L1_ENTRYAGE", "suffix": "%"},
-            {"name": "Completion rate", "indicator": "EDUNF_CR_L3", "suffix": "%"}
+            {
+                "name": "Out of School Total",
+                "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "",
+            },
+            {
+                "name": "Participation in organized learning",
+                "indicator": "EDUNF_NERA_L1_GPIA",
+                "suffix": "%",
+            },
+            {
+                "name": "Entry to primary education",
+                "indicator": "EDUNF_NIR_L1_ENTRYAGE",
+                "suffix": "%",
+            },
+            {
+                "name": "Out of school children rate",
+                "indicator": "EDUNF_ROFST_L3",
+                "suffix": "%",
+            },
         ],
         "MAIN": {
             "name": "Out of School Children",
             "data": data[
-                data["CODE"].isin([
-                    "EDUNF_ROFST_L1", 
-                    "EDUNF_ROFST_L2", 
-                    "EDUNF_ROFST_L3", 
-                    "EDUNF_OFST_L1", 
-                    "EDUNF_OFST_L2", 
-                    "EDUNF_OFST_L3"]
-                ) & data["TIME_PERIOD"].isin(years)
-            ].groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"]
-            ).agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"}
-            ).reset_index(),
+                data["CODE"].isin(
+                    [
+                        "EDUNF_ROFST_L1",
+                        "EDUNF_ROFST_L2",
+                        "EDUNF_ROFST_L3",
+                        "EDUNF_OFST_L1",
+                        "EDUNF_OFST_L2",
+                        "EDUNF_OFST_L3",
+                    ]
+                )
+                & data["TIME_PERIOD"].isin(years)
+            ]
+            .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
+            .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+            .reset_index(),
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -179,73 +204,113 @@ indicators_dict = {
                 size_max=40,
                 zoom=3,
                 animation_frame="TIME_PERIOD",
-                height=750
+                height=750,
             ),
             "indicators": [
-                "EDUNF_ROFST_L1", 
-                "EDUNF_ROFST_L2", 
-                "EDUNF_ROFST_L3", 
-                "EDUNF_OFST_L1", 
-                "EDUNF_OFST_L2", 
-                "EDUNF_OFST_L3"
-            ]
+                "EDUNF_ROFST_L1",
+                "EDUNF_ROFST_L2",
+                "EDUNF_ROFST_L3",
+                "EDUNF_OFST_L1",
+                "EDUNF_OFST_L2",
+                "EDUNF_OFST_L3",
+            ],
         },
         "LEFT": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD"
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
+                "EDUNF_ROFST_L1",
+                "EDUNF_ROFST_L2",
+                "EDUNF_ROFST_L3",
                 "EDUNF_STU_L1_TOT",
                 "EDUNF_STU_L2_TOT",
-                "EDUNF_STU_L3_TOT"
-            ] 
+                "EDUNF_STU_L3_TOT",
+                "EDUNF_NER_L02",
+                "EDUNF_NERA_L1_UNDER1",
+                "EDUNF_NERA_L1",
+                "EDUNF_NERA_L2",
+                "EDUNF_GER_L1",
+                "EDUNF_GER_L2",
+                "EDUNF_GER_L3",
+                "EDUNF_NIR_L1_ENTRYAGE",
+            ],
+            "default": "EDUNF_ROFST_L3"
         },
         "RIGHT": {
             "type": "line",
             "options": dict(
                 x="TIME_PERIOD",
                 y="OBS_VALUE",
-                color="Geographic area", 
+                color="Geographic area",
                 hover_name="Geographic area",
                 line_shape="spline",
-                render_mode="svg"
+                render_mode="svg",
             ),
-            "trace_options": dict(
-                mode="lines+markers"
-            ),
+            "trace_options": dict(mode="lines+markers"),
             "compare": "Sex",
             "indicators": [
+                "EDUNF_ROFST_L1",
+                "EDUNF_ROFST_L2",
+                "EDUNF_ROFST_L3",
+                "EDUNF_STU_L1_TOT",
+                "EDUNF_STU_L2_TOT",
+                "EDUNF_STU_L3_TOT",
                 "EDUNF_NER_L02",
-                "EDUNF_NERA_L1_GPIA",
-                "EDUNF_NERA_L1_PT",
+                "EDUNF_NERA_L1_UNDER1",
+                "EDUNF_NERA_L1",
+                "EDUNF_NERA_L2",
                 "EDUNF_GER_L1",
                 "EDUNF_GER_L2",
-                "EDUNF_GER_L3_T",
+                "EDUNF_GER_L3",
                 "EDUNF_NIR_L1_ENTRYAGE",
             ],
-            "data": data
-                .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
-                .agg({"OBS_VALUE": "mean"})
-                .reset_index() 
-        }
+            "default": "EDUNF_ROFST_L3",
+            "data": data.groupby(
+                ["CODE", "Indicator", "Geographic area", "TIME_PERIOD"]
+            )
+            .agg({"OBS_VALUE": "mean"})
+            .reset_index(),
+        },
+        "AREA_3": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            ),
+            "compare": "Sex",
+            "indicators": ["EDU_SDG_SCH_L1", "EDU_SDG_SCH_L2", "EDU_SDG_SCH_L3",],
+        },
     },
     "QUALITY": {
         "NAME": "Learning Quality",
         "CARDS": [
-            {"name": "Proficiency in Math", "indicator": "EDU_SDG_STU_L2_MATH", "suffix": "%"},
-            {"name": "Proficiency in Reading", "indicator": "EDU_SDG_STU_L2_READING", "suffix": "%"},
-            {"name": "Youth/adult literacy rate", "indicator": "EDUNF_LR_L02", "suffix": "%"},
-            {"name": "Childhood Educational Development", "indicator": "EDU_SDG_GER_L01", "suffix": "%"}
+            {
+                "name": "Proficiency in Math",
+                "indicator": "EDU_SDG_STU_L2_MATH",
+                "suffix": "%",
+            },
+            {
+                "name": "Proficiency in Reading",
+                "indicator": "EDU_SDG_STU_L2_READING",
+                "suffix": "%",
+            },
+            {
+                "name": "Youth/adult literacy rate",
+                "indicator": "EDUNF_LR_L02",
+                "suffix": "%",
+            },
+            {
+                "name": "Childhood Educational Development",
+                "indicator": "EDU_SDG_GER_L01",
+                "suffix": "%",
+            },
         ],
         "MAIN": {
             "name": "Percentage of students performing below level 2/basic proficiency in all 3 subjects",
             "data": pd.DataFrame(
-                    {
+                {
                     "Country": [
                         "Albania",
                         "Belarus",
@@ -263,11 +328,59 @@ indicators_dict = {
                         "Turkey",
                         "Ukraine",
                     ],
-                    "Reading": [52, 23, 54, 47, 22, 64, 64, 79, 43, 44, 55, 41, 38, 26, 26],
-                    "Math": [42, 29, 58, 44, 31, 61, 49, 77, 50, 46, 61, 47, 40, 37, 36],
-                    "Science": [47, 24, 57, 47, 25, 64, 60, 77, 43, 48, 49, 44, 38, 25, 26],
-                }, 
-                columns=["Country", "Reading", "Math", "Science"]
+                    "Reading": [
+                        52,
+                        23,
+                        54,
+                        47,
+                        22,
+                        64,
+                        64,
+                        79,
+                        43,
+                        44,
+                        55,
+                        41,
+                        38,
+                        26,
+                        26,
+                    ],
+                    "Math": [
+                        42,
+                        29,
+                        58,
+                        44,
+                        31,
+                        61,
+                        49,
+                        77,
+                        50,
+                        46,
+                        61,
+                        47,
+                        40,
+                        37,
+                        36,
+                    ],
+                    "Science": [
+                        47,
+                        24,
+                        57,
+                        47,
+                        25,
+                        64,
+                        60,
+                        77,
+                        43,
+                        48,
+                        49,
+                        44,
+                        38,
+                        25,
+                        26,
+                    ],
+                },
+                columns=["Country", "Reading", "Math", "Science"],
             ),
             "geo": "Country",
             "options": dict(
@@ -279,7 +392,7 @@ indicators_dict = {
                 color_continuous_scale=px.colors.sequential.Jet,
                 size_max=40,
                 zoom=2.5,
-                height=750
+                height=750,
             ),
         },
         "LEFT": {
@@ -289,7 +402,7 @@ indicators_dict = {
                 y="OBS_VALUE",
                 color="Sex",
                 barmode="group",
-                text="TIME_PERIOD"
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -299,7 +412,7 @@ indicators_dict = {
                 "EDU_SDG_STU_L1_G2OR3_MATH",
                 "EDU_SDG_STU_L1_GLAST_READING",
                 "EDU_SDG_STU_L1_G2OR3_READING",
-            ] 
+            ],
         },
         "RIGHT": {
             "type": "bar",
@@ -308,7 +421,7 @@ indicators_dict = {
                 y="OBS_VALUE",
                 color="Sex",
                 barmode="group",
-                text="TIME_PERIOD"
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -319,36 +432,42 @@ indicators_dict = {
                 "EDUNF_NERA_L2",
             ],
             "data": data[data["Sex"] != "Total"]
-                .groupby(["CODE", "Indicator", "Geographic area", "Sex"])
-                .agg({"TIME_PERIOD":"last", "OBS_VALUE": "last"})
-                .reset_index() 
-            
-        }
+            .groupby(["CODE", "Indicator", "Geographic area", "Sex"])
+            .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+            .reset_index(),
+        },
     },
-    
 }
 
+
 def indicator_card(name, indicator, suffix):
-    
-    indicator = indicator.split(',')
+
+    indicator = indicator.split(",")
     mean_value = (
         data[data["CODE"].isin(indicator)]
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])["OBS_VALUE"]
         .tail(1)
-        .mean().astype(int)
+        .mean()
     )
-    label = data[data["CODE"].isin(indicator)]["Indicator"].unique()[0] if len(data[data["CODE"].isin(indicator)]["Indicator"].unique()) else "None"
+    label = (
+        data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
+        if len(data[data["CODE"].isin(indicator)]["Indicator"].unique())
+        else "None"
+    )
     card = dbc.Card(
         [
             dbc.CardHeader(name),
             dbc.CardBody(
                 [
-                    html.H4("{}{}".format(mean_value, suffix), style={
-                        'fontSize': 40,
-                        'textAlign': 'center',
-                        'color': '#0074D9'
-                    }), 
-                    html.P(label, className="card-text", style=CARD_TEXT_STYLE)
+                    html.H4(
+                        "{:.0f}{}".format(mean_value, suffix),
+                        style={
+                            "fontSize": 40,
+                            "textAlign": "center",
+                            "color": "#0074D9",
+                        },
+                    ),
+                    html.P(label, className="card-text", style=CARD_TEXT_STYLE),
                 ]
             ),
         ],
@@ -373,13 +492,13 @@ def get_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         html.P(
-                                            "Select theme:",
-                                            className="control_label",
+                                            "Select theme:", className="control_label",
                                         ),
                                         dcc.Dropdown(
                                             id="theme_selector",
                                             options=[
-                                                {"label": value['NAME'], "value": key} for key,value in indicators_dict.items()
+                                                {"label": value["NAME"], "value": key}
+                                                for key, value in indicators_dict.items()
                                             ],
                                             value=list(indicators_dict.keys())[0],
                                             className="dcc_control",
@@ -430,14 +549,11 @@ def get_layout(**kwargs):
                         width=4,
                     ),
                     # end controls
-
                     # start cards and main graph
                     dbc.Col(
                         [
                             dbc.Row(
-                                [
-                                    
-                                ],
+                                [],
                                 id="cards_row"
                                 # className="mb-4",
                             ),
@@ -455,7 +571,6 @@ def get_layout(**kwargs):
                                 # id="countGraphContainer",
                                 className="pretty_container",
                             ),
-                            html.Br(),
                         ],
                         # className="row flex-display",
                         id="right-column",
@@ -466,7 +581,7 @@ def get_layout(**kwargs):
                 ]
             ),
             # end first row
-
+            html.Br(),
             dbc.Row(
                 [
                     dbc.Col(
@@ -482,6 +597,11 @@ def get_layout(**kwargs):
                                             id="left_xaxis_column",
                                             className="dcc_control",
                                         ),
+                                        dcc.RadioItems(
+                                            id="left_graph_options",
+                                            className="dcc_control",
+                                            labelStyle = {"display": "inline-block"},
+                                        )
                                     ]
                                 )
                             ),
@@ -502,6 +622,15 @@ def get_layout(**kwargs):
                                             id="right_xaxis_column",
                                             className="dcc_control",
                                         ),
+                                        dcc.RadioItems(
+                                            id="right_graph_options",
+                                            className="dcc_control",
+                                            labelStyle = {"display": "inline-block"},
+                                            options=[
+                                                {"label": "Line", "value": "line"},
+                                                {"label": "Bar", "value": "bar"}
+                                            ]
+                                        )
                                     ]
                                 )
                             ),
@@ -512,15 +641,52 @@ def get_layout(**kwargs):
                 ],
                 # className="row flex-display",
             ),
+            html.Br(),
             dbc.Row(
                 [
                     dbc.Col(
-                        [dcc.Graph(id="time_graph")],
-                        # className="pretty_container seven columns",
+                        [
+                            dbc.Card(
+                                dbc.CardBody(
+                                    [
+                                        html.Div(
+                                            [dcc.Graph(id="area_3")],
+                                            className="pretty_container",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="area_3_xaxis_column",
+                                            className="dcc_control",
+                                        ),
+                                    ]
+                                )
+                            ),
+                        ],
+                        # className="six columns",
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            dbc.Card(
+                                dbc.CardBody(
+                                    [
+                                        html.Div(
+                                            [dcc.Graph(id="area_4_graph")],
+                                            className="pretty_container",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="area_4_xaxis_column",
+                                            className="dcc_control",
+                                        ),
+                                    ]
+                                )
+                            ),
+                        ],
+                        # className="six columns",
+                        width=6,
                     ),
                 ],
-                # className="row flex-display",
             ),
+            html.Br(),
         ],
     )
 
@@ -532,7 +698,7 @@ def get_layout(**kwargs):
 )
 def select_region(region):
     if region:
-        return region.split(',')
+        return region.split(",")
     else:
         return [item["value"] for item in county_options]
 
@@ -545,29 +711,22 @@ def select_region(region):
 def show_cards(theme):
 
     return [
-        dbc.Col(indicator_card(card["name"], card["indicator"], card["suffix"])) 
+        dbc.Col(indicator_card(card["name"], card["indicator"], card["suffix"]))
         for card in indicators_dict[theme]["CARDS"]
     ]
 
 
 @app.callback(
     Output("main_indicators", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     # [State("left-xaxis-column", "value")],
 )
 def main_options(theme):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
-            data["CODE"].isin(
-                indicators_dict[theme]["MAIN"]["indicators"]
-            )
+            data["CODE"].isin(indicators_dict[theme]["MAIN"]["indicators"])
         ][["CODE", "Indicator"]]
         .drop_duplicates()
         .to_dict("records")
@@ -580,7 +739,7 @@ def main_options(theme):
         Input("theme_selector", "value"),
         Input("year_slider", "value"),
         Input("country_selector", "value"),
-        Input("main_indicators", "value")
+        Input("main_indicators", "value"),
     ],
     # [State("main_graph", "figure")],
 )
@@ -597,37 +756,64 @@ def make_map(theme, years, countries, indicator):
 
         df = df[df["CODE"] == indicator]
 
-    return generate_map(
-        name,
-        df,
-        options
-    )
+    return generate_map(name, df, options)
 
 
 # Selectors -> left graph
 @app.callback(
     Output("left_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     # [State("left-xaxis-column", "value")],
 )
-def left_options(theme):
+def left_indicators(theme):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
-            data["CODE"].isin(
-                indicators_dict[theme]["LEFT"]["indicators"]
-            )
+            data["CODE"].isin(indicators_dict[theme]["LEFT"]["indicators"])
         ][["CODE", "Indicator"]]
         .drop_duplicates()
         .to_dict("records")
     ]
 
+@app.callback(
+    Output("left_xaxis_column", "value"),
+    [
+        Input("theme_selector", "value"),
+        Input("left_xaxis_column", "options"),
+    ],
+    # [State("left-xaxis-column", "value")],
+)
+def left_indicators_value(theme, options):
+
+    code = indicators_dict[theme]["LEFT"]["default"]
+    return next(item for item in options if item["value"] == code)["value"]
+
+
+# Selectors -> left graph
+@app.callback(
+    Output("left_graph_options", "options"),
+    [Input("left_xaxis_column", "value"),],
+    # [State("left-xaxis-column", "value")],
+)
+def left_options(indicator):
+
+    options = []
+
+    for item in [
+        {"label": "Total", "value": "Total"},
+        {"label": "Sex", "value": "Sex"},
+        {"label": "Residence", "value": "Residence"},
+        {"label": "Wealth Quintile", "value": "Wealth Quintile"},
+    ]:
+        if not data[
+            (data["CODE"] == indicator)
+            & (data[item['value']] != "Total")
+        ].empty:
+            options.append(item)
+    
+    return options
+    
 
 # Selectors -> left graph
 @app.callback(
@@ -637,15 +823,17 @@ def left_options(theme):
         Input("year_slider", "value"),
         Input("country_selector", "value"),
         Input("left_xaxis_column", "value"),
+        Input("left_graph_options", "value"),
     ],
-    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+    # [State("left_xaxis_column", "value")],
 )
-def left_figure(theme, year_slider, countries, xaxis):
-    
+def left_figure(theme, year_slider, countries, xaxis, compare):
+
     fig_type = indicators_dict[theme]["LEFT"]["type"]
-    compare = indicators_dict[theme]["LEFT"]["compare"]
     options = indicators_dict[theme]["LEFT"]["options"]
-    indicator = xaxis if xaxis else indicators_dict[theme]["LEFT"]["indicators"][0]
+
+    compare = compare if compare else indicators_dict[theme]["LEFT"]["compare"]
+    indicator = xaxis if xaxis else indicators_dict[theme]["LEFT"]["default"]
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
@@ -664,28 +852,21 @@ def left_figure(theme, year_slider, countries, xaxis):
     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-
+    fig.update_xaxes(categoryorder='total descending')
     return fig
 
 
 @app.callback(
     Output("right_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     # [State("left-xaxis-column", "value")],
 )
 def right_options(theme):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
-            data["CODE"].isin(
-                indicators_dict[theme]["RIGHT"]["indicators"]
-            )
+            data["CODE"].isin(indicators_dict[theme]["RIGHT"]["indicators"])
         ][["CODE", "Indicator"]]
         .drop_duplicates()
         .to_dict("records")
@@ -705,7 +886,7 @@ def right_options(theme):
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def right_figure(theme, year_slider, countries, left_selected, right_selected):
-    
+
     fig_type = indicators_dict[theme]["RIGHT"]["type"]
     compare = indicators_dict[theme]["RIGHT"]["compare"]
     options = indicators_dict[theme]["RIGHT"]["options"]
@@ -713,16 +894,14 @@ def right_figure(theme, year_slider, countries, left_selected, right_selected):
     indicators = indicators_dict[theme]["RIGHT"]["indicators"]
     df = indicators_dict[theme]["RIGHT"]["data"]
 
-
     indicator = right_selected if right_selected else left_selected or indicators[0]
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = df[
-            (df["CODE"] == indicator)
-            & (df["TIME_PERIOD"].isin(years[slice(*year_slider)]))
-            & (df["Geographic area"].isin(countries))
-        ]
-        
+        (df["CODE"] == indicator)
+        & (df["TIME_PERIOD"].isin(years[slice(*year_slider)]))
+        & (df["Geographic area"].isin(countries))
+    ]
 
     options["title"] = name
 
@@ -747,52 +926,58 @@ def right_figure(theme, year_slider, countries, left_selected, right_selected):
     return fig
 
 
+# Selectors -> left graph
+@app.callback(
+    Output("area_3_xaxis_column", "options"),
+    [Input("theme_selector", "value"),],
+    # [State("left-xaxis-column", "value")],
+)
+def area_3_options(theme):
+
+    return [
+        {"label": item["Indicator"], "value": item["CODE"],}
+        for item in data[
+            data["CODE"].isin(indicators_dict[theme]["AREA_3"]["indicators"])
+        ][["CODE", "Indicator"]]
+        .drop_duplicates()
+        .to_dict("records")
+    ]
+
+
 # Selectors -> reading graph
 @app.callback(
-    Output("time_graph", "figure"),
-    [Input("year_slider", "value"),],
+    Output("area_3", "figure"),
+    [
+        Input("theme_selector", "value"),
+        Input("year_slider", "value"),
+        Input("country_selector", "value"),
+        Input("area_3_xaxis_column", "value"),
+    ],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def make_compare_figure(year_slider):
-    
-    qutp = data[
-    (data["CODE"].isin([
-            "EDU_SDG_QUTP_L02",
-            "EDU_SDG_QUTP_L1",
-            "EDU_SDG_QUTP_L2",
-            "EDU_SDG_QUTP_L3",
-        ])) & (data["TIME_PERIOD"].isin(years))
-    ].groupby(["TIME_PERIOD", "Geographic area"]
-    ).agg({"OBS_VALUE": "mean"}
-    ).reset_index()
-    qutp['Indicator'] = 'Proportion of teachers qualified according to national standards'
+def area_3_figure(theme, year_slider, countries, xaxis):
 
-    trtp = data[
-        (data["CODE"].isin([
-                "EDU_SDG_TRTP_L02",
-                "EDU_SDG_TRTP_L1",
-                "EDU_SDG_TRTP_L2",
-                "EDU_SDG_TRTP_L3",
-            ])) & (data["TIME_PERIOD"].isin(years))
-    ].groupby(["TIME_PERIOD", "Geographic area"]
-    ).agg({"OBS_VALUE": "mean"}
-    ).reset_index()
-    trtp['Indicator'] = 'Proportion of teachers who have received at least the minimum organized teacher training'
+    fig_type = indicators_dict[theme]["AREA_3"]["type"]
+    compare = indicators_dict[theme]["AREA_3"]["compare"]
+    options = indicators_dict[theme]["AREA_3"]["options"]
+    indicator = xaxis if xaxis else indicators_dict[theme]["AREA_3"]["indicators"][0]
 
-    df = qutp.append(trtp)
-    df.sort_values('TIME_PERIOD')
-    df.set_index('TIME_PERIOD')
-
-    fig = px.bar(
-        df, 
-        x="Geographic area", 
-        y="OBS_VALUE",
-        color="Indicator",
-        barmode="group",
-        animation_frame="TIME_PERIOD", 
-        animation_group="Geographic area",
-        range_y=[0,100]
+    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    df = (
+        data[
+            (data["CODE"] == indicator)
+            # & (data[compare] != "Total")
+            & (data["TIME_PERIOD"].isin(years[slice(*year_slider)]))
+            & (data["Geographic area"].isin(countries))
+        ]
+        .groupby(["CODE", "Indicator", "Geographic area", compare])
+        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+        .reset_index()
     )
-    fig.update_layout(legend=dict(orientation="h", yanchor="bottom",))
 
+    options["title"] = name
+    options["color"] = compare
+
+    fig = getattr(px, fig_type)(df, **options)
+    fig.update_xaxes(categoryorder='total descending')
     return fig
