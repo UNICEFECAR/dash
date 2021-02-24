@@ -99,7 +99,7 @@ codes = [
     "EDU_SDG_SCH_L1",
     "EDU_SDG_SCH_L2",
     "EDU_SDG_SCH_L3",
-    "EDUNF_PRP_L02"
+    "EDUNF_PRP_L02",
 ]
 
 
@@ -161,7 +161,7 @@ indicators_dict = {
             },
             {
                 "name": "Participation in organized learning",
-                "indicator": "EDUNF_NERA_L1_GPIA",
+                "indicator": "EDUNF_NERA_L1_UNDER1",
                 "suffix": "%",
             },
             {
@@ -218,7 +218,10 @@ indicators_dict = {
         "LEFT": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -237,7 +240,7 @@ indicators_dict = {
                 "EDUNF_GER_L3",
                 "EDUNF_NIR_L1_ENTRYAGE",
             ],
-            "default": "EDUNF_ROFST_L3"
+            "default": "EDUNF_ROFST_L3",
         },
         "RIGHT": {
             "type": "line",
@@ -280,7 +283,11 @@ indicators_dict = {
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
             ),
             "compare": "Sex",
-            "indicators": ["EDU_SDG_SCH_L1", "EDU_SDG_SCH_L2", "EDU_SDG_SCH_L3",],
+            "indicators": [
+                "EDU_SDG_SCH_L1",
+                "EDU_SDG_SCH_L2",
+                "EDU_SDG_SCH_L3",
+            ],
         },
     },
     "QUALITY": {
@@ -492,7 +499,8 @@ def get_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         html.P(
-                                            "Select theme:", className="control_label",
+                                            "Select theme:",
+                                            className="control_label",
                                         ),
                                         dcc.Dropdown(
                                             id="theme_selector",
@@ -572,13 +580,13 @@ def get_layout(**kwargs):
                                 className="pretty_container",
                             ),
                         ],
-                        # className="row flex-display",
                         id="right-column",
                         # className="eight columns",
                         width=8,
                     ),
                     # end cards
-                ]
+                ],
+                className="row flex-display",
             ),
             # end first row
             html.Br(),
@@ -600,8 +608,8 @@ def get_layout(**kwargs):
                                         dcc.RadioItems(
                                             id="left_graph_options",
                                             className="dcc_control",
-                                            labelStyle = {"display": "inline-block"},
-                                        )
+                                            labelStyle={"display": "inline-block"},
+                                        ),
                                     ]
                                 )
                             ),
@@ -625,12 +633,12 @@ def get_layout(**kwargs):
                                         dcc.RadioItems(
                                             id="right_graph_options",
                                             className="dcc_control",
-                                            labelStyle = {"display": "inline-block"},
+                                            labelStyle={"display": "inline-block"},
                                             options=[
                                                 {"label": "Line", "value": "line"},
-                                                {"label": "Bar", "value": "bar"}
-                                            ]
-                                        )
+                                                {"label": "Bar", "value": "bar"},
+                                            ],
+                                        ),
                                     ]
                                 )
                             ),
@@ -639,7 +647,7 @@ def get_layout(**kwargs):
                         width=6,
                     ),
                 ],
-                # className="row flex-display",
+                className="row flex-display",
             ),
             html.Br(),
             dbc.Row(
@@ -718,13 +726,18 @@ def show_cards(theme):
 
 @app.callback(
     Output("main_indicators", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     # [State("left-xaxis-column", "value")],
 )
 def main_options(theme):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["MAIN"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -762,19 +775,25 @@ def make_map(theme, years, countries, indicator):
 # Selectors -> left graph
 @app.callback(
     Output("left_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     # [State("left-xaxis-column", "value")],
 )
 def left_indicators(theme):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["LEFT"]["indicators"])
         ][["CODE", "Indicator"]]
         .drop_duplicates()
         .to_dict("records")
     ]
+
 
 @app.callback(
     Output("left_xaxis_column", "value"),
@@ -793,7 +812,9 @@ def left_indicators_value(theme, options):
 # Selectors -> left graph
 @app.callback(
     Output("left_graph_options", "options"),
-    [Input("left_xaxis_column", "value"),],
+    [
+        Input("left_xaxis_column", "value"),
+    ],
     # [State("left-xaxis-column", "value")],
 )
 def left_options(indicator):
@@ -807,13 +828,12 @@ def left_options(indicator):
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
     ]:
         if not data[
-            (data["CODE"] == indicator)
-            & (data[item['value']] != "Total")
+            (data["CODE"] == indicator) & (data[item["value"]] != "Total")
         ].empty:
             options.append(item)
-    
+
     return options
-    
+
 
 # Selectors -> left graph
 @app.callback(
@@ -852,19 +872,24 @@ def left_figure(theme, year_slider, countries, xaxis, compare):
     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-    fig.update_xaxes(categoryorder='total descending')
+    fig.update_xaxes(categoryorder="total descending")
     return fig
 
 
 @app.callback(
     Output("right_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     # [State("left-xaxis-column", "value")],
 )
 def right_options(theme):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["RIGHT"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -929,13 +954,18 @@ def right_figure(theme, year_slider, countries, left_selected, right_selected):
 # Selectors -> left graph
 @app.callback(
     Output("area_3_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     # [State("left-xaxis-column", "value")],
 )
 def area_3_options(theme):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["AREA_3"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -979,5 +1009,5 @@ def area_3_figure(theme, year_slider, countries, xaxis):
     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-    fig.update_xaxes(categoryorder='total descending')
+    fig.update_xaxes(categoryorder="total descending")
     return fig
