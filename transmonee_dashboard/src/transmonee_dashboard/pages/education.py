@@ -7,6 +7,7 @@ import dash
 import math
 import datetime as dt
 import pandas as pd
+import numpy as np
 from dash.dependencies import Input, Output, State, ClientsideFunction
 import dash_core_components as dcc
 import dash_html_components as html
@@ -14,6 +15,7 @@ import dash_bootstrap_components as dbc
 
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 from ..app import app, cache, mapbox_access_token, geocoder, sdmx_url
 
@@ -84,7 +86,6 @@ codes = [
     "EDUNF_OFST_L2",
     "EDUNF_OFST_L3",
     "EDUNF_NIR_L1_ENTRYAGE",
-    "EDUNF_CR_L3",
     "EDUNF_NER_L02",
     "EDUNF_NERA_L1_UNDER1",
     "EDUNF_NERA_L1",
@@ -100,6 +101,14 @@ codes = [
     "EDU_SDG_SCH_L2",
     "EDU_SDG_SCH_L3",
     "EDUNF_PRP_L02",
+    "EDUNF_CR_L1",
+    "EDUNF_CR_L2",
+    "EDUNF_CR_L3",
+    "EDUNF_DR_L1",
+    "EDUNF_DR_L2",
+    "EDUNF_SAP_L02",
+    "EDUNF_SAP_L1T3",
+    "EDUNF_SAP_L2",
 ]
 
 
@@ -155,25 +164,29 @@ indicators_dict = {
         "NAME": "Participation",
         "CARDS": [
             {
-                "name": "Out of School Total",
+                "name": "Regional OOS rate (P+LS+US)",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
-                "suffix": "",
+                "denominator": "EDUNF_SAP_L1T3",
+                "suffix": "%",
+                "absolute": True,
             },
             {
                 "name": "Participation in organized learning",
-                "indicator": "EDUNF_NERA_L1_UNDER1",
+                "indicator": "EDUNF_NER_L02",
+                "denominator": "EDUNF_SAP_L02",
                 "suffix": "%",
             },
             {
                 "name": "Entry to primary education",
-                "indicator": "EDUNF_NIR_L1_ENTRYAGE",
+                "indicator": "EDUNF_CR_L2",
+                "denominator": "EDUNF_SAP_L2",
                 "suffix": "%",
             },
-            {
-                "name": "Out of school children rate",
-                "indicator": "EDUNF_ROFST_L3",
-                "suffix": "%",
-            },
+            # {
+            #     "name": "Out of school children rate",
+            #     "indicator": "EDUNF_ROFST_L3",
+            #     "suffix": "%",
+            # },
         ],
         "MAIN": {
             "name": "Out of School Children",
@@ -243,17 +256,29 @@ indicators_dict = {
             "default": "EDUNF_ROFST_L3",
         },
         "RIGHT": {
-            "type": "line",
-            "options": dict(
-                x="TIME_PERIOD",
-                y="OBS_VALUE",
-                color="Geographic area",
-                hover_name="Geographic area",
-                line_shape="spline",
-                render_mode="svg",
-            ),
-            "trace_options": dict(mode="lines+markers"),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "line",
             "indicators": [
                 "EDUNF_ROFST_L1",
                 "EDUNF_ROFST_L2",
@@ -271,11 +296,6 @@ indicators_dict = {
                 "EDUNF_NIR_L1_ENTRYAGE",
             ],
             "default": "EDUNF_ROFST_L3",
-            "data": data.groupby(
-                ["CODE", "Indicator", "Geographic area", "TIME_PERIOD"]
-            )
-            .agg({"OBS_VALUE": "mean"})
-            .reset_index(),
         },
         "AREA_3": {
             "type": "bar",
@@ -288,6 +308,37 @@ indicators_dict = {
                 "EDU_SDG_SCH_L2",
                 "EDU_SDG_SCH_L3",
             ],
+        },
+        "AREA_4": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": [
+                "EDUNF_CR_L1",
+                "EDUNF_CR_L2",
+                "EDUNF_CR_L3",
+            ],
+            "default": "EDUNF_CR_L1",
         },
     },
     "QUALITY": {
@@ -447,15 +498,61 @@ indicators_dict = {
 }
 
 
-def indicator_card(name, indicator, suffix):
-
-    indicator = indicator.split(",")
-    mean_value = (
-        data[data["CODE"].isin(indicator)]
-        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])["OBS_VALUE"]
-        .tail(1)
-        .mean()
+def indicator_card(
+    name, year_slider, countires, numerator, denominator, suffix, absolute=False
+):
+    time = years[slice(*year_slider)]
+    query = (
+        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
     )
+    numors = numerator.split(",")
+    indicator = numors
+    # select last value for each country
+    indicator_values = (
+        data.query(query)
+        .groupby(
+            [
+                "CODE",
+                "Indicator",
+                "Geographic area",
+                "UNIT_MEASURE",
+            ]
+        )
+        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+        .reset_index()
+        .set_index(["Geographic area", "TIME_PERIOD"])
+    )
+    # select the avalible denominators for countiries in selected years
+    indicator = [denominator]
+    denominator_values = (
+        data.query(query)
+        .groupby(
+            [
+                "CODE",
+                "Indicator",
+                "Geographic area",
+                "UNIT_MEASURE",
+            ]
+        )
+        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+        .reset_index()
+        .set_index(["Geographic area", "TIME_PERIOD"])
+    )
+    # select only those denominators that match avalible indicators
+    denominators = denominator_values[
+        denominator_values.index.isin(indicator_values.index)
+    ]["OBS_VALUE"]
+
+    denominator_sum = denominators.to_numpy().sum()
+
+    indicator_sum = (
+        indicator_values["OBS_VALUE"] * denominator_sum
+        if absolute
+        else (denominators / denominator_sum)
+    ).dropna()  # will drop missing countires
+
+    sources = indicator_sum.index.tolist()
+
     label = (
         data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
         if len(data[data["CODE"].isin(indicator)]["Indicator"].unique())
@@ -467,7 +564,7 @@ def indicator_card(name, indicator, suffix):
             dbc.CardBody(
                 [
                     html.H4(
-                        "{:.0f}{}".format(mean_value, suffix),
+                        "{:.0f}{}".format(indicator_sum.to_numpy().sum(), suffix),
                         style={
                             "fontSize": 40,
                             "textAlign": "center",
@@ -475,6 +572,7 @@ def indicator_card(name, indicator, suffix):
                         },
                     ),
                     html.P(label, className="card-text", style=CARD_TEXT_STYLE),
+                    html.P("Sources: {}".format(sources)),
                 ]
             ),
         ],
@@ -713,13 +811,26 @@ def select_region(region):
 
 @app.callback(
     Output("cards_row", "children"),
-    [Input("theme_selector", "value")],
+    [
+        Input("theme_selector", "value"),
+        Input("year_slider", "value"),
+        Input("country_selector", "value"),
+    ],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def show_cards(theme):
+def show_cards(theme, years, countires):
 
     return [
-        dbc.Col(indicator_card(card["name"], card["indicator"], card["suffix"]))
+        dbc.Col(
+            indicator_card(
+                card["name"],
+                years,
+                countires,
+                card["indicator"],
+                card["denominator"],
+                card["suffix"],
+            )
+        )
         for card in indicators_dict[theme]["CARDS"]
     ]
 
@@ -822,7 +933,6 @@ def left_options(indicator):
     options = []
 
     for item in [
-        {"label": "Total", "value": "Total"},
         {"label": "Sex", "value": "Sex"},
         {"label": "Residence", "value": "Residence"},
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
@@ -907,47 +1017,57 @@ def right_options(theme):
         Input("country_selector", "value"),
         Input("left_xaxis_column", "value"),
         Input("right_xaxis_column", "value"),
+        Input("right_graph_options", "value"),
     ],
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
-def right_figure(theme, year_slider, countries, left_selected, right_selected):
+def right_figure(
+    theme, year_slider, countries, left_selected, right_selected, selected_type
+):
 
-    fig_type = indicators_dict[theme]["RIGHT"]["type"]
-    compare = indicators_dict[theme]["RIGHT"]["compare"]
-    options = indicators_dict[theme]["RIGHT"]["options"]
-    traces = indicators_dict[theme]["RIGHT"].get("trace_options")
+    default = indicators_dict[theme]["RIGHT"]["default_graph"]
+    fig_type = selected_type if selected_type else default
+    config = indicators_dict[theme]["RIGHT"]["graphs"][fig_type]
+    compare = config.get("compare")
+    options = config.get("options")
+    traces = config.get("trace_options")
     indicators = indicators_dict[theme]["RIGHT"]["indicators"]
-    df = indicators_dict[theme]["RIGHT"]["data"]
 
     indicator = right_selected if right_selected else left_selected or indicators[0]
+    time = years[slice(*year_slider)]
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
-    df = df[
-        (df["CODE"] == indicator)
-        & (df["TIME_PERIOD"].isin(years[slice(*year_slider)]))
-        & (df["Geographic area"].isin(countries))
-    ]
+    query = (
+        "CODE == @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
+    )
+    if compare:
+        query = "{} & {} != 'Total'".format(query, compare)
+    df = (
+        data.query(query)
+        .groupby(
+            [
+                "CODE",
+                "Indicator",
+                "Geographic area",
+                compare if compare else "TIME_PERIOD",
+            ]
+        )
+        .agg(
+            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+            if compare
+            else {"OBS_VALUE": "mean"}
+        )
+        .reset_index()
+    )
 
     options["title"] = name
+    if compare:
+        options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     if traces:
         fig.update_traces(**traces)
-
-    # fig = go.Figure()
-    # for country in data["Geographic area"].unique():
-    #     fig.add_trace(
-    #         go.Scatter(
-    #             mode="lines+markers",
-    #             name=country,
-    #             x=df[df["Geographic area"] == country]["TIME_PERIOD"],
-    #             y=df[df["Geographic area"] == country]["OBS_VALUE"],
-    #             line=dict(shape="spline", smoothing=1.3, width=1),
-    #             marker=dict(symbol="diamond-open"),
-    #         ),
-    #     )
-    # fig.update_layout(title=name)
-
+    fig.update_xaxes(categoryorder="total descending")
     return fig
 
 
@@ -1011,3 +1131,110 @@ def area_3_figure(theme, year_slider, countries, xaxis):
     fig = getattr(px, fig_type)(df, **options)
     fig.update_xaxes(categoryorder="total descending")
     return fig
+
+
+# Selectors -> left graph
+@app.callback(
+    Output("area_4_xaxis_column", "options"),
+    [
+        Input("theme_selector", "value"),
+    ],
+    # [State("left-xaxis-column", "value")],
+)
+def area_4_options(theme):
+
+    return [
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
+        for item in data[
+            data["CODE"].isin(indicators_dict[theme]["AREA_4"]["indicators"])
+        ][["CODE", "Indicator"]]
+        .drop_duplicates()
+        .to_dict("records")
+    ]
+
+
+@app.callback(
+    Output("area_4_graph", "figure"),
+    [
+        Input("theme_selector", "value"),
+        Input("year_slider", "value"),
+        Input("country_selector", "value"),
+        Input("area_4_xaxis_column", "value"),
+    ],
+    #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
+)
+def area_4_figure(theme, year_slider, countries, xaxis):
+
+    default = indicators_dict[theme]["AREA_4"]["default_graph"]
+    fig_type = default
+    config = indicators_dict[theme]["AREA_4"]["graphs"][fig_type]
+    compare = config.get("compare")
+    options = config.get("options")
+    traces = config.get("trace_options")
+    indicator = xaxis if xaxis else indicators_dict[theme]["AREA_4"]["indicators"][0]
+    time = years[slice(*year_slider)]
+
+    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    query = (
+        "CODE == @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
+    )
+    if compare:
+        query = "{} & {} != 'Total'".format(query, compare)
+    df = (
+        data.query(query)
+        .groupby(
+            [
+                "CODE",
+                "Indicator",
+                "Geographic area",
+                compare if compare else "TIME_PERIOD",
+            ]
+        )
+        .agg(
+            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+            if compare
+            else {"OBS_VALUE": "mean"}
+        )
+        .reset_index()
+    )
+
+    options["title"] = name
+    if compare:
+        options["color"] = compare
+
+    fig = getattr(px, fig_type)(df, **options)
+    if traces:
+        fig.update_traces(**traces)
+    fig.update_xaxes(categoryorder="total descending")
+
+    subfig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    indicator = "EDUNF_DR_L1"
+    line_data = (
+        data.query(query)
+        .groupby(["CODE", "Indicator", "Geographic area", compare])
+        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+        .reset_index()
+    )
+
+    line = px.line(
+        line_data,
+        x="Geographic area",
+        y="OBS_VALUE",
+        color=compare,
+        text="TIME_PERIOD",
+        # labels={"Indicator": "Dropout Rate"},
+    )
+    line.update_traces(
+        yaxis="y2",
+        mode="markers",
+        marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
+        # selector=dict(mode="markers"),
+    )
+
+    subfig.add_traces(fig.data + line.data)
+
+    return subfig
