@@ -139,7 +139,7 @@ county_options = [
     {"label": str(country), "value": str(country)} for country in countries
 ]
 
-years = [i for i in range(2008, 2019)]
+years = [i for i in range(2008, 2020)]
 
 indicators = data["Indicator"].unique()
 
@@ -546,9 +546,7 @@ def indicator_card(
     denominator_sum = denominators.to_numpy().sum()
 
     indicator_sum = (
-        indicator_values["OBS_VALUE"] * denominator_sum
-        if absolute
-        else (denominators / denominator_sum)
+        (denominators / denominator_sum)
     ).dropna()  # will drop missing countires
 
     sources = indicator_sum.index.tolist()
@@ -572,7 +570,7 @@ def indicator_card(
                         },
                     ),
                     html.P(label, className="card-text", style=CARD_TEXT_STYLE),
-                    html.P("Sources: {}".format(sources)),
+                    # html.P("Sources: {}".format(sources)),
                 ]
             ),
         ],
@@ -1126,7 +1124,8 @@ def area_3_figure(theme, year_slider, countries, xaxis):
     )
 
     options["title"] = name
-    options["color"] = compare
+    # if not getattr(df, compare).empty:
+    #     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     fig.update_xaxes(categoryorder="total descending")
