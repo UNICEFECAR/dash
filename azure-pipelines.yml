@@ -13,7 +13,7 @@ variables:
   dockerRegistryServiceConnection: 'b4399b8a-a8c8-48a3-9efb-20358f3d68cf'
   imageRepository: 'dash'
   containerRegistry: 'unichedev.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/.devcontainer/Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.SourceBranchName)'
 
   # Agent VM image name
