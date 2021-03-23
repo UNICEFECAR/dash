@@ -17,16 +17,18 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-from ..app import app, cache, mapbox_access_token, geocoder, sdmx_url
+from ..app import app, cache
+from . import (
+    mapbox_access_token,
+    regions,
+    years,
+    indicators,
+    data,
+    county_options,
+    countries,
+)
 
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
-
-# @cache.memoize
-def geocode_address(address):
-    """Geocode street address into lat/long."""
-    response = geocoder.forward(address)
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
 
 
 px.set_mapbox_access_token(mapbox_access_token)
@@ -59,104 +61,6 @@ main_graph_df = pd.DataFrame(
 
 def generate_map(title, data, options):
     return px.scatter_mapbox(data, title=title, **options)
-
-
-codes = [
-    "EDU_SDG_STU_L2_GLAST_MAT",
-    "EDU_SDG_STU_L2_GLAST_REA",
-    "EDU_SDG_STU_L1_GLAST_MAT",
-    "EDU_SDG_STU_L1_G2OR3_MAT",
-    "EDU_SDG_STU_L1_GLAST_REA",
-    "EDU_SDG_STU_L1_G2OR3_REA",
-    "EDU_SDG_GER_L01",
-    "EDUNF_PRP_L02",
-    "EDUNF_ROFST_L2",
-    "EDU_SDG_QUTP_L02",
-    "EDU_SDG_QUTP_L1",
-    "EDU_SDG_QUTP_L2",
-    "EDU_SDG_QUTP_L3",
-    "EDU_SDG_TRTP_L02",
-    "EDU_SDG_TRTP_L1",
-    "EDU_SDG_TRTP_L2",
-    "EDU_SDG_TRTP_L3",
-    "EDUNF_ROFST_L1",
-    "EDUNF_ROFST_L2",
-    "EDUNF_ROFST_L3",
-    "EDUNF_OFST_L1",
-    "EDUNF_OFST_L2",
-    "EDUNF_OFST_L3",
-    "EDUNF_NIR_L1_ENTRYAGE",
-    "EDUNF_NER_L02",
-    "EDUNF_NERA_L1_UNDER1",
-    "EDUNF_NERA_L1",
-    "EDUNF_NERA_L2",
-    "EDUNF_GER_L1",
-    "EDUNF_GER_L2",
-    "EDUNF_GER_L3",
-    "EDUNF_NIR_L1_ENTRYAGE",
-    "EDUNF_STU_L1_TOT",
-    "EDUNF_STU_L2_TOT",
-    "EDUNF_STU_L3_TOT",
-    "EDU_SDG_SCH_L1",
-    "EDU_SDG_SCH_L2",
-    "EDU_SDG_SCH_L3",
-    "EDUNF_PRP_L02",
-    "EDUNF_CR_L1",
-    "EDUNF_CR_L2",
-    "EDUNF_CR_L3",
-    "EDUNF_DR_L1",
-    "EDUNF_DR_L2",
-    "EDUNF_SAP_L02",
-    "EDUNF_SAP_L1T3",
-    "EDUNF_SAP_L2",
-]
-
-
-data = pd.DataFrame()
-inds = set(codes)
-for ind in inds:
-    try:
-        sdmx = pd.read_csv(sdmx_url.format(ind))
-    except urllib.error.HTTPError as e:
-        print(ind)
-        raise e
-
-    sdmx["CODE"] = ind
-    data = data.append(sdmx)
-
-countries = data["Geographic area"].unique()
-
-data = data.merge(
-    right=pd.DataFrame(
-        [dict(country=country, **geocode_address(country)) for country in countries]
-    ),
-    left_on="Geographic area",
-    right_on="country",
-)
-
-# Create controls
-county_options = [
-    {"label": str(country), "value": str(country)} for country in countries
-]
-
-years = [i for i in range(2008, 2020)]
-
-indicators = data["Indicator"].unique()
-
-regions = [
-    {
-        "label": "Western Balkans",
-        "value": "Albania,Bosnia and Herzegovina,Kosovo,North Macedonia,Montenegro,Serbia",
-    },
-    {"label": "EU countries of ECAR", "value": "Bulgaria,Croatia,Romania"},
-    {"label": "B+M+U", "value": "Belarus,Moldova,Ukraine"},
-    {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
-    {"label": "Turkey", "value": "Turkey"},
-    {
-        "label": "Central Asia",
-        "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
-    },
-]
 
 
 indicators_dict = {
@@ -546,7 +450,9 @@ def indicator_card(
     denominator_sum = denominators.to_numpy().sum()
 
     indicator_sum = (
-        (denominators / denominator_sum)
+        indicator_values["OBS_VALUE"] * denominator_sum
+        if absolute
+        else (denominators / denominator_sum)
     ).dropna()  # will drop missing countires
 
     sources = indicator_sum.index.tolist()
@@ -570,7 +476,7 @@ def indicator_card(
                         },
                     ),
                     html.P(label, className="card-text", style=CARD_TEXT_STYLE),
-                    # html.P("Sources: {}".format(sources)),
+                    html.P("Sources: {}".format(sources)),
                 ]
             ),
         ],
@@ -631,6 +537,7 @@ def get_layout(**kwargs):
                                             id="region_selector",
                                             options=regions,
                                             className="dcc_control",
+                                            multi=True,
                                         ),
                                         html.P(
                                             "Filter by Country:",
@@ -802,7 +709,7 @@ def get_layout(**kwargs):
 )
 def select_region(region):
     if region:
-        return region.split(",")
+        return [value for reg in region for value in reg.split(",")]
     else:
         return [item["value"] for item in county_options]
 
@@ -817,7 +724,6 @@ def select_region(region):
     #     [State("lock_selector", "value"), State("count_graph", "relayoutData")],
 )
 def show_cards(theme, years, countires):
-
     return [
         dbc.Col(
             indicator_card(
@@ -876,7 +782,7 @@ def make_map(theme, years, countries, indicator):
     if indicators:
         indicator = indicator or indicators[0]
 
-        df = df[df["CODE"] == indicator]
+        df = df[(df["CODE"] == indicator) & (df["Geographic area"].isin(countries))]
 
     return generate_map(name, df, options)
 
