@@ -407,8 +407,7 @@ def indicator_card(
 ):
     time = years[slice(*year_slider)]
     query = (
-        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
-    )
+        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries")
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
@@ -416,46 +415,39 @@ def indicator_card(
         data.query(query)
         .groupby(
             [
-                "CODE",
-                "Indicator",
                 "Geographic area",
-                "UNIT_MEASURE",
+                "TIME_PERIOD",
             ]
         )
-        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-        .reset_index()
-        .set_index(["Geographic area", "TIME_PERIOD"])
-    )
+        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+    ).reset_index()
+
+    numerator_pairs = indicator_values[indicator_values.DATA_SOURCE == len(numors)].groupby(
+        "Geographic area", as_index=False).last().set_index(["Geographic area", "TIME_PERIOD"])
+
     # select the avalible denominators for countiries in selected years
     indicator = [denominator]
     denominator_values = (
-        data.query(query)
-        .groupby(
-            [
-                "CODE",
-                "Indicator",
-                "Geographic area",
-                "UNIT_MEASURE",
-            ]
-        )
-        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-        .reset_index()
-        .set_index(["Geographic area", "TIME_PERIOD"])
+        data.query(query).set_index(["Geographic area", "TIME_PERIOD"])
     )
     # select only those denominators that match avalible indicators
-    denominators = denominator_values[
-        denominator_values.index.isin(indicator_values.index)
-    ]["OBS_VALUE"]
+    index_intersect = numerator_pairs.index.intersection(
+        denominator_values.index)
 
-    denominator_sum = denominators.to_numpy().sum()
+    denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
 
     indicator_sum = (
-        indicator_values["OBS_VALUE"] * denominator_sum
+        numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum(
+        ) / denominators.to_numpy().sum()
         if absolute
-        else (denominators / denominator_sum)
-    ).dropna()  # will drop missing countires
+        # will drop missing countires
+        else (
+            numerator_pairs["OBS_VALUE"] / 100 * denominators / \
+            denominators.to_numpy().sum()
+        ).dropna().to_numpy().sum()
+    )
 
-    sources = indicator_sum.index.tolist()
+    sources = index_intersect.tolist()
 
     label = (
         data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
@@ -468,14 +460,15 @@ def indicator_card(
             dbc.CardBody(
                 [
                     html.H4(
-                        "{:.0f}{}".format(indicator_sum.to_numpy().sum(), suffix),
+                        "{:.0f}{}".format(indicator_sum, suffix),
                         style={
                             "fontSize": 40,
                             "textAlign": "center",
                             "color": "#0074D9",
                         },
                     ),
-                    html.P(label, className="card-text", style=CARD_TEXT_STYLE),
+                    html.P(label, className="card-text",
+                           style=CARD_TEXT_STYLE),
                     html.P("Sources: {}".format(sources)),
                 ]
             ),
@@ -507,10 +500,12 @@ def get_layout(**kwargs):
                                         dcc.Dropdown(
                                             id="theme_selector",
                                             options=[
-                                                {"label": value["NAME"], "value": key}
+                                                {"label": value["NAME"],
+                                                    "value": key}
                                                 for key, value in indicators_dict.items()
                                             ],
-                                            value=list(indicators_dict.keys())[0],
+                                            value=list(
+                                                indicators_dict.keys())[0],
                                             className="dcc_control",
                                         ),
                                         html.P(
@@ -611,7 +606,8 @@ def get_layout(**kwargs):
                                         dcc.RadioItems(
                                             id="left_graph_options",
                                             className="dcc_control",
-                                            labelStyle={"display": "inline-block"},
+                                            labelStyle={
+                                                "display": "inline-block"},
                                         ),
                                     ]
                                 )
@@ -636,7 +632,8 @@ def get_layout(**kwargs):
                                         dcc.RadioItems(
                                             id="right_graph_options",
                                             className="dcc_control",
-                                            labelStyle={"display": "inline-block"},
+                                            labelStyle={
+                                                "display": "inline-block"},
                                             options=[
                                                 {"label": "Line", "value": "line"},
                                                 {"label": "Bar", "value": "bar"},
@@ -782,7 +779,8 @@ def make_map(theme, years, countries, indicator):
     if indicators:
         indicator = indicator or indicators[0]
 
-        df = df[(df["CODE"] == indicator) & (df["Geographic area"].isin(countries))]
+        df = df[(df["CODE"] == indicator) & (
+            df["Geographic area"].isin(countries))]
 
     return generate_map(name, df, options)
 
