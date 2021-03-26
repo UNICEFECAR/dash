@@ -5,33 +5,6 @@ import plotly.express as px
 from . import data, years
 from .base_page import get_base_layout
 
-static_data = {
-    "Country": [
-        "Albania",
-        "Belarus",
-        "Bosnia and Herzegovina",
-        "Bulgaria",
-        "Croatia",
-        "Georgia, Europe, Asia",
-        "Kazakhstan",
-        "Kosovo",
-        "Moldova",
-        "Montenegro",
-        "North Macedonia",
-        "Romania",
-        "Serbia",
-        "Turkey",
-        "Ukraine",
-    ],
-    "Reading": [52, 23, 54, 47, 22, 64, 64, 79, 43, 44, 55, 41, 38, 26, 26],
-    "Math": [42, 29, 58, 44, 31, 61, 49, 77, 50, 46, 61, 47, 40, 37, 36],
-    "Science": [47, 24, 57, 47, 25, 64, 60, 77, 43, 48, 49, 44, 38, 25, 26],
-}
-main_graph_df = pd.DataFrame(
-    static_data, columns=["Country", "Reading", "Math", "Science"]
-)
-
-
 indicators_dict = {
     "PARTICIPATION": {
         "NAME": "Participation",

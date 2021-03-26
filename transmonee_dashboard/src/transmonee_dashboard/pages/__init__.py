@@ -1,7 +1,21 @@
 import urllib
-import dash_html_components as _html
+import pickle
+import copy
+import pathlib
+import dash
+import math
+import datetime as dt
+import pandas as pd
+import numpy as np
+from dash.dependencies import Input, Output, State, ClientsideFunction
+import dash_core_components as dcc
+import dash_html_components as html
+import dash_bootstrap_components as dbc
 import pandas as pd
 from mapbox import Geocoder
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
 
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
@@ -120,6 +134,98 @@ data = data.merge(
 
 indicators = data["Indicator"].unique()
 
+CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
+
+
+px.set_mapbox_access_token(mapbox_access_token)
+
 
 def page_not_found(pathname):
-    return _html.P("No page '{}'".format(pathname))
+    return html.P("No page '{}'".format(pathname))
+
+
+def indicator_card(
+    name, year_slider, countires, numerator, denominator, suffix, absolute=False
+):
+    time = years[slice(*year_slider)]
+    query = (
+        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
+    )
+    numors = numerator.split(",")
+    indicator = numors
+    # select last value for each country
+    indicator_values = (
+        data.query(query)
+        .groupby(
+            [
+                "Geographic area",
+                "TIME_PERIOD",
+            ]
+        )
+        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+    ).reset_index()
+
+    numerator_pairs = (
+        indicator_values[indicator_values.DATA_SOURCE == len(numors)]
+        .groupby("Geographic area", as_index=False)
+        .last()
+        .set_index(["Geographic area", "TIME_PERIOD"])
+    )
+
+    # select the avalible denominators for countiries in selected years
+    indicator = [denominator]
+    denominator_values = data.query(query).set_index(["Geographic area", "TIME_PERIOD"])
+    # select only those denominators that match avalible indicators
+    index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+
+    denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
+
+    indicator_sum = (
+        numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
+        / denominators.to_numpy().sum()
+        if absolute
+        # will drop missing countires
+        else (
+            numerator_pairs["OBS_VALUE"]
+            / 100
+            * denominators
+            / denominators.to_numpy().sum()
+        )
+        .dropna()
+        .to_numpy()
+        .sum()
+    )
+
+    sources = index_intersect.tolist()
+
+    label = (
+        data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
+        if len(data[data["CODE"].isin(indicator)]["Indicator"].unique())
+        else "None"
+    )
+    card = dbc.Card(
+        [
+            dbc.CardHeader(name),
+            dbc.CardBody(
+                [
+                    html.H4(
+                        "{:.0f}{}".format(indicator_sum, suffix),
+                        style={
+                            "fontSize": 40,
+                            "textAlign": "center",
+                            "color": "#0074D9",
+                        },
+                    ),
+                    html.P(label, className="card-text", style=CARD_TEXT_STYLE),
+                    html.P("Sources: {}".format(sources)),
+                ]
+            ),
+        ],
+        color="primary",
+        outline=True,
+    )
+    return card
+
+
+def generate_map(title, data, options):
+    return px.scatter_mapbox(data, title=title, **options)

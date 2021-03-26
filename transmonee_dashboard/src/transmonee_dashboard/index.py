@@ -2,7 +2,7 @@ import dash_html_components as html
 
 from .app import app
 from .utils import DashRouter, DashNavBar
-from .pages import education, page2, page3, character_counter
+from .pages import education, child_protection
 from .components import fa
 
 
@@ -11,7 +11,7 @@ from .components import fa
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
 urls = (
     ("", education.get_layout),
-    ("character-counter", character_counter.get_layout),
+    ("child-protection", child_protection.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -19,7 +19,8 @@ urls = (
 # 'routes_pathname_prefix') and 'display' is a valid value for the `children`
 # keyword argument for a Dash component (ie a Dash Component or a string).
 nav_items = (
-    ("character-counter", html.Div([fa("fas fa-book"), "Education"])),
+    ("", html.Div([fa("fas fa-book"), "Education"])),
+    ("child-protection", html.Div([fa("fas fa-child"), "Child Protection"])),
 )
 
 router = DashRouter(app, urls)
