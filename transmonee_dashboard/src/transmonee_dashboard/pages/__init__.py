@@ -80,6 +80,55 @@ codes = [
     "EDUNF_SAP_L02",
     "EDUNF_SAP_L1T3",
     "EDUNF_SAP_L2",
+    "JJ_CHLD_CRIME",
+    "JJ_CHLD_CRIMERT",
+    "PT_CHLD_1-14_PS-PSY-V_CGVR",
+    "PT_CHLD_INRESIDENTIAL",
+    "PT_CHLD_DISAB_PUBLIC",
+    "PT_CHLD_NO_PARENTAL_CARE_PUBLIC",
+    "PT_CHLD_NONPUBLIC",
+    "PT_CHLD_INRESIDENTIAL_RATE_A",
+    "PT_CHLD_INRESIDENTIAL_RATE_B",
+    "PT_CHLD_NO_PARENTAL_CARE_RATE",
+    "PT_CHLD_INCARE_FOSTER",
+    "PT_CHLD_INCARE_FOSTER_RATE",
+    "PT_CHLD_CARED_BY_FOSTER",
+    "PT_CHLD_DISAB_FOSTER",
+    "PT_CHLD_CARED_BY_FOSTER_RATE",
+    "PT_CHLD_CARED_GUARDIAN",
+    "PT_CHLD_DISAB_CARED_GUARDIAN",
+    "PT_CHLD_CARED_GUARDIAN_RATE",
+    "PT_CHLD_ENTEREDFOSTER",
+    "PT_CHLD_GUARDIAN",
+    "PT_CHLD_LEFTRESCARE",
+    "PT_CHLD_LEFTFOSTER",
+    "PT_CHLD_GUARDIAN_LEFT",
+    "PT_CHLD_ADOPTION",
+    "PT_CHLD_ADOPTION_DISAB",
+    "PT_CHLD_ADOPTION_INTERCOUNTRY",
+    "PT_CHLD_ADOPTION_INTER_COUNTRY_DISAB",
+    "PT_CHLD_ADOPTION_AVAILABLE",
+    "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
+    "PT_CHLD_ADOPTION_INTERCOUNTRY_RATE",
+    "PT_CHLD_ADOPTION_RATE",
+    "JJ_CHLD_DETENTION",
+    "JJ_CHLD_CONVICTED",
+    "JJ_CHLD_CONVICTED_VIOLENT",
+    "JJ_CHLD_CONVICTED_PROPERTY",
+    "JJ_CHLD_CONVICTED_OTHER",
+    "JJ_CHLD_SENTENCERT",
+    "JJ_CHLD_SENTENCE_PRISION",
+    "JJ_CHLD_SENTENCE_CORRECTIONAL",
+    "JJ_CHLD_SENTENCE_PROBATION",
+    "JJ_CHLD_SENTENCE_CUSTODIAL",
+    "JJ_CHLD_SENTENCE_FINANCIAL",
+    "JJ_CHLD_SENTENCE_SERVICE",
+    "JJ_CHLD_SENTENCE_LABOUR",
+    "JJ_CHLD_SENTENCE_OTHER",
+    "JJ_CHLD_PRISION",
+    "JJ_CHLD_PRETRIAL",
+    "JJ_CHLD_PRISION_ADJUDICATION",
+    "DM_POP_TOT_AGE",
 ]
 
 years = [i for i in range(2008, 2021)]
@@ -113,15 +162,16 @@ county_options = [
 
 data = pd.DataFrame()
 inds = set(codes)
-for ind in inds:
-    try:
-        sdmx = pd.read_csv(sdmx_url.format(ind))
-    except urllib.error.HTTPError as e:
-        print(ind)
-        raise e
 
-    sdmx["CODE"] = ind
-    data = data.append(sdmx)
+# avoid a loop to query SDMX
+try:
+    sdmx = pd.read_csv(sdmx_url.format("+".join(inds)))
+except urllib.error.HTTPError as e:
+    raise e
+
+# no need to create column CODE, just rename indicator
+sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
+data = data.append(sdmx)
 
 
 data = data.merge(
@@ -131,6 +181,8 @@ data = data.merge(
     left_on="Geographic area",
     right_on="country",
 )
+
+# TODO: calculations for children age population
 
 indicators = data["Indicator"].unique()
 
@@ -156,12 +208,7 @@ def indicator_card(
     # select last value for each country
     indicator_values = (
         data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
