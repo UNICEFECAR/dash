@@ -32,6 +32,7 @@ from . import (
 
 # TODO: _ make zones (area_1, 2, etc) configurable per theme?
 # _ property visibility
+# _ use of chained callbacks to present list of countries as required by carlos
 
 
 def get_base_layout(**kwargs):
