@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# cache directory inside transmonee_dashboard (as appeared to Alberto)
+transmonee_dashboard/cache-directory
+
 # C extensions
 *.so
 
