@@ -41,7 +41,7 @@ indicators_dict = {
                 barmode="group",
                 text="TIME_PERIOD",
             ),
-            "compare": ["Sex", "Age", "Residence", "Wealth Quintile"],
+            "compare": "Sex",
             "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
@@ -55,7 +55,7 @@ indicators_dict = {
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
-                    "compare": ["Sex", "Age", "Residence", "Wealth Quintile"],
+                    "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -71,6 +71,41 @@ indicators_dict = {
             },
             "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
             "default_graph": "line",
+            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
+        },
+        "AREA_3": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            ),
+            "compare": "Sex",
+            "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
+        },
+        "AREA_4": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
     },
@@ -165,7 +200,7 @@ indicators_dict = {
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
-                    "compare": ["Sex", "Age"],
+                    "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -201,7 +236,7 @@ indicators_dict = {
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
             ),
-            "compare": ["Sex", "Age"],
+            "compare": "Sex",
             "indicators": [
                 "PT_CHLD_DISAB_PUBLIC",
                 "PT_CHLD_DISAB_FOSTER",
@@ -220,7 +255,7 @@ indicators_dict = {
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
-                    "compare": ["Sex", "Age"],
+                    "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -296,7 +331,7 @@ indicators_dict = {
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
-            "compare": ["Sex", "Age"],
+            "compare": "Sex",
             "indicators": [
                 "JJ_CHLD_CRIME",
                 "JJ_CHLD_CRIMERT",
@@ -321,7 +356,7 @@ indicators_dict = {
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
-                    "compare": ["Sex", "Age"],
+                    "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -350,6 +385,57 @@ indicators_dict = {
                 "JJ_CHLD_CONVICTED_OTHER",
             ],
             "default": "JJ_CHLD_CRIME",
+        },
+        "AREA_3": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_CHLD_PRISION",
+                "JJ_CHLD_PRETRIAL",
+            ],
+        },
+        "AREA_4": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_CHLD_PRISION",
+                "JJ_CHLD_PRETRIAL",
+            ],
+            "default": "JJ_CHLD_CRIMERT",
         },
     },
 }
