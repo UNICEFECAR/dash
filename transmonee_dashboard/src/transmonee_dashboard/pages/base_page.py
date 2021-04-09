@@ -413,11 +413,17 @@ def left_figure(theme, year_slider, countries, xaxis, compare, indicators_dict):
     compare = compare if compare else indicators_dict[theme]["LEFT"]["compare"]
     indicator = xaxis if xaxis else indicators_dict[theme]["LEFT"]["default"]
 
+    # data disaggregation unique values
+    data_disag_unique = data[compare].unique()
+
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
         data[
             (data["CODE"] == indicator)
-            & (data[compare] != "Total")
+            & (
+                data[compare]
+                != (data_disag_unique[0] if len(data_disag_unique) == 1 else "Total")
+            )
             & (data["TIME_PERIOD"].isin(years[slice(*year_slider)]))
             & (data["Geographic area"].isin(countries))
         ]
@@ -650,31 +656,31 @@ def area_4_figure(theme, year_slider, countries, xaxis, indicators_dict):
         fig.update_traces(**traces)
     fig.update_xaxes(categoryorder="total descending")
 
-    subfig = make_subplots(specs=[[{"secondary_y": True}]])
+    # subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    indicator = "EDUNF_DR_L1"
-    line_data = (
-        data.query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", compare])
-        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-        .reset_index()
-    )
+    # indicator = "EDUNF_DR_L1"
+    # line_data = (
+    #     data.query(query)
+    #     .groupby(["CODE", "Indicator", "Geographic area", compare])
+    #     .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+    #     .reset_index()
+    # )
 
-    line = px.line(
-        line_data,
-        x="Geographic area",
-        y="OBS_VALUE",
-        color=compare,
-        text="TIME_PERIOD",
-        # labels={"Indicator": "Dropout Rate"},
-    )
-    line.update_traces(
-        yaxis="y2",
-        mode="markers",
-        marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
-        # selector=dict(mode="markers"),
-    )
+    # line = px.line(
+    #     line_data,
+    #     x="Geographic area",
+    #     y="OBS_VALUE",
+    #     color=compare,
+    #     text="TIME_PERIOD",
+    #     # labels={"Indicator": "Dropout Rate"},
+    # )
+    # line.update_traces(
+    #     yaxis="y2",
+    #     mode="markers",
+    #     marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
+    #     # selector=dict(mode="markers"),
+    # )
 
-    subfig.add_traces(fig.data + line.data)
+    # subfig.add_traces(fig.data + line.data)
 
-    return subfig
+    return fig
