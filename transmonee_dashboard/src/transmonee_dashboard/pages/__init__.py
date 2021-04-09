@@ -163,9 +163,17 @@ county_options = [
 data = pd.DataFrame()
 inds = set(codes)
 
+# column data types coerced
+col_types = {
+    "COVERAGE_TIME": str,
+    "OBS_FOOTNOTE": str,
+    "Frequency": str,
+    "Unit multiplier": str,
+}
+
 # avoid a loop to query SDMX
 try:
-    sdmx = pd.read_csv(sdmx_url.format("+".join(inds)))
+    sdmx = pd.read_csv(sdmx_url.format("+".join(inds)), dtype=col_types)
 except urllib.error.HTTPError as e:
     raise e
 
