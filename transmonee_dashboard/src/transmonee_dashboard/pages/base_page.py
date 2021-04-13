@@ -25,13 +25,15 @@ from . import (
     data,
     county_options,
     countries,
-    indicator_card,
-    generate_map,
 )
 
+CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
-# TODO: _ make zones (area_1, 2, etc) configurable per theme?
-# _ property visibility
+
+px.set_mapbox_access_token(mapbox_access_token)
+
+
+# TODO:
 # _ use of chained callbacks to present list of countries as required by carlos
 
 
@@ -170,6 +172,7 @@ def get_base_layout(**kwargs):
                             ),
                         ],
                         # className="six columns",
+                        id="left_parent",
                         width=6,
                     ),
                     dbc.Col(
@@ -199,6 +202,7 @@ def get_base_layout(**kwargs):
                             ),
                         ],
                         # className="six columns",
+                        id="right_parent",
                         width=6,
                     ),
                 ],
@@ -226,6 +230,7 @@ def get_base_layout(**kwargs):
                         ],
                         # className="six columns",
                         width=6,
+                        id="area_3_parent",
                     ),
                     dbc.Col(
                         [
@@ -246,6 +251,7 @@ def get_base_layout(**kwargs):
                         ],
                         # className="six columns",
                         width=6,
+                        id="area_4_parent",
                     ),
                 ],
             ),
@@ -257,16 +263,119 @@ def get_base_layout(**kwargs):
 from ..app import app
 
 
+def indicator_card(
+    card_id,
+    name,
+    year_slider,
+    countries,
+    numerator,
+    denominator,
+    suffix,
+    absolute=False,
+):
+    time = years[slice(*year_slider)]
+    sex = ["_T"]  # potentially move to this config
+    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex"
+    numors = numerator.split(",")
+    indicator = numors
+    # select last value for each country
+    indicator_values = (
+        data.query(query)
+        .groupby(
+            [
+                "Geographic area",
+                "TIME_PERIOD",
+            ]
+        )
+        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+    ).reset_index()
+
+    numerator_pairs = (
+        indicator_values[indicator_values.DATA_SOURCE == len(numors)]
+        .groupby("Geographic area", as_index=False)
+        .last()
+        .set_index(["Geographic area", "TIME_PERIOD"])
+    )
+
+    # select the avalible denominators for countiries in selected years
+    indicator = [denominator]
+    denominator_values = data.query(query).set_index(["Geographic area", "TIME_PERIOD"])
+    # select only those denominators that match avalible indicators
+    index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+
+    denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
+
+    indicator_sum = (
+        numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
+        / denominators.to_numpy().sum()
+        if absolute
+        else (
+            numerator_pairs["OBS_VALUE"]
+            / 100
+            * denominators
+            / denominators.to_numpy().sum()
+        )
+        .dropna()  # will drop missing countires
+        .to_numpy()
+        .sum()
+    ) * 100
+    sources = index_intersect.tolist()
+
+    label = (
+        data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
+        if len(data[data["CODE"].isin(indicator)]["Indicator"].unique())
+        else "None"
+    )
+    card = dbc.Card(
+        [
+            dbc.CardHeader(name),
+            dbc.CardBody(
+                [
+                    html.H4(
+                        "{:.0f}{}".format(indicator_sum, suffix),
+                        style={
+                            "fontSize": 40,
+                            "textAlign": "center",
+                            "color": "#0074D9",
+                        },
+                    ),
+                    html.P(label, className="card-text", style=CARD_TEXT_STYLE),
+                ]
+            ),
+            dbc.Popover(
+                [
+                    dbc.PopoverHeader("Sources"),
+                    dbc.PopoverBody(str(sources)),
+                ],
+                id="hover",
+                target=card_id,
+                trigger="hover",
+            ),
+        ],
+        color="primary",
+        outline=True,
+        id=card_id,
+    )
+    return card
+
+
+def generate_map(title, data, options):
+    return px.scatter_mapbox(data, title=title, **options)
+
+
 @app.callback(
-    Output("square", "children"),
-    Output("cube", "children"),
-    Output("twos", "children"),
-    Output("threes", "children"),
-    Output("x^x", "children"),
+    Output("left_parent", "hidden"),
+    Output("right_parent", "hidden"),
+    Output("area_3_parent", "hidden"),
+    Output("area_4_parent", "hidden"),
     Input("theme_selector", "value"),
+    State("indicators", "data"),
 )
-def callback_a(x):
-    return x ** 2, x ** 3, 2 ** x, 3 ** x, x ** x
+def display_areas(theme, indicators_dict):
+    return [
+        area not in indicators_dict[theme]
+        for area in ["LEFT", "RIGHT", "AREA_3", "AREA_4"]
+    ]
 
 
 @app.callback(
@@ -293,6 +402,7 @@ def show_cards(theme, years, countires, indicators_dict):
     return [
         dbc.Col(
             indicator_card(
+                f"card-{num}",
                 card["name"],
                 years,
                 countires,
@@ -302,7 +412,7 @@ def show_cards(theme, years, countires, indicators_dict):
                 card.get("absolute"),
             )
         )
-        for card in indicators_dict[theme]["CARDS"]
+        for num, card in enumerate(indicators_dict[theme]["CARDS"])
     ]
 
 
