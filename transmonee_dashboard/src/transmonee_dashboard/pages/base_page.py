@@ -52,7 +52,8 @@ def get_base_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         html.P(
-                                            "Select theme:", className="control_label",
+                                            "Select theme:",
+                                            className="control_label",
                                         ),
                                         dcc.Dropdown(
                                             id="theme_selector",
@@ -255,9 +256,20 @@ def get_base_layout(**kwargs):
 
 from ..app import app
 
+@app.callback(
+    Output('square', 'children'),
+    Output('cube', 'children'),
+    Output('twos', 'children'),
+    Output('threes', 'children'),
+    Output('x^x', 'children'),
+    Input('theme_selector', 'value'))
+def callback_a(x):
+    return x**2, x**3, 2**x, 3**x, x**x
+
 
 @app.callback(
-    Output("country_selector", "value"), [Input("region_selector", "value")],
+    Output("country_selector", "value"),
+    [Input("region_selector", "value")],
 )
 def select_region(region):
     if region:
@@ -293,13 +305,18 @@ def show_cards(theme, years, countires, indicators_dict):
 
 @app.callback(
     Output("main_indicators", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     [State("indicators", "data")],
 )
 def main_options(theme, indicators_dict):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["MAIN"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -345,13 +362,18 @@ def make_map(theme, years_slider, countries, indicator, indicators_dict):
 # Selectors -> left graph
 @app.callback(
     Output("left_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     [State("indicators", "data")],
 )
 def left_indicators(theme, indicators_dict):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["LEFT"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -362,7 +384,10 @@ def left_indicators(theme, indicators_dict):
 
 @app.callback(
     Output("left_xaxis_column", "value"),
-    [Input("theme_selector", "value"), Input("left_xaxis_column", "options"),],
+    [
+        Input("theme_selector", "value"),
+        Input("left_xaxis_column", "options"),
+    ],
     [State("indicators", "data")],
 )
 def left_indicators_value(theme, options, indicators_dict):
@@ -373,7 +398,10 @@ def left_indicators_value(theme, options, indicators_dict):
 
 # Selectors -> left graph
 @app.callback(
-    Output("left_graph_options", "options"), [Input("left_xaxis_column", "value"),],
+    Output("left_graph_options", "options"),
+    [
+        Input("left_xaxis_column", "value"),
+    ],
 )
 def left_options(indicator):
 
@@ -436,13 +464,18 @@ def left_figure(theme, year_slider, countries, xaxis, compare, indicators_dict):
 
 @app.callback(
     Output("right_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     [State("indicators", "data")],
 )
 def right_options(theme, indicators_dict):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["RIGHT"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -523,13 +556,18 @@ def right_figure(
 # Selectors -> left graph
 @app.callback(
     Output("area_3_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     [State("indicators", "data")],
 )
 def area_3_options(theme, indicators_dict):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["AREA_3"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -581,13 +619,18 @@ def area_3_figure(theme, year_slider, countries, xaxis, indicators_dict):
 # Selectors -> left graph
 @app.callback(
     Output("area_4_xaxis_column", "options"),
-    [Input("theme_selector", "value"),],
+    [
+        Input("theme_selector", "value"),
+    ],
     [State("indicators", "data")],
 )
 def area_4_options(theme, indicators_dict):
 
     return [
-        {"label": item["Indicator"], "value": item["CODE"],}
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["AREA_4"]["indicators"])
         ][["CODE", "Indicator"]]
