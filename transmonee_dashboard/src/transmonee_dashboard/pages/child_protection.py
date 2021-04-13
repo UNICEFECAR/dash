@@ -9,10 +9,11 @@ indicators_dict = {
     "VIOLENCE": {
         "NAME": "Violence against Children and Women",
         "CARDS": [
+            # revise denominator population: children 1-14?
             {
                 "name": "Child physical punishment by caregivers",
                 "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
-                "denominator": "DM_POP_TOT_AGE",
+                "denominator": "EDUNF_SAP_L2",
                 "suffix": "%",
             },
         ],
@@ -117,11 +118,13 @@ indicators_dict = {
                 "indicator": "PT_CHLD_INRESIDENTIAL",
                 "denominator": "",
                 "suffix": "Children",
+                "absolute": True,
             },
+            # revise denominator: population children 0-17
             {
                 "name": "TMEE Rate: Children in Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
-                "denominator": "DM_POP_TOT_AGE",
+                "denominator": "EDUNF_SAP_L2",
                 "suffix": "%",
             },
             {
@@ -129,12 +132,14 @@ indicators_dict = {
                 "indicator": "PT_CHLD_INCARE_FOSTER",
                 "denominator": "",
                 "suffix": "Children",
+                "absolute": True,
             },
             {
                 "name": "TMEE Number: Children available for adoption",
                 "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
                 "denominator": "",
                 "suffix": "Children",
+                "absolute": True,
             },
         ],
         "MAIN": {
@@ -289,17 +294,20 @@ indicators_dict = {
                 "indicator": "JJ_CHLD_CRIME",
                 "denominator": "",
                 "suffix": "PER_100,000",
+                "absolute": True,
             },
+            # revise denominator: population children 0-17
             {
                 "name": "TMEE Rate: Child Victims of Crime",
                 "indicator": "JJ_CHLD_CRIMERT",
-                "denominator": "DM_POP_TOT_AGE",
+                "denominator": "EDUNF_SAP_L2",
                 "suffix": "%",
             },
+            # revise denominator: population children 0-17
             {
                 "name": "TMEE Rate: Child Sentencing",
                 "indicator": "JJ_CHLD_SENTENCERT",
-                "denominator": "DM_POP_TOT_AGE",
+                "denominator": "EDUNF_SAP_L2",
                 "suffix": "%",
             },
         ],
