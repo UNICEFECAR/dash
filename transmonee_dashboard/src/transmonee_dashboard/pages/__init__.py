@@ -67,7 +67,11 @@ codes = [
     "EDUNF_NERA_L2",
     "EDUNF_GER_L1",
     "EDUNF_GER_L2",
+    "EDUNF_GER_L2_GEN",
+    "EDUNF_GER_L2_VOC",
     "EDUNF_GER_L3",
+    "EDUNF_GER_L3_GEN",
+    "EDUNF_GER_L3_VOC",
     "EDUNF_NIR_L1_ENTRYAGE",
     "EDUNF_STU_L1_TOT",
     "EDUNF_STU_L2_TOT",
@@ -84,6 +88,16 @@ codes = [
     "EDUNF_SAP_L02",
     "EDUNF_SAP_L1T3",
     "EDUNF_SAP_L2",
+    "WS_SCH_H-B",
+    "WS_SCH_S-B",
+    "WS_SCH_W-B",
+    "EDU_CHLD_DISAB",
+    "EDU_CHLD_DISAB_GENERAL",
+    "EDU_CHLD_DISAB_SPECIAL",
+    "EDU_CHLD_DISAB_L02",
+    "EDU_CHLD_DISAB_L1",
+    "EDU_CHLD_DISAB_L2",
+    "EDU_CHLD_DISAB_L3",
     "JJ_CHLD_CRIME",
     "JJ_CHLD_CRIMERT",
     "PT_CHLD_1-14_PS-PSY-V_CGVR",
@@ -215,19 +229,15 @@ def indicator_card(
     name, year_slider, countries, numerator, denominator, suffix, absolute=False
 ):
     time = years[slice(*year_slider)]
-    sex = ["_T"]  # potentially move to this config
-    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex"
+    total_code = ["_T"]  # potentially move to this config
+    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @total_code \
+        & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
     indicator_values = (
         data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -249,17 +259,15 @@ def indicator_card(
     indicator_sum = (
         numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
         / denominators.to_numpy().sum()
+        * 100
         if absolute
         else (
-            numerator_pairs["OBS_VALUE"]
-            / 100
-            * denominators
-            / denominators.to_numpy().sum()
+            numerator_pairs["OBS_VALUE"] * denominators / denominators.to_numpy().sum()
         )
         .dropna()  # will drop missing countires
         .to_numpy()
         .sum()
-    ) * 100
+    )
     sources = index_intersect.tolist()
 
     label = (
