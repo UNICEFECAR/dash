@@ -5,33 +5,6 @@ import plotly.express as px
 from . import data, years
 from .base_page import get_base_layout
 
-static_data = {
-    "Country": [
-        "Albania",
-        "Belarus",
-        "Bosnia and Herzegovina",
-        "Bulgaria",
-        "Croatia",
-        "Georgia, Europe, Asia",
-        "Kazakhstan",
-        "Kosovo",
-        "Moldova",
-        "Montenegro",
-        "North Macedonia",
-        "Romania",
-        "Serbia",
-        "Turkey",
-        "Ukraine",
-    ],
-    "Reading": [52, 23, 54, 47, 22, 64, 64, 79, 43, 44, 55, 41, 38, 26, 26],
-    "Math": [42, 29, 58, 44, 31, 61, 49, 77, 50, 46, 61, 47, 40, 37, 36],
-    "Science": [47, 24, 57, 47, 25, 64, 60, 77, 43, 48, 49, 44, 38, 25, 26],
-}
-main_graph_df = pd.DataFrame(
-    static_data, columns=["Country", "Reading", "Math", "Science"]
-)
-
-
 indicators_dict = {
     "PARTICIPATION": {
         "NAME": "Participation",
@@ -88,10 +61,7 @@ indicators_dict = {
         "LEFT": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -160,10 +130,142 @@ indicators_dict = {
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
             ),
             "compare": "Sex",
+            "indicators": ["EDU_SDG_SCH_L1", "EDU_SDG_SCH_L2", "EDU_SDG_SCH_L3",],
+        },
+        "AREA_4": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": ["EDUNF_CR_L1", "EDUNF_CR_L2", "EDUNF_CR_L3",],
+            "default": "EDUNF_CR_L1",
+        },
+    },
+    "QUALITY": {
+        "NAME": "Learning Quality",
+        "CARDS": [
+            {
+                "name": "Proficiency in Math",
+                "indicator": "EDU_SDG_STU_L2_GLAST_MAT",
+                "denominator": "EDUNF_SAP_L2",
+                "suffix": "%",
+            },
+            {
+                "name": "Proficiency in Reading",
+                "indicator": "EDU_SDG_STU_L2_GLAST_REA",
+                "denominator": "EDUNF_SAP_L2",
+                "suffix": "%",
+            },
+            # strictly here goes age 15-24
+            {
+                "name": "Youth/adult literacy rate",
+                "indicator": "EDUNF_LR_YOUTH",
+                "denominator": "EDUNF_SAP_L2",
+                "suffix": "%",
+            },
+        ],
+        "MAIN": {
+            "name": "PISA: 15-year-olds achieving proficiency Level 2 (%)",
+            "geo": "Country",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.Jet,
+                size_max=40,
+                zoom=2.5,
+                height=750,
+            ),
+            "indicators": ["EDU_PISA_MAT2", "EDU_PISA_REA2", "EDU_PISA_SCI2",],
+        },
+        "LEFT": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area",
+                y="OBS_VALUE",
+                color="Sex",
+                barmode="group",
+                text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
             "indicators": [
-                "EDU_SDG_SCH_L1",
-                "EDU_SDG_SCH_L2",
-                "EDU_SDG_SCH_L3",
+                "EDU_SDG_STU_L2_GLAST_MAT",
+                "EDU_SDG_STU_L2_GLAST_REA",
+                "EDU_SDG_STU_L1_GLAST_MAT",
+                "EDU_SDG_STU_L1_G2OR3_MAT",
+                "EDU_SDG_STU_L1_GLAST_REA",
+                "EDU_SDG_STU_L1_G2OR3_REA",
+            ],
+            "default": "EDU_SDG_STU_L2_GLAST_MAT",
+        },
+        "RIGHT": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "line",
+            "indicators": [
+                "EDU_SDG_STU_L2_GLAST_MAT",
+                "EDU_SDG_STU_L2_GLAST_REA",
+                "EDU_SDG_STU_L1_GLAST_MAT",
+                "EDU_SDG_STU_L1_G2OR3_MAT",
+                "EDU_SDG_STU_L1_GLAST_REA",
+                "EDU_SDG_STU_L1_G2OR3_REA",
+            ],
+            "default": "EDU_SDG_STU_L2_GLAST_MAT",
+        },
+        "AREA_3": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "EDU_SDG_STU_L2_GLAST_MAT",
+                "EDU_SDG_STU_L2_GLAST_REA",
+                "EDU_SDG_STU_L1_GLAST_MAT",
+                "EDU_SDG_STU_L1_G2OR3_MAT",
+                "EDU_SDG_STU_L1_GLAST_REA",
+                "EDU_SDG_STU_L1_G2OR3_REA",
             ],
         },
         "AREA_4": {
@@ -191,88 +293,14 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "EDUNF_CR_L1",
-                "EDUNF_CR_L2",
-                "EDUNF_CR_L3",
+                "EDU_SDG_STU_L2_GLAST_MAT",
+                "EDU_SDG_STU_L2_GLAST_REA",
+                "EDU_SDG_STU_L1_GLAST_MAT",
+                "EDU_SDG_STU_L1_G2OR3_MAT",
+                "EDU_SDG_STU_L1_GLAST_REA",
+                "EDU_SDG_STU_L1_G2OR3_REA",
             ],
-            "default": "EDUNF_CR_L1",
-        },
-    },
-    "QUALITY": {
-        "NAME": "Learning Quality",
-        "CARDS": [
-            {
-                "name": "Proficiency in Math",
-                "indicator": "EDU_SDG_STU_L2_MATH",
-                "suffix": "%",
-            },
-            {
-                "name": "Proficiency in Reading",
-                "indicator": "EDU_SDG_STU_L2_READING",
-                "suffix": "%",
-            },
-            {
-                "name": "Youth/adult literacy rate",
-                "indicator": "EDUNF_LR_L02",
-                "suffix": "%",
-            },
-            {
-                "name": "Childhood Educational Development",
-                "indicator": "EDU_SDG_GER_L01",
-                "suffix": "%",
-            },
-        ],
-        "MAIN": {
-            "name": "Percentage of students performing below level 2/basic proficiency in all 3 subjects",
-            "geo": "Country",
-            "options": dict(
-                lat="latitude",
-                lon="longitude",
-                size="Reading",
-                text="Country",
-                color="Reading",
-                color_continuous_scale=px.colors.sequential.Jet,
-                size_max=40,
-                zoom=2.5,
-                height=750,
-            ),
-        },
-        "LEFT": {
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                color="Sex",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
-            "indicators": [
-                "EDU_SDG_STU_L2_MATH",
-                "EDU_SDG_STU_L2_READING",
-                "EDU_SDG_STU_L1_GLAST_MATH",
-                "EDU_SDG_STU_L1_G2OR3_MATH",
-                "EDU_SDG_STU_L1_GLAST_READING",
-                "EDU_SDG_STU_L1_G2OR3_READING",
-            ],
-        },
-        "RIGHT": {
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                color="Sex",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
-            "indicators": [
-                "EDUNF_ROFST_L2",
-                "EDU_SDG_STU_L2_MATH",
-                "EDU_SDG_STU_L1_GLAST_MATH",
-                "EDU_SDG_STU_L1_G2OR3_READING",
-                "EDUNF_NERA_L2",
-            ],
+            "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
     },
 }

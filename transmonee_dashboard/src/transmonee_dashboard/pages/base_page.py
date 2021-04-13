@@ -321,7 +321,6 @@ def main_options(theme, indicators_dict):
 def make_map(theme, years_slider, countries, indicator, indicators_dict):
 
     name = indicators_dict[theme]["MAIN"]["name"]
-    geo = indicators_dict[theme]["MAIN"]["geo"]
     options = indicators_dict[theme]["MAIN"]["options"]
     indicators = indicators_dict[theme]["MAIN"].get("indicators")
 
