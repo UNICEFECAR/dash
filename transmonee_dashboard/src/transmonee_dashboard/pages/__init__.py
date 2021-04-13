@@ -39,6 +39,10 @@ codes = [
     "EDU_SDG_STU_L1_G2OR3_MAT",
     "EDU_SDG_STU_L1_GLAST_REA",
     "EDU_SDG_STU_L1_G2OR3_REA",
+    "EDUNF_LR_YOUTH",
+    "EDU_PISA_MAT2",
+    "EDU_PISA_REA2",
+    "EDU_PISA_SCI2",
     "EDU_SDG_GER_L01",
     "EDUNF_PRP_L02",
     "EDUNF_ROFST_L2",
@@ -137,13 +141,16 @@ regions = [
     {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
     {
         "label": "Western Balkans",
-        "value": "Albania,Bosnia and Herzegovina,North Macedonia,Montenegro,Serbia",
+        "value": "Albania,Bosnia and Herzegovina,Croatia,Kosovo,North Macedonia,Montenegro,Serbia",
     },
     {
         "label": "Central Asia",
         "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
     },
-    {"label": "Eastern Europe", "value": "Bulgaria,Croatia,Romania,Turkey"},
+    {
+        "label": "Eastern Europe",
+        "value": "Bulgaria,Belarus,Republic of Moldova,Romania,Russian Federation,Turkey,Ukraine",
+    },
     {
         "label": "Western Europe",
         "value": "Andorra,Austria,Belgium,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Holy See,Hungary,Iceland,Ireland,Italy,Latvia,Liechtenstein,Lithuania,Luxembourg,Malta,Monaco,Netherlands,Norway,Poland,Portugal,San Marino,Slovakia,Slovenia,Spain,Sweden,Switzerland,United Kingdom",
