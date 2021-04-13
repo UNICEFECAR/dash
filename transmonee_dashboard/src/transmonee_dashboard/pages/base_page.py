@@ -256,15 +256,17 @@ def get_base_layout(**kwargs):
 
 from ..app import app
 
+
 @app.callback(
-    Output('square', 'children'),
-    Output('cube', 'children'),
-    Output('twos', 'children'),
-    Output('threes', 'children'),
-    Output('x^x', 'children'),
-    Input('theme_selector', 'value'))
+    Output("square", "children"),
+    Output("cube", "children"),
+    Output("twos", "children"),
+    Output("threes", "children"),
+    Output("x^x", "children"),
+    Input("theme_selector", "value"),
+)
 def callback_a(x):
-    return x**2, x**3, 2**x, 3**x, x**x
+    return x ** 2, x ** 3, 2 ** x, 3 ** x, x ** x
 
 
 @app.callback(
@@ -297,6 +299,7 @@ def show_cards(theme, years, countires, indicators_dict):
                 card["indicator"],
                 card["denominator"],
                 card["suffix"],
+                card.get("absolute"),
             )
         )
         for card in indicators_dict[theme]["CARDS"]
@@ -339,21 +342,21 @@ def make_map(theme, years_slider, countries, indicator, indicators_dict):
 
     name = indicators_dict[theme]["MAIN"]["name"]
     options = indicators_dict[theme]["MAIN"]["options"]
-    indicators = indicators_dict[theme]["MAIN"].get("indicators")
+    indicator = (
+        indicator if indicator else indicators_dict[theme]["MAIN"]["indicators"][0]
+    )
+    compare = "Sex"
 
-    if indicators:
-        indicator = indicator or indicators[0]
+    time = years[slice(*years_slider)]
+    total = "Total"  # potentially move to this config
+    query = f"CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & {compare} == @total"
 
-        df = (
-            data[
-                (data["CODE"] == indicator)
-                & (data["Geographic area"].isin(countries))
-                & (data["TIME_PERIOD"].isin(years[slice(*years_slider)]))
-            ]
-            .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
-            .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
-            .reset_index()
-        )
+    df = (
+        data.query(query)
+        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
+        .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .reset_index()
+    )
 
     return generate_map(name, df, options)
 
@@ -599,22 +602,26 @@ def area_3_figure(theme, year_slider, countries, xaxis, indicators_dict):
     options = indicators_dict[theme]["AREA_3"]["options"]
     indicator = xaxis if xaxis else indicators_dict[theme]["AREA_3"]["indicators"][0]
 
+    time = years[slice(*year_slider)]
+    total = "Total"  # potentially move to this config
+    cohorts = data[data["CODE"] == indicator][compare].unique()
+    query = (
+        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
+    )
+    if len(cohorts) > 1:
+        query = "{} & {} != @total".format(query, compare)
+
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
-        data[
-            (data["CODE"] == indicator)
-            # & (data[compare] != "Total")
-            & (data["TIME_PERIOD"].isin(years[slice(*year_slider)]))
-            & (data["Geographic area"].isin(countries))
-        ]
+        data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", compare])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
         .reset_index()
     )
 
     options["title"] = name
-    # if not getattr(df, compare).empty:
-    #     options["color"] = compare
+    if len(cohorts) > 1:
+        options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     fig.update_xaxes(categoryorder="total descending")

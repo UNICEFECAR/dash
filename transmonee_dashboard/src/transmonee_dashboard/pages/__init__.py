@@ -212,18 +212,22 @@ def page_not_found(pathname):
 
 
 def indicator_card(
-    name, year_slider, countires, numerator, denominator, suffix, absolute=False
+    name, year_slider, countries, numerator, denominator, suffix, absolute=False
 ):
     time = years[slice(*year_slider)]
-    query = (
-        "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries"
-    )
+    sex = ["_T"]  # potentially move to this config
+    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
     indicator_values = (
         data.query(query)
-        .groupby(["Geographic area", "TIME_PERIOD",])
+        .groupby(
+            [
+                "Geographic area",
+                "TIME_PERIOD",
+            ]
+        )
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -246,18 +250,16 @@ def indicator_card(
         numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
         / denominators.to_numpy().sum()
         if absolute
-        # will drop missing countires
         else (
             numerator_pairs["OBS_VALUE"]
             / 100
             * denominators
             / denominators.to_numpy().sum()
         )
-        .dropna()
+        .dropna()  # will drop missing countires
         .to_numpy()
         .sum()
-    )
-
+    ) * 100
     sources = index_intersect.tolist()
 
     label = (

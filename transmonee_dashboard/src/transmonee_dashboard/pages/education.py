@@ -61,7 +61,10 @@ indicators_dict = {
         "LEFT": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -130,7 +133,11 @@ indicators_dict = {
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
             ),
             "compare": "Sex",
-            "indicators": ["EDU_SDG_SCH_L1", "EDU_SDG_SCH_L2", "EDU_SDG_SCH_L3",],
+            "indicators": [
+                "EDU_SDG_SCH_L1",
+                "EDU_SDG_SCH_L2",
+                "EDU_SDG_SCH_L3",
+            ],
         },
         "AREA_4": {
             "graphs": {
@@ -156,7 +163,11 @@ indicators_dict = {
                 },
             },
             "default_graph": "bar",
-            "indicators": ["EDUNF_CR_L1", "EDUNF_CR_L2", "EDUNF_CR_L3",],
+            "indicators": [
+                "EDUNF_CR_L1",
+                "EDUNF_CR_L2",
+                "EDUNF_CR_L3",
+            ],
             "default": "EDUNF_CR_L1",
         },
     },
@@ -195,9 +206,14 @@ indicators_dict = {
                 color_continuous_scale=px.colors.sequential.Jet,
                 size_max=40,
                 zoom=2.5,
+                animation_frame="TIME_PERIOD",
                 height=750,
             ),
-            "indicators": ["EDU_PISA_MAT2", "EDU_PISA_REA2", "EDU_PISA_SCI2",],
+            "indicators": [
+                "EDU_PISA_MAT2",
+                "EDU_PISA_REA2",
+                "EDU_PISA_SCI2",
+            ],
         },
         "LEFT": {
             "type": "bar",
