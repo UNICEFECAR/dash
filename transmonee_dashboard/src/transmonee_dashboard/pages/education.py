@@ -208,6 +208,7 @@ indicators_dict = {
                 zoom=2.5,
                 animation_frame="TIME_PERIOD",
                 height=750,
+                animation_frame="TIME_PERIOD",
             ),
             "indicators": [
                 "EDU_PISA_MAT2",

@@ -135,7 +135,7 @@ codes = [
     "DM_POP_TOT_AGE",
 ]
 
-years = [i for i in range(2008, 2021)]
+years = list(range(2008, 2021))
 
 regions = [
     {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
