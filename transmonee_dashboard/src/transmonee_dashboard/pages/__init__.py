@@ -67,7 +67,11 @@ codes = [
     "EDUNF_NERA_L2",
     "EDUNF_GER_L1",
     "EDUNF_GER_L2",
+    "EDUNF_GER_L2_GEN",
+    "EDUNF_GER_L2_VOC",
     "EDUNF_GER_L3",
+    "EDUNF_GER_L3_GEN",
+    "EDUNF_GER_L3_VOC",
     "EDUNF_NIR_L1_ENTRYAGE",
     "EDUNF_STU_L1_TOT",
     "EDUNF_STU_L2_TOT",
@@ -84,6 +88,16 @@ codes = [
     "EDUNF_SAP_L02",
     "EDUNF_SAP_L1T3",
     "EDUNF_SAP_L2",
+    "WS_SCH_H-B",
+    "WS_SCH_S-B",
+    "WS_SCH_W-B",
+    "EDU_CHLD_DISAB",
+    "EDU_CHLD_DISAB_GENERAL",
+    "EDU_CHLD_DISAB_SPECIAL",
+    "EDU_CHLD_DISAB_L02",
+    "EDU_CHLD_DISAB_L1",
+    "EDU_CHLD_DISAB_L2",
+    "EDU_CHLD_DISAB_L3",
     "JJ_CHLD_CRIME",
     "JJ_CHLD_CRIMERT",
     "PT_CHLD_1-14_PS-PSY-V_CGVR",
@@ -135,7 +149,7 @@ codes = [
     "DM_POP_TOT_AGE",
 ]
 
-years = [i for i in range(2008, 2021)]
+years = list(range(2008, 2021))
 
 regions = [
     {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},

@@ -97,6 +97,7 @@ def get_base_layout(**kwargs):
                                             className="control_label",
                                         ),
                                         # TODO: _ make dynamic based on indicators_dict
+                                        # (eg: account for TMEE countries only for example --> child protection)
                                         dbc.Checklist(
                                             id="country_selector",
                                             options=county_options,
