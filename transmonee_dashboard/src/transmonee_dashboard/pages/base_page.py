@@ -16,6 +16,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
+import dash_treeview_antd
+
 from ..app import app, cache
 from . import (
     mapbox_access_token,
@@ -64,8 +66,9 @@ def get_base_layout(**kwargs):
                                                 for key, value in indicators_dict.items()
                                             ],
                                             value=list(indicators_dict.keys())[0],
-                                            className="dcc_control",
+                                            # className="dcc_control",
                                         ),
+                                        html.Br(),
                                         html.P(
                                             "Filter by year:",
                                             className="control_label",
@@ -82,6 +85,7 @@ def get_base_layout(**kwargs):
                                             value=[0, len(years) - 1],
                                             className="dcc_control",
                                         ),
+                                        html.Br(),
                                         html.P(
                                             "Filter by Region:",
                                             className="control_label",
@@ -92,19 +96,47 @@ def get_base_layout(**kwargs):
                                             className="dcc_control",
                                             multi=True,
                                         ),
-                                        html.P(
-                                            "Filter by Country:",
-                                            className="control_label",
-                                        ),
                                         # TODO: _ make dynamic based on indicators_dict
                                         # (eg: account for TMEE countries only for example --> child protection)
-                                        dbc.Checklist(
+                                        # dbc.Checklist(
+                                        #     id="country_selector",
+                                        #     options=county_options,
+                                        #     value=[
+                                        #         item["value"] for item in county_options
+                                        #     ],
+                                        #     # className="custom-control-input",
+                                        # ),
+                                        dash_treeview_antd.TreeView(
                                             id="country_selector",
-                                            options=county_options,
-                                            value=[
-                                                item["value"] for item in county_options
-                                            ],
-                                            className="dcc_control",
+                                            multiple=True,
+                                            checkable=True,
+                                            checked=["0"],
+                                            # selected=[],
+                                            # expanded=["0"],
+                                            data={
+                                                "title": "Regions",
+                                                "key": "0",
+                                                "children": [
+                                                    {
+                                                        "title": region["label"],
+                                                        "key": f"0-{num1}",
+                                                        "children": [
+                                                            {
+                                                                "title": name,
+                                                                "key": f"0-{num1}-{num2}",
+                                                            }
+                                                            for num2, name in enumerate(
+                                                                region["value"].split(
+                                                                    ","
+                                                                )
+                                                            )
+                                                        ],
+                                                    }
+                                                    for num1, region in enumerate(
+                                                        regions
+                                                    )
+                                                ],
+                                            },
                                         ),
                                     ]
                                 ),
@@ -275,8 +307,9 @@ def indicator_card(
     absolute=False,
 ):
     time = years[slice(*year_slider)]
-    sex = ["_T"]  # potentially move to this config
-    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex"
+    total_code = ["_T"]  # potentially move to this config
+    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @total_code \
+        & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
@@ -309,17 +342,15 @@ def indicator_card(
     indicator_sum = (
         numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
         / denominators.to_numpy().sum()
+        * 100
         if absolute
         else (
-            numerator_pairs["OBS_VALUE"]
-            / 100
-            * denominators
-            / denominators.to_numpy().sum()
+            numerator_pairs["OBS_VALUE"] * denominators / denominators.to_numpy().sum()
         )
         .dropna()  # will drop missing countires
         .to_numpy()
         .sum()
-    ) * 100
+    )
     sources = index_intersect.tolist()
 
     label = (
@@ -332,15 +363,16 @@ def indicator_card(
             dbc.CardHeader(name),
             dbc.CardBody(
                 [
-                    html.H4(
+                    html.H1(
                         "{:.0f}{}".format(indicator_sum, suffix),
+                        className="display-4",
                         style={
-                            "fontSize": 40,
+                            # "fontSize": 50,
                             "textAlign": "center",
                             "color": "#0074D9",
                         },
                     ),
-                    html.P(label, className="card-text", style=CARD_TEXT_STYLE),
+                    html.P(label, className="card-text"),
                 ]
             ),
             dbc.Popover(

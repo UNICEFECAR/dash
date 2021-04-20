@@ -6,4 +6,5 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 
 
-layout = html.Div("Page 3")
+def get_layout(**kwargs):
+    return html.Div("Home")

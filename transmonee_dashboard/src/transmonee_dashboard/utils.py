@@ -138,7 +138,8 @@ class DashNavBar:
             active = (current_path == href) or (i == 0 and current_path == route_prefix)
             nav_item = dbc.NavItem(dbc.NavLink(text, href=href, active=active))
             nav_items.append(nav_item)
-        return html.Ul(nav_items, className="navbar-nav", **kwargs)
+        # TODO: move class name for nav container to config
+        return html.Ul(nav_items, className="header__menu", **kwargs)
 
 
 def get_dash_args_from_flask_config(config):

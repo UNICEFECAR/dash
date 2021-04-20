@@ -32,9 +32,9 @@ ROUTES_PATHNAME_PREFIX = None
 #
 # or if you want to use a Bootswatch theme:
 #
-import dash_bootstrap_components as dbc
-EXTERNAL_STYLESHEETS = [dbc.themes.FLATLY]
-# EXTERNAL_STYLESHEETS = []
+# import dash_bootstrap_components as dbc
+# EXTERNAL_STYLESHEETS = [dbc.themes.FLATLY]
+EXTERNAL_STYLESHEETS = []
 
 # Externally hosted Javascript files go in here.
 EXTERNAL_SCRIPTS = []
