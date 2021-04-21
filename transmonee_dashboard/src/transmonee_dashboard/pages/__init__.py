@@ -155,7 +155,7 @@ regions = [
     {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
     {
         "label": "Western Balkans",
-        "value": "Albania,Bosnia and Herzegovina,Croatia,Kosovo,North Macedonia,Montenegro,Serbia",
+        "value": "Albania,Bosnia and Herzegovina,Croatia,Kosovo (UN SC resolution 1244),North Macedonia,Montenegro,Serbia",
     },
     {
         "label": "Central Asia",
@@ -168,6 +168,36 @@ regions = [
     {
         "label": "Western Europe",
         "value": "Andorra,Austria,Belgium,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Holy See,Hungary,Iceland,Ireland,Italy,Latvia,Liechtenstein,Lithuania,Luxembourg,Malta,Monaco,Netherlands,Norway,Poland,Portugal,San Marino,Slovakia,Slovenia,Spain,Sweden,Switzerland,United Kingdom",
+    },
+]
+
+unicef_country_prog = [
+    "Albania,Armenia,Azerbaijan,Belarus,Bosnia and Herzegovina,Bulgaria,Croatia,Georgia,Greece,Kazakhstan,Kyrgyzstan,Kosovo (UN SC resolution 1244),Montenegro,North Macedonia,Republic of Moldova,Romania,Serbia,Tajikistan,Turkmenistan,Turkey,Ukraine,Uzbekistan"
+]
+
+eu_engagement = [
+    {
+        "label": "Central Asia",
+        "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
+    },
+    {
+        "label": "Eastern Partnership",
+        "value": "Armenia,Azerbaijan,Belarus,Georgia,Republic of Moldova,Ukraine",
+    },
+    {"label": "EFTA", "value": "Iceland,Liechtenstein,Norway,Switzerland",},
+    {
+        "label": "EU Member States",
+        "value": "Austria,Belgium,Bulgaria,Croatia,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Hungary,Ireland,Italy,Latvia,Lithuania,Luxembourg,Malta,Netherlands,Poland,Portugal,Romania,Slovakia,Slovenia,Spain,Sweden",
+    },
+    {"label": "Other", "value": "Andorra,Monaco,Holy See,San Marino",},
+    {
+        "label": "Pre-accession countries",
+        "value": "Albania,Bosnia and Herzegovina,Kosovo (UN SC resolution 1244),North Macedonia,Montenegro,Serbia,Turkey",
+    },
+    {"label": "Russian Federation", "value": "Russian Federation",},
+    {
+        "label": "United Kingdom (left EU on January 31, 2020)",
+        "value": "United Kingdom",
     },
 ]
 
@@ -218,5 +248,4 @@ indicators = data["Indicator"].unique()
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))
-
 
