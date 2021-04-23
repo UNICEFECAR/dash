@@ -56,8 +56,7 @@ def get_base_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         html.P(
-                                            "Select theme:",
-                                            className="control_label",
+                                            "Select theme:", className="control_label",
                                         ),
                                         dcc.Dropdown(
                                             id="theme_selector",
@@ -302,25 +301,21 @@ def indicator_card(
     year_slider,
     countries,
     numerator,
-    denominator,
     suffix,
+    denominator=None,
     absolute=False,
+    sex_code=["_T"],
 ):
     time = years[slice(*year_slider)]
     total_code = ["_T"]  # potentially move to this config
-    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @total_code \
+    query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex_code \
         & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
     indicator_values = (
         data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -331,27 +326,60 @@ def indicator_card(
         .set_index(["Geographic area", "TIME_PERIOD"])
     )
 
-    # select the avalible denominators for countiries in selected years
-    indicator = [denominator]
-    denominator_values = data.query(query).set_index(["Geographic area", "TIME_PERIOD"])
-    # select only those denominators that match avalible indicators
-    index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+    # check for denominator
+    if denominator:
 
-    denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
-
-    indicator_sum = (
-        numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
-        / denominators.to_numpy().sum()
-        * 100
-        if absolute
-        else (
-            numerator_pairs["OBS_VALUE"] * denominators / denominators.to_numpy().sum()
+        # select the avalible denominators for countiries in selected years
+        indicator = [denominator]
+        denominator_values = data.query(query).set_index(
+            ["Geographic area", "TIME_PERIOD"]
         )
-        .dropna()  # will drop missing countires
-        .to_numpy()
-        .sum()
-    )
-    sources = index_intersect.tolist()
+        # select only those denominators that match avalible indicators
+        index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+
+        denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
+
+        indicator_sum = (
+            numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
+            / denominators.to_numpy().sum()
+            * 100
+            if absolute
+            else (
+                numerator_pairs["OBS_VALUE"]
+                * denominators
+                / denominators.to_numpy().sum()
+            )
+            .dropna()  # will drop missing countires
+            .to_numpy()
+            .sum()
+        )
+        sources = index_intersect.tolist()
+
+    elif suffix == "Countries":
+        # this is a hack to accomodate small cases (to discuss with James)
+        if "FREE" in numerator:
+            # trick to filter number of years of free education
+            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
+            sources = numerator_pairs.index.tolist()
+        elif absolute:
+            # trick to accomodate cards for data availability among group of indicators
+            # doesn't require filtering by count == len(numors)
+            numerator_pairs = (
+                indicator_values.groupby("Geographic area", as_index=False)
+                .last()
+                .set_index(["Geographic area", "TIME_PERIOD"])
+            )
+            sources = numerator_pairs.index.tolist()
+            indicator_sum = len(sources)
+        else:
+            # trick to accomodate cards for admin exams (AND for boolean indicators)
+            # filter exams according to number of indicators
+            indicator_sum = (numerator_pairs.OBS_VALUE == len(numors)).to_numpy().sum()
+            sources = numerator_pairs.index.tolist()
+
+    else:
+        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
+        sources = numerator_pairs.index.tolist()
 
     label = (
         data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
@@ -376,10 +404,7 @@ def indicator_card(
                 ]
             ),
             dbc.Popover(
-                [
-                    dbc.PopoverHeader("Sources"),
-                    dbc.PopoverBody(str(sources)),
-                ],
+                [dbc.PopoverHeader("Sources"), dbc.PopoverBody(str(sources)),],
                 id="hover",
                 target=card_id,
                 trigger="hover",
@@ -412,8 +437,7 @@ def display_areas(theme, indicators_dict):
 
 
 @app.callback(
-    Output("country_selector", "value"),
-    [Input("region_selector", "value")],
+    Output("country_selector", "value"), [Input("region_selector", "value")],
 )
 def select_region(region):
     if region:
@@ -440,9 +464,10 @@ def show_cards(theme, years, countires, indicators_dict):
                 years,
                 countires,
                 card["indicator"],
-                card["denominator"],
                 card["suffix"],
+                card.get("denominator"),
                 card.get("absolute"),
+                card.get("sex"),
             )
         )
         for num, card in enumerate(indicators_dict[theme]["CARDS"])
@@ -451,18 +476,13 @@ def show_cards(theme, years, countires, indicators_dict):
 
 @app.callback(
     Output("main_indicators", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     [State("indicators", "data")],
 )
 def main_options(theme, indicators_dict):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["MAIN"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -507,18 +527,13 @@ def make_map(theme, years_slider, countries, indicator, indicators_dict):
 # Selectors -> left graph
 @app.callback(
     Output("left_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     [State("indicators", "data")],
 )
 def left_indicators(theme, indicators_dict):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["LEFT"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -529,10 +544,7 @@ def left_indicators(theme, indicators_dict):
 
 @app.callback(
     Output("left_xaxis_column", "value"),
-    [
-        Input("theme_selector", "value"),
-        Input("left_xaxis_column", "options"),
-    ],
+    [Input("theme_selector", "value"), Input("left_xaxis_column", "options"),],
     [State("indicators", "data")],
 )
 def left_indicators_value(theme, options, indicators_dict):
@@ -543,10 +555,7 @@ def left_indicators_value(theme, options, indicators_dict):
 
 # Selectors -> left graph
 @app.callback(
-    Output("left_graph_options", "options"),
-    [
-        Input("left_xaxis_column", "value"),
-    ],
+    Output("left_graph_options", "options"), [Input("left_xaxis_column", "value"),],
 )
 def left_options(indicator):
 
@@ -615,18 +624,13 @@ def left_figure(theme, year_slider, countries, xaxis, compare, indicators_dict):
 
 @app.callback(
     Output("right_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     [State("indicators", "data")],
 )
 def right_options(theme, indicators_dict):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["RIGHT"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -707,18 +711,13 @@ def right_figure(
 # Selectors -> left graph
 @app.callback(
     Output("area_3_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     [State("indicators", "data")],
 )
 def area_3_options(theme, indicators_dict):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["AREA_3"]["indicators"])
         ][["CODE", "Indicator"]]
@@ -774,18 +773,13 @@ def area_3_figure(theme, year_slider, countries, xaxis, indicators_dict):
 # Selectors -> left graph
 @app.callback(
     Output("area_4_xaxis_column", "options"),
-    [
-        Input("theme_selector", "value"),
-    ],
+    [Input("theme_selector", "value"),],
     [State("indicators", "data")],
 )
 def area_4_options(theme, indicators_dict):
 
     return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
+        {"label": item["Indicator"], "value": item["CODE"],}
         for item in data[
             data["CODE"].isin(indicators_dict[theme]["AREA_4"]["indicators"])
         ][["CODE", "Indicator"]]
