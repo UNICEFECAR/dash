@@ -10,29 +10,21 @@ indicators_dict = {
         "NAME": "Participation",
         "CARDS": [
             {
-                "name": "Regional OOS rate (P+LS+US)",
+                "name": "Total Number OOS (P+LS+US)",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
-                "denominator": "EDUNF_SAP_L1T3",
-                "suffix": "%",
-                "absolute": True,
+                "suffix": "Children, Adolescents and Youth",
             },
             {
-                "name": "Participation in organized learning",
-                "indicator": "EDUNF_NER_L02",
-                "denominator": "EDUNF_SAP_L02",
-                "suffix": "%",
+                "name": "Number of Girls OOS (P+LS+US)",
+                "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "Female Children, Adolescents and Youth",
+                "sex": "F",
             },
             {
-                "name": "Entry to primary education",
-                "indicator": "EDUNF_CR_L2",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Total Number OOS Under-1 Year (P)",
+                "indicator": "EDUNF_OFST_L1_UNDER1",
+                "suffix": "Children under-1 year of the primary official entry age",
             },
-            # {
-            #     "name": "Out of school children rate",
-            #     "indicator": "EDUNF_ROFST_L3",
-            #     "suffix": "%",
-            # },
         ],
         "MAIN": {
             "name": "Out of School Children",
@@ -190,23 +182,25 @@ indicators_dict = {
         "NAME": "Learning Quality",
         "CARDS": [
             {
-                "name": "Proficiency in Math",
-                "indicator": "EDU_SDG_STU_L2_GLAST_MAT",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Total Number of Repeaters (P+LS)",
+                "indicator": "EDUNF_RPTR_L1,EDUNF_RPTR_L2",
+                "suffix": "Children and Adolescents",
             },
             {
-                "name": "Proficiency in Reading",
-                "indicator": "EDU_SDG_STU_L2_GLAST_REA",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Total Number of Early School Leavers (P)",
+                "indicator": "EDUNF_ESL_L1",
+                "suffix": "Children",
             },
-            # strictly here goes age 15-24
             {
-                "name": "Youth/adult literacy rate",
-                "indicator": "EDUNF_LR_YOUTH",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Number of Countries assessing both Math and Reading learning (End Primary)",
+                "indicator": "EDUNF_ADMIN_L1_GLAST_REA,EDUNF_ADMIN_L1_GLAST_MAT",
+                "suffix": "Countries",
+            },
+            {
+                "name": "Number of Countries participating in PISA",
+                "indicator": "EDU_PISA_MAT,EDU_PISA_REA,EDU_PISA_SCI",
+                "suffix": "Countries",
+                "absolute": True,
             },
         ],
         "MAIN": {
@@ -334,23 +328,19 @@ indicators_dict = {
         "NAME": "Governance",
         "CARDS": [
             {
-                "name": "Proficiency in Math",
-                "indicator": "EDU_SDG_STU_L2_GLAST_MAT",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Number of Countries guaranteeing free education (Pre-Primary 1+ years)",
+                "indicator": "EDU_SDG_FREE_EDU_L02",
+                "suffix": "Countries",
             },
             {
-                "name": "Proficiency in Reading",
-                "indicator": "EDU_SDG_STU_L2_GLAST_REA",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Enrolments in Private Institutions (P+LS+US)",
+                "indicator": "EDUNF_STU_L1_PRV,EDUNF_STU_L2_PRV,EDUNF_STU_L3_PRV",
+                "suffix": "Children, Adolescents and Youth",
             },
-            # strictly here goes age 15-24
             {
-                "name": "Youth/adult literacy rate",
-                "indicator": "EDUNF_LR_YOUTH",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "name": "Total Number of classroom teachers (P+LS+US)",
+                "indicator": "EDUNF_TEACH_L1,EDUNF_TEACH_L2,EDUNF_TEACH_L3",
+                "suffix": "Persons",
             },
         ],
         "MAIN": {
@@ -368,11 +358,7 @@ indicators_dict = {
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
-            "indicators": [
-                "EDU_PISA_MAT2",
-                "EDU_PISA_REA2",
-                "EDU_PISA_SCI2",
-            ],
+            "indicators": ["EDU_PISA_MAT2", "EDU_PISA_REA2", "EDU_PISA_SCI2",],
         },
         "LEFT": {
             "type": "bar",
