@@ -116,9 +116,7 @@ indicators_dict = {
             {
                 "name": "TMEE Number: Children in Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
-                "denominator": "",
                 "suffix": "Children",
-                "absolute": True,
             },
             # revise denominator: population children 0-17
             {
@@ -130,16 +128,12 @@ indicators_dict = {
             {
                 "name": "TMEE Number: Children cared by Fosters or Guardians",
                 "indicator": "PT_CHLD_INCARE_FOSTER",
-                "denominator": "",
                 "suffix": "Children",
-                "absolute": True,
             },
             {
                 "name": "TMEE Number: Children available for adoption",
                 "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
-                "denominator": "",
                 "suffix": "Children",
-                "absolute": True,
             },
         ],
         "MAIN": {
@@ -292,9 +286,7 @@ indicators_dict = {
             {
                 "name": "TMEE Number: Child Victims of Crime",
                 "indicator": "JJ_CHLD_CRIME",
-                "denominator": "",
-                "suffix": "PER_100,000",
-                "absolute": True,
+                "suffix": "PER_100,000 Children",
             },
             # revise denominator: population children 0-17
             {
