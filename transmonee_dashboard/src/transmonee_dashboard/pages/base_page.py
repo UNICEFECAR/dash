@@ -600,7 +600,7 @@ def left_figure(theme, year_slider, countries, xaxis, compare, indicators_dict):
     indicator = xaxis if xaxis else indicators_dict[theme]["LEFT"]["default"]
 
     # data disaggregation unique values
-    data_disag_unique = data[compare].unique()
+    data_disag_unique = data[data["CODE"] == indicator][compare].unique()
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
