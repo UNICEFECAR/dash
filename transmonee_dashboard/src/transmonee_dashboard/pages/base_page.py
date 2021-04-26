@@ -304,10 +304,11 @@ def indicator_card(
     suffix,
     denominator=None,
     absolute=False,
-    sex_code=["_T"],
+    sex_code=None,
 ):
     time = years[slice(*year_slider)]
     total_code = ["_T"]  # potentially move to this config
+    sex_code = sex_code if sex_code else total_code
     query = "CODE in @indicator & TIME_PERIOD in @time & `Geographic area` in @countries & SEX in @sex_code \
         & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
@@ -355,20 +356,23 @@ def indicator_card(
         )
         sources = index_intersect.tolist()
 
-    elif suffix == "Countries":
+    elif suffix.lower() == "countries":
         # this is a hack to accomodate small cases (to discuss with James)
         if "FREE" in numerator:
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
         elif absolute:
-            # trick to accomodate cards for data availability among group of indicators
+            # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
-            numerator_pairs = (
-                indicator_values.groupby("Geographic area", as_index=False)
-                .last()
-                .set_index(["Geographic area", "TIME_PERIOD"])
+            numerator_pairs = indicator_values.groupby(
+                "Geographic area", as_index=False
+            ).last()
+            max_time_filter = (
+                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
+            numerator_pairs.set_index(["Geographic area", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
         else:
@@ -392,7 +396,7 @@ def indicator_card(
             dbc.CardBody(
                 [
                     html.H1(
-                        "{:.0f}{}".format(indicator_sum, suffix),
+                        "{:.0f} {}".format(indicator_sum, suffix),
                         className="display-4",
                         style={
                             # "fontSize": 50,
