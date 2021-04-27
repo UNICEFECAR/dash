@@ -58,8 +58,7 @@ def get_base_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         html.P(
-                                            "Select theme:",
-                                            className="control_label",
+                                            "Select theme:", className="control_label",
                                         ),
                                         dcc.Dropdown(
                                             id="theme_selector",
@@ -333,23 +332,20 @@ def indicator_card(
     card_id,
     name,
     numerator,
-    denominator,
     suffix,
+    denominator=None,
     absolute=False,
+    sex_code=None,
 ):
     total_code = ["_T"]  # potentially move to this config
+    sex_code = sex_code if sex_code else total_code
     query = "CODE in @indicator & SEX in @total_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
     indicator_values = (
         data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -360,27 +356,63 @@ def indicator_card(
         .set_index(["Geographic area", "TIME_PERIOD"])
     )
 
-    # select the avalible denominators for countiries in selected years
-    indicator = [denominator]
-    denominator_values = data.query(query).set_index(["Geographic area", "TIME_PERIOD"])
-    # select only those denominators that match avalible indicators
-    index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+    # check for denominator
+    if denominator:
 
-    denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
-
-    indicator_sum = (
-        numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
-        / denominators.to_numpy().sum()
-        * 100
-        if absolute
-        else (
-            numerator_pairs["OBS_VALUE"] * denominators / denominators.to_numpy().sum()
+        # select the avalible denominators for countiries in selected years
+        indicator = [denominator]
+        denominator_values = data.query(query).set_index(
+            ["Geographic area", "TIME_PERIOD"]
         )
-        .dropna()  # will drop missing countires
-        .to_numpy()
-        .sum()
-    )
-    sources = index_intersect.tolist()
+        # select only those denominators that match avalible indicators
+        index_intersect = numerator_pairs.index.intersection(denominator_values.index)
+
+        denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
+
+        indicator_sum = (
+            numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
+            / denominators.to_numpy().sum()
+            * 100
+            if absolute
+            else (
+                numerator_pairs["OBS_VALUE"]
+                * denominators
+                / denominators.to_numpy().sum()
+            )
+            .dropna()  # will drop missing countires
+            .to_numpy()
+            .sum()
+        )
+        sources = index_intersect.tolist()
+
+    elif suffix.lower() == "countries":
+        # this is a hack to accomodate small cases (to discuss with James)
+        if "FREE" in numerator:
+            # trick to filter number of years of free education
+            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
+            sources = numerator_pairs.index.tolist()
+        elif absolute:
+            # trick cards data availability among group of indicators and latest time_period
+            # doesn't require filtering by count == len(numors)
+            numerator_pairs = indicator_values.groupby(
+                "Geographic area", as_index=False
+            ).last()
+            max_time_filter = (
+                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
+            )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
+            numerator_pairs.set_index(["Geographic area", "TIME_PERIOD"], inplace=True)
+            sources = numerator_pairs.index.tolist()
+            indicator_sum = len(sources)
+        else:
+            # trick to accomodate cards for admin exams (AND for boolean indicators)
+            # filter exams according to number of indicators
+            indicator_sum = (numerator_pairs.OBS_VALUE == len(numors)).to_numpy().sum()
+            sources = numerator_pairs.index.tolist()
+
+    else:
+        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
+        sources = numerator_pairs.index.tolist()
 
     label = (
         data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
@@ -393,7 +425,7 @@ def indicator_card(
             dbc.CardBody(
                 [
                     html.H1(
-                        "{:.0f}{}".format(indicator_sum, suffix),
+                        "{:.0f} {}".format(indicator_sum, suffix),
                         className="display-4",
                         style={
                             # "fontSize": 50,
@@ -405,10 +437,7 @@ def indicator_card(
                 ]
             ),
             dbc.Popover(
-                [
-                    dbc.PopoverHeader("Sources"),
-                    dbc.PopoverBody(str(sources)),
-                ],
+                [dbc.PopoverHeader("Sources"), dbc.PopoverBody(str(sources)),],
                 id="hover",
                 target=card_id,
                 trigger="hover",
@@ -439,9 +468,10 @@ def show_cards(theme, indicators_dict):
                 f"card-{num}",
                 card["name"],
                 card["indicator"],
-                card["denominator"],
                 card["suffix"],
+                card.get("denominator"),
                 card.get("absolute"),
+                card.get("sex"),
             )
         )
         for num, card in enumerate(indicators_dict[theme]["CARDS"])
@@ -569,7 +599,7 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
     compare = compare or indicators_dict[theme]["AREA_1"]["compare"]
 
     # data disaggregation unique values
-    data_disag_unique = data[compare].unique()
+    data_disag_unique = data[data["CODE"] == indicator][compare].unique()
 
     name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
