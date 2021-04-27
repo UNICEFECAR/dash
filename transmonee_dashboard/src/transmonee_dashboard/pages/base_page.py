@@ -521,9 +521,9 @@ def breakdown_options(indicator):
     Output("main_area", "figure"),
     [
         Input("main_options", "value"),
+        Input("store", "data"),
     ],
     [
-        State("theme_selector", "value"),
         State("year_slider", "value"),
         State("country_selector", "value"),
         State("indicators", "data"),
@@ -552,17 +552,17 @@ def main_figure(indicator, theme, years_slider, countries, indicators_dict):
 @app.callback(
     Output("area_1", "figure"),
     [
+        Input("store", "data"),
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
     ],
     [
-        State("theme_selector", "value"),
         State("year_slider", "value"),
         State("country_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_1_figure(indicator, compare, theme, year_slider, countries, indicators_dict):
+def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_dict):
 
     fig_type = indicators_dict[theme]["AREA_1"]["type"]
     options = indicators_dict[theme]["AREA_1"]["options"]
@@ -596,22 +596,22 @@ def area_1_figure(indicator, compare, theme, year_slider, countries, indicators_
 @app.callback(
     Output("area_2", "figure"),
     [
+        Input("store", "data"),
         Input("area_1_options", "value"),
         Input("area_2_options", "value"),
         Input("area_2_types", "value"),
     ],
     [
-        State("theme_selector", "value"),
         State("year_slider", "value"),
         State("country_selector", "value"),
         State("indicators", "data"),
     ],
 )
 def area_2_figure(
+    theme,
     area_1_selected,
     area_2_selected,
     selected_type,
-    theme,
     year_slider,
     countries,
     indicators_dict,
@@ -663,16 +663,16 @@ def area_2_figure(
 @app.callback(
     Output("area_3", "figure"),
     [
+        Input("store", "data"),
         Input("area_3_options", "value"),
     ],
     [
-        State("theme_selector", "value"),
         State("year_slider", "value"),
         State("country_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_3_figure(indicator, theme, year_slider, countries, indicators_dict):
+def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
 
     fig_type = indicators_dict[theme]["AREA_3"]["type"]
     compare = indicators_dict[theme]["AREA_3"]["compare"]
@@ -705,16 +705,16 @@ def area_3_figure(indicator, theme, year_slider, countries, indicators_dict):
 @app.callback(
     Output("area_4", "figure"),
     [
+        Input("store", "data"),
         Input("area_4_options", "value"),
     ],
     [
-        State("theme_selector", "value"),
         State("year_slider", "value"),
         State("country_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_4_figure(indicator, theme, year_slider, countries, indicators_dict):
+def area_4_figure(theme, indicator, year_slider, countries, indicators_dict):
 
     default = indicators_dict[theme]["AREA_4"]["default_graph"]
     fig_type = default
