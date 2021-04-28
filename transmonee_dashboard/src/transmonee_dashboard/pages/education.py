@@ -213,7 +213,6 @@ indicators_dict = {
             "options": dict(
                 x="Geographic area",
                 y="OBS_VALUE",
-                color="Sex",
                 barmode="group",
                 text="TIME_PERIOD",
             ),
