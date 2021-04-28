@@ -49,11 +49,15 @@ indicators_dict = {
                 "EDUNF_OFST_L2",
                 "EDUNF_OFST_L3",
             ],
+            "default": "EDUNF_ROFST_L3",
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -66,7 +70,7 @@ indicators_dict = {
             ],
             "default": "EDUNF_ROFST_L3",
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -204,7 +208,7 @@ indicators_dict = {
             ),
             "indicators": ["EDU_PISA_MAT", "EDU_PISA_REA", "EDU_PISA_SCI"],
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -227,7 +231,7 @@ indicators_dict = {
             ],
             "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -352,7 +356,7 @@ indicators_dict = {
                 "EDU_SDG_COMP_EDU_L02",
             ],
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -380,7 +384,7 @@ indicators_dict = {
             ],
             "default": "EDUNF_PRP_L1",
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
