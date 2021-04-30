@@ -12,6 +12,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+import plotly.io as pio
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -31,7 +32,7 @@ from . import (
 
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
-
+pio.templates.default = "plotly_white"
 px.set_mapbox_access_token(mapbox_access_token)
 
 
@@ -47,21 +48,36 @@ def get_base_layout(**kwargs):
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
-            dbc.CardDeck(
-                [],
-                id="cards_row"
-                # className="mb-4",
+            dbc.Row(
+                [
+                    dbc.CardDeck(
+                        id="cards_row",
+                    ),
+                ]
             ),
             html.Br(),
             # start first row
             dbc.Row(
                 [
-                    # start controls side bar
-                    dbc.CardColumns(
+                    dbc.Col(
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dcc.Graph(id="main_area"),
+                                    dcc.Dropdown(
+                                        id="main_options",
+                                        # className="dcc_control",
+                                    ),
+                                ]
+                            ),
+                        ),
+                    ),
+                    dbc.Col(
                         [
+                            # start controls side bar
                             dbc.Card(
                                 [
-                                    dbc.CardHeader("Data Explorer Controls"),
+                                    dbc.CardHeader("Filter Controls"),
                                     dbc.CardBody(
                                         [
                                             html.P(
@@ -81,100 +97,98 @@ def get_base_layout(**kwargs):
                                                 className="dcc_control",
                                             ),
                                             html.Br(),
-                                            html.P(
-                                                "Filter by year:",
-                                                className="control_label",
+                                            dbc.Button(
+                                                f"Selected Years: {years[0]} - {years[-1]}",
+                                                id="collapse-years-button",
+                                                className="mb-3",
+                                                color="primary",
                                             ),
-                                            dcc.RangeSlider(
-                                                id="year_slider",
-                                                min=0,
-                                                max=len(years) - 1,
-                                                step=None,
-                                                marks={
-                                                    index: str(year)
-                                                    for index, year in enumerate(years)
-                                                },
-                                                value=[0, len(years) - 1],
-                                                className="dcc_control",
+                                            dbc.Collapse(
+                                                dcc.RangeSlider(
+                                                    id="year_slider",
+                                                    min=0,
+                                                    max=len(years) - 1,
+                                                    step=None,
+                                                    marks={
+                                                        index: str(year)
+                                                        for index, year in enumerate(
+                                                            years
+                                                        )
+                                                    },
+                                                    value=[0, len(years) - 1],
+                                                    className="dcc_control",
+                                                ),
+                                                id="collapse-years",
                                             ),
                                             html.Br(),
-                                            html.P(
-                                                "Filter by Region:",
-                                                className="control_label",
+                                            dbc.Button(
+                                                "Select Countires: All",
+                                                id="collapse-countries-button",
+                                                className="mb-3",
+                                                color="primary",
                                             ),
-                                            dcc.Dropdown(
-                                                id="region_selector",
-                                                options=regions,
-                                                className="dcc_control",
-                                                multi=True,
+                                            dbc.Collapse(
+                                                # TODO: _ make dynamic based on indicators_dict
+                                                # (eg: account for TMEE countries only for example --> child protection)
+                                                # dbc.Checklist(
+                                                #     id="contry_selector",
+                                                #     options=county_options,
+                                                #     value=[
+                                                #         item["value"] for item in county_options
+                                                #     ],
+                                                #     # className="custom-control-input",
+                                                # ),
+                                                dash_treeview_antd.TreeView(
+                                                    id="contry_selector",
+                                                    multiple=True,
+                                                    checkable=True,
+                                                    checked=["0"],
+                                                    # selected=[],
+                                                    # expanded=["0"],
+                                                    data={
+                                                        "title": "Regions",
+                                                        "key": "0",
+                                                        "children": [
+                                                            {
+                                                                "title": region[
+                                                                    "label"
+                                                                ],
+                                                                "key": f"0-{num1}",
+                                                                "children": [
+                                                                    {
+                                                                        "title": name,
+                                                                        "key": f"0-{num1}-{num2}",
+                                                                    }
+                                                                    for num2, name in enumerate(
+                                                                        region[
+                                                                            "value"
+                                                                        ].split(",")
+                                                                    )
+                                                                ],
+                                                            }
+                                                            for num1, region in enumerate(
+                                                                regions
+                                                            )
+                                                        ],
+                                                    },
+                                                ),
+                                                id="collapse-countries",
                                             ),
-                                            # TODO: _ make dynamic based on indicators_dict
-                                            # (eg: account for TMEE countries only for example --> child protection)
-                                            # dbc.Checklist(
-                                            #     id="contry_selector",
-                                            #     options=county_options,
-                                            #     value=[
-                                            #         item["value"] for item in county_options
-                                            #     ],
-                                            #     # className="custom-control-input",
-                                            # ),
-                                            dash_treeview_antd.TreeView(
-                                                id="contry_selector",
-                                                multiple=True,
-                                                checkable=True,
-                                                checked=["0"],
-                                                # selected=[],
-                                                # expanded=["0"],
-                                                data={
-                                                    "title": "Regions",
-                                                    "key": "0",
-                                                    "children": [
-                                                        {
-                                                            "title": region["label"],
-                                                            "key": f"0-{num1}",
-                                                            "children": [
-                                                                {
-                                                                    "title": name,
-                                                                    "key": f"0-{num1}-{num2}",
-                                                                }
-                                                                for num2, name in enumerate(
-                                                                    region[
-                                                                        "value"
-                                                                    ].split(",")
-                                                                )
-                                                            ],
-                                                        }
-                                                        for num1, region in enumerate(
-                                                            regions
-                                                        )
-                                                    ],
-                                                },
-                                            ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 style={
                                     "float": "left",
-                                    "margin": "5px",
-                                    "width": "20rem",
+                                    "margin": "10px",
+                                    "max-width": "350px",
+                                    "z-index": "10",
                                 },
                             ),
-                            # end controls
-                            dbc.Card(
-                                dbc.CardBody(
-                                    [
-                                        dcc.Graph(id="main_area"),
-                                        dcc.Dropdown(
-                                            id="main_options",
-                                            # className="dcc_control",
-                                        ),
-                                    ]
-                                ),
-                            ),
-                        ]
-                        # className="pretty_container four columns",
+                        ],
+                        className="position-absolute",
                     ),
                 ],
+                className="position-relative",
             ),
             # end first row
             html.Br(),
@@ -191,7 +205,7 @@ def get_base_layout(**kwargs):
                                         ),
                                         dcc.Dropdown(
                                             id="area_1_options",
-                                            className="dropdown",
+                                            # style={"z-index": "15"},
                                         ),
                                         dcc.RadioItems(
                                             id="area_1_breakdowns",
@@ -236,7 +250,6 @@ def get_base_layout(**kwargs):
                         width=6,
                     ),
                 ],
-                className="row flex-display",
             ),
             html.Br(),
             dbc.Row(
@@ -288,6 +301,28 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
+
+
+@app.callback(
+    Output("collapse-years", "is_open"),
+    [Input("collapse-years-button", "n_clicks")],
+    [State("collapse-years", "is_open")],
+)
+def toggle_years(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("collapse-countries", "is_open"),
+    [Input("collapse-countries-button", "n_clicks")],
+    [State("collapse-countries", "is_open")],
+)
+def toggle_countries(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 
 @app.callback(
@@ -422,11 +457,10 @@ def indicator_card(
     )
     card = dbc.Card(
         [
-            dbc.CardHeader(name),
             dbc.CardBody(
                 [
                     html.H1(
-                        "{:.0f} {}".format(indicator_sum, suffix),
+                        "{:.0f}".format(indicator_sum),
                         className="display-4",
                         style={
                             # "fontSize": 50,
@@ -434,6 +468,7 @@ def indicator_card(
                             "color": "#0074D9",
                         },
                     ),
+                    html.H4(suffix, className="card-title"),
                     html.P(label, className="card-text"),
                 ]
             ),
@@ -455,7 +490,17 @@ def indicator_card(
 
 
 def generate_map(title, data, options):
-    return px.scatter_mapbox(data, title=title, **options)
+    fig = px.scatter_mapbox(data, **options)
+    fig.update_layout(
+        title={
+            "text": title,
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top",
+            "font": dict(size=18),
+        }
+    )
+    return fig
 
 
 @app.callback(
@@ -463,23 +508,22 @@ def generate_map(title, data, options):
     [
         Input("store", "data"),
     ],
-    [State("indicators", "data")],
+    [State("cards_row", "children"), State("indicators", "data")],
 )
-def show_cards(theme, indicators_dict):
-    return [
-        dbc.Col(
-            indicator_card(
-                f"card-{num}",
-                card["name"],
-                card["indicator"],
-                card["suffix"],
-                card.get("denominator"),
-                card.get("absolute"),
-                card.get("sex"),
-            )
+def show_cards(theme, current_cards, indicators_dict):
+    cards = [
+        indicator_card(
+            f"card-{num}",
+            card["name"],
+            card["indicator"],
+            card["suffix"],
+            card.get("denominator"),
+            card.get("absolute"),
+            card.get("sex"),
         )
         for num, card in enumerate(indicators_dict[theme]["CARDS"])
     ]
+    return cards
 
 
 @app.callback(
@@ -656,6 +700,7 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
         options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
+    # fig.update_layout(title_x=1)
     fig.update_xaxes(categoryorder="total descending")
     return fig
 

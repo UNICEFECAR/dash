@@ -187,7 +187,7 @@ codes = [
     "JJ_CHLD_PRISION_ADJUDICATION",
 ]
 
-years = list(range(2008, 2021))
+years = list(range(2010, 2021))
 
 regions = [
     {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
@@ -222,17 +222,26 @@ eu_engagement = [
         "label": "Eastern Partnership",
         "value": "Armenia,Azerbaijan,Belarus,Georgia,Republic of Moldova,Ukraine",
     },
-    {"label": "EFTA", "value": "Iceland,Liechtenstein,Norway,Switzerland",},
+    {
+        "label": "EFTA",
+        "value": "Iceland,Liechtenstein,Norway,Switzerland",
+    },
     {
         "label": "EU Member States",
         "value": "Austria,Belgium,Bulgaria,Croatia,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Hungary,Ireland,Italy,Latvia,Lithuania,Luxembourg,Malta,Netherlands,Poland,Portugal,Romania,Slovakia,Slovenia,Spain,Sweden",
     },
-    {"label": "Other", "value": "Andorra,Monaco,Holy See,San Marino",},
+    {
+        "label": "Other",
+        "value": "Andorra,Monaco,Holy See,San Marino",
+    },
     {
         "label": "Pre-accession countries",
         "value": "Albania,Bosnia and Herzegovina,Kosovo (UN SC resolution 1244),North Macedonia,Montenegro,Serbia,Turkey",
     },
-    {"label": "Russian Federation", "value": "Russian Federation",},
+    {
+        "label": "Russian Federation",
+        "value": "Russian Federation",
+    },
     {
         "label": "United Kingdom (left EU on January 31, 2020)",
         "value": "United Kingdom",
@@ -286,6 +295,3 @@ indicators = data["Indicator"].unique()
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))
-
-
-
