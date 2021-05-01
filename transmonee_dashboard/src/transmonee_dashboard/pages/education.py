@@ -11,6 +11,11 @@ indicators_dict = {
         "CARDS": [
             {
                 "name": "who are out-of-school",
+                "indicator": "EDUNF_OFST_L1_UNDER1",
+                "suffix": "children one year younger than the official primary entry age",
+            },
+            {
+                "name": "who are out-of-school",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "primary-to-upper-secondary-aged children and adolescents",
             },
@@ -19,11 +24,6 @@ indicators_dict = {
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "primary-to-upper-secondary-aged girls",
                 "sex": "F",
-            },
-            {
-                "name": "who are out-of-school",
-                "indicator": "EDUNF_OFST_L1_UNDER1",
-                "suffix": "children one year younger than the official primary entry age",
             },
         ],
         "MAIN": {

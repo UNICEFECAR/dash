@@ -7,10 +7,14 @@ import math
 import datetime as dt
 import pandas as pd
 import numpy as np
-from dash.dependencies import Input, Output, State, ClientsideFunction
+
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash import callback_context
+from dash.dependencies import Input, Output, State, ClientsideFunction
+
 
 import plotly.io as pio
 import plotly.graph_objects as go
@@ -28,6 +32,7 @@ from . import (
     data,
     county_options,
     countries,
+    eu_engagement,
 )
 
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
@@ -84,7 +89,7 @@ def get_base_layout(**kwargs):
                                                 "Select theme:",
                                                 className="control_label",
                                             ),
-                                            dcc.Dropdown(
+                                            dbc.RadioItems(
                                                 id="theme_selector",
                                                 options=[
                                                     {
@@ -94,7 +99,7 @@ def get_base_layout(**kwargs):
                                                     for key, value in indicators_dict.items()
                                                 ],
                                                 value=list(indicators_dict.keys())[0],
-                                                className="dcc_control",
+                                                # className="dcc_control",
                                             ),
                                             html.Br(),
                                             dbc.Button(
@@ -146,7 +151,7 @@ def get_base_layout(**kwargs):
                                                     # selected=[],
                                                     # expanded=["0"],
                                                     data={
-                                                        "title": "Regions",
+                                                        "title": "Select All",
                                                         "key": "0",
                                                         "children": [
                                                             {
@@ -174,13 +179,66 @@ def get_base_layout(**kwargs):
                                                 ),
                                                 id="collapse-countries",
                                             ),
+                                            dbc.Button(
+                                                "EU Engagement: All",
+                                                id="collapse-engagement-button",
+                                                className="mb-3",
+                                                color="primary",
+                                            ),
+                                            dbc.Collapse(
+                                                # TODO: _ make dynamic based on indicators_dict
+                                                # (eg: account for TMEE countries only for example --> child protection)
+                                                # dbc.Checklist(
+                                                #     id="contry_selector",
+                                                #     options=county_options,
+                                                #     value=[
+                                                #         item["value"] for item in county_options
+                                                #     ],
+                                                #     # className="custom-control-input",
+                                                # ),
+                                                dash_treeview_antd.TreeView(
+                                                    id="engagement_selector",
+                                                    multiple=True,
+                                                    checkable=True,
+                                                    checked=["0"],
+                                                    # selected=[],
+                                                    # expanded=["0"],
+                                                    data={
+                                                        "title": "Select All",
+                                                        "key": "0",
+                                                        "children": [
+                                                            {
+                                                                "title": region[
+                                                                    "label"
+                                                                ],
+                                                                "key": f"0-{num1}",
+                                                                "children": [
+                                                                    {
+                                                                        "title": name,
+                                                                        "key": f"0-{num1}-{num2}",
+                                                                    }
+                                                                    for num2, name in enumerate(
+                                                                        region[
+                                                                            "value"
+                                                                        ].split(",")
+                                                                    )
+                                                                ],
+                                                            }
+                                                            for num1, region in enumerate(
+                                                                eu_engagement
+                                                            )
+                                                        ],
+                                                    },
+                                                ),
+                                                id="collapse-engagements",
+                                            ),
                                         ],
                                     ),
                                 ],
                                 style={
                                     "float": "left",
                                     "margin": "10px",
-                                    "max-width": "350px",
+                                    "max-width": "250px",
                                     "z-index": "10",
                                 },
                             ),
@@ -326,6 +384,17 @@ def toggle_countries(n, is_open):
 
 
 @app.callback(
+    Output("collapse-engagements", "is_open"),
+    [Input("collapse-engagement-button", "n_clicks")],
+    [State("collapse-engagements", "is_open")],
+)
+def toggle_engagement(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+@app.callback(
     Output("area_1_parent", "hidden"),
     Output("area_2_parent", "hidden"),
     Output("area_3_parent", "hidden"),
@@ -354,6 +423,8 @@ def get_filtered_dataset(years, countires):
     ],
 )
 def apply_filters(theme, years_slider, countries):
+    trigger = callback_context.triggered[0]
+    print(trigger)
     # cache the data based on selected years and countries
     get_filtered_dataset(years[slice(*years_slider)], countries)
     return theme
@@ -460,7 +531,7 @@ def indicator_card(
             dbc.CardBody(
                 [
                     html.H1(
-                        "{:.0f}".format(indicator_sum),
+                        "{:,.0f}".format(indicator_sum),
                         className="display-4",
                         style={
                             # "fontSize": 50,
@@ -469,7 +540,7 @@ def indicator_card(
                         },
                     ),
                     html.H4(suffix, className="card-title"),
-                    html.P(label, className="card-text"),
+                    html.P(name, className="card-text"),
                 ]
             ),
             dbc.Popover(
