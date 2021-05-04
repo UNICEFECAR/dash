@@ -38,13 +38,19 @@ from . import (
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 pio.templates.default = "plotly_white"
+px.defaults.color_continuous_scale = px.colors.sequential.BuGn
+px.defaults.color_discrete_sequence = [
+    "#1cabe2",
+    "#80bd41",
+    "#dda63a",
+    "#e34e09",
+    "#c5effc",
+]
 px.set_mapbox_access_token(mapbox_access_token)
 
 
-# TODO:
-# _ use of chained callbacks to present list of countries as required by carlos
-
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
+DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
 
 
 def get_base_layout(**kwargs):
@@ -68,11 +74,14 @@ def get_base_layout(**kwargs):
                         dbc.Card(
                             dbc.CardBody(
                                 [
-                                    dcc.Graph(id="main_area"),
                                     dcc.Dropdown(
                                         id="main_options",
                                         # className="dcc_control",
+                                        style={
+                                            "z-index": "11",
+                                        },
                                     ),
+                                    dcc.Graph(id="main_area"),
                                 ]
                             ),
                         ),
@@ -85,9 +94,9 @@ def get_base_layout(**kwargs):
                                     dbc.CardHeader("Filter Controls"),
                                     dbc.CardBody(
                                         [
-                                            html.P(
+                                            dbc.Label(
                                                 "Select theme:",
-                                                className="control_label",
+                                                html_for="theme_selector",
                                             ),
                                             dbc.RadioItems(
                                                 id="theme_selector",
@@ -100,6 +109,22 @@ def get_base_layout(**kwargs):
                                                 ],
                                                 value=list(indicators_dict.keys())[0],
                                                 # className="dcc_control",
+                                            ),
+                                            html.Br(),
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Checkbox(
+                                                        id="programme-toggle",
+                                                        className="custom-control-input",
+                                                    ),
+                                                    dbc.Label(
+                                                        "Programme Countries Only",
+                                                        html_for="programme-toggle",
+                                                        className="custom-control-label",
+                                                    ),
+                                                ],
+                                                className="custom-control custom-switch",
+                                                check=True,
                                             ),
                                             html.Br(),
                                             dbc.Button(
@@ -133,16 +158,6 @@ def get_base_layout(**kwargs):
                                                 color="primary",
                                             ),
                                             dbc.Collapse(
-                                                # TODO: _ make dynamic based on indicators_dict
-                                                # (eg: account for TMEE countries only for example --> child protection)
-                                                # dbc.Checklist(
-                                                #     id="contry_selector",
-                                                #     options=county_options,
-                                                #     value=[
-                                                #         item["value"] for item in county_options
-                                                #     ],
-                                                #     # className="custom-control-input",
-                                                # ),
                                                 dash_treeview_antd.TreeView(
                                                     id="contry_selector",
                                                     multiple=True,
@@ -181,21 +196,11 @@ def get_base_layout(**kwargs):
                                             ),
                                             dbc.Button(
                                                 "EU Engagement: All",
-                                                id="collapse-engagement-button",
+                                                id="collapse-engagements-button",
                                                 className="mb-3",
                                                 color="primary",
                                             ),
                                             dbc.Collapse(
-                                                # TODO: _ make dynamic based on indicators_dict
-                                                # (eg: account for TMEE countries only for example --> child protection)
-                                                # dbc.Checklist(
-                                                #     id="contry_selector",
-                                                #     options=county_options,
-                                                #     value=[
-                                                #         item["value"] for item in county_options
-                                                #     ],
-                                                #     # className="custom-control-input",
-                                                # ),
                                                 dash_treeview_antd.TreeView(
                                                     id="engagement_selector",
                                                     multiple=True,
@@ -237,8 +242,9 @@ def get_base_layout(**kwargs):
                                 ],
                                 style={
                                     "float": "left",
-                                    "margin": "10px",
-                                    "max-width": "250px",
+                                    "margin": "15px",
+                                    "margin-top": "60px",
+                                    "max-width": "270px",
                                     "z-index": "10",
                                 },
                             ),
@@ -250,108 +256,74 @@ def get_base_layout(**kwargs):
             ),
             # end first row
             html.Br(),
-            dbc.Row(
+            dbc.CardDeck(
                 [
-                    dbc.Col(
-                        [
-                            dbc.Card(
-                                dbc.CardBody(
-                                    [
-                                        html.Div(
-                                            [dcc.Graph(id="area_1")],
-                                            className="pretty_container",
-                                        ),
-                                        dcc.Dropdown(
-                                            id="area_1_options",
-                                            # style={"z-index": "15"},
-                                        ),
-                                        dcc.RadioItems(
-                                            id="area_1_breakdowns",
-                                            labelStyle={"display": "inline-block"},
-                                        ),
-                                    ]
-                                )
-                            ),
-                        ],
-                        # className="six columns",
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                dcc.Dropdown(
+                                    id="area_1_options",
+                                    # style={"z-index": "15"},
+                                ),
+                                dcc.Graph(id="area_1"),
+                                dbc.RadioItems(
+                                    id="area_1_breakdowns",
+                                    inline=True,
+                                ),
+                            ]
+                        ),
                         id="area_1_parent",
-                        width=6,
                     ),
-                    dbc.Col(
-                        [
-                            dbc.Card(
-                                dbc.CardBody(
-                                    [
-                                        html.Div(
-                                            [dcc.Graph(id="area_2")],
-                                            className="pretty_container",
-                                        ),
-                                        dcc.Dropdown(
-                                            id="area_2_options",
-                                            className="dcc_control",
-                                        ),
-                                        dcc.RadioItems(
-                                            id="area_2_types",
-                                            className="dcc_control",
-                                            labelStyle={"display": "inline-block"},
-                                            options=[
-                                                {"label": "Line", "value": "line"},
-                                                {"label": "Bar", "value": "bar"},
-                                            ],
-                                        ),
-                                    ]
-                                )
-                            ),
-                        ],
-                        # className="six columns",
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                dcc.Dropdown(
+                                    id="area_2_options",
+                                    className="dcc_control",
+                                ),
+                                html.Div(
+                                    [dcc.Graph(id="area_2")],
+                                    className="pretty_container",
+                                ),
+                                dbc.RadioItems(
+                                    id="area_2_types",
+                                    options=[
+                                        {"label": "Line", "value": "line"},
+                                        {"label": "Bar", "value": "bar"},
+                                    ],
+                                    inline=True,
+                                ),
+                            ]
+                        ),
                         id="area_2_parent",
-                        width=6,
                     ),
                 ],
             ),
             html.Br(),
-            dbc.Row(
+            dbc.CardDeck(
                 [
-                    dbc.Col(
-                        [
-                            dbc.Card(
-                                dbc.CardBody(
-                                    [
-                                        html.Div(
-                                            [dcc.Graph(id="area_3")],
-                                            className="pretty_container",
-                                        ),
-                                        dcc.Dropdown(
-                                            id="area_3_options",
-                                            className="dcc_control",
-                                        ),
-                                    ]
-                                )
-                            ),
-                        ],
-                        # className="six columns",
-                        width=6,
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                dcc.Dropdown(
+                                    id="area_3_options",
+                                    className="dcc_control",
+                                ),
+                                dcc.Graph(id="area_3"),
+                            ]
+                        ),
                         id="area_3_parent",
                     ),
-                    dbc.Col(
-                        [
-                            dbc.Card(
-                                dbc.CardBody(
-                                    [
-                                        html.Div(
-                                            [dcc.Graph(id="area_4")],
-                                            className="pretty_container",
-                                        ),
-                                        dcc.Dropdown(
-                                            id="area_4_options",
-                                            className="dcc_control",
-                                        ),
-                                    ]
-                                )
-                            ),
-                        ],
-                        # className="six columns",
-                        width=6,
+                    dbc.Card(
+                        dbc.CardBody(
+                            [
+                                dcc.Dropdown(
+                                    id="area_4_options",
+                                    className="dcc_control",
+                                ),
+                                dcc.Graph(id="area_4"),
+                            ]
+                        ),
                         id="area_4_parent",
                     ),
                 ],
@@ -363,35 +335,34 @@ def get_base_layout(**kwargs):
 
 @app.callback(
     Output("collapse-years", "is_open"),
-    [Input("collapse-years-button", "n_clicks")],
-    [State("collapse-years", "is_open")],
-)
-def toggle_years(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-
-@app.callback(
     Output("collapse-countries", "is_open"),
-    [Input("collapse-countries-button", "n_clicks")],
-    [State("collapse-countries", "is_open")],
-)
-def toggle_countries(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-
-@app.callback(
     Output("collapse-engagements", "is_open"),
-    [Input("collapse-engagement-button", "n_clicks")],
-    [State("collapse-engagements", "is_open")],
+    [
+        Input("collapse-years-button", "n_clicks"),
+        Input("collapse-countries-button", "n_clicks"),
+        Input("collapse-engagements-button", "n_clicks"),
+    ],
+    [
+        State("collapse-years-button", "is_open"),
+        State("collapse-countries-button", "is_open"),
+        State("collapse-engagements-button", "is_open"),
+    ],
 )
-def toggle_engagement(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        return False, False, False
+    else:
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "collapse-years-button" and n1:
+        return not is_open1, False, False
+    elif button_id == "collapse-countries-button" and n2:
+        return False, not is_open2, False
+    elif button_id == "collapse-engagements-button" and n3:
+        return False, False, not is_open3
+    return False, False, False
 
 
 @app.callback(
@@ -441,7 +412,7 @@ def indicator_card(
 ):
     total_code = ["_T"]  # potentially move to this config
     sex_code = sex_code if sex_code else total_code
-    query = "CODE in @indicator & SEX in @total_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
+    query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
     # select last value for each country
@@ -536,12 +507,16 @@ def indicator_card(
                         style={
                             # "fontSize": 50,
                             "textAlign": "center",
-                            "color": "#0074D9",
+                            "color": "#1cabe2",
                         },
                     ),
                     html.H4(suffix, className="card-title"),
-                    html.P(name, className="card-text"),
-                ]
+                    html.P(name, className="lead"),
+                ],
+                style={
+                    # "fontSize": 50,
+                    "textAlign": "center",
+                },
             ),
             dbc.Popover(
                 [
@@ -558,20 +533,6 @@ def indicator_card(
         id=card_id,
     )
     return card
-
-
-def generate_map(title, data, options):
-    fig = px.scatter_mapbox(data, **options)
-    fig.update_layout(
-        title={
-            "text": title,
-            "x": 0.5,
-            "xanchor": "center",
-            "yanchor": "top",
-            "font": dict(size=18),
-        }
-    )
-    return fig
 
 
 @app.callback(
@@ -715,6 +676,7 @@ def main_figure(indicator, theme, years_slider, countries, indicators_dict):
     total = "Total"  # potentially move to this config
     query = f"CODE in @indicator & {compare} == @total"
 
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
         get_filtered_dataset(years[slice(*years_slider)], countries)
         .query(query)
@@ -723,7 +685,10 @@ def main_figure(indicator, theme, years_slider, countries, indicators_dict):
         .reset_index()
     )
 
-    return generate_map(name, df, options)
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+
+    return px.scatter_mapbox(df, **options)
 
 
 @app.callback(
@@ -757,7 +722,7 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
         total = get_disag_total(data, indicator, compare)
         query = "{} & {} != '{}'".format(query, compare, total)
 
-    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
         get_filtered_dataset(years[slice(*year_slider)], countries)
         .query(query)
@@ -766,7 +731,8 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
         .reset_index()
     )
 
-    options["title"] = name
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
 
@@ -808,31 +774,30 @@ def area_2_figure(
     traces = config.get("trace_options")
 
     indicator = area_2_selected if area_2_selected else area_1_selected
-    time = years[slice(*year_slider)]
 
-    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
+    columns = ["CODE", "Indicator", "Geographic area"]
+    aggregates = {"OBS_VALUE": "mean"}
     query = "CODE == @indicator"
     if compare:
-        query = "{} & {} != 'Total'".format(query, compare)
+        columns.append(compare)
+        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+        total = get_disag_total(data, indicator, compare)
+        query = "{} & {} != '{}'".format(query, compare, total)
+    else:
+        # if no compare then get single value for the year
+        columns.append("TIME_PERIOD")
+
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
         get_filtered_dataset(years[slice(*year_slider)], countries)
-        .groupby(
-            [
-                "CODE",
-                "Indicator",
-                "Geographic area",
-                compare if compare else "TIME_PERIOD",
-            ]
-        )
-        .agg(
-            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-            if compare
-            else {"OBS_VALUE": "mean"}
-        )
+        .query(query)
+        .groupby(columns)
+        .agg(aggregates)
         .reset_index()
     )
 
-    options["title"] = name
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
 
@@ -867,7 +832,6 @@ def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
     if len(cohorts) > 1:
         query = "{} & {} != @total".format(query, compare)
 
-    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     df = (
         get_filtered_dataset(years[slice(*year_slider)], countries)
         .query(query)
@@ -876,7 +840,6 @@ def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
         .reset_index()
     )
 
-    options["title"] = name
     if len(cohorts) > 1:
         options["color"] = compare
 
@@ -906,7 +869,6 @@ def area_4_figure(theme, indicator, year_slider, countries, indicators_dict):
     options = config.get("options")
     traces = config.get("trace_options")
 
-    name = data[data["CODE"] == indicator]["Indicator"].unique()[0]
     query = "CODE == @indicator"
     if compare:
         query = "{} & {} != 'Total'".format(query, compare)
@@ -929,7 +891,6 @@ def area_4_figure(theme, indicator, year_slider, countries, indicators_dict):
         .reset_index()
     )
 
-    options["title"] = name
     if compare:
         options["color"] = compare
 

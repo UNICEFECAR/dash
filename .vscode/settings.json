@@ -1,3 +1,5 @@
 {
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "python.pythonPath": "/opt/homebrew/Caskroom/miniforge/base/envs/dash/bin/python",
+    "python.formatting.provider": "black"
 }
