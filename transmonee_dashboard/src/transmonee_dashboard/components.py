@@ -20,7 +20,7 @@ def make_brand(**kwargs):
             href=get_url(""),
             children=[
                 html.Img(
-                    src="https://seotest.buzz/dash/assets/svgs/logo-unicef-large.svg",
+                    src="assets/logo-unicef-large.svg",
                 ),
                 html.P(
                     className="unicef-logo__heading",

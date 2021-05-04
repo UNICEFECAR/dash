@@ -34,10 +34,16 @@ ROUTES_PATHNAME_PREFIX = None
 #
 # import dash_bootstrap_components as dbc
 # EXTERNAL_STYLESHEETS = [dbc.themes.FLATLY]
-EXTERNAL_STYLESHEETS = []
+EXTERNAL_STYLESHEETS = [
+    {
+        "href": "https://fonts.gstatic.com",
+        "rel": "preconnect",
+    },
+    "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap",
+]
 
 # Externally hosted Javascript files go in here.
-EXTERNAL_SCRIPTS = []
+EXTERNAL_SCRIPTS = ["https://code.jquery.com/jquery-3.2.1.slim.min.js"]
 
 
 #
