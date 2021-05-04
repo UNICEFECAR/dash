@@ -35,8 +35,7 @@ from . import (
     eu_engagement,
 )
 
-CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
-
+# set defaults
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = [
@@ -51,6 +50,7 @@ px.set_mapbox_access_token(mapbox_access_token)
 
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
 DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
+CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def get_base_layout(**kwargs):
