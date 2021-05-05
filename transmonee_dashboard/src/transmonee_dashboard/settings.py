@@ -6,6 +6,9 @@
 # Your App's title. The value of this parameter will be propagated into
 # `app.title`
 TITLE = "TransMonee Dashboard"
+SUB_TITLE = (
+    ": Monitoring the situation of children and women in Europe and Central Asia"
+)
 
 # The value of this parameter will be propagated into both
 # `app.scripts.config.serve_locally` and `app.css.config.serve_locally`

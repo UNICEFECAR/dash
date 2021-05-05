@@ -192,7 +192,6 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "PISA: Mean performance for 15-year-old students",
             "geo": "Country",
             "options": dict(
                 lat="latitude",
@@ -200,13 +199,14 @@ indicators_dict = {
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.Jet,
+                color_continuous_scale=px.colors.sequential.GnBu,
                 size_max=40,
                 zoom=2.5,
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
             "indicators": ["EDU_PISA_MAT", "EDU_PISA_REA", "EDU_PISA_SCI"],
+            "default": "EDU_PISA_MAT",
         },
         "AREA_1": {
             "type": "bar",
@@ -342,7 +342,7 @@ indicators_dict = {
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.Jet,
+                color_continuous_scale=px.colors.sequential.GnBu,
                 size_max=40,
                 zoom=2.5,
                 animation_frame="TIME_PERIOD",

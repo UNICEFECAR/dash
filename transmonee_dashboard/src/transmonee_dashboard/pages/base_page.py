@@ -61,167 +61,204 @@ def get_base_layout(**kwargs):
             dcc.Store(id="indicators", data=indicators_dict),
             dbc.Row(
                 [
-                    dbc.Form(
-                        [
-                            dbc.FormGroup(
+                    dbc.Col(
+                        width=True,
+                        children=[
+                            dbc.Row(
                                 [
-                                    dbc.Label(
-                                        "Select theme:",
-                                        html_for="theme_selector",
-                                    ),
-                                    dbc.RadioItems(
-                                        id="theme_selector",
-                                        options=[
-                                            {
-                                                "label": value["NAME"],
-                                                "value": key,
-                                            }
-                                            for key, value in indicators_dict.items()
+                                    dbc.Form(
+                                        [
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Label(
+                                                        "Theme:",
+                                                        html_for="theme_selector",
+                                                    ),
+                                                    dbc.RadioItems(
+                                                        id="theme_selector",
+                                                        options=[
+                                                            {
+                                                                "label": value["NAME"],
+                                                                "value": key,
+                                                            }
+                                                            for key, value in indicators_dict.items()
+                                                        ],
+                                                        value=list(
+                                                            indicators_dict.keys()
+                                                        )[0],
+                                                        className="mx-2",
+                                                        inline=True,
+                                                    ),
+                                                ],
+                                                className="mr-2 mb-3",
+                                            ),
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Checkbox(
+                                                        id="programme-toggle",
+                                                        className="custom-control-input",
+                                                    ),
+                                                    dbc.Label(
+                                                        "Programme Countries Only",
+                                                        html_for="programme-toggle",
+                                                        className="custom-control-label",
+                                                    ),
+                                                ],
+                                                className="custom-control custom-switch mx-2 mb-3",
+                                                check=True,
+                                            ),
                                         ],
-                                        value=list(indicators_dict.keys())[0],
                                         inline=True,
                                     ),
                                 ],
-                                className="mr-2 mb-2",
+                                justify="center",
                             ),
-                            dbc.FormGroup(
+                            dbc.Row(
                                 [
-                                    dbc.Checkbox(
-                                        id="programme-toggle",
-                                        className="custom-control-input",
-                                    ),
-                                    dbc.Label(
-                                        "Programme Countries Only",
-                                        html_for="programme-toggle",
-                                        className="custom-control-label",
+                                    dbc.ButtonGroup(
+                                        [
+                                            dbc.Button(
+                                                f"Years: {years[0]} - {years[-1]}",
+                                                id="collapse-years-button",
+                                                className="flex-fill",
+                                                color="primary",
+                                            ),
+                                            dbc.Button(
+                                                "Countires: All",
+                                                id="collapse-countries-button",
+                                                className="flex-fill",
+                                                color="primary",
+                                            ),
+                                            dbc.Button(
+                                                "EU Engagement: All",
+                                                id="collapse-engagements-button",
+                                                className="flex-fill",
+                                                color="primary",
+                                            ),
+                                        ],
+                                        className="d-flex",
                                     ),
                                 ],
-                                className="custom-control custom-switch mx-2 mb-2",
-                                check=True,
+                                justify="center",
                             ),
-                            dbc.FormGroup(
+                            dbc.Row(
                                 [
-                                    dbc.Button(
-                                        f"Selected Years: {years[0]} - {years[-1]}",
-                                        id="collapse-years-button",
-                                        className="mb-3",
-                                        color="primary",
-                                    ),
-                                    dbc.Collapse(
-                                        dcc.RangeSlider(
-                                            id="year_slider",
-                                            min=0,
-                                            max=len(years) - 1,
-                                            step=None,
-                                            marks={
-                                                index: str(year)
-                                                for index, year in enumerate(years)
-                                            },
-                                            value=[0, len(years) - 1],
-                                            className="dcc_control",
+                                    dbc.Col(
+                                        dbc.Collapse(
+                                            dbc.Card(
+                                                dcc.RangeSlider(
+                                                    id="year_slider",
+                                                    min=0,
+                                                    max=len(years) - 1,
+                                                    step=None,
+                                                    marks={
+                                                        index: str(year)
+                                                        for index, year in enumerate(
+                                                            years
+                                                        )
+                                                    },
+                                                    value=[0, len(years) - 1],
+                                                    className="dcc_control",
+                                                ),
+                                                body=True,
+                                            ),
+                                            id="collapse-years",
                                         ),
-                                        id="collapse-years",
                                     ),
-                                ],
-                                className="mr-2",
-                            ),
-                            dbc.FormGroup(
-                                [
-                                    dbc.Button(
-                                        "Select Countires: All",
-                                        id="collapse-countries-button",
-                                        className="mb-3",
-                                        color="primary",
-                                    ),
-                                    dbc.Collapse(
-                                        dash_treeview_antd.TreeView(
-                                            id="contry_selector",
-                                            multiple=True,
-                                            checkable=True,
-                                            checked=["0"],
-                                            # selected=[],
-                                            # expanded=["0"],
-                                            data={
-                                                "title": "Select All",
-                                                "key": "0",
-                                                "children": [
-                                                    {
-                                                        "title": region["label"],
-                                                        "key": f"0-{num1}",
+                                    dbc.Col(
+                                        dbc.Collapse(
+                                            dbc.Card(
+                                                dash_treeview_antd.TreeView(
+                                                    id="contry_selector",
+                                                    multiple=True,
+                                                    checkable=True,
+                                                    checked=["0"],
+                                                    # selected=[],
+                                                    # expanded=["0"],
+                                                    data={
+                                                        "title": "Select All",
+                                                        "key": "0",
                                                         "children": [
                                                             {
-                                                                "title": name,
-                                                                "key": f"0-{num1}-{num2}",
+                                                                "title": region[
+                                                                    "label"
+                                                                ],
+                                                                "key": f"0-{num1}",
+                                                                "children": [
+                                                                    {
+                                                                        "title": name,
+                                                                        "key": f"0-{num1}-{num2}",
+                                                                    }
+                                                                    for num2, name in enumerate(
+                                                                        region[
+                                                                            "value"
+                                                                        ].split(",")
+                                                                    )
+                                                                ],
                                                             }
-                                                            for num2, name in enumerate(
-                                                                region["value"].split(
-                                                                    ","
-                                                                )
+                                                            for num1, region in enumerate(
+                                                                regions
                                                             )
                                                         ],
-                                                    }
-                                                    for num1, region in enumerate(
-                                                        regions
-                                                    )
-                                                ],
-                                            },
+                                                    },
+                                                ),
+                                                body=True,
+                                                style={"max-height": "200px"},
+                                                className="overflow-auto position-relative",
+                                            ),
+                                            id="collapse-countries",
                                         ),
-                                        id="collapse-countries",
+                                        style={"max-height": "200px"},
                                     ),
-                                ],
-                                className="mr-2",
-                            ),
-                            dbc.FormGroup(
-                                [
-                                    dbc.Button(
-                                        "EU Engagement: All",
-                                        id="collapse-engagements-button",
-                                        className="mb-3",
-                                        color="primary",
-                                    ),
-                                    dbc.Collapse(
-                                        dash_treeview_antd.TreeView(
-                                            id="engagement_selector",
-                                            multiple=True,
-                                            checkable=True,
-                                            checked=["0"],
-                                            # selected=[],
-                                            # expanded=["0"],
-                                            data={
-                                                "title": "Select All",
-                                                "key": "0",
-                                                "children": [
-                                                    {
-                                                        "title": region["label"],
-                                                        "key": f"0-{num1}",
+                                    dbc.Col(
+                                        dbc.Collapse(
+                                            dbc.Card(
+                                                dash_treeview_antd.TreeView(
+                                                    id="engagement_selector",
+                                                    multiple=True,
+                                                    checkable=True,
+                                                    checked=["0"],
+                                                    # selected=[],
+                                                    # expanded=["0"],
+                                                    data={
+                                                        "title": "Select All",
+                                                        "key": "0",
                                                         "children": [
                                                             {
-                                                                "title": name,
-                                                                "key": f"0-{num1}-{num2}",
+                                                                "title": region[
+                                                                    "label"
+                                                                ],
+                                                                "key": f"0-{num1}",
+                                                                "children": [
+                                                                    {
+                                                                        "title": name,
+                                                                        "key": f"0-{num1}-{num2}",
+                                                                    }
+                                                                    for num2, name in enumerate(
+                                                                        region[
+                                                                            "value"
+                                                                        ].split(",")
+                                                                    )
+                                                                ],
                                                             }
-                                                            for num2, name in enumerate(
-                                                                region["value"].split(
-                                                                    ","
-                                                                )
+                                                            for num1, region in enumerate(
+                                                                eu_engagement
                                                             )
                                                         ],
-                                                    }
-                                                    for num1, region in enumerate(
-                                                        eu_engagement
-                                                    )
-                                                ],
-                                            },
+                                                    },
+                                                ),
+                                                body=True,
+                                            ),
+                                            id="collapse-engagements",
                                         ),
-                                        id="collapse-engagements",
                                     ),
                                 ],
-                                className="mr-2",
+                                className="mb-3",
                             ),
                         ],
-                        inline=True,
                     ),
                 ],
-                align="start",
+                # align="start",
             ),
             dbc.Row(
                 [
@@ -674,7 +711,6 @@ def set_default_compare(compare_options, indicators_dict):
 )
 def main_figure(indicator, theme, years_slider, countries, indicators_dict):
 
-    name = indicators_dict[theme]["MAIN"]["name"]
     options = indicators_dict[theme]["MAIN"]["options"]
     compare = "Sex"
 

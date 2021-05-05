@@ -15,23 +15,25 @@ def fa(className):
 def make_brand(**kwargs):
     return html.Div(
         className="unicef-logo",
-        style={"size": "3em"},
-        children=dcc.Link(
-            href=get_url(""),
-            children=[
-                html.Img(
+        children=[
+            html.Div(
+                className="unicef-logo__image",
+                children=html.Img(
                     src="assets/logo-unicef-large.svg",
                 ),
-                html.P(
-                    className="unicef-logo__heading",
-                    children=[
-                        fa("far fa-chart-bar"),
+            ),
+            html.P(
+                className="unicef-logo__heading",
+                children=[
+                    fa("far fa-chart-bar"),
+                    html.Strong(
                         server.config["TITLE"],
-                    ],
-                ),
-            ],
-        ),
-        **kwargs,
+                        style={"font-size": "medium"},
+                    ),
+                    html.Span(server.config["SUB_TITLE"]),
+                ],
+            ),
+        ],
     )
 
 
@@ -53,7 +55,12 @@ def make_header(**kwargs):
                                     html.Div(
                                         className="header__col header__left",
                                         children=[
-                                            make_brand(),
+                                            html.Div(
+                                                className="header__logo",
+                                                children=[
+                                                    make_brand(),
+                                                ],
+                                            ),
                                             html.Button(
                                                 className="header__burger burger js-mobile-menu",
                                                 children=[
@@ -82,7 +89,7 @@ def make_header(**kwargs):
                                                 children=[
                                                     html.A(
                                                         "Back to Unicef.org",
-                                                        href="https://www.unicef.org",
+                                                        href="https://www.transmonee.org",
                                                         target="_blank",
                                                     )
                                                 ],
