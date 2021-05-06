@@ -63,12 +63,13 @@ def get_base_layout(**kwargs):
                 [
                     dbc.Col(
                         width=True,
+                        className="m-3",
                         children=[
                             dbc.Row(
                                 [
-                                    dbc.Form(
+                                    dbc.Col(
                                         [
-                                            dbc.FormGroup(
+                                            dbc.Form(
                                                 [
                                                     dbc.Label(
                                                         "Theme:",
@@ -86,12 +87,15 @@ def get_base_layout(**kwargs):
                                                         value=list(
                                                             indicators_dict.keys()
                                                         )[0],
-                                                        className="mx-2",
                                                         inline=True,
                                                     ),
                                                 ],
-                                                className="mr-2 mb-3",
+                                                inline=True,
                                             ),
+                                        ]
+                                    ),
+                                    dbc.Col(
+                                        [
                                             dbc.FormGroup(
                                                 [
                                                     dbc.Checkbox(
@@ -104,42 +108,48 @@ def get_base_layout(**kwargs):
                                                         className="custom-control-label",
                                                     ),
                                                 ],
-                                                className="custom-control custom-switch mx-2 mb-3",
+                                                className="custom-control custom-switch",
                                                 check=True,
                                             ),
                                         ],
-                                        inline=True,
+                                        align="bottom",
                                     ),
                                 ],
-                                justify="center",
+                                justify="between",
+                                form=True,
                             ),
                             dbc.Row(
                                 [
-                                    dbc.ButtonGroup(
+                                    dbc.Col(
                                         [
-                                            dbc.Button(
-                                                f"Years: {years[0]} - {years[-1]}",
-                                                id="collapse-years-button",
-                                                className="flex-fill",
-                                                color="primary",
+                                            dbc.ButtonGroup(
+                                                [
+                                                    dbc.Button(
+                                                        f"Years: {years[0]} - {years[-1]}",
+                                                        id="collapse-years-button",
+                                                        className="flex-fill",
+                                                        color="primary",
+                                                    ),
+                                                    dbc.Button(
+                                                        "Countires: All",
+                                                        id="collapse-countries-button",
+                                                        className="flex-fill",
+                                                        color="primary",
+                                                    ),
+                                                    dbc.Button(
+                                                        "EU Engagement: All",
+                                                        id="collapse-engagements-button",
+                                                        className="flex-fill",
+                                                        color="primary",
+                                                    ),
+                                                ],
+                                                className="d-flex",
                                             ),
-                                            dbc.Button(
-                                                "Countires: All",
-                                                id="collapse-countries-button",
-                                                className="flex-fill",
-                                                color="primary",
-                                            ),
-                                            dbc.Button(
-                                                "EU Engagement: All",
-                                                id="collapse-engagements-button",
-                                                className="flex-fill",
-                                                color="primary",
-                                            ),
-                                        ],
-                                        className="d-flex",
+                                        ]
                                     ),
                                 ],
                                 justify="center",
+                                className="mt-3",
                             ),
                             dbc.Row(
                                 [
@@ -161,9 +171,14 @@ def get_base_layout(**kwargs):
                                                     className="dcc_control",
                                                 ),
                                                 body=True,
+                                                className="overflow-auto",
+                                                color="primary",
+                                                outline=True,
                                             ),
                                             id="collapse-years",
                                         ),
+                                        className="position-absolute",
+                                        style={"max-height": "200px"},
                                     ),
                                     dbc.Col(
                                         dbc.Collapse(
@@ -203,12 +218,17 @@ def get_base_layout(**kwargs):
                                                     },
                                                 ),
                                                 body=True,
-                                                style={"max-height": "200px"},
-                                                className="overflow-auto position-relative",
+                                                style={
+                                                    "max-height": "250px",
+                                                    "max-width": "300px",
+                                                },
+                                                className="overflow-auto",
+                                                color="primary",
+                                                outline=True,
                                             ),
                                             id="collapse-countries",
                                         ),
-                                        style={"max-height": "200px"},
+                                        className="position-absolute",
                                     ),
                                     dbc.Col(
                                         dbc.Collapse(
@@ -248,24 +268,34 @@ def get_base_layout(**kwargs):
                                                     },
                                                 ),
                                                 body=True,
+                                                style={
+                                                    "max-height": "350px",
+                                                    "max-width": "400px",
+                                                },
+                                                className="overflow-auto",
+                                                color="primary",
+                                                outline=True,
                                             ),
                                             id="collapse-engagements",
                                         ),
+                                        className="position-absolute",
                                     ),
                                 ],
-                                className="mb-3",
+                                className="mb-1",
                             ),
                         ],
                     ),
                 ],
-                # align="start",
+                className="sticky-top bg-light",
             ),
             dbc.Row(
                 [
                     dbc.CardDeck(
                         id="cards_row",
+                        className="mt-3",
                     ),
-                ]
+                ],
+                justify="center",
             ),
             html.Br(),
             # start first row
