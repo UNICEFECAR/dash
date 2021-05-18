@@ -1,9 +1,5 @@
 import urllib
-import pickle
-import copy
-import pathlib
-import dash
-import math
+import collections
 import datetime as dt
 import pandas as pd
 import numpy as np
@@ -189,73 +185,293 @@ codes = [
 
 years = list(range(2010, 2021))
 
-regions = [
-    {"label": "Caucasus", "value": "Armenia,Azerbaijan,Georgia"},
-    {
-        "label": "Western Balkans",
-        "value": "Albania,Bosnia and Herzegovina,Croatia,Kosovo (UN SC resolution 1244),North Macedonia,Montenegro,Serbia",
-    },
-    {
-        "label": "Central Asia",
-        "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
-    },
-    {
-        "label": "Eastern Europe",
-        "value": "Bulgaria,Belarus,Republic of Moldova,Romania,Russian Federation,Turkey,Ukraine",
-    },
-    {
-        "label": "Western Europe",
-        "value": "Andorra,Austria,Belgium,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Holy See,Hungary,Iceland,Ireland,Italy,Latvia,Liechtenstein,Lithuania,Luxembourg,Malta,Monaco,Netherlands,Norway,Poland,Portugal,San Marino,Slovakia,Slovenia,Spain,Sweden,Switzerland,United Kingdom",
-    },
+countries = [
+    "Albania",
+    "Armenia",
+    "Azerbaijan",
+    "Belarus",
+    "Bosnia and Herzegovina",
+    "Bulgaria",
+    "Croatia",
+    "Georgia",
+    "Greece",
+    "Kazakhstan",
+    "Kyrgyzstan",
+    "Kosovo (UN SC resolution 1244)",
+    "Montenegro",
+    "North Macedonia",
+    "Republic of Moldova",
+    "Romania",
+    "Serbia",
+    "Tajikistan",
+    "Turkmenistan",
+    "Turkey",
+    "Ukraine",
+    "Uzbekistan",
+    "Andorra",
+    "Austria",
+    "Belgium",
+    "Cyprus",
+    "Czechia",
+    "Denmark",
+    "Estonia",
+    "Finland",
+    "France",
+    "Germany",
+    "Greece",
+    "Holy See",
+    "Hungary",
+    "Iceland",
+    "Ireland",
+    "Italy",
+    "Latvia",
+    "Liechtenstein",
+    "Lithuania",
+    "Luxembourg",
+    "Malta",
+    "Monaco",
+    "Netherlands",
+    "Norway",
+    "Poland",
+    "Portugal",
+    "San Marino",
+    "Slovakia",
+    "Slovenia",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "United Kingdom",
 ]
 
 unicef_country_prog = [
-    "Albania,Armenia,Azerbaijan,Belarus,Bosnia and Herzegovina,Bulgaria,Croatia,Georgia,Greece,Kazakhstan,Kyrgyzstan,Kosovo (UN SC resolution 1244),Montenegro,North Macedonia,Republic of Moldova,Romania,Serbia,Tajikistan,Turkmenistan,Turkey,Ukraine,Uzbekistan"
+    "Albania",
+    "Armenia",
+    "Azerbaijan",
+    "Belarus",
+    "Bosnia and Herzegovina",
+    "Bulgaria",
+    "Croatia",
+    "Georgia",
+    "Greece",
+    "Kazakhstan",
+    "Kyrgyzstan",
+    "Kosovo (UN SC resolution 1244)",
+    "Montenegro",
+    "North Macedonia",
+    "Republic of Moldova",
+    "Romania",
+    "Serbia",
+    "Tajikistan",
+    "Turkmenistan",
+    "Turkey",
+    "Ukraine",
+    "Uzbekistan",
 ]
 
-eu_engagement = [
+country_selections = [
     {
-        "label": "Central Asia",
-        "value": "Kazakhstan,Kyrgyzstan,Tajikistan,Turkmenistan,Uzbekistan",
+        "label": "By Sub-Regions",
+        "value": [
+            {"label": "Caucasus", "value": ["Armenia", "Azerbaijan", "Georgia"]},
+            {
+                "label": "Western Balkans",
+                "value": [
+                    "Albania",
+                    "Bosnia and Herzegovina",
+                    "Croatia",
+                    "Kosovo (UN SC resolution 1244)",
+                    "North Macedonia",
+                    "Montenegro",
+                    "Serbia",
+                ],
+            },
+            {
+                "label": "Central Asia",
+                "value": [
+                    "Kazakhstan",
+                    "Kyrgyzstan",
+                    "Tajikistan",
+                    "Turkmenistan",
+                    "Uzbekistan",
+                ],
+            },
+            {
+                "label": "Eastern Europe",
+                "value": [
+                    "Bulgaria",
+                    "Belarus",
+                    "Republic of Moldova",
+                    "Romania",
+                    "Russian Federation",
+                    "Turkey",
+                    "Ukraine",
+                ],
+            },
+            {
+                "label": "Western Europe",
+                "value": [
+                    "Andorra",
+                    "Austria",
+                    "Belgium",
+                    "Cyprus",
+                    "Czechia",
+                    "Denmark",
+                    "Estonia",
+                    "Finland",
+                    "France",
+                    "Germany",
+                    "Greece",
+                    "Holy See",
+                    "Hungary",
+                    "Iceland",
+                    "Ireland",
+                    "Italy",
+                    "Latvia",
+                    "Liechtenstein",
+                    "Lithuania",
+                    "Luxembourg",
+                    "Malta",
+                    "Monaco",
+                    "Netherlands",
+                    "Norway",
+                    "Poland",
+                    "Portugal",
+                    "San Marino",
+                    "Slovakia",
+                    "Slovenia",
+                    "Spain",
+                    "Sweden",
+                    "Switzerland",
+                    "United Kingdom",
+                ],
+            },
+        ],
     },
     {
-        "label": "Eastern Partnership",
-        "value": "Armenia,Azerbaijan,Belarus,Georgia,Republic of Moldova,Ukraine",
-    },
-    {
-        "label": "EFTA",
-        "value": "Iceland,Liechtenstein,Norway,Switzerland",
-    },
-    {
-        "label": "EU Member States",
-        "value": "Austria,Belgium,Bulgaria,Croatia,Cyprus,Czechia,Denmark,Estonia,Finland,France,Germany,Greece,Hungary,Ireland,Italy,Latvia,Lithuania,Luxembourg,Malta,Netherlands,Poland,Portugal,Romania,Slovakia,Slovenia,Spain,Sweden",
-    },
-    {
-        "label": "Other",
-        "value": "Andorra,Monaco,Holy See,San Marino",
-    },
-    {
-        "label": "Pre-accession countries",
-        "value": "Albania,Bosnia and Herzegovina,Kosovo (UN SC resolution 1244),North Macedonia,Montenegro,Serbia,Turkey",
-    },
-    {
-        "label": "Russian Federation",
-        "value": "Russian Federation",
-    },
-    {
-        "label": "United Kingdom (left EU on January 31, 2020)",
-        "value": "United Kingdom",
+        "label": "By EU Engagement",
+        "value": [
+            {
+                "label": "Central Asia",
+                "value": [
+                    "Kazakhstan",
+                    "Kyrgyzstan",
+                    "Tajikistan",
+                    "Turkmenistan",
+                    "Uzbekistan",
+                ],
+            },
+            {
+                "label": "Eastern Partnership",
+                "value": [
+                    "Armenia",
+                    "Azerbaijan",
+                    "Belarus",
+                    "Georgia",
+                    "Republic of Moldova",
+                    "Ukraine",
+                ],
+            },
+            {
+                "label": "EFTA",
+                "value": ["Iceland", "Liechtenstein", "Norway", "Switzerland"],
+            },
+            {
+                "label": "EU Member States",
+                "value": [
+                    "Austria",
+                    "Belgium",
+                    "Bulgaria",
+                    "Croatia",
+                    "Cyprus",
+                    "Czechia",
+                    "Denmark",
+                    "Estonia",
+                    "Finland",
+                    "France",
+                    "Germany",
+                    "Greece",
+                    "Hungary",
+                    "Ireland",
+                    "Italy",
+                    "Latvia",
+                    "Lithuania",
+                    "Luxembourg",
+                    "Malta",
+                    "Netherlands",
+                    "Poland",
+                    "Portugal",
+                    "Romania",
+                    "Slovakia",
+                    "Slovenia",
+                    "Spain",
+                    "Sweden",
+                ],
+            },
+            {
+                "label": "Other",
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
+            },
+            {
+                "label": "Pre-accession countries",
+                "value": [
+                    "Albania",
+                    "Bosnia and Herzegovina",
+                    "Kosovo (UN SC resolution 1244)",
+                    "North Macedonia",
+                    "Montenegro",
+                    "Serbia",
+                    "Turkey",
+                ],
+            },
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
+            {
+                "label": "United Kingdom (left EU on January 31, 2020)",
+                "value": ["United Kingdom"],
+            },
+        ],
     },
 ]
 
-countries = []
-for region in regions:
-    for country in region["value"].split(","):
-        countries.append(country)
+# create two dicts, one for display tree and one with the index of all possible selections
+selection_index = collections.OrderedDict({"0": countries})
+selection_tree = dict(title="Select All", key="0", children=[])
+for num1, group in enumerate(country_selections):
+    parent = dict(title=group["label"], key=f"0-{num1}", children=[])
+    group_countries = []
 
-# Create controls
-county_options = [
-    {"label": str(country), "value": str(country)} for country in sorted(countries)
+    for num2, region in enumerate(group["value"]):
+        child_region = dict(title=region["label"], key=f"0-{num1}-{num2}", children=[])
+        parent.get("children").append(child_region)
+        selection_index[f"0-{num1}-{num2}"] = (
+            region["value"] if isinstance(region["value"], list) else [region["value"]]
+        )
+
+        for num3, country in enumerate(region["value"]):
+            child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
+            if len(region["value"]) > 1:
+                # only create child nodes for more then one child
+                child_region.get("children").append(child_country)
+                selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
+            group_countries.append(country)
+
+    selection_index[f"0-{num1}"] = group_countries
+    selection_tree.get("children").append(parent)
+
+programme_country_indexes = [
+    next(
+        key
+        for key, value in selection_index.items()
+        if value[0] == item and len(value) == 1
+    )
+    for item in unicef_country_prog
 ]
 
 data = pd.DataFrame()
@@ -279,7 +495,7 @@ except urllib.error.HTTPError as e:
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
 
-
+# TODO: Replace to static list
 data = data.merge(
     right=pd.DataFrame(
         [dict(country=country, **geocode_address(country)) for country in countries]

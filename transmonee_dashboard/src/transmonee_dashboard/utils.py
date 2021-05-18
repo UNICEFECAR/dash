@@ -5,7 +5,7 @@ from urllib.parse import parse_qs
 import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 from dash.development.base_component import Component
 from flask import current_app as server
@@ -70,8 +70,11 @@ class DashRouter:
                 Input(server.config["LOCATION_COMPONENT_ID"], "pathname"),
                 Input(server.config["LOCATION_COMPONENT_ID"], "search"),
             ],
+            [
+                State(server.config["LOCATION_COMPONENT_ID"], "hash"),
+            ],
         )
-        def router_callback(pathname, search):
+        def router_callback(pathname, search, url_hash):
             """The router"""
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
@@ -84,6 +87,7 @@ class DashRouter:
                 layout = page
             elif callable(page):
                 kwargs = MultiDict(parse_qs(search.lstrip("?")))
+                kwargs["hash"] = url_hash
                 layout = page(**kwargs)
                 if not isinstance(layout, Component):
                     msg = (
@@ -143,7 +147,7 @@ class DashNavBar:
 
 
 def get_dash_args_from_flask_config(config):
-    """Get a dict of Dash params that were specified """
+    """Get a dict of Dash params that were specified"""
     # all arg names less 'self'
     dash_args = set(inspect.getfullargspec(dash.Dash.__init__).args[1:])
     return {key.lower(): val for key, val in config.items() if key.lower() in dash_args}

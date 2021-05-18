@@ -7,6 +7,7 @@ import math
 import datetime as dt
 import pandas as pd
 import numpy as np
+from itertools import cycle
 
 
 import dash_core_components as dcc
@@ -26,13 +27,13 @@ import dash_treeview_antd
 from ..app import app, cache
 from . import (
     mapbox_access_token,
-    regions,
-    years,
-    indicators,
-    data,
-    county_options,
+    unicef_country_prog,
+    programme_country_indexes,
+    selection_index,
+    selection_tree,
     countries,
-    eu_engagement,
+    years,
+    data,
 )
 
 # set defaults
@@ -47,7 +48,7 @@ px.defaults.color_discrete_sequence = [
 ]
 px.set_mapbox_access_token(mapbox_access_token)
 
-
+colours = cycle(["primary", "success", "warning", "danger"])
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
 DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
@@ -56,105 +57,51 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    url_hash = (
+        kwargs.get("hash")
+        if kwargs.get("hash")
+        else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
+    )
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
+            dcc.Location(id="theme"),
             dbc.Row(
-                [
+                children=[
                     dbc.Col(
-                        width=True,
-                        className="m-3",
-                        children=[
+                        [
                             dbc.Row(
                                 [
-                                    dbc.Col(
+                                    dbc.ButtonGroup(
                                         [
-                                            dbc.Form(
-                                                [
-                                                    dbc.Label(
-                                                        "Theme:",
-                                                        html_for="theme_selector",
-                                                    ),
-                                                    dbc.RadioItems(
-                                                        id="theme_selector",
-                                                        options=[
-                                                            {
-                                                                "label": value["NAME"],
-                                                                "value": key,
-                                                            }
-                                                            for key, value in indicators_dict.items()
-                                                        ],
-                                                        value=list(
-                                                            indicators_dict.keys()
-                                                        )[0],
-                                                        inline=True,
-                                                    ),
-                                                ],
-                                                inline=True,
-                                            ),
-                                        ]
-                                    ),
-                                    dbc.Col(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Checkbox(
-                                                        id="programme-toggle",
-                                                        className="custom-control-input",
-                                                    ),
-                                                    dbc.Label(
-                                                        "Programme Countries Only",
-                                                        html_for="programme-toggle",
-                                                        className="custom-control-label",
-                                                    ),
-                                                ],
-                                                className="custom-control custom-switch",
-                                                check=True,
-                                            ),
+                                            dbc.Button(
+                                                value["NAME"],
+                                                id=key,
+                                                color=next(colours),
+                                                className="theme mx-1",
+                                                href=f"#{key.lower()}",
+                                                active=url_hash == f"#{key.lower()}",
+                                            )
+                                            for key, value in indicators_dict.items()
                                         ],
-                                        align="bottom",
+                                        id="themes",
                                     ),
                                 ],
-                                justify="between",
-                                form=True,
-                            ),
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        [
-                                            dbc.ButtonGroup(
-                                                [
-                                                    dbc.Button(
-                                                        f"Years: {years[0]} - {years[-1]}",
-                                                        id="collapse-years-button",
-                                                        className="flex-fill",
-                                                        color="primary",
-                                                    ),
-                                                    dbc.Button(
-                                                        "Countires: All",
-                                                        id="collapse-countries-button",
-                                                        className="flex-fill",
-                                                        color="primary",
-                                                    ),
-                                                    dbc.Button(
-                                                        "EU Engagement: All",
-                                                        id="collapse-engagements-button",
-                                                        className="flex-fill",
-                                                        color="primary",
-                                                    ),
-                                                ],
-                                                className="d-flex",
-                                            ),
-                                        ]
-                                    ),
-                                ],
+                                id="theme-row",
+                                # width=4,
+                                className="my-2",
+                                # no_gutters=True,
                                 justify="center",
-                                className="mt-3",
                             ),
                             dbc.Row(
                                 [
-                                    dbc.Col(
-                                        dbc.Collapse(
+                                    dbc.DropdownMenu(
+                                        label=f"Years: {years[0]} - {years[-1]}",
+                                        id="collapse-years-button",
+                                        className="m-2",
+                                        color="info",
+                                        # block=True,
+                                        children=[
                                             dbc.Card(
                                                 dcc.RangeSlider(
                                                     id="year_slider",
@@ -167,125 +114,69 @@ def get_base_layout(**kwargs):
                                                             years
                                                         )
                                                     },
-                                                    value=[0, len(years) - 1],
-                                                    className="dcc_control",
+                                                    value=[0, len(years)],
                                                 ),
-                                                body=True,
-                                                className="overflow-auto",
-                                                color="primary",
-                                                outline=True,
-                                            ),
-                                            id="collapse-years",
-                                        ),
-                                        className="position-absolute",
-                                        style={"max-height": "200px"},
-                                    ),
-                                    dbc.Col(
-                                        dbc.Collapse(
-                                            dbc.Card(
-                                                dash_treeview_antd.TreeView(
-                                                    id="contry_selector",
-                                                    multiple=True,
-                                                    checkable=True,
-                                                    checked=["0"],
-                                                    # selected=[],
-                                                    # expanded=["0"],
-                                                    data={
-                                                        "title": "Select All",
-                                                        "key": "0",
-                                                        "children": [
-                                                            {
-                                                                "title": region[
-                                                                    "label"
-                                                                ],
-                                                                "key": f"0-{num1}",
-                                                                "children": [
-                                                                    {
-                                                                        "title": name,
-                                                                        "key": f"0-{num1}-{num2}",
-                                                                    }
-                                                                    for num2, name in enumerate(
-                                                                        region[
-                                                                            "value"
-                                                                        ].split(",")
-                                                                    )
-                                                                ],
-                                                            }
-                                                            for num1, region in enumerate(
-                                                                regions
-                                                            )
-                                                        ],
-                                                    },
-                                                ),
-                                                body=True,
                                                 style={
                                                     "max-height": "250px",
-                                                    "max-width": "300px",
+                                                    "min-width": "500px",
                                                 },
                                                 className="overflow-auto",
-                                                color="primary",
-                                                outline=True,
+                                                body=True,
                                             ),
-                                            id="collapse-countries",
-                                        ),
-                                        className="position-absolute",
+                                        ],
                                     ),
-                                    dbc.Col(
-                                        dbc.Collapse(
+                                    dbc.DropdownMenu(
+                                        label="Countires by sub-reigon: All",
+                                        id="collapse-countries-button",
+                                        className="m-2",
+                                        color="info",
+                                        # block=True,
+                                        children=[
                                             dbc.Card(
                                                 dash_treeview_antd.TreeView(
-                                                    id="engagement_selector",
+                                                    id="country_selector",
                                                     multiple=True,
                                                     checkable=True,
                                                     checked=["0"],
                                                     # selected=[],
-                                                    # expanded=["0"],
-                                                    data={
-                                                        "title": "Select All",
-                                                        "key": "0",
-                                                        "children": [
-                                                            {
-                                                                "title": region[
-                                                                    "label"
-                                                                ],
-                                                                "key": f"0-{num1}",
-                                                                "children": [
-                                                                    {
-                                                                        "title": name,
-                                                                        "key": f"0-{num1}-{num2}",
-                                                                    }
-                                                                    for num2, name in enumerate(
-                                                                        region[
-                                                                            "value"
-                                                                        ].split(",")
-                                                                    )
-                                                                ],
-                                                            }
-                                                            for num1, region in enumerate(
-                                                                eu_engagement
-                                                            )
-                                                        ],
-                                                    },
+                                                    expanded=["0"],
+                                                    data=selection_tree,
                                                 ),
-                                                body=True,
                                                 style={
-                                                    "max-height": "350px",
-                                                    "max-width": "400px",
+                                                    "max-height": "250px",
+                                                    # "max-width": "300px",
                                                 },
                                                 className="overflow-auto",
-                                                color="primary",
-                                                outline=True,
+                                                body=True,
                                             ),
-                                            id="collapse-engagements",
-                                        ),
-                                        className="position-absolute",
+                                        ],
+                                    ),
+                                    dbc.FormGroup(
+                                        [
+                                            dbc.Checkbox(
+                                                id="programme-toggle",
+                                                className="custom-control-input",
+                                            ),
+                                            dbc.Label(
+                                                "UNICEF Country Programmes",
+                                                html_for="programme-toggle",
+                                                className="custom-control-label",
+                                                color="primary",
+                                            ),
+                                        ],
+                                        className="custom-control custom-switch m-2",
+                                        check=True,
+                                        inline=True,
                                     ),
                                 ],
-                                className="mb-1",
+                                id="filter-row",
+                                no_gutters=True,
+                                justify="center",
                             ),
-                        ],
+                        ]
                     ),
                 ],
+                # sticky="top",
                 className="sticky-top bg-light",
             ),
             dbc.Row(
@@ -317,14 +208,7 @@ def get_base_layout(**kwargs):
                             ),
                         ),
                     ),
-                    dbc.Col(
-                        [
-                            # start controls side bar
-                        ],
-                        className="position-absolute",
-                    ),
                 ],
-                className="position-relative",
             ),
             # end first row
             html.Br(),
@@ -405,6 +289,7 @@ def get_base_layout(**kwargs):
     )
 
 
+# TODO: Move to client side call back
 @app.callback(
     Output("collapse-years", "is_open"),
     Output("collapse-countries", "is_open"),
@@ -446,12 +331,18 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
     State("indicators", "data"),
 )
 def display_areas(theme, indicators_dict):
-    return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
+    return [
+        area not in indicators_dict[theme["theme"]]
+        for area in AREA_KEYS
+        if area != "MAIN"
+    ]
 
 
 @cache.memoize()  # will cache based on years and countries combo
-def get_filtered_dataset(years, countires):
-    print("RECACHING!!")
+def get_filtered_dataset(theme, years, countries):
+
+    print("RE-CACHING!!")
+
     return data[
         (data["TIME_PERIOD"].isin(years)) & (data["Geographic area"].isin(countries))
     ]
@@ -459,18 +350,59 @@ def get_filtered_dataset(years, countires):
 
 @app.callback(
     Output("store", "data"),
+    Output("country_selector", "checked"),
+    Output("programme-toggle", "checked"),
+    Output("collapse-years-button", "label"),
+    Output("collapse-countries-button", "label"),
     [
-        Input("theme_selector", "value"),
+        Input("theme", "hash"),
         Input("year_slider", "value"),
-        Input("contry_selector", "value"),
+        Input("country_selector", "checked"),
+        Input("programme-toggle", "checked"),
+    ],
+    [
+        State("indicators", "data"),
     ],
 )
-def apply_filters(theme, years_slider, countries):
-    trigger = callback_context.triggered[0]
-    print(trigger)
+def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
+    ctx = dash.callback_context
+
+    selected = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    countries_selected = set()
+    if programme_toggle and selected == "programme-toggle":
+        countries_selected = set(unicef_country_prog)
+        country_selector = programme_country_indexes
+    elif not country_selector:
+        countries_selected = set(countries)
+    else:
+        for index in country_selector:
+            countries_selected.update(selection_index[index])
+            if countries_selected == set(countries):
+                # if all countries are all selectred then stop
+                break
+
+    country_text = f"{len(countries_selected)} Selected"
+
+    print(countries_selected)
+
+    selected_years = years[slice(*years_slider)]
+
     # cache the data based on selected years and countries
-    get_filtered_dataset(years[slice(*years_slider)], countries)
-    return theme
+    selections = dict(
+        theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
+        years=selected_years,
+        countries=list(countries_selected),
+    )
+    get_filtered_dataset(**selections)
+
+    return (
+        selections,
+        country_selector,
+        countries_selected == set(unicef_country_prog),
+        f"Years: {selected_years[0]} - {selected_years[-1]}",
+        "Countires: {}".format(country_text),
+    )
 
 
 def indicator_card(
@@ -625,7 +557,7 @@ def show_cards(theme, current_cards, indicators_dict):
             card.get("absolute"),
             card.get("sex"),
         )
-        for num, card in enumerate(indicators_dict[theme]["CARDS"])
+        for num, card in enumerate(indicators_dict[theme["theme"]]["CARDS"])
     ]
     return cards
 
@@ -650,7 +582,7 @@ def set_options(theme, indicators_dict):
                 "value": item["CODE"],
             }
             for item in data[
-                data["CODE"].isin(indicators_dict[theme][area]["indicators"])
+                data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
             ][["CODE", "Indicator"]]
             .drop_duplicates()
             .to_dict("records")
@@ -672,7 +604,7 @@ def set_options(theme, indicators_dict):
 )
 def set_default_values(theme, indicators_dict):
 
-    return [indicators_dict[theme][area].get("default") for area in AREA_KEYS]
+    return [indicators_dict[theme["theme"]][area].get("default") for area in AREA_KEYS]
 
 
 def get_disag_total(data, indicator, dimension, default_total="Total"):
@@ -734,14 +666,12 @@ def set_default_compare(compare_options, indicators_dict):
         Input("store", "data"),
     ],
     [
-        State("year_slider", "value"),
-        State("contry_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, theme, years_slider, countries, indicators_dict):
+def main_figure(indicator, selections, indicators_dict):
 
-    options = indicators_dict[theme]["MAIN"]["options"]
+    options = indicators_dict[selections["theme"]]["MAIN"]["options"]
     compare = "Sex"
 
     total = "Total"  # potentially move to this config
@@ -749,7 +679,7 @@ def main_figure(indicator, theme, years_slider, countries, indicators_dict):
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
-        get_filtered_dataset(years[slice(*years_slider)], countries)
+        get_filtered_dataset(**selections)
         .query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
@@ -770,15 +700,13 @@ def main_figure(indicator, theme, years_slider, countries, indicators_dict):
         Input("area_1_breakdowns", "value"),
     ],
     [
-        State("year_slider", "value"),
-        State("contry_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_dict):
+def area_1_figure(selections, indicator, compare, indicators_dict):
 
-    fig_type = indicators_dict[theme]["AREA_1"]["type"]
-    options = indicators_dict[theme]["AREA_1"]["options"]
+    fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
+    options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
     compare = False if compare == "Total" else compare
 
     columns = [
@@ -795,7 +723,7 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
-        get_filtered_dataset(years[slice(*year_slider)], countries)
+        get_filtered_dataset(**selections)
         .query(query)
         .groupby(columns)
         .agg(aggregates)
@@ -822,24 +750,20 @@ def area_1_figure(theme, indicator, compare, year_slider, countries, indicators_
         Input("area_2_types", "value"),
     ],
     [
-        State("year_slider", "value"),
-        State("contry_selector", "value"),
         State("indicators", "data"),
     ],
 )
 def area_2_figure(
-    theme,
+    selections,
     area_1_selected,
     area_2_selected,
     selected_type,
-    year_slider,
-    countries,
     indicators_dict,
 ):
 
-    default = indicators_dict[theme]["AREA_2"]["default_graph"]
+    default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
     fig_type = selected_type if selected_type else default
-    config = indicators_dict[theme]["AREA_2"]["graphs"][fig_type]
+    config = indicators_dict[selections["theme"]]["AREA_2"]["graphs"][fig_type]
     compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
@@ -860,7 +784,7 @@ def area_2_figure(
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     df = (
-        get_filtered_dataset(years[slice(*year_slider)], countries)
+        get_filtered_dataset(**selections)
         .query(query)
         .groupby(columns)
         .agg(aggregates)
@@ -886,16 +810,14 @@ def area_2_figure(
         Input("area_3_options", "value"),
     ],
     [
-        State("year_slider", "value"),
-        State("contry_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
+def area_3_figure(selections, indicator, indicators_dict):
 
-    fig_type = indicators_dict[theme]["AREA_3"]["type"]
-    compare = indicators_dict[theme]["AREA_3"]["compare"]
-    options = indicators_dict[theme]["AREA_3"]["options"]
+    fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
+    compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
+    options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
 
     total = "Total"  # potentially move to this config
     cohorts = data[data["CODE"] == indicator][compare].unique()
@@ -904,7 +826,7 @@ def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
         query = "{} & {} != @total".format(query, compare)
 
     df = (
-        get_filtered_dataset(years[slice(*year_slider)], countries)
+        get_filtered_dataset(**selections)
         .query(query)
         .groupby(["CODE", "Indicator", "Geographic area", compare])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
@@ -926,16 +848,14 @@ def area_3_figure(theme, indicator, year_slider, countries, indicators_dict):
         Input("area_4_options", "value"),
     ],
     [
-        State("year_slider", "value"),
-        State("contry_selector", "value"),
         State("indicators", "data"),
     ],
 )
-def area_4_figure(theme, indicator, year_slider, countries, indicators_dict):
+def area_4_figure(selections, indicator, indicators_dict):
 
-    default = indicators_dict[theme]["AREA_4"]["default_graph"]
+    default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
     fig_type = default
-    config = indicators_dict[theme]["AREA_4"]["graphs"][fig_type]
+    config = indicators_dict[selections["theme"]]["AREA_4"]["graphs"][fig_type]
     compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
@@ -944,7 +864,7 @@ def area_4_figure(theme, indicator, year_slider, countries, indicators_dict):
     if compare:
         query = "{} & {} != 'Total'".format(query, compare)
     df = (
-        get_filtered_dataset(years[slice(*year_slider)], countries)
+        get_filtered_dataset(**selections)
         .query(query)
         .groupby(
             [

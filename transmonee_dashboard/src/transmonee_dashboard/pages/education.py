@@ -172,22 +172,22 @@ indicators_dict = {
             {
                 "name": "(enrolled in the same grade for a second or further year) in primary and lower secondary education",
                 "indicator": "EDUNF_RPTR_L1,EDUNF_RPTR_L2",
-                "suffix": "children and adolescent repeaters",
+                "suffix": "Children and adolescent repeaters",
             },
             {
                 "name": "from primary education",
                 "indicator": "EDUNF_ESL_L1",
-                "suffix": "early school leavers",
+                "suffix": "Early school leavers",
             },
             {
                 "name": "administering nationally representative learning assessment in both reading and math at the end of primary education",
                 "indicator": "EDUNF_ADMIN_L1_GLAST_REA,EDUNF_ADMIN_L1_GLAST_MAT",
-                "suffix": "countries",
+                "suffix": "Countries",
             },
             {
                 "name": "participating in the latest round of PISA",
                 "indicator": "EDU_PISA_MAT,EDU_PISA_REA,EDU_PISA_SCI",
-                "suffix": "countries",
+                "suffix": "Countries",
                 "absolute": True,
             },
         ],
