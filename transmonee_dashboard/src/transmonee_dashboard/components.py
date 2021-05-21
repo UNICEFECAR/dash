@@ -126,7 +126,7 @@ def make_header(**kwargs):
                     html.Div(
                         className="header__inner",
                         children=[
-                            dbc.Nav(
+                            html.Nav(
                                 className="header__navigation",
                                 id=server.config["NAVBAR_CONTAINER_ID"],
                             )

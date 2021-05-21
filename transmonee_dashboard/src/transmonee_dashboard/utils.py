@@ -140,7 +140,9 @@ class DashNavBar:
         for i, (path, text) in enumerate(self.nav_items):
             href = get_url(path)
             active = (current_path == href) or (i == 0 and current_path == route_prefix)
-            nav_item = dbc.NavItem(dbc.NavLink(text, href=href, active=active))
+            nav_item = dbc.NavItem(
+                dbc.NavLink(text, href=href, active=active), className="menu-item"
+            )
             nav_items.append(nav_item)
         # TODO: move class name for nav container to config
         return html.Ul(nav_items, className="header__menu", **kwargs)
