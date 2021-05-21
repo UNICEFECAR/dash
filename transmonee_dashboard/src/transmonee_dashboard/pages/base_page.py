@@ -77,12 +77,14 @@ def get_base_layout(**kwargs):
                                             dbc.Button(
                                                 value["NAME"],
                                                 id=key,
-                                                color=next(colours),
+                                                color=colours[num],
                                                 className="theme mx-1",
                                                 href=f"#{key.lower()}",
                                                 active=url_hash == f"#{key.lower()}",
                                             )
-                                            for key, value in indicators_dict.items()
+                                            for num, (key, value) in enumerate(
+                                                indicators_dict.items()
+                                            )
                                         ],
                                         id="themes",
                                     ),
@@ -126,7 +128,7 @@ def get_base_layout(**kwargs):
                                         ],
                                     ),
                                     dbc.DropdownMenu(
-                                        label="Countires by sub-reigon: All",
+                                        label="Countries by sub-reigon: All",
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
@@ -327,15 +329,12 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
     Output("area_2_parent", "hidden"),
     Output("area_3_parent", "hidden"),
     Output("area_4_parent", "hidden"),
-    Input("theme_selector", "value"),
+    Input("theme", "hash"),
     State("indicators", "data"),
 )
 def display_areas(theme, indicators_dict):
-    return [
-        area not in indicators_dict[theme["theme"]]
-        for area in AREA_KEYS
-        if area != "MAIN"
-    ]
+    theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
+    return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
 
 
 @cache.memoize()  # will cache based on years and countries combo
@@ -401,11 +400,12 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         country_selector,
         countries_selected == set(unicef_country_prog),
         f"Years: {selected_years[0]} - {selected_years[-1]}",
-        "Countires: {}".format(country_text),
+        "Countries: {}".format(country_text),
     )
 
 
 def indicator_card(
+    selections,
     card_id,
     name,
     numerator,
@@ -419,9 +419,13 @@ def indicator_card(
     query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     numors = numerator.split(",")
     indicator = numors
+
+    # use filtered chached dataset
+    filtered_data = get_filtered_dataset(**selections)
+
     # select last value for each country
     indicator_values = (
-        data.query(query)
+        filtered_data.query(query)
         .groupby(
             [
                 "Geographic area",
@@ -441,9 +445,9 @@ def indicator_card(
     # check for denominator
     if denominator:
 
-        # select the avalible denominators for countiries in selected years
+        # select the avalible denominators for countries in selected years
         indicator = [denominator]
-        denominator_values = data.query(query).set_index(
+        denominator_values = filtered_data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
         )
         # select only those denominators that match avalible indicators
@@ -461,7 +465,7 @@ def indicator_card(
                 * denominators
                 / denominators.to_numpy().sum()
             )
-            .dropna()  # will drop missing countires
+            .dropna()  # will drop missing countries
             .to_numpy()
             .sum()
         )
@@ -497,8 +501,10 @@ def indicator_card(
         sources = numerator_pairs.index.tolist()
 
     label = (
-        data[data["CODE"].isin(indicator)]["Indicator"].unique()[0]
-        if len(data[data["CODE"].isin(indicator)]["Indicator"].unique())
+        filtered_data[filtered_data["CODE"].isin(indicator)]["Indicator"].unique()[0]
+        if len(
+            filtered_data[filtered_data["CODE"].isin(indicator)]["Indicator"].unique()
+        )
         else "None"
     )
     card = dbc.Card(
@@ -546,9 +552,10 @@ def indicator_card(
     ],
     [State("cards_row", "children"), State("indicators", "data")],
 )
-def show_cards(theme, current_cards, indicators_dict):
+def show_cards(selections, current_cards, indicators_dict):
     cards = [
         indicator_card(
+            selections,
             f"card-{num}",
             card["name"],
             card["indicator"],
@@ -557,7 +564,7 @@ def show_cards(theme, current_cards, indicators_dict):
             card.get("absolute"),
             card.get("sex"),
         )
-        for num, card in enumerate(indicators_dict[theme["theme"]]["CARDS"])
+        for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
     return cards
 
@@ -587,6 +594,8 @@ def set_options(theme, indicators_dict):
             .drop_duplicates()
             .to_dict("records")
         ]
+        if area in indicators_dict[theme["theme"]]
+        else {"label": None, "value": None}
         for area in AREA_KEYS
     ]
 
@@ -604,7 +613,12 @@ def set_options(theme, indicators_dict):
 )
 def set_default_values(theme, indicators_dict):
 
-    return [indicators_dict[theme["theme"]][area].get("default") for area in AREA_KEYS]
+    return [
+        indicators_dict[theme["theme"]][area].get("default")
+        if area in indicators_dict[theme["theme"]]
+        else None
+        for area in AREA_KEYS
+    ]
 
 
 def get_disag_total(data, indicator, dimension, default_total="Total"):
@@ -705,40 +719,48 @@ def main_figure(indicator, selections, indicators_dict):
 )
 def area_1_figure(selections, indicator, compare, indicators_dict):
 
-    fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
-    options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
-    compare = False if compare == "Total" else compare
+    # first option: only run if indicator not None
+    if indicator:
 
-    columns = [
-        "CODE",
-        "Indicator",
-        "Geographic area",
-    ]
-    aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-    query = "CODE == @indicator"
-    if compare:
-        columns.append(compare)
-        total = get_disag_total(data, indicator, compare)
-        query = "{} & {} != '{}'".format(query, compare, total)
+        fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
+        options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
+        compare = False if compare == "Total" else compare
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
-    )
+        columns = [
+            "CODE",
+            "Indicator",
+            "Geographic area",
+        ]
+        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+        query = "CODE == @indicator"
+        if compare:
+            columns.append(compare)
+            total = get_disag_total(data, indicator, compare)
+            query = "{} & {} != '{}'".format(query, compare, total)
 
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    if compare:
-        options["color"] = compare
+        name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        df = (
+            get_filtered_dataset(**selections)
+            .query(query)
+            .groupby(columns)
+            .agg(aggregates)
+            .reset_index()
+        )
 
-    fig = getattr(px, fig_type)(df, **options)
-    # fig.update_layout(title_x=1)
-    fig.update_xaxes(categoryorder="total descending")
-    return fig
+        options["labels"] = DEFAULT_LABELS.copy()
+        options["labels"]["OBS_VALUE"] = name
+        if compare:
+            options["color"] = compare
+
+        fig = getattr(px, fig_type)(df, **options)
+        # fig.update_layout(title_x=1)
+        fig.update_xaxes(categoryorder="total descending")
+
+        return fig
+
+    else:
+
+        return None
 
 
 @app.callback(
@@ -761,46 +783,53 @@ def area_2_figure(
     indicators_dict,
 ):
 
-    default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
-    fig_type = selected_type if selected_type else default
-    config = indicators_dict[selections["theme"]]["AREA_2"]["graphs"][fig_type]
-    compare = config.get("compare")
-    options = config.get("options")
-    traces = config.get("trace_options")
+    # first option: only run if both areas (1 and 2) not None
+    if (area_1_selected is not None) & (area_2_selected is not None):
 
-    indicator = area_2_selected if area_2_selected else area_1_selected
+        default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
+        fig_type = selected_type if selected_type else default
+        config = indicators_dict[selections["theme"]]["AREA_2"]["graphs"][fig_type]
+        compare = config.get("compare")
+        options = config.get("options")
+        traces = config.get("trace_options")
 
-    columns = ["CODE", "Indicator", "Geographic area"]
-    aggregates = {"OBS_VALUE": "mean"}
-    query = "CODE == @indicator"
-    if compare:
-        columns.append(compare)
-        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        total = get_disag_total(data, indicator, compare)
-        query = "{} & {} != '{}'".format(query, compare, total)
+        indicator = area_2_selected if area_2_selected else area_1_selected
+
+        columns = ["CODE", "Indicator", "Geographic area"]
+        aggregates = {"OBS_VALUE": "mean"}
+        query = "CODE == @indicator"
+        if compare:
+            columns.append(compare)
+            aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+            total = get_disag_total(data, indicator, compare)
+            query = "{} & {} != '{}'".format(query, compare, total)
+        else:
+            # if no compare then get single value for the year
+            columns.append("TIME_PERIOD")
+
+        name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        df = (
+            get_filtered_dataset(**selections)
+            .query(query)
+            .groupby(columns)
+            .agg(aggregates)
+            .reset_index()
+        )
+
+        options["labels"] = DEFAULT_LABELS.copy()
+        options["labels"]["OBS_VALUE"] = name
+        if compare:
+            options["color"] = compare
+
+        fig = getattr(px, fig_type)(df, **options)
+        if traces:
+            fig.update_traces(**traces)
+        fig.update_xaxes(categoryorder="total descending")
+
+        return fig
+
     else:
-        # if no compare then get single value for the year
-        columns.append("TIME_PERIOD")
-
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
-    )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    if compare:
-        options["color"] = compare
-
-    fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
-    fig.update_xaxes(categoryorder="total descending")
-    return fig
+        return None
 
 
 @app.callback(
@@ -815,30 +844,36 @@ def area_2_figure(
 )
 def area_3_figure(selections, indicator, indicators_dict):
 
-    fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
-    compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
-    options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
+    # first option: only run if indicator not None
+    if indicator:
 
-    total = "Total"  # potentially move to this config
-    cohorts = data[data["CODE"] == indicator][compare].unique()
-    query = "CODE in @indicator"
-    if len(cohorts) > 1:
-        query = "{} & {} != @total".format(query, compare)
+        fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
+        compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
+        options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
 
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", compare])
-        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-        .reset_index()
-    )
+        total = "Total"  # potentially move to this config
+        cohorts = data[data["CODE"] == indicator][compare].unique()
+        query = "CODE in @indicator"
+        if len(cohorts) > 1:
+            query = "{} & {} != @total".format(query, compare)
 
-    if len(cohorts) > 1:
-        options["color"] = compare
+        df = (
+            get_filtered_dataset(**selections)
+            .query(query)
+            .groupby(["CODE", "Indicator", "Geographic area", compare])
+            .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+            .reset_index()
+        )
 
-    fig = getattr(px, fig_type)(df, **options)
-    fig.update_xaxes(categoryorder="total descending")
-    return fig
+        if len(cohorts) > 1:
+            options["color"] = compare
+
+        fig = getattr(px, fig_type)(df, **options)
+        fig.update_xaxes(categoryorder="total descending")
+        return fig
+
+    else:
+        return None
 
 
 @app.callback(
@@ -853,68 +888,77 @@ def area_3_figure(selections, indicator, indicators_dict):
 )
 def area_4_figure(selections, indicator, indicators_dict):
 
-    default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
-    fig_type = default
-    config = indicators_dict[selections["theme"]]["AREA_4"]["graphs"][fig_type]
-    compare = config.get("compare")
-    options = config.get("options")
-    traces = config.get("trace_options")
+    # first option: only run if indicator not None
+    if indicator:
 
-    query = "CODE == @indicator"
-    if compare:
-        query = "{} & {} != 'Total'".format(query, compare)
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(
-            [
-                "CODE",
-                "Indicator",
-                "Geographic area",
-                compare if compare else "TIME_PERIOD",
-            ]
+        default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
+        fig_type = default
+        config = indicators_dict[selections["theme"]]["AREA_4"]["graphs"][fig_type]
+        compare = config.get("compare")
+        options = config.get("options")
+        traces = config.get("trace_options")
+
+        query = "CODE == @indicator"
+        if compare:
+            query = "{} & {} != 'Total'".format(query, compare)
+        df = (
+            get_filtered_dataset(**selections)
+            .query(query)
+            .groupby(
+                [
+                    "CODE",
+                    "Indicator",
+                    "Geographic area",
+                    compare if compare else "TIME_PERIOD",
+                ]
+            )
+            .agg(
+                {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+                if compare
+                else {"OBS_VALUE": "mean"}
+            )
+            .reset_index()
         )
-        .agg(
-            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-            if compare
-            else {"OBS_VALUE": "mean"}
-        )
-        .reset_index()
-    )
 
-    if compare:
-        options["color"] = compare
+        if compare:
+            options["color"] = compare
 
-    fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
-    fig.update_xaxes(categoryorder="total descending")
+        fig = getattr(px, fig_type)(df, **options)
+        if traces:
+            fig.update_traces(**traces)
+        fig.update_xaxes(categoryorder="total descending")
 
-    # subfig = make_subplots(specs=[[{"secondary_y": True}]])
+        return fig
 
-    # indicator = "EDUNF_DR_L1"
-    # line_data = (
-    #     data.query(query)
-    #     .groupby(["CODE", "Indicator", "Geographic area", compare])
-    #     .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-    #     .reset_index()
-    # )
+    else:
+        return None
 
-    # line = px.line(
-    #     line_data,
-    #     x="Geographic area",
-    #     y="OBS_VALUE",
-    #     color=compare,
-    #     text="TIME_PERIOD",
-    #     # labels={"Indicator": "Dropout Rate"},
-    # )
-    # line.update_traces(
-    #     yaxis="y2",
-    #     mode="markers",
-    #     marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
-    #     # selector=dict(mode="markers"),
-    # )
 
-    # subfig.add_traces(fig.data + line.data)
+# Commented code below by James
 
-    return fig
+# subfig = make_subplots(specs=[[{"secondary_y": True}]])
+
+# indicator = "EDUNF_DR_L1"
+# line_data = (
+#     data.query(query)
+#     .groupby(["CODE", "Indicator", "Geographic area", compare])
+#     .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+#     .reset_index()
+# )
+
+# line = px.line(
+#     line_data,
+#     x="Geographic area",
+#     y="OBS_VALUE",
+#     color=compare,
+#     text="TIME_PERIOD",
+#     # labels={"Indicator": "Dropout Rate"},
+# )
+# line.update_traces(
+#     yaxis="y2",
+#     mode="markers",
+#     marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
+#     # selector=dict(mode="markers"),
+# )
+
+# subfig.add_traces(fig.data + line.data)

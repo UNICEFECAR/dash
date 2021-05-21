@@ -133,8 +133,6 @@ codes = [
     # "EDU_CHLD_DISAB_L1",
     # "EDU_CHLD_DISAB_L2",
     # "EDU_CHLD_DISAB_L3",
-    "JJ_CHLD_CRIME",
-    "JJ_CHLD_CRIMERT",
     "PT_CHLD_1-14_PS-PSY-V_CGVR",
     "PT_CHLD_INRESIDENTIAL",
     "PT_CHLD_DISAB_PUBLIC",
@@ -164,6 +162,8 @@ codes = [
     "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
     "PT_CHLD_ADOPTION_INTERcountry_RATE",
     "PT_CHLD_ADOPTION_RATE",
+    "JJ_CHLD_CRIME",
+    "JJ_CHLD_CRIMERT",
     "JJ_CHLD_DETENTION",
     "JJ_CHLD_CONVICTED",
     "JJ_CHLD_CONVICTED_VIOLENT",
@@ -181,6 +181,15 @@ codes = [
     "JJ_CHLD_PRISION",
     "JJ_CHLD_PRETRIAL",
     "JJ_CHLD_PRISION_ADJUDICATION",
+    "JJ_CHLD_POLICE",
+    "JJ_CHLD_OFFENCE",
+    "JJ_CHLD_CRIME_PERPETRATOR",
+    "JJ_CHLD_CRIME_PERSON",
+    "JJ_CHLD_CRIME_PROPERTY",
+    "JJ_CHLD_CRIME_OTHER",
+    "JJ_CHLD_ARRESTED",
+    "JJ_CHLD_VICTIM",
+    "JJ_CHLD_OFFENDER",
 ]
 
 years = list(range(2010, 2021))
@@ -409,12 +418,7 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
+                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
             },
             {
                 "label": "Pre-accession countries",
@@ -428,10 +432,7 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
+            {"label": "Russian Federation", "value": ["Russian Federation"],},
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
