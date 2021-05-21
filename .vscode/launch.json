@@ -8,32 +8,8 @@
             "name": "Python: Flask",
             "type": "python",
             "request": "launch",
-            "module": "flask",
-            "env": {
-                "FLASK_APP": "app.py",
-                "FLASK_ENV": "development"
-            },
-            "args": [
-                "run",
-                "--no-debugger"
-            ],
+            "module": "dev_cli",
             "cwd": "${workspaceFolder}/transmonee_dashboard/src/transmonee_dashboard"
         },
-        // {
-        //     "name": "Python: Flask",
-        //     "type": "python",
-        //     "request": "launch",
-        //     "module": "transmonee_dashboard.dev_cli",
-        //     "env": {
-        //         "FLASK_APP": "app",
-        //         "FLASK_ENV": "development",
-        //         "FLASK_DEBUG": "1"
-        //     },
-        //     "args": [
-        //         "main"
-        //     ],
-        //     "justMyCode": false,
-        //     "cwd": "${workspaceFolder}/transmonee_dashboard/src"
-        // },
     ]
 }
