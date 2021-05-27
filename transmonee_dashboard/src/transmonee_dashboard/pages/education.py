@@ -54,10 +54,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -192,7 +189,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "geo": "Country",
+            "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
                 lon="longitude",
@@ -211,10 +208,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -335,7 +329,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Education Expenditures and Legal Frameworks",
-            "geo": "Country",
+            "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
                 lon="longitude",

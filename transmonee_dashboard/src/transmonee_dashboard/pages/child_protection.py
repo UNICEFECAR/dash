@@ -11,48 +11,45 @@ indicators_dict = {
         "CARDS": [
             # revise denominator population: children 1-14?
             {
-                "name": "Child physical punishment by caregivers",
+                "name": "who experienced physical punishment or psychological aggression by caregivers",
                 "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "denominator": "EDUNF_SAP_L1T3",
+                "suffix": "Percent of Children",
             },
         ],
         "MAIN": {
-            "name": "Child physical punishment by caregivers",
-            "geo": "Country",
+            "name": "Children physical punishment or psychological aggression by caregivers",
+            "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
                 lon="longitude",
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.Jet,
+                color_continuous_scale=px.colors.sequential.GnBu,
                 size_max=40,
                 zoom=2.5,
+                animation_frame="TIME_PERIOD",
                 height=750,
             ),
             "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
+            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                color="Sex",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
                         x="Geographic area",
                         y="OBS_VALUE",
-                        color="Sex",
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
@@ -74,64 +71,29 @@ indicators_dict = {
             "default_graph": "line",
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
-        "AREA_3": {
-            "type": "bar",
-            "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
-            ),
-            "compare": "Sex",
-            "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
-        },
-        "AREA_4": {
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        text="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            "indicators": ["PT_CHLD_1-14_PS-PSY-V_CGVR"],
-            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
-        },
     },
     "CARE": {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "TMEE Number: Children in Residential Care",
+                "name": "in Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
                 "suffix": "Children",
             },
             # revise denominator: population children 0-17
             {
-                "name": "TMEE Rate: Children in Residential Care",
+                "name": "in Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
+                "denominator": "EDUNF_SAP_L1T3",
+                "suffix": "Percent of Children",
             },
             {
-                "name": "TMEE Number: Children cared by Fosters or Guardians",
+                "name": "in care of foster parents or guardians",
                 "indicator": "PT_CHLD_INCARE_FOSTER",
                 "suffix": "Children",
             },
             {
-                "name": "TMEE Number: Children available for adoption",
+                "name": "available for adoption",
                 "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
                 "suffix": "Children",
             },
@@ -145,9 +107,9 @@ indicators_dict = {
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.Jet,
+                color_continuous_scale=px.colors.sequential.GnBu,
                 size_max=40,
-                zoom=3,
+                zoom=2.5,
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
@@ -167,7 +129,7 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_RATE",
             ],
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
@@ -190,7 +152,7 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_INTERCOUNTRY_RATE",
             ],
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -244,6 +206,7 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_INTER_COUNTRY_DISAB",
                 "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
+            "default": "PT_CHLD_DISAB_PUBLIC",
         },
         "AREA_4": {
             "graphs": {
@@ -277,31 +240,43 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_INTER_COUNTRY_DISAB",
                 "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
-            "default": "PT_CHLD_DISAB_PUBLIC",
+            "default": "PT_CHLD_ADOPTION_DISAB",
         },
     },
     "JUSTICE": {
         "NAME": "Access to Justice",
         "CARDS": [
             {
-                "name": "TMEE Number: Child Victims of Crime",
+                "name": "committed against children during the year",
                 "indicator": "JJ_CHLD_CRIME",
-                "suffix": "PER_100,000 Children",
+                "suffix": "Registered crimes",
+            },
+            {
+                "name": "who are reported as being in contact with the police because of their own behaviour during the year",
+                "indicator": "JJ_CHLD_POLICE",
+                "suffix": "Children",
+            },
+            {
+                "name": "who are charged with an offence or crime during the year",
+                "indicator": "JJ_CHLD_OFFENCE",
+                "suffix": "Children",
             },
             # revise denominator: population children 0-17
-            {
-                "name": "TMEE Rate: Child Victims of Crime",
-                "indicator": "JJ_CHLD_CRIMERT",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
-            },
-            # revise denominator: population children 0-17
-            {
-                "name": "TMEE Rate: Child Sentencing",
-                "indicator": "JJ_CHLD_SENTENCERT",
-                "denominator": "EDUNF_SAP_L2",
-                "suffix": "%",
-            },
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "committed against children (per 100,000 population aged 0-17)",
+            #     "indicator": "JJ_CHLD_CRIMERT",
+            #     "denominator": "EDUNF_SAP_L1T3",
+            #     "suffix": "Registered crimes",
+            # },
+            # revise denominator: population children 14-17
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "who are sentenced (per 100,000 population aged 14-17)",
+            #     "indicator": "JJ_CHLD_SENTENCERT",
+            #     "denominator": "EDUNF_SAP_L3",
+            #     "suffix": "Children",
+            # },
         ],
         "MAIN": {
             "name": "Child Victims of Crime",
@@ -312,9 +287,9 @@ indicators_dict = {
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.Jet,
+                color_continuous_scale=px.colors.sequential.GnBu,
                 size_max=40,
-                zoom=3,
+                zoom=2.5,
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
@@ -325,8 +300,9 @@ indicators_dict = {
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
             ],
+            "default": "JJ_CHLD_CRIME",
         },
-        "LEFT": {
+        "AREA_1": {
             "type": "bar",
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
@@ -338,16 +314,10 @@ indicators_dict = {
                 "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
-                "JJ_CHLD_PRISION",
-                "JJ_CHLD_PRETRIAL",
-                "JJ_CHLD_PRISION_ADJUDICATION",
-                "JJ_CHLD_CONVICTED_VIOLENT",
-                "JJ_CHLD_CONVICTED_PROPERTY",
-                "JJ_CHLD_CONVICTED_OTHER",
             ],
             "default": "JJ_CHLD_CRIME",
         },
-        "RIGHT": {
+        "AREA_2": {
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -377,12 +347,6 @@ indicators_dict = {
                 "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
-                "JJ_CHLD_PRISION",
-                "JJ_CHLD_PRETRIAL",
-                "JJ_CHLD_PRISION_ADJUDICATION",
-                "JJ_CHLD_CONVICTED_VIOLENT",
-                "JJ_CHLD_CONVICTED_PROPERTY",
-                "JJ_CHLD_CONVICTED_OTHER",
             ],
             "default": "JJ_CHLD_CRIME",
         },
@@ -393,13 +357,15 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-                "JJ_CHLD_DETENTION",
-                "JJ_CHLD_CONVICTED",
-                "JJ_CHLD_SENTENCERT",
-                "JJ_CHLD_PRISION",
-                "JJ_CHLD_PRETRIAL",
+                "JJ_CHLD_CRIME_PERPETRATOR",
+                "JJ_CHLD_CRIME_PERSON",
+                "JJ_CHLD_CRIME_PROPERTY",
+                "JJ_CHLD_CRIME_OTHER",
+                "JJ_CHLD_POLICE",
+                "JJ_CHLD_ARRESTED",
+                "JJ_CHLD_OFFENCE",
+                "JJ_CHLD_VICTIM",
+                "JJ_CHLD_OFFENDER",
             ],
         },
         "AREA_4": {
@@ -427,13 +393,12 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-                "JJ_CHLD_DETENTION",
-                "JJ_CHLD_CONVICTED",
-                "JJ_CHLD_SENTENCERT",
                 "JJ_CHLD_PRISION",
                 "JJ_CHLD_PRETRIAL",
+                "JJ_CHLD_PRISION_ADJUDICATION",
+                "JJ_CHLD_CONVICTED_VIOLENT",
+                "JJ_CHLD_CONVICTED_PROPERTY",
+                "JJ_CHLD_CONVICTED_OTHER",
             ],
             "default": "JJ_CHLD_CRIMERT",
         },

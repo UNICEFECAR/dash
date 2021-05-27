@@ -126,7 +126,7 @@ def get_base_layout(**kwargs):
                                         ],
                                     ),
                                     dbc.DropdownMenu(
-                                        label="Countires by sub-reigon: All",
+                                        label="Countries by sub-reigon: All",
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
@@ -180,13 +180,7 @@ def get_base_layout(**kwargs):
                 className="sticky-top bg-light",
             ),
             dbc.Row(
-                [
-                    dbc.CardDeck(
-                        id="cards_row",
-                        className="mt-3",
-                    ),
-                ],
-                justify="center",
+                [dbc.CardDeck(id="cards_row", className="mt-3",),], justify="center",
             ),
             html.Br(),
             # start first row
@@ -199,9 +193,7 @@ def get_base_layout(**kwargs):
                                     dcc.Dropdown(
                                         id="main_options",
                                         # className="dcc_control",
-                                        style={
-                                            "z-index": "11",
-                                        },
+                                        style={"z-index": "11",},
                                     ),
                                     dcc.Graph(id="main_area"),
                                 ]
@@ -222,10 +214,7 @@ def get_base_layout(**kwargs):
                                     # style={"z-index": "15"},
                                 ),
                                 dcc.Graph(id="area_1"),
-                                dbc.RadioItems(
-                                    id="area_1_breakdowns",
-                                    inline=True,
-                                ),
+                                dbc.RadioItems(id="area_1_breakdowns", inline=True,),
                             ]
                         ),
                         id="area_1_parent",
@@ -234,8 +223,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_2_options",
-                                    className="dcc_control",
+                                    id="area_2_options", className="dcc_control",
                                 ),
                                 html.Div(
                                     [dcc.Graph(id="area_2")],
@@ -262,8 +250,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_3_options",
-                                    className="dcc_control",
+                                    id="area_3_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_3"),
                             ]
@@ -274,8 +261,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_4_options",
-                                    className="dcc_control",
+                                    id="area_4_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_4"),
                             ]
@@ -360,9 +346,7 @@ def get_filtered_dataset(theme, years, countries):
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
     ctx = dash.callback_context
@@ -401,11 +385,12 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         country_selector,
         countries_selected == set(unicef_country_prog),
         f"Years: {selected_years[0]} - {selected_years[-1]}",
-        "Countires: {}".format(country_text),
+        "Countries: {}".format(country_text),
     )
 
 
 def indicator_card(
+    selections,
     card_id,
     name,
     numerator,
@@ -421,13 +406,9 @@ def indicator_card(
     indicator = numors
     # select last value for each country
     indicator_values = (
-        data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        get_filtered_dataset(**selections)
+        .query(query)
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -441,7 +422,7 @@ def indicator_card(
     # check for denominator
     if denominator:
 
-        # select the avalible denominators for countiries in selected years
+        # select the avalible denominators for countries in selected years
         indicator = [denominator]
         denominator_values = data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
@@ -461,7 +442,7 @@ def indicator_card(
                 * denominators
                 / denominators.to_numpy().sum()
             )
-            .dropna()  # will drop missing countires
+            .dropna()  # will drop missing countries
             .to_numpy()
             .sum()
         )
@@ -523,10 +504,7 @@ def indicator_card(
                 },
             ),
             dbc.Popover(
-                [
-                    dbc.PopoverHeader("Sources"),
-                    dbc.PopoverBody(str(sources)),
-                ],
+                [dbc.PopoverHeader("Sources"), dbc.PopoverBody(str(sources)),],
                 id="hover",
                 target=card_id,
                 trigger="hover",
@@ -541,14 +519,13 @@ def indicator_card(
 
 @app.callback(
     Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("cards_row", "children"), State("indicators", "data")],
 )
-def show_cards(theme, current_cards, indicators_dict):
+def show_cards(selections, current_cards, indicators_dict):
     cards = [
         indicator_card(
+            selections,
             f"card-{num}",
             card["name"],
             card["indicator"],
@@ -557,7 +534,7 @@ def show_cards(theme, current_cards, indicators_dict):
             card.get("absolute"),
             card.get("sex"),
         )
-        for num, card in enumerate(indicators_dict[theme["theme"]]["CARDS"])
+        for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
     return cards
 
@@ -568,21 +545,25 @@ def show_cards(theme, current_cards, indicators_dict):
     Output("area_2_options", "options"),
     Output("area_3_options", "options"),
     Output("area_4_options", "options"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_options(theme, indicators_dict):
     # potentially only use cached version
     return [
         [
-            {
-                "label": item["Indicator"],
-                "value": item["CODE"],
-            }
+            {"label": item["Indicator"], "value": item["CODE"],}
             for item in data[
                 data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
+            ][["CODE", "Indicator"]]
+            .drop_duplicates()
+            .to_dict("records")
+        ]
+        if area in indicators_dict[theme["theme"]]
+        else [
+            {"label": item["Indicator"], "value": item["CODE"],}
+            for item in data[
+                data["CODE"].isin(indicators_dict[theme["theme"]]["MAIN"]["indicators"])
             ][["CODE", "Indicator"]]
             .drop_duplicates()
             .to_dict("records")
@@ -597,14 +578,17 @@ def set_options(theme, indicators_dict):
     Output("area_2_options", "value"),
     Output("area_3_options", "value"),
     Output("area_4_options", "value"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_default_values(theme, indicators_dict):
 
-    return [indicators_dict[theme["theme"]][area].get("default") for area in AREA_KEYS]
+    return [
+        indicators_dict[theme["theme"]][area].get("default")
+        if area in indicators_dict[theme["theme"]]
+        else indicators_dict[theme["theme"]]["MAIN"].get("default")
+        for area in AREA_KEYS
+    ]
 
 
 def get_disag_total(data, indicator, dimension, default_total="Total"):
@@ -613,10 +597,7 @@ def get_disag_total(data, indicator, dimension, default_total="Total"):
 
 
 @app.callback(
-    Output("area_1_breakdowns", "options"),
-    [
-        Input("area_1_options", "value"),
-    ],
+    Output("area_1_breakdowns", "options"), [Input("area_1_options", "value"),],
 )
 def breakdown_options(indicator):
 
@@ -643,12 +624,8 @@ def breakdown_options(indicator):
     # Output("area_2_options", "value"),
     # Output("area_3_options", "value"),
     # Output("area_4_options", "value"),
-    [
-        Input("area_1_breakdowns", "options"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("area_1_breakdowns", "options"),],
+    [State("indicators", "data"),],
 )
 def set_default_compare(compare_options, indicators_dict):
 
@@ -661,13 +638,8 @@ def set_default_compare(compare_options, indicators_dict):
 
 @app.callback(
     Output("main_area", "figure"),
-    [
-        Input("main_options", "value"),
-        Input("store", "data"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("main_options", "value"), Input("store", "data"),],
+    [State("indicators", "data"),],
 )
 def main_figure(indicator, selections, indicators_dict):
 
@@ -699,9 +671,7 @@ def main_figure(indicator, selections, indicators_dict):
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_1_figure(selections, indicator, compare, indicators_dict):
 
@@ -749,16 +719,10 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
         Input("area_2_options", "value"),
         Input("area_2_types", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_2_figure(
-    selections,
-    area_1_selected,
-    area_2_selected,
-    selected_type,
-    indicators_dict,
+    selections, area_1_selected, area_2_selected, selected_type, indicators_dict,
 ):
 
     default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
@@ -805,13 +769,8 @@ def area_2_figure(
 
 @app.callback(
     Output("area_3", "figure"),
-    [
-        Input("store", "data"),
-        Input("area_3_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_3_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_3_figure(selections, indicator, indicators_dict):
 
@@ -843,13 +802,8 @@ def area_3_figure(selections, indicator, indicators_dict):
 
 @app.callback(
     Output("area_4", "figure"),
-    [
-        Input("store", "data"),
-        Input("area_4_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_4_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_4_figure(selections, indicator, indicators_dict):
 
