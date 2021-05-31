@@ -2,7 +2,7 @@
 
 import click
 
-from .app import app
+from transmonee_dashboard.app import app
 
 
 @click.command()
@@ -31,3 +31,7 @@ from .app import app
 )
 def main(port, host, debug):
     app.run_server(port=port, debug=debug, host=host)
+
+
+if __name__ == "__main__":
+    main()
