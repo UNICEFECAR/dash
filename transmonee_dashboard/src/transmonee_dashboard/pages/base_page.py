@@ -313,15 +313,12 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
     Output("area_2_parent", "hidden"),
     Output("area_3_parent", "hidden"),
     Output("area_4_parent", "hidden"),
-    Input("theme_selector", "value"),
+    Input("theme", "hash"),
     State("indicators", "data"),
 )
 def display_areas(theme, indicators_dict):
-    return [
-        area not in indicators_dict[theme["theme"]]
-        for area in AREA_KEYS
-        if area != "MAIN"
-    ]
+    theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
+    return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
 
 
 @cache.memoize()  # will cache based on years and countries combo

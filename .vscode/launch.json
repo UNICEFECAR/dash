@@ -8,18 +8,16 @@
             "name": "Python: Flask",
             "type": "python",
             "request": "launch",
-            "module": "transmonee_dashboard.dev_cli",
+            "module": "flask",
             "env": {
-                "FLASK_APP": "app",
+                "FLASK_APP": "app.py",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "1"
             },
             "args": [
-                "main",
+                "run",
                 "--no-debugger"
             ],
-            "justMyCode": false,
-            "cwd": "${workspaceFolder}/transmonee_dashboard/src"
+            "cwd": "${workspaceFolder}/transmonee_dashboard/src/transmonee_dashboard/"
         },
         {
             "name": "Docker: Python - Flask",
