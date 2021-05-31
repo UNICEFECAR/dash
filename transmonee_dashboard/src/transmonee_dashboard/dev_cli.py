@@ -26,7 +26,7 @@ from .app import app
 )
 @click.option(
     "--debug/--no-debug",
-    default=False,
+    default=True,
     help="Toggles whether the Dash app is run in debug mode. Defaults to True",
 )
 def main(port, host, debug):
