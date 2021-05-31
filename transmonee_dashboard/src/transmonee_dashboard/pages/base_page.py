@@ -1,3 +1,4 @@
+from re import split
 import urllib
 import pickle
 import copy
@@ -689,7 +690,11 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
         if compare:
             columns.append(compare)
             total = get_disag_total(data, indicator, compare)
-            query = "{} & {} != '{}'".format(query, compare, total)
+            query = (
+                "{} & {} != '{}'".format(query, compare, total)
+                if len(compare.split()) < 1
+                else "{} & '{}' != '{}'".format(query, compare, total)
+            )
 
         name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
         df = (

@@ -34,4 +34,5 @@ def main(port, host, debug):
 
 
 if __name__ == "__main__":
+    # is this correct with no argument?
     main()
