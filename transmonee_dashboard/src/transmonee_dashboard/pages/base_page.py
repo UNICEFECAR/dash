@@ -713,7 +713,7 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
 
     else:
 
-        return None
+        return {}
 
 
 @app.callback(
@@ -776,7 +776,7 @@ def area_2_figure(
         return fig
 
     else:
-        return None
+        return {}
 
 
 @app.callback(
@@ -815,7 +815,7 @@ def area_3_figure(selections, indicator, indicators_dict):
         return fig
 
     else:
-        return None
+        return {}
 
 
 @app.callback(
@@ -868,7 +868,7 @@ def area_4_figure(selections, indicator, indicators_dict):
         return fig
 
     else:
-        return None
+        return {}
 
 
 # Commented code below by James
