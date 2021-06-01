@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "dev_cli",
-            "cwd": "${workspaceFolder}/transmonee_dashboard/src/transmonee_dashboard"
+            "cwd": "${workspaceFolder}/transmonee_dashboard/src/transmonee_dashboard/"
         },
     ]
 }
