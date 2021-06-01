@@ -141,7 +141,8 @@ class DashNavBar:
             href = get_url(path)
             active = (current_path == href) or (i == 0 and current_path == route_prefix)
             nav_item = dbc.NavItem(
-                dbc.NavLink(text, href=href, active=active), className="menu-item"
+                dbc.NavLink(text, href=href, active=active),
+                className=f"menu-item{' active' if active else ''}",
             )
             nav_items.append(nav_item)
         # TODO: move class name for nav container to config

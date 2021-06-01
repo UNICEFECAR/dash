@@ -80,7 +80,7 @@ def get_base_layout(**kwargs):
                                                 color=colours[num],
                                                 className="theme mx-1",
                                                 href=f"#{key.lower()}",
-                                                active=url_hash == f"#{key.lower()}",
+                                                # active=url_hash == f"#{key.lower()}",
                                             )
                                             for num, (key, value) in enumerate(
                                                 indicators_dict.items()
