@@ -1,4 +1,5 @@
 from re import split
+import re
 import urllib
 import pickle
 import copy
@@ -25,6 +26,7 @@ from plotly.subplots import make_subplots
 
 import dash_treeview_antd
 
+from ..components import fa
 from ..app import app, cache
 from . import (
     mapbox_access_token,
@@ -207,6 +209,20 @@ def get_base_layout(**kwargs):
                                         },
                                     ),
                                     dcc.Graph(id="main_area"),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="main_area_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="main_area_sources"),
+                                        ],
+                                        id="hover",
+                                        target="main_area_info",
+                                        trigger="hover",
+                                    ),
                                 ]
                             ),
                         ),
@@ -228,6 +244,20 @@ def get_base_layout(**kwargs):
                                 dbc.RadioItems(
                                     id="area_1_breakdowns",
                                     inline=True,
+                                ),
+                                html.Div(
+                                    fa("fas fa-info-circle"),
+                                    id="area_1_info",
+                                    className="float-right",
+                                ),
+                                dbc.Popover(
+                                    [
+                                        dbc.PopoverHeader("Sources"),
+                                        dbc.PopoverBody(id="area_1_sources"),
+                                    ],
+                                    id="hover",
+                                    target="area_1_info",
+                                    trigger="hover",
                                 ),
                             ]
                         ),
@@ -252,6 +282,20 @@ def get_base_layout(**kwargs):
                                     ],
                                     inline=True,
                                 ),
+                                html.Div(
+                                    fa("fas fa-info-circle"),
+                                    id="area_2_info",
+                                    className="float-right",
+                                ),
+                                dbc.Popover(
+                                    [
+                                        dbc.PopoverHeader("Sources"),
+                                        dbc.PopoverBody(id="area_2_sources"),
+                                    ],
+                                    id="hover",
+                                    target="area_2_info",
+                                    trigger="hover",
+                                ),
                             ]
                         ),
                         id="area_2_parent",
@@ -269,6 +313,20 @@ def get_base_layout(**kwargs):
                                     className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_3"),
+                                html.Div(
+                                    fa("fas fa-info-circle"),
+                                    id="area_3_info",
+                                    className="float-right",
+                                ),
+                                dbc.Popover(
+                                    [
+                                        dbc.PopoverHeader("Sources"),
+                                        dbc.PopoverBody(id="area_3_sources"),
+                                    ],
+                                    id="hover",
+                                    target="area_3_info",
+                                    trigger="hover",
+                                ),
                             ]
                         ),
                         id="area_3_parent",
@@ -281,6 +339,20 @@ def get_base_layout(**kwargs):
                                     className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_4"),
+                                html.Div(
+                                    fa("fas fa-info-circle"),
+                                    id="area_4_info",
+                                    className="float-right",
+                                ),
+                                dbc.Popover(
+                                    [
+                                        dbc.PopoverHeader("Sources"),
+                                        dbc.PopoverBody(id="area_4_sources"),
+                                    ],
+                                    id="hover",
+                                    target="area_4_info",
+                                    trigger="hover",
+                                ),
                             ]
                         ),
                         id="area_4_parent",
@@ -531,7 +603,7 @@ def indicator_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader("Sources"),
+                    dbc.PopoverHeader(f"Sources: {indicator}"),
                     dbc.PopoverBody(str(sources)),
                 ],
                 id="hover",
@@ -618,7 +690,6 @@ def set_default_values(theme, indicators_dict):
     return [
         indicators_dict[theme["theme"]][area].get("default")
         if area in indicators_dict[theme["theme"]]
-        # empty string
         else ""
         for area in AREA_KEYS
     ]
@@ -678,6 +749,7 @@ def set_default_compare(compare_options, indicators_dict):
 
 @app.callback(
     Output("main_area", "figure"),
+    Output("main_area_sources", "children"),
     [
         Input("main_options", "value"),
         Input("store", "data"),
@@ -692,9 +764,10 @@ def main_figure(indicator, selections, indicators_dict):
     compare = "Sex"
 
     total = "Total"  # potentially move to this config
-    query = f"CODE in @indicator & {compare} == @total"
+    query = f"CODE == @indicator & {compare} == @total"
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -706,11 +779,12 @@ def main_figure(indicator, selections, indicators_dict):
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
-    return px.scatter_mapbox(df, **options)
+    return px.scatter_mapbox(df, **options), source
 
 
 @app.callback(
     Output("area_1", "figure"),
+    Output("area_1_sources", "children"),
     [
         Input("store", "data"),
         Input("area_1_options", "value"),
@@ -740,13 +814,10 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
     if compare:
         columns.append(compare)
         total = get_disag_total(data, indicator, compare)
-        query = (
-            "{} & {} != '{}'".format(query, compare, total)
-            if len(compare.split()) < 1
-            else "{} & '{}' != '{}'".format(query, compare, total)
-        )
+        query = "{} & `{}` != '{}'".format(query, compare, total)
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -764,11 +835,12 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
     # fig.update_layout(title_x=1)
     fig.update_xaxes(categoryorder="total descending")
 
-    return fig
+    return fig, source
 
 
 @app.callback(
     Output("area_2", "figure"),
+    Output("area_2_sources", "children"),
     [
         Input("store", "data"),
         Input("area_1_options", "value"),
@@ -788,7 +860,7 @@ def area_2_figure(
 ):
 
     # only run if both areas (1 and 2) not empty
-    if not area_1_selected and area_2_selected:
+    if not area_1_selected and not area_2_selected:
         return {}
 
     default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
@@ -799,7 +871,6 @@ def area_2_figure(
     traces = config.get("trace_options")
 
     indicator = area_2_selected if area_2_selected else area_1_selected
-
     columns = ["CODE", "Indicator", "Geographic area"]
     aggregates = {"OBS_VALUE": "mean"}
     query = "CODE == @indicator"
@@ -807,12 +878,13 @@ def area_2_figure(
         columns.append(compare)
         aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
         total = get_disag_total(data, indicator, compare)
-        query = "{} & {} != '{}'".format(query, compare, total)
+        query = "{} & `{}` != '{}'".format(query, compare, total)
     else:
         # if no compare then get single value for the year
         columns.append("TIME_PERIOD")
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -831,11 +903,12 @@ def area_2_figure(
         fig.update_traces(**traces)
     fig.update_xaxes(categoryorder="total descending")
 
-    return fig
+    return fig, source
 
 
 @app.callback(
     Output("area_3", "figure"),
+    Output("area_3_sources", "children"),
     [
         Input("store", "data"),
         Input("area_3_options", "value"),
@@ -860,6 +933,8 @@ def area_3_figure(selections, indicator, indicators_dict):
     if len(cohorts) > 1:
         query = "{} & {} != @total".format(query, compare)
 
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -868,16 +943,19 @@ def area_3_figure(selections, indicator, indicators_dict):
         .reset_index()
     )
 
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
     if len(cohorts) > 1:
         options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     fig.update_xaxes(categoryorder="total descending")
-    return fig
+    return fig, source
 
 
 @app.callback(
     Output("area_4", "figure"),
+    Output("area_4_sources", "children"),
     [
         Input("store", "data"),
         Input("area_4_options", "value"),
@@ -902,6 +980,9 @@ def area_4_figure(selections, indicator, indicators_dict):
     query = "CODE == @indicator"
     if compare:
         query = "{} & {} != 'Total'".format(query, compare)
+
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -921,6 +1002,8 @@ def area_4_figure(selections, indicator, indicators_dict):
         .reset_index()
     )
 
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
 
@@ -929,7 +1012,8 @@ def area_4_figure(selections, indicator, indicators_dict):
         fig.update_traces(**traces)
     fig.update_xaxes(categoryorder="total descending")
 
-    return fig        
+    return fig, source
+
 
 # Commented code below by James
 
