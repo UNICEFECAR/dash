@@ -279,7 +279,7 @@ unicef_country_prog = [
 
 country_selections = [
     {
-        "label": "By Sub-Regions",
+        "label": "Eastern Europe and Central Asia",
         "value": [
             {"label": "Caucasus", "value": ["Armenia", "Azerbaijan", "Georgia"]},
             {
@@ -316,44 +316,44 @@ country_selections = [
                     "Ukraine",
                 ],
             },
-            {
-                "label": "Western Europe",
-                "value": [
-                    "Andorra",
-                    "Austria",
-                    "Belgium",
-                    "Cyprus",
-                    "Czechia",
-                    "Denmark",
-                    "Estonia",
-                    "Finland",
-                    "France",
-                    "Germany",
-                    "Greece",
-                    "Holy See",
-                    "Hungary",
-                    "Iceland",
-                    "Ireland",
-                    "Italy",
-                    "Latvia",
-                    "Liechtenstein",
-                    "Lithuania",
-                    "Luxembourg",
-                    "Malta",
-                    "Monaco",
-                    "Netherlands",
-                    "Norway",
-                    "Poland",
-                    "Portugal",
-                    "San Marino",
-                    "Slovakia",
-                    "Slovenia",
-                    "Spain",
-                    "Sweden",
-                    "Switzerland",
-                    "United Kingdom",
-                ],
-            },
+        ],
+    },
+    {
+        "label": "Western Europe",
+        "value": [
+            "Andorra",
+            "Austria",
+            "Belgium",
+            "Cyprus",
+            "Czechia",
+            "Denmark",
+            "Estonia",
+            "Finland",
+            "France",
+            "Germany",
+            "Greece",
+            "Holy See",
+            "Hungary",
+            "Iceland",
+            "Ireland",
+            "Italy",
+            "Latvia",
+            "Liechtenstein",
+            "Lithuania",
+            "Luxembourg",
+            "Malta",
+            "Monaco",
+            "Netherlands",
+            "Norway",
+            "Poland",
+            "Portugal",
+            "San Marino",
+            "Slovakia",
+            "Slovenia",
+            "Spain",
+            "Sweden",
+            "Switzerland",
+            "United Kingdom",
         ],
     },
     {
@@ -418,7 +418,12 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
@@ -432,7 +437,10 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -449,19 +457,28 @@ for num1, group in enumerate(country_selections):
     group_countries = []
 
     for num2, region in enumerate(group["value"]):
-        child_region = dict(title=region["label"], key=f"0-{num1}-{num2}", children=[])
-        parent.get("children").append(child_region)
-        selection_index[f"0-{num1}-{num2}"] = (
-            region["value"] if isinstance(region["value"], list) else [region["value"]]
+        child_region = dict(
+            title=region["label"] if "label" in region else region,
+            key=f"0-{num1}-{num2}",
+            children=[],
         )
-
-        for num3, country in enumerate(region["value"]):
-            child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
-            if len(region["value"]) > 1:
-                # only create child nodes for more then one child
-                child_region.get("children").append(child_country)
-                selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
-            group_countries.append(country)
+        parent.get("children").append(child_region)
+        if "value" in region:
+            selection_index[f"0-{num1}-{num2}"] = (
+                region["value"]
+                if isinstance(region["value"], list)
+                else [region["value"]]
+            )
+            for num3, country in enumerate(region["value"]):
+                child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
+                if len(region["value"]) > 1:
+                    # only create child nodes for more then one child
+                    child_region.get("children").append(child_country)
+                    selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
+                group_countries.append(country)
+        else:
+            selection_index[f"0-{num1}-{num2}"] = [region]
+            group_countries.append(region)
 
     selection_index[f"0-{num1}"] = group_countries
     selection_tree.get("children").append(parent)
