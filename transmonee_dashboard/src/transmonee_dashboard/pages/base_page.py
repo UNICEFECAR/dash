@@ -469,11 +469,18 @@ def indicator_card(
     suffix,
     denominator=None,
     absolute=False,
-    sex_code=None,
+    sex_code="Total",
 ):
-    total_code = ["_T"]  # potentially move to this config
-    sex_code = sex_code if sex_code else total_code
-    query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
+
+    # indicator could be a list --> great use of " in " instead of " == " !!!
+    query = "CODE in @indicator"
+    # build the (target + rest total) query
+    # target code is Total unless is not None
+    sex_code = sex_code if sex_code else "Total"
+    target_and_total_query = get_target_query(data, numerator, "Sex", sex_code)
+    query = query + " & " + target_and_total_query
+    # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
+
     numors = numerator.split(",")
     indicator = numors
 
@@ -499,6 +506,12 @@ def indicator_card(
 
         # select the avalible denominators for countries in selected years
         indicator = [denominator]
+        # reset the query for denominator
+        query = "CODE in @indicator"
+        # build the query for denominator, naturally --> uses same sex_code
+        target_and_total_query = get_target_query(data, numerator, "Sex", sex_code)
+        query = query + " & " + target_and_total_query
+
         denominator_values = filtered_data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
         )
@@ -702,6 +715,8 @@ def get_total_query(data, indicator, neq=False, dimension=None):
         for item in disag:
             if item != dimension:
                 item_total = []
+                # realized loop below could be replaced with query like:
+                # f"`{item}` in @total" --> great use of this !!!
                 for total in get_disag_total(data, indicator, item):
                     item_total.append(f"`{item}` == '{total}'")
                 query_item.append(f"({' | '.join(item_total)})")
@@ -732,6 +747,34 @@ def get_total_query(data, indicator, neq=False, dimension=None):
         #     for item in disag
         #     for total in get_disag_total(data, indicator, item)
         # )
+
+
+# targets one dimension to a code and the remaining total
+# assumes previous knowledge ON the EXISTANCE of the target_code for the dimension
+def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
+
+    dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
+    disag = [
+        item
+        for item in dimensions
+        if (
+            (len(data[data["CODE"] == indicator][item].unique()) > 1)
+            & (item != dimension)
+        )
+    ]
+
+    query_dim = f"`{dimension}` == '{target_code}'"
+
+    if not disag:
+        return query_dim
+    else:
+        query_item = []
+        for item in disag:
+            item_total = []
+            for total in get_disag_total(data, indicator, item):
+                item_total.append(f"`{item}` == '{total}'")
+            query_item.append(f"({' | '.join(item_total)})")
+        return query_dim + " & " + " & ".join(query_item)
 
 
 @app.callback(
