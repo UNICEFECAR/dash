@@ -821,7 +821,7 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
 
     # only run if indicator not empty
     if not indicator:
-        return {}
+        return {}, {}
 
     fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
     options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
@@ -880,7 +880,7 @@ def area_2_figure(
 
     # only run if both areas (1 and 2) not empty
     if not area_1_selected and not area_2_selected:
-        return {}
+        return {}, {}
 
     default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
     fig_type = selected_type if selected_type else default
@@ -946,7 +946,7 @@ def area_3_figure(selections, indicator, indicators_dict):
 
     # only run if indicator not empty
     if not indicator or not "AREA_3" in indicators_dict[selections["theme"]]:
-        return {}
+        return {}, {}
 
     fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
     compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
@@ -988,7 +988,7 @@ def area_4_figure(selections, indicator, indicators_dict):
 
     # only run if indicator not empty
     if not indicator or not "AREA_4" in indicators_dict[selections["theme"]]:
-        return {}
+        return {}, {}
 
     default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
     fig_type = default
