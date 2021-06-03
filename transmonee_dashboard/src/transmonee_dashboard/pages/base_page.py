@@ -827,11 +827,7 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
     options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
     compare = False if compare == "Total" else compare
 
-    columns = [
-        "CODE",
-        "Indicator",
-        "Geographic area",
-    ]
+    columns = ["CODE", "Indicator", "Geographic area"]
     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
     query = "CODE == @indicator"
 
@@ -889,37 +885,48 @@ def area_2_figure(
     default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
     fig_type = selected_type if selected_type else default
     config = indicators_dict[selections["theme"]]["AREA_2"]["graphs"][fig_type]
-    compare = config.get("compare")
+    # compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
 
     indicator = area_2_selected if area_2_selected else area_1_selected
     columns = ["CODE", "Indicator", "Geographic area"]
-    aggregates = {"OBS_VALUE": "mean"}
+    # aggregates = {"OBS_VALUE": "mean"}
     query = "CODE == @indicator"
-    if compare:
-        columns.append(compare)
+
+    # assuming area_2 is for totals, then use area_1 logic for totals
+    total_if_disag_query = get_total_query(data, indicator)
+    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
+
+    # query data based on cache
+    data_cached = get_filtered_dataset(**selections).query(query)
+
+    # toggle time-series selection based on figure type
+    if fig_type == "bar":
+        # get rid of time-series for bar plot
         aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        total = get_disag_total(data, indicator, compare)
-        query = "{} & `{}` != '{}'".format(query, compare, total)
+        df = data_cached.groupby(columns).agg(aggregates).reset_index()
     else:
-        # if no compare then get single value for the year
-        columns.append("TIME_PERIOD")
+        # line plot: uses query directly keeping time series
+        df = data_cached
+
+    # if compare:
+    #     columns.append(compare)
+    #     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+    #     total = get_disag_total(data, indicator, compare)
+    #     query = "{} & `{}` != '{}'".format(query, compare, total)
+    # else:
+    #     # if no compare then get single value for the year
+    #     columns.append("TIME_PERIOD")
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
-    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    if compare:
-        options["color"] = compare
+
+    # if compare:
+    #     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     if traces:
