@@ -185,13 +185,7 @@ def get_base_layout(**kwargs):
                 className="sticky-top bg-light",
             ),
             dbc.Row(
-                [
-                    dbc.CardDeck(
-                        id="cards_row",
-                        className="mt-3",
-                    ),
-                ],
-                justify="center",
+                [dbc.CardDeck(id="cards_row", className="mt-3",),], justify="center",
             ),
             html.Br(),
             # start first row
@@ -204,9 +198,7 @@ def get_base_layout(**kwargs):
                                     dcc.Dropdown(
                                         id="main_options",
                                         # className="dcc_control",
-                                        style={
-                                            "z-index": "11",
-                                        },
+                                        style={"z-index": "11",},
                                     ),
                                     dcc.Graph(id="main_area"),
                                     html.Div(
@@ -241,10 +233,7 @@ def get_base_layout(**kwargs):
                                     # style={"z-index": "15"},
                                 ),
                                 dcc.Graph(id="area_1"),
-                                dbc.RadioItems(
-                                    id="area_1_breakdowns",
-                                    inline=True,
-                                ),
+                                dbc.RadioItems(id="area_1_breakdowns", inline=True,),
                                 html.Div(
                                     fa("fas fa-info-circle"),
                                     id="area_1_info",
@@ -267,8 +256,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_2_options",
-                                    className="dcc_control",
+                                    id="area_2_options", className="dcc_control",
                                 ),
                                 html.Div(
                                     [dcc.Graph(id="area_2")],
@@ -309,8 +297,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_3_options",
-                                    className="dcc_control",
+                                    id="area_3_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_3"),
                                 html.Div(
@@ -335,8 +322,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_4_options",
-                                    className="dcc_control",
+                                    id="area_4_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_4"),
                                 html.Div(
@@ -432,9 +418,7 @@ def get_filtered_dataset(theme, years, countries):
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
     ctx = dash.callback_context
@@ -485,12 +469,23 @@ def indicator_card(
     suffix,
     denominator=None,
     absolute=False,
-    sex_code=None,
+    sex_code="Total",
 ):
-    total_code = ["_T"]  # potentially move to this config
-    sex_code = sex_code if sex_code else total_code
-    query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
+
+    # indicator could be a list --> great use of " in " instead of " == " !!!
+    query = "CODE in @indicator"
+
     numors = numerator.split(",")
+
+    # build the (target + rest total) query
+    # target code is Total unless is not None
+    sex_code = sex_code if sex_code else "Total"
+    # use one of the numerators if more than one --> assume all have the same disaggregation
+    # other possibility could be to generalize more get_target_query function ...
+    target_and_total_query = get_target_query(data, numors[0], "Sex", sex_code)
+    query = query + " & " + target_and_total_query
+    # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
+
     indicator = numors
 
     # use filtered chached dataset
@@ -499,12 +494,7 @@ def indicator_card(
     # select last value for each country
     indicator_values = (
         filtered_data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
 
@@ -520,6 +510,15 @@ def indicator_card(
 
         # select the avalible denominators for countries in selected years
         indicator = [denominator]
+        # reset the query for denominator
+        query = "CODE in @indicator"
+
+        # so far denominator is thought to be a single one right?
+        # possibly --> generalize to more than one --> as numerator
+        # build the query for denominator, naturally --> uses same sex_code
+        target_and_total_query = get_target_query(data, denominator, "Sex", sex_code)
+        query = query + " & " + target_and_total_query
+
         denominator_values = filtered_data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
         )
@@ -620,9 +619,7 @@ def indicator_card(
 
 @app.callback(
     Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
@@ -648,19 +645,14 @@ def show_cards(selections, current_cards, indicators_dict):
     Output("area_2_options", "options"),
     Output("area_3_options", "options"),
     Output("area_4_options", "options"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_options(theme, indicators_dict):
     # potentially only use cached version
     return [
         [
-            {
-                "label": item["Indicator"],
-                "value": item["CODE"],
-            }
+            {"label": item["Indicator"], "value": item["CODE"],}
             for item in data[
                 data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
             ][["CODE", "Indicator"]]
@@ -680,9 +672,7 @@ def set_options(theme, indicators_dict):
     Output("area_2_options", "value"),
     Output("area_3_options", "value"),
     Output("area_4_options", "value"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_default_values(theme, indicators_dict):
@@ -695,16 +685,107 @@ def set_default_values(theme, indicators_dict):
     ]
 
 
+# does this function assume dimension is a disaggregation?
+# should we call it only if dimension is a disaggregation?
 def get_disag_total(data, indicator, dimension, default_total="Total"):
-    data_disag_unique = data[data["CODE"] == indicator][dimension].unique()
-    return data_disag_unique[0] if len(data_disag_unique) == 1 else default_total
+
+    data_disag_col = data[data["CODE"] == indicator][dimension]
+    max_val_count = data_disag_col.value_counts().idxmax()
+    max_is_total = max_val_count == default_total
+
+    if max_is_total | (default_total not in data_disag_col.values):
+        return [max_val_count]
+    else:
+        return [max_val_count, default_total]
+
+
+# this could be a potential function to be decorated per indicator in each area?
+# area_1 breakdown does the first part of this
+def get_total_query(data, indicator, neq=False, dimension=None):
+
+    dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
+    disag = []
+
+    for item in dimensions:
+        if len(data[data["CODE"] == indicator][item].unique()) > 1:
+            disag.append(item)
+
+    if not disag:
+        return None
+    elif neq:
+        query_dim = " & ".join(
+            f"`{dimension}` != '{total}'"
+            for total in get_disag_total(data, indicator, dimension)
+        )
+
+        query_item = []
+        for item in disag:
+            if item != dimension:
+                item_total = []
+                # realized loop below could be replaced with query like:
+                # f"`{item}` in @total" --> great use of this !!!
+                for total in get_disag_total(data, indicator, item):
+                    item_total.append(f"`{item}` == '{total}'")
+                query_item.append(f"({' | '.join(item_total)})")
+        query_rest = " & ".join(query_item)
+        # return " & ".join(query_item)
+
+        # query_rest = " & ".join(
+        #     f"`{item}` == '{total}'"
+        #     for item in disag
+        #     for total in get_disag_total(data, indicator, item)
+        #     if item != dimension
+        # )
+
+        return (query_dim + " & " + query_rest) if query_rest else query_dim
+
+    else:
+
+        query_item = []
+        for item in disag:
+            item_total = []
+            for total in get_disag_total(data, indicator, item):
+                item_total.append(f"`{item}` == '{total}'")
+            query_item.append(f"({' | '.join(item_total)})")
+        return " & ".join(query_item)
+
+        # return " & ".join(
+        #     f"({' | '.join([f"`{item}` == '{total}'"])})"
+        #     for item in disag
+        #     for total in get_disag_total(data, indicator, item)
+        # )
+
+
+# targets one dimension to a code and the remaining total
+# assumes previous knowledge ON the EXISTANCE of the target_code for the dimension
+def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
+
+    dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
+    disag = [
+        item
+        for item in dimensions
+        if (
+            (len(data[data["CODE"] == indicator][item].unique()) > 1)
+            & (item != dimension)
+        )
+    ]
+
+    query_dim = f"`{dimension}` == '{target_code}'"
+
+    if not disag:
+        return query_dim
+    else:
+        query_item = []
+        for item in disag:
+            item_total = []
+            for total in get_disag_total(data, indicator, item):
+                item_total.append(f"`{item}` == '{total}'")
+            query_item.append(f"({' | '.join(item_total)})")
+        return query_dim + " & " + " & ".join(query_item)
 
 
 @app.callback(
-    Output("area_1_breakdowns", "options"),
-    [
-        Input("area_1_options", "value"),
-    ],
+    Output("area_1_breakdowns", "options"), [Input("area_1_options", "value"),],
 )
 def breakdown_options(indicator):
 
@@ -716,27 +797,23 @@ def breakdown_options(indicator):
         {"label": "Residence", "value": "Residence"},
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
     ]:
-        if not data[
-            (data["CODE"] == indicator)
-            & (data[item["value"]] != get_disag_total(data, indicator, item["value"]))
-        ].empty:
+
+        # OR: compute data[data["CODE"] == indicator] once outside loop?
+        if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
             options.append(item)
 
     return options
 
 
+# Beto's Note: does it make sense to have default compare in config?
 @app.callback(
     # Output("main_options", "value"),
     Output("area_1_breakdowns", "value"),
     # Output("area_2_options", "value"),
     # Output("area_3_options", "value"),
     # Output("area_4_options", "value"),
-    [
-        Input("area_1_breakdowns", "options"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("area_1_breakdowns", "options"),],
+    [State("indicators", "data"),],
 )
 def set_default_compare(compare_options, indicators_dict):
 
@@ -750,24 +827,22 @@ def set_default_compare(compare_options, indicators_dict):
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
-    [
-        Input("main_options", "value"),
-        Input("store", "data"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("main_options", "value"), Input("store", "data"),],
+    [State("indicators", "data"),],
 )
 def main_figure(indicator, selections, indicators_dict):
 
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
-    compare = "Sex"
+    # compare = "Sex"
 
-    total = "Total"  # potentially move to this config
-    query = f"CODE == @indicator & {compare} == @total"
+    # total = "Total"  # potentially move to this config
+    query = "CODE == @indicator"
+    total_if_disag_query = get_total_query(data, indicator)
+    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+
     df = (
         get_filtered_dataset(**selections)
         .query(query)
@@ -790,31 +865,31 @@ def main_figure(indicator, selections, indicators_dict):
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_1_figure(selections, indicator, compare, indicators_dict):
 
     # only run if indicator not empty
     if not indicator:
-        return {}
+        return {}, {}
 
     fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
     options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
     compare = False if compare == "Total" else compare
 
-    columns = [
-        "CODE",
-        "Indicator",
-        "Geographic area",
-    ]
+    columns = ["CODE", "Indicator", "Geographic area"]
     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
     query = "CODE == @indicator"
+
     if compare:
         columns.append(compare)
-        total = get_disag_total(data, indicator, compare)
-        query = "{} & `{}` != '{}'".format(query, compare, total)
+        # total = get_disag_total(data, indicator, compare)
+        # query = "{} & `{}` != '{}'".format(query, compare, total)
+        total_if_disag_query = get_total_query(data, indicator, True, compare)
+    else:
+        total_if_disag_query = get_total_query(data, indicator)
+
+    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
@@ -847,56 +922,61 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
         Input("area_2_options", "value"),
         Input("area_2_types", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_2_figure(
-    selections,
-    area_1_selected,
-    area_2_selected,
-    selected_type,
-    indicators_dict,
+    selections, area_1_selected, area_2_selected, selected_type, indicators_dict,
 ):
 
     # only run if both areas (1 and 2) not empty
     if not area_1_selected and not area_2_selected:
-        return {}
+        return {}, {}
 
     default = indicators_dict[selections["theme"]]["AREA_2"]["default_graph"]
     fig_type = selected_type if selected_type else default
     config = indicators_dict[selections["theme"]]["AREA_2"]["graphs"][fig_type]
-    compare = config.get("compare")
+    # compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
 
     indicator = area_2_selected if area_2_selected else area_1_selected
     columns = ["CODE", "Indicator", "Geographic area"]
-    aggregates = {"OBS_VALUE": "mean"}
+    # aggregates = {"OBS_VALUE": "mean"}
     query = "CODE == @indicator"
-    if compare:
-        columns.append(compare)
+
+    # assuming area_2 is for totals, then use area_1 logic for totals
+    total_if_disag_query = get_total_query(data, indicator)
+    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
+
+    # query data based on cache
+    data_cached = get_filtered_dataset(**selections).query(query)
+
+    # toggle time-series selection based on figure type
+    if fig_type == "bar":
+        # get rid of time-series for bar plot
         aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        total = get_disag_total(data, indicator, compare)
-        query = "{} & `{}` != '{}'".format(query, compare, total)
+        df = data_cached.groupby(columns).agg(aggregates).reset_index()
     else:
-        # if no compare then get single value for the year
-        columns.append("TIME_PERIOD")
+        # line plot: uses query directly keeping time series
+        df = data_cached
+
+    # if compare:
+    #     columns.append(compare)
+    #     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+    #     total = get_disag_total(data, indicator, compare)
+    #     query = "{} & `{}` != '{}'".format(query, compare, total)
+    # else:
+    #     # if no compare then get single value for the year
+    #     columns.append("TIME_PERIOD")
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
-    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    if compare:
-        options["color"] = compare
+
+    # if compare:
+    #     options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
     if traces:
@@ -909,19 +989,14 @@ def area_2_figure(
 @app.callback(
     Output("area_3", "figure"),
     Output("area_3_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_3_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_3_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_3_figure(selections, indicator, indicators_dict):
 
     # only run if indicator not empty
     if not indicator or not "AREA_3" in indicators_dict[selections["theme"]]:
-        return {}
+        return {}, {}
 
     fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
     compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
@@ -956,19 +1031,14 @@ def area_3_figure(selections, indicator, indicators_dict):
 @app.callback(
     Output("area_4", "figure"),
     Output("area_4_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_4_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_4_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_4_figure(selections, indicator, indicators_dict):
 
     # only run if indicator not empty
     if not indicator or not "AREA_4" in indicators_dict[selections["theme"]]:
-        return {}
+        return {}, {}
 
     default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
     fig_type = default

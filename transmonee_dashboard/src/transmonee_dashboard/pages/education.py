@@ -18,7 +18,7 @@ indicators_dict = {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Girls",
-                "sex": "F",
+                "sex": "Female",
             },
             {
                 "name": "Who are Out-of-School",
@@ -54,10 +54,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -211,10 +208,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -359,10 +353,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
