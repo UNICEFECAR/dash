@@ -127,7 +127,7 @@ codes = [
     # "EDU_PISA_SCI2",
     # "EDU_SDG_GER_L01",
     # "EDUNF_SAP_L02",
-    # "EDUNF_SAP_L1T3",
+    "EDUNF_SAP_L1T3",
     # "EDUNF_SAP_L2",
     # "EDU_CHLD_DISAB_L02",
     # "EDU_CHLD_DISAB_L1",
@@ -418,12 +418,7 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
+                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
             },
             {
                 "label": "Pre-accession countries",
@@ -437,10 +432,7 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
+            {"label": "Russian Federation", "value": ["Russian Federation"],},
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],

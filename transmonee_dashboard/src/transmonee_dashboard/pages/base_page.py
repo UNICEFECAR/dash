@@ -474,14 +474,18 @@ def indicator_card(
 
     # indicator could be a list --> great use of " in " instead of " == " !!!
     query = "CODE in @indicator"
+
+    numors = numerator.split(",")
+
     # build the (target + rest total) query
     # target code is Total unless is not None
     sex_code = sex_code if sex_code else "Total"
-    target_and_total_query = get_target_query(data, numerator, "Sex", sex_code)
+    # use one of the numerators if more than one --> assume all have the same disaggregation
+    # other possibility could be to generalize more get_target_query function ...
+    target_and_total_query = get_target_query(data, numors[0], "Sex", sex_code)
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
 
-    numors = numerator.split(",")
     indicator = numors
 
     # use filtered chached dataset
@@ -508,8 +512,11 @@ def indicator_card(
         indicator = [denominator]
         # reset the query for denominator
         query = "CODE in @indicator"
+
+        # so far denominator is thought to be a single one right?
+        # possibly --> generalize to more than one --> as numerator
         # build the query for denominator, naturally --> uses same sex_code
-        target_and_total_query = get_target_query(data, numerator, "Sex", sex_code)
+        target_and_total_query = get_target_query(data, denominator, "Sex", sex_code)
         query = query + " & " + target_and_total_query
 
         denominator_values = filtered_data.query(query).set_index(
