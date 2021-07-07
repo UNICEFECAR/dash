@@ -16,6 +16,11 @@ indicators_dict = {
                 "denominator": "EDUNF_SAP_L1T3",
                 "suffix": "Percent of Children",
             },
+            {
+                "name": "dummie sum",
+                "indicator": "HT_SH_XPD_OOPC_CH_ZS",
+                "suffix": "Out-of-pocket expenditure (OOPS)",
+            },
         ],
         "MAIN": {
             "name": "Violence and Harmful Practices",
