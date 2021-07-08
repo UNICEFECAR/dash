@@ -12,11 +12,13 @@ from mapbox import Geocoder
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
+import requests
+from io import StringIO
 
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv"
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}...."
 
 geocoder = Geocoder(access_token=mapbox_access_token)
 
@@ -634,11 +636,24 @@ col_types = {
     "Unit multiplier": str,
 }
 
+# api parameters: query format and year limits
+api_params = {
+    "format": "csv",
+    "startPeriod": str(years[0]),
+    "endPeriod": str(years[-1]),
+}
+compress_header = {"Accept-Encoding": "gzip"}
+
 # avoid a loop to query SDMX
 try:
-    sdmx = pd.read_csv(sdmx_url.format("+".join(inds)), dtype=col_types)
+    response = requests.get(
+        sdmx_url.format("+".join(inds)), params=api_params, headers=compress_header
+    )
 except urllib.error.HTTPError as e:
     raise e
+
+# bring requests response into pandas
+sdmx = pd.read_csv(StringIO(response.text), dtype=col_types)
 
 # no need to create column CODE, just rename indicator
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
