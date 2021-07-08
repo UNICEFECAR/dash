@@ -538,7 +538,7 @@ def indicator_card(
     # check for denominator
     if denominator:
 
-        # select the avalible denominators for countries in selected years
+        # select the available denominators for countries in selected years
         indicator = [denominator]
         # reset the query for denominator
         query = "CODE in @indicator"
@@ -609,6 +609,7 @@ def indicator_card(
         )
         else "None"
     )
+    print(name)
     card = dbc.Card(
         [
             dbc.CardBody(
