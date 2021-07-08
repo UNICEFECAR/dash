@@ -313,15 +313,15 @@ codes = [
     "HT_ADOL_HIGH_SATS",
     "HT_ADOL_LOW_SATS",
     # indicators for health sub-topic-6
-    # "HT_SH_HIV_INCD",
-    # "HVA_PMTCT_ARV_CVG",
-    # "HT_SH_HIV_0014",
-    # "HVA_EPI_LHIV_0-19",
-    # "HVA_EPI_LHIV_15-24",
-    # "HVA_EPI_INF_RT_0-14",
-    # "HVA_EPI_INF_RT_10-19",
-    # "HVA_PED_ART_NUM",
-    # "HVA_PED_ART_CVG",
+    "HT_SH_HIV_INCD",
+    "HVA_PMTCT_ARV_CVG",
+    "HT_SH_HIV_0014",
+    "HVA_EPI_LHIV_0-19",
+    "HVA_EPI_LHIV_15-24",
+    "HVA_EPI_INF_RT_0-14",
+    "HVA_EPI_INF_RT_10-19",
+    "HVA_PED_ART_NUM",
+    "HVA_PED_ART_CVG",
     # indicators for health sub-topic-7
     "WS_PPL_W-SM",
     "WS_PPL_S-SM",
@@ -556,12 +556,7 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
+                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
             },
             {
                 "label": "Pre-accession countries",
@@ -575,10 +570,7 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
+            {"label": "Russian Federation", "value": ["Russian Federation"],},
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -637,6 +629,7 @@ inds = set(codes)
 col_types = {
     "COVERAGE_TIME": str,
     "OBS_FOOTNOTE": str,
+    "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
 }
@@ -659,6 +652,18 @@ data = data.merge(
     left_on="Geographic area",
     right_on="country",
 )
+
+# check and drop non-numeric observations, eg: SDMX accepts >95 as an OBS_VALUE
+filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+if filter_non_num.any():
+    not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+    f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+    data.drop(data[filter_non_num].index, inplace=True)
+
+# convert to numeric
+data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+
+# print(data.columns)
 
 # TODO: calculations for children age population
 

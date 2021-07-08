@@ -68,10 +68,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -224,10 +221,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             # compare is the default selection
             "compare": "Sex",
@@ -356,10 +350,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -463,10 +454,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -580,10 +568,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -649,113 +634,110 @@ indicators_dict = {
             "default": "FT_SP_DYN_ADKL",
         },
     },
-    # "HIVAIDS": {
-    #     "NAME": "HIV and AIDS",
-    #     "CARDS": [
-    #         {
-    #             "name": "per 1,000 uninfected population, by sex and age groups",
-    #             "indicator": "HT_SH_HIV_INCD",
-    #             "suffix": "Number of new HIV infections",
-    #         },
-    #         {
-    #             "name": "(aged 0-14 years) living with HIV",
-    #             "indicator": "HT_SH_HIV_0014",
-    #             "suffix": "Children",
-    #         },
-    #         {
-    #             "name": "(aged 0-14 years) living with HIV and receiving antiretroviral therapy (ART)",
-    #             "indicator": "HVA_PED_ART_CVG",
-    #             "suffix": "Percentage of Children",
-    #         },
-    #     ],
-    #     "MAIN": {
-    #         "name": "HIV Infections among Children",
-    #         "geo": "Geographic area",
-    #         "options": dict(
-    #             lat="latitude",
-    #             lon="longitude",
-    #             size="OBS_VALUE",
-    #             text="Geographic area",
-    #             color="OBS_VALUE",
-    #             color_continuous_scale=px.colors.sequential.GnBu,
-    #             size_max=40,
-    #             zoom=2.5,
-    #             animation_frame="TIME_PERIOD",
-    #             height=750,
-    #         ),
-    #         "indicators": [
-    #             "HT_SH_HIV_INCD",
-    #             "HVA_PMTCT_ARV_CVG",
-    #             "HT_SH_HIV_0014",
-    #             "HVA_EPI_LHIV_0-19",
-    #             "HVA_EPI_LHIV_15-24",
-    #             "HVA_EPI_INF_RT_0-14",
-    #             "HVA_EPI_INF_RT_10-19",
-    #             "HVA_PED_ART_NUM",
-    #             "HVA_PED_ART_CVG",
-    #         ],
-    #         "default": "HT_SH_HIV_INCD",
-    #     },
-    #     "AREA_1": {
-    #         "type": "bar",
-    #         "options": dict(
-    #             x="Geographic area",
-    #             y="OBS_VALUE",
-    #             barmode="group",
-    #             text="TIME_PERIOD",
-    #         ),
-    #         "compare": "Sex",
-    #         "indicators": [
-    #             "HT_SH_HIV_INCD",
-    #             "HVA_PMTCT_ARV_CVG",
-    #             "HT_SH_HIV_0014",
-    #             "HVA_EPI_LHIV_0-19",
-    #             "HVA_EPI_LHIV_15-24",
-    #             "HVA_EPI_INF_RT_0-14",
-    #             "HVA_EPI_INF_RT_10-19",
-    #             "HVA_PED_ART_NUM",
-    #             "HVA_PED_ART_CVG",
-    #         ],
-    #         "default": "HT_SH_HIV_INCD",
-    #     },
-    #     "AREA_2": {
-    #         "graphs": {
-    #             "bar": {
-    #                 "options": dict(
-    #                     x="Geographic area",
-    #                     y="OBS_VALUE",
-    #                     barmode="group",
-    #                     text="TIME_PERIOD",
-    #                 ),
-    #                 "compare": "Sex",
-    #             },
-    #             "line": {
-    #                 "options": dict(
-    #                     x="TIME_PERIOD",
-    #                     y="OBS_VALUE",
-    #                     color="Geographic area",
-    #                     hover_name="Geographic area",
-    #                     line_shape="spline",
-    #                     render_mode="svg",
-    #                 ),
-    #                 "trace_options": dict(mode="lines+markers"),
-    #             },
-    #         },
-    #         "indicators": [
-    #             "HT_SH_HIV_INCD",
-    #             "HVA_PMTCT_ARV_CVG",
-    #             "HT_SH_HIV_0014",
-    #             "HVA_EPI_LHIV_0-19",
-    #             "HVA_EPI_LHIV_15-24",
-    #             "HVA_EPI_INF_RT_0-14",
-    #             "HVA_EPI_INF_RT_10-19",
-    #             "HVA_PED_ART_NUM",
-    #             "HVA_PED_ART_CVG",
-    #         ],
-    #         "default_graph": "line",
-    #         "default": "HT_SH_HIV_INCD",
-    #     },
-    # },
+    "HIVAIDS": {
+        "NAME": "HIV and AIDS",
+        "CARDS": [
+            {
+                "name": "per 1,000 uninfected population, by sex and age groups",
+                "indicator": "HT_SH_HIV_INCD",
+                "suffix": "Number of new HIV infections",
+            },
+            {
+                "name": "(aged 0-14 years) living with HIV",
+                "indicator": "HT_SH_HIV_0014",
+                "suffix": "Children",
+            },
+            {
+                "name": "(aged 0-14 years) living with HIV and receiving antiretroviral therapy (ART)",
+                "indicator": "HVA_PED_ART_CVG",
+                "suffix": "Percentage of Children",
+            },
+        ],
+        "MAIN": {
+            "name": "HIV Infections among Children",
+            "geo": "Geographic area",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                size_max=40,
+                zoom=2.5,
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "HT_SH_HIV_INCD",
+                "HVA_PMTCT_ARV_CVG",
+                "HT_SH_HIV_0014",
+                "HVA_EPI_LHIV_0-19",
+                "HVA_EPI_LHIV_15-24",
+                "HVA_EPI_INF_RT_0-14",
+                "HVA_EPI_INF_RT_10-19",
+                "HVA_PED_ART_NUM",
+                "HVA_PED_ART_CVG",
+            ],
+            "default": "HT_SH_HIV_INCD",
+        },
+        "AREA_1": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "HT_SH_HIV_INCD",
+                "HVA_PMTCT_ARV_CVG",
+                "HT_SH_HIV_0014",
+                "HVA_EPI_LHIV_0-19",
+                "HVA_EPI_LHIV_15-24",
+                "HVA_EPI_INF_RT_0-14",
+                "HVA_EPI_INF_RT_10-19",
+                "HVA_PED_ART_NUM",
+                "HVA_PED_ART_CVG",
+            ],
+            "default": "HT_SH_HIV_INCD",
+        },
+        "AREA_2": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "HT_SH_HIV_INCD",
+                "HVA_PMTCT_ARV_CVG",
+                "HT_SH_HIV_0014",
+                "HVA_EPI_LHIV_0-19",
+                "HVA_EPI_LHIV_15-24",
+                "HVA_EPI_INF_RT_0-14",
+                "HVA_EPI_INF_RT_10-19",
+                "HVA_PED_ART_NUM",
+                "HVA_PED_ART_CVG",
+            ],
+            "default_graph": "line",
+            "default": "HT_SH_HIV_INCD",
+        },
+    },
     "WASH": {
         "NAME": "Water, sanitation and hygiene",
         "CARDS": [
@@ -797,10 +779,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
