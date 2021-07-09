@@ -43,7 +43,6 @@ EXTERNAL_STYLESHEETS = [
         "rel": "preconnect",
     },
     "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap",
-    "https://codepen.io/chriddyp/pen/brPBPO.css",
 ]
 
 # Externally hosted Javascript files go in here.
