@@ -32,11 +32,11 @@
     100% {
       opacity: 1;
     }
-  }
+  } 
   
   ._dash-loading-callback {
     display: flex;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.3);
     position: fixed;
     bottom: 0;
     left: 0;
@@ -44,28 +44,10 @@
     top: 0;
     z-index: 9998;
     align-items: center;
-    justify-content: center;
-
-    /* border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 120px;
-    height: 120px;
-    margin-top: -60px;
-    margin-bottom: -60px;
-    display: inline-block;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    opacity: 0; */
-    /* background-colour: #ffffff; */
-    /* -webkit-animation: fadein 1s linear forwards, spin 2s infinite linear; /* Safari and Chrome */
-    /* animation: fadein 1s linear forwards, spin 2s infinite linear;
-    animation-delay: 1s;
-    -webkit-animation-delay: 1s; */
+    justify-content: center; 
   }
 
-  ._dash-loading-callback::after {
+  ._dash-loading-callback2::after {
     content: 'Loading';
     font-family: sans-serif;
     padding-top: 50px;
