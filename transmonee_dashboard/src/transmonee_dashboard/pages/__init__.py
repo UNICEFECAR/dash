@@ -16,7 +16,7 @@ from plotly.subplots import make_subplots
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv"
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 geocoder = Geocoder(access_token=mapbox_access_token)
 
@@ -220,6 +220,114 @@ codes = [
     "PT_VC_VOV_PHYL",
     "PT_VC_VOV_ROBB",
     "PT_VC_VOV_SEXL",
+    # adding the new health and nutrition related indicators
+    # indicators for health sub-topic-1
+    "HT_SH_XPD_CHEX_GD_ZS",
+    "HT_SH_XPD_OOPC_CH_ZS",
+    "HT_SH_ACS_UNHC",
+    "HT_ADOL_UNMETMED_NOUNMET",
+    "HT_ADOL_UNMETMED_TOOEXP",
+    "HT_ADOL_UNMETMED_TOOFAR",
+    "HT_ADOL_UNMETMED_WAITING",
+    "HT_ADOL_UNMETMED_TOOEFW",
+    "HT_ADOL_UNMETMED_NOTIME",
+    "HT_ADOL_UNMETMED_NOKNOW",
+    "HT_ADOL_UNMETMED_FEAR",
+    "HT_ADOL_UNMETMED_HOPING",
+    "HT_ADOL_UNMETMED_OTH",
+    "HT_SH_XPD_CHEX_GD_ZS",
+    "HT_SH_XPD_GHED_GD_ZS",
+    "HT_SH_XPD_GHED_GE_ZS",
+    "HT_SH_XPD_GHED_CH_ZS",
+    "HT_SH_XPD_GHED_PP_CD",
+    "HT_SH_XPD_GHED_PC_CD",
+    "HT_SH_XPD_PVTD_CH_ZS",
+    "HT_SH_XPD_PVTD_PP_CD",
+    "HT_SH_XPD_PVTD_PC_CD",
+    "HT_SH_XPD_CHEX_PP_CD",
+    "HT_SH_XPD_CHEX_PC_CD",
+    "HT_SH_XPD_OOPC_CH_ZS",
+    "HT_SH_XPD_OOPC_PP_CD",
+    "HT_SH_XPD_OOPC_PC_CD",
+    "HT_INS_COV",
+    # indicators for sub-topic-2
+    "CME_MRY0T4",
+    "CME_MRM0",
+    "MNCH_MMR",
+    "MNCH_SAB",
+    "MNCH_PNCMOM",
+    "CME_TMY0T4",
+    "CME_SBR",
+    "CME_PND",
+    "HT_U5DEATH_AIDS",
+    "HT_U5DEATH_DIAR",
+    "HT_U5DEATH_PERT",
+    "HT_U5DEATH_TETA",
+    "HT_U5DEATH_MEAS",
+    "HT_U5DEATH_MENI",
+    "HT_U5DEATH_MALA",
+    "HT_U5DEATH_PNEU",
+    "HT_U5DEATH_PRET",
+    "HT_U5DEATH_INTR",
+    "HT_U5DEATH_SEPS",
+    "HT_U5DEATH_OTHE",
+    "HT_U5DEATH_CONG",
+    "HT_U5DEATH_NCDS",
+    "HT_U5DEATH_INJU",
+    "MNCH_CSEC",
+    # indicators for sub-topic-3
+    "IM_DTP3",
+    "HT_SH_ACS_DTP3",
+    "HT_SH_ACS_HPV",
+    "HT_SH_ACS_MCV2",
+    "HT_SH_ACS_PCV3",
+    "IM_MCV1",
+    "HT_DIST80DTP3_P",
+    "HT_COVERAGE_DTP3",
+    # indicators for health sub-topic-4
+    "NT_BW_LBW",
+    "NT_BF_EIBF",
+    "NT_BF_EXBF",
+    "NT_CF_MAD",
+    "NT_ANT_WHZ_PO2",
+    "NT_ANT_HAZ_NE2",
+    "HT_SN_STA_OVWGTN",
+    "HT_SH_STA_ANEM",
+    "HT_SH_STA_ANEM_NPRG",
+    "HT_SH_STA_ANEM_PREG",
+    "NT_BW_UNW",
+    # indicators for health sub-topic-5
+    "FT_SP_DYN_ADKL",
+    "MT_SDG_SUICIDE",
+    "HT_SH_FPL_MTMM",
+    "HT_ADOL_MT",
+    "HT_SH_PRV_SMOK",
+    "HT_CDRT_SELF_HARM",
+    "HT_ADOL_MEAL",
+    "HT_ADOL_NO_EXCS",
+    "HT_ADOL_VGRS_EXCS",
+    "HT_CHLD_BODY_RGHT",
+    "HT_CHLD_BODY_NO_RGHT",
+    "HT_CHLD_REG_SMOK",
+    "HT_CHLD_DRNK",
+    "HT_ADOL_HIGH_SATS",
+    "HT_ADOL_LOW_SATS",
+    # indicators for health sub-topic-6
+    "HT_SH_HIV_INCD",
+    "HVA_PMTCT_ARV_CVG",
+    "HT_SH_HIV_0014",
+    "HVA_EPI_LHIV_0-19",
+    "HVA_EPI_LHIV_15-24",
+    "HVA_EPI_INF_RT_0-14",
+    "HVA_EPI_INF_RT_10-19",
+    "HVA_PED_ART_NUM",
+    "HVA_PED_ART_CVG",
+    # indicators for health sub-topic-7
+    "WS_PPL_W-SM",
+    "WS_PPL_S-SM",
+    "WS_PPL_H-B",
+    "WS_PPS_S-OD",
+    "HT_NO_BTH_SHW_FLSH",
 ]
 
 years = list(range(2010, 2021))
@@ -521,15 +629,22 @@ inds = set(codes)
 col_types = {
     "COVERAGE_TIME": str,
     "OBS_FOOTNOTE": str,
+    "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
 }
 
+
 # avoid a loop to query SDMX
 try:
-    sdmx = pd.read_csv(sdmx_url.format("+".join(inds)), dtype=col_types)
+    sdmx = pd.read_csv(
+        sdmx_url.format("+".join(inds), years[0], years[-1]),
+        dtype=col_types,
+        storage_options={"Accept-Encoding": "gzip"},
+    )
 except urllib.error.HTTPError as e:
     raise e
+
 
 # no need to create column CODE, just rename indicator
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
@@ -543,6 +658,18 @@ data = data.merge(
     left_on="Geographic area",
     right_on="country",
 )
+
+# check and drop non-numeric observations, eg: SDMX accepts >95 as an OBS_VALUE
+filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+if filter_non_num.any():
+    not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+    f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+    data.drop(data[filter_non_num].index, inplace=True)
+
+# convert to numeric
+data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+
+# print(data.columns)
 
 # TODO: calculations for children age population
 
