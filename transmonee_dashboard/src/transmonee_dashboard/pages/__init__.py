@@ -640,8 +640,7 @@ try:
     sdmx = pd.read_csv(
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
-        # great would be to make this http header work!
-        # storage_options={"Accept-Encoding": "gzip"},
+        storage_options={"Accept-Encoding": "gzip"},
     )
 except urllib.error.HTTPError as e:
     raise e
