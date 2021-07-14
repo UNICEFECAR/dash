@@ -523,22 +523,12 @@ def indicator_card(
 
     # select last value for each country
     indicator_values = (
-<<<<<<< HEAD
-        filtered_data.query(query)
-        .groupby(
-=======
         filtered_data.groupby(
->>>>>>> 8459ff20f77209da0fc85ba765f47c56a8e6e210
             [
                 "Geographic area",
                 "TIME_PERIOD",
             ]
-<<<<<<< HEAD
-        )
-        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
-=======
         ).agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
->>>>>>> 8459ff20f77209da0fc85ba765f47c56a8e6e210
     ).reset_index()
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
