@@ -28,6 +28,15 @@ def geocode_address(address):
     return dict(longitude=coords[0], latitude=coords[1])
 
 
+def geocode_alpha3(alpha3):
+    """Geocode alpha3 code into lat/long."""
+    if alpha3 == "xkx":
+        alpha3 = "kos"
+    response = geocoder.forward(alpha3)
+    coords = response.json()["features"][0]["center"]
+    return dict(longitude=coords[0], latitude=coords[1])
+
+
 codes = [
     "EDUNF_OFST_L1_UNDER1",
     "EDUNF_OFST_L1",
@@ -220,6 +229,7 @@ codes = [
     "PT_VC_VOV_PHYL",
     "PT_VC_VOV_ROBB",
     "PT_VC_VOV_SEXL",
+<<<<<<< HEAD
     # adding the new health and nutrition related indicators
     # indicators for health sub-topic-1
     "HT_SH_XPD_CHEX_GD_ZS",
@@ -328,6 +338,38 @@ codes = [
     "WS_PPL_H-B",
     "WS_PPS_S-OD",
     "HT_NO_BTH_SHW_FLSH",
+=======
+    # Indicators of the Poverty Page
+    # sub-topic 1
+    "PV_SI_POV_EMP1",
+    "PV_SI_POV_DAY1",
+    "PV_SI_POV_UMIC",
+    "PV_SDG_SI_POV_NAHC",
+    "PV_WB_SI_POV_NAHC",
+    "PV_AROPE",
+    "PV_AROPRT",
+    "PV_SD_MDP_CSMP",
+    "PV_SD_MDP_MUHHC",
+    "PV_SD_MDP_MUHC",
+    "PV_SI_POV_MDIM",
+    "PV_SI_POV_MDIM_17",
+    "WS_PPL_W-B",
+    "WS_PPL_S-B",
+    "PV_SEV_MAT_DPRT",
+    # sub-topic 2
+    "PV_SI_COV_BENFTS",
+    "PV_SI_COV_LMKT",
+    "PV_SI_COV_SOCAST",
+    "PV_SI_COV_SOCINS",
+    "PV_SI_COV_WKINJRY",
+    "PV_SI_COV_CHLD",
+    "PV_SI_COV_DISAB",
+    "PV_SI_COV_MATNL",
+    "PV_SI_COV_POOR",
+    "PV_SI_COV_UEMP",
+    "PV_SI_COV_VULN",
+    "PV_SI_COV_PENSN",
+>>>>>>> 8459ff20f77209da0fc85ba765f47c56a8e6e210
 ]
 
 years = list(range(2010, 2021))
@@ -344,7 +386,8 @@ countries = [
     "Greece",
     "Kazakhstan",
     "Kyrgyzstan",
-    "Kosovo (UN SC resolution 1244)",
+    # "Kosovo (UN SC resolution 1244)",
+    "Kosovo",
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
@@ -402,7 +445,8 @@ unicef_country_prog = [
     "Greece",
     "Kazakhstan",
     "Kyrgyzstan",
-    "Kosovo (UN SC resolution 1244)",
+    "Kosovo",
+    # "Kosovo (UN SC resolution 1244)",
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
@@ -426,7 +470,8 @@ country_selections = [
                     "Albania",
                     "Bosnia and Herzegovina",
                     "Croatia",
-                    "Kosovo (UN SC resolution 1244)",
+                    "Kosovo",
+                    # "Kosovo (UN SC resolution 1244)",
                     "North Macedonia",
                     "Montenegro",
                     "Serbia",
@@ -556,21 +601,30 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
                 "value": [
                     "Albania",
                     "Bosnia and Herzegovina",
-                    "Kosovo (UN SC resolution 1244)",
+                    "Kosovo",
+                    # "Kosovo (UN SC resolution 1244)",
                     "North Macedonia",
                     "Montenegro",
                     "Serbia",
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -632,6 +686,8 @@ col_types = {
     "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
+    # "OBS_VALUE": str,
+    "TIME_PERIOD": int,
 }
 
 

@@ -465,7 +465,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     country_text = f"{len(countries_selected)} Selected"
 
-    print(countries_selected)
+    # print(countries_selected)
 
     selected_years = years[slice(*years_slider)]
 
@@ -475,6 +475,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         years=selected_years,
         countries=list(countries_selected),
     )
+    # print("Selected countries are:", countries)
     get_filtered_dataset(**selections)
 
     return (
@@ -510,31 +511,41 @@ def indicator_card(
     target_and_total_query = get_target_query(data, numors[0], "Sex", sex_code)
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
-
     indicator = numors
-
-    # use filtered chached dataset
+    # use filtered cached dataset
     filtered_data = get_filtered_dataset(**selections)
+    # for col in filtered_data.columns:
+    #     print(col)
+    filtered_data = filtered_data.query(query)
+
+    # with pd.option_context("display.max_rows", None, "display.max_columns", None):
+    # print(filtered_data)
 
     # select last value for each country
     indicator_values = (
+<<<<<<< HEAD
         filtered_data.query(query)
         .groupby(
+=======
+        filtered_data.groupby(
+>>>>>>> 8459ff20f77209da0fc85ba765f47c56a8e6e210
             [
                 "Geographic area",
                 "TIME_PERIOD",
             ]
+<<<<<<< HEAD
         )
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+=======
+        ).agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+>>>>>>> 8459ff20f77209da0fc85ba765f47c56a8e6e210
     ).reset_index()
-
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
         .groupby("Geographic area", as_index=False)
         .last()
         .set_index(["Geographic area", "TIME_PERIOD"])
     )
-
     # check for denominator
     if denominator:
 
@@ -552,7 +563,7 @@ def indicator_card(
         denominator_values = filtered_data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
         )
-        # select only those denominators that match avalible indicators
+        # select only those denominators that match available indicators
         index_intersect = numerator_pairs.index.intersection(denominator_values.index)
 
         denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
@@ -737,6 +748,7 @@ def get_disag_total(data, indicator, dimension, default_total="Total"):
         return [max_val_count]
     else:
         return [max_val_count, default_total]
+        # return [default_total]
 
 
 # this could be a potential function to be decorated per indicator in each area?
@@ -818,7 +830,8 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
         query_item = []
         for item in disag:
             item_total = []
-            for total in get_disag_total(data, indicator, item):
+            df_disag_total = get_disag_total(data, indicator, item)
+            for total in df_disag_total:
                 item_total.append(f"`{item}` == '{total}'")
             query_item.append(f"({' | '.join(item_total)})")
         return query_dim + " & " + " & ".join(query_item)
@@ -900,12 +913,15 @@ def main_figure(indicator, selections, indicators_dict):
         .query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .sort_values(
+            by=["TIME_PERIOD"]
+        )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
 
+    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-
     return px.scatter_mapbox(df, **options), source
 
 
