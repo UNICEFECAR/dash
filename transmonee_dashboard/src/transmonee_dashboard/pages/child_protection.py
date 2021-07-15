@@ -193,6 +193,7 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_AVAILABLE",
                 "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
+            "default": "PT_CHLD_INRESIDENTIAL",
         },
         "AREA_1": {
             "type": "bar",
