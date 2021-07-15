@@ -704,13 +704,9 @@ def get_disag_total(data, indicator, dimension, default_total="Total"):
 
     data_disag_col = data[data["CODE"] == indicator][dimension]
     max_val_count = data_disag_col.value_counts().idxmax()
-    max_is_total = max_val_count == default_total
 
-    if max_is_total | (default_total not in data_disag_col.values):
-        return [max_val_count]
-    else:
-        return [max_val_count, default_total]
-        # return [default_total]
+    # return max_val_count only if Total not in dimension
+    return [default_total if default_total in data_disag_col.values else max_val_count]
 
 
 # this could be a potential function to be decorated per indicator in each area?
