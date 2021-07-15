@@ -62,7 +62,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -215,7 +218,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             # compare is the default selection
             "compare": "Sex",
@@ -301,7 +307,7 @@ indicators_dict = {
         },
     },
     "JUSTICE": {
-        "NAME": "Access to Justice",
+        "NAME": "Juvenile Justice",
         "CARDS": [
             {
                 "name": "committed against children during the year",
@@ -363,7 +369,238 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default": "JJ_CHLD_CRIME",
+        },
+        "AREA_2": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default_graph": "line",
+            "default": "JJ_CHLD_CRIME",
+        },
+    },
+    "MARRIAGE": {
+        "NAME": "Child marriage and other harmful practices",
+        "CARDS": [
+            {
+                "name": "committed against children during the year",
+                "indicator": "JJ_CHLD_CRIME",
+                "suffix": "Registered crimes",
+            },
+            {
+                "name": "who are reported as being in contact with the police because of their own behaviour during the year",
+                "indicator": "JJ_CHLD_POLICE",
+                "suffix": "Children",
+            },
+            {
+                "name": "who are charged with an offence or crime during the year",
+                "indicator": "JJ_CHLD_OFFENCE",
+                "suffix": "Children",
+            },
+            # revise denominator: population children 0-17
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "committed against children (per 100,000 population aged 0-17)",
+            #     "indicator": "JJ_CHLD_CRIMERT",
+            #     "denominator": "EDUNF_SAP_L1T3",
+            #     "suffix": "Registered crimes",
+            # },
+            # revise denominator: population children 14-17
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "who are sentenced (per 100,000 population aged 14-17)",
+            #     "indicator": "JJ_CHLD_SENTENCERT",
+            #     "denominator": "EDUNF_SAP_L3",
+            #     "suffix": "Children",
+            # },
+        ],
+        "MAIN": {
+            "name": "Child Victims of Crime",
+            "geo": "Geographic area",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                size_max=40,
+                zoom=2.5,
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default": "JJ_CHLD_CRIME",
+        },
+        "AREA_1": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default": "JJ_CHLD_CRIME",
+        },
+        "AREA_2": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default_graph": "line",
+            "default": "JJ_CHLD_CRIME",
+        },
+    },
+    "LABOUR": {
+        "NAME": "Child Labour",
+        "CARDS": [
+            {
+                "name": "committed against children during the year",
+                "indicator": "JJ_CHLD_CRIME",
+                "suffix": "Registered crimes",
+            },
+            {
+                "name": "who are reported as being in contact with the police because of their own behaviour during the year",
+                "indicator": "JJ_CHLD_POLICE",
+                "suffix": "Children",
+            },
+            {
+                "name": "who are charged with an offence or crime during the year",
+                "indicator": "JJ_CHLD_OFFENCE",
+                "suffix": "Children",
+            },
+            # revise denominator: population children 0-17
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "committed against children (per 100,000 population aged 0-17)",
+            #     "indicator": "JJ_CHLD_CRIMERT",
+            #     "denominator": "EDUNF_SAP_L1T3",
+            #     "suffix": "Registered crimes",
+            # },
+            # revise denominator: population children 14-17
+            # we don't have the ability yet to deal with rates that are not percentage
+            # {
+            #     "name": "who are sentenced (per 100,000 population aged 14-17)",
+            #     "indicator": "JJ_CHLD_SENTENCERT",
+            #     "denominator": "EDUNF_SAP_L3",
+            #     "suffix": "Children",
+            # },
+        ],
+        "MAIN": {
+            "name": "Child Victims of Crime",
+            "geo": "Geographic area",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                size_max=40,
+                zoom=2.5,
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_DETENTION",
+                "JJ_CHLD_CONVICTED",
+                "JJ_CHLD_SENTENCERT",
+                "JJ_VC_PRS_UNSNT",
+            ],
+            "default": "JJ_CHLD_CRIME",
+        },
+        "AREA_1": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
