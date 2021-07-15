@@ -28,15 +28,6 @@ def geocode_address(address):
     return dict(longitude=coords[0], latitude=coords[1])
 
 
-def geocode_alpha3(alpha3):
-    """Geocode alpha3 code into lat/long."""
-    if alpha3 == "xkx":
-        alpha3 = "kos"
-    response = geocoder.forward(alpha3)
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
-
-
 codes = [
     "EDUNF_OFST_L1_UNDER1",
     "EDUNF_OFST_L1",
@@ -275,8 +266,7 @@ countries = [
     "Greece",
     "Kazakhstan",
     "Kyrgyzstan",
-    # "Kosovo (UN SC resolution 1244)",
-    "Kosovo",
+    "Kosovo (UN SC resolution 1244)",
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
@@ -334,8 +324,7 @@ unicef_country_prog = [
     "Greece",
     "Kazakhstan",
     "Kyrgyzstan",
-    "Kosovo",
-    # "Kosovo (UN SC resolution 1244)",
+    "Kosovo (UN SC resolution 1244)",
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
@@ -359,8 +348,7 @@ country_selections = [
                     "Albania",
                     "Bosnia and Herzegovina",
                     "Croatia",
-                    "Kosovo",
-                    # "Kosovo (UN SC resolution 1244)",
+                    "Kosovo (UN SC resolution 1244)",
                     "North Macedonia",
                     "Montenegro",
                     "Serbia",
@@ -502,8 +490,7 @@ country_selections = [
                 "value": [
                     "Albania",
                     "Bosnia and Herzegovina",
-                    "Kosovo",
-                    # "Kosovo (UN SC resolution 1244)",
+                    "Kosovo (UN SC resolution 1244)",
                     "North Macedonia",
                     "Montenegro",
                     "Serbia",
