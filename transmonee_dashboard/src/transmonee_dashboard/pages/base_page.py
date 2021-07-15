@@ -900,6 +900,9 @@ def main_figure(indicator, selections, indicators_dict):
         .query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .sort_values(
+            by=["TIME_PERIOD"]
+        )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
 
