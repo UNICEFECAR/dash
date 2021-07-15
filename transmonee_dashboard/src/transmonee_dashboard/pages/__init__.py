@@ -191,6 +191,8 @@ codes = [
     # "JJ_CHLD_VICTIM",
     # "JJ_CHLD_OFFENDER",
     "JJ_VC_PRS_UNSNT",
+    "JJ_PRISIONERS",
+    "JJ_PRISIONERS_RT",
     "PT_ADLT_PS_NEC",
     "PT_CHLD_5-17_LBR_ECON",
     "PT_CHLD_5-17_LBR_ECON-HC",
