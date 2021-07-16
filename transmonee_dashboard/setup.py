@@ -39,9 +39,7 @@ except FileNotFoundError:
 # dictionary.
 about = {}
 if not VERSION:
-    with open(
-        os.path.join(here, "src", "transmonee_dashboard", "__version__.py")
-    ) as f:
+    with open(os.path.join(here, "src", "transmonee_dashboard", "__version__.py")) as f:
         exec(f.read(), about)
 else:
     about["__version__"] = VERSION
