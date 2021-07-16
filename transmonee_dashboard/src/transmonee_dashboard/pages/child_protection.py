@@ -11,7 +11,7 @@ indicators_dict = {
         "CARDS": [
             # revise denominator population: children 1-14?
             {
-                "name": "who experienced physical punishment or psychological aggression by caregivers",
+                "name": "Who experienced physical punishment or psychological aggression by caregivers",
                 "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "denominator": "EDUNF_SAP_L1T3",
                 "suffix": "Percent of Children",
@@ -49,13 +49,6 @@ indicators_dict = {
                 "PT_F_15-49_W-BTNG",
                 "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
-                "PT_F_15-19_MRD",
-                "PT_M_15-19_MRD",
-                "PT_F_20-24_MRD_U15",
-                "PT_F_20-24_MRD_U18",
-                "PT_M_20-24_MRD_U18",
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
             ],
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
@@ -82,13 +75,6 @@ indicators_dict = {
                 "PT_F_15-49_W-BTNG",
                 "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
-                "PT_F_15-19_MRD",
-                "PT_M_15-19_MRD",
-                "PT_F_20-24_MRD_U15",
-                "PT_F_20-24_MRD_U18",
-                "PT_M_20-24_MRD_U18",
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
             ],
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
@@ -132,15 +118,8 @@ indicators_dict = {
                 "PT_F_15-49_W-BTNG",
                 "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
-                "PT_F_15-19_MRD",
-                "PT_M_15-19_MRD",
-                "PT_F_20-24_MRD_U15",
-                "PT_F_20-24_MRD_U18",
-                "PT_M_20-24_MRD_U18",
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
     },
@@ -148,24 +127,24 @@ indicators_dict = {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "in Residential Care",
+                "name": "In Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
                 "suffix": "Children",
             },
             # revise denominator: population children 0-17
             {
-                "name": "in Residential Care",
+                "name": "In Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
                 "denominator": "EDUNF_SAP_L1T3",
                 "suffix": "Percent of Children",
             },
             {
-                "name": "in care of foster parents or guardians",
+                "name": "In care of foster parents or guardians",
                 "indicator": "PT_CHLD_INCARE_FOSTER",
                 "suffix": "Children",
             },
             {
-                "name": "available for adoption",
+                "name": "Available for adoption",
                 "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
                 "suffix": "Children",
             },
@@ -205,12 +184,13 @@ indicators_dict = {
                 "PT_CHLD_DISAB_CARED_GUARDIAN",
                 "PT_CHLD_GUARDIAN",
                 "PT_CHLD_ENTEREDFOSTER",
-                "PT_CHLD_ADOPTION_RATE",
                 "PT_CHLD_ADOPTION",
+                "PT_CHLD_ADOPTION_RATE",
                 "PT_CHLD_ADOPTION_DISAB",
                 "PT_CHLD_ADOPTION_AVAILABLE",
                 "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
+            "default": "PT_CHLD_INRESIDENTIAL",
         },
         "AREA_1": {
             "type": "bar",
@@ -301,39 +281,23 @@ indicators_dict = {
         },
     },
     "JUSTICE": {
-        "NAME": "Access to Justice",
+        "NAME": "Juvenile Justice",
         "CARDS": [
             {
-                "name": "committed against children during the year",
+                "name": "Committed against children during the year",
                 "indicator": "JJ_CHLD_CRIME",
                 "suffix": "Registered crimes",
             },
             {
-                "name": "who are reported as being in contact with the police because of their own behaviour during the year",
+                "name": "Who are reported as being in contact with the police because of their own behaviour during the year",
                 "indicator": "JJ_CHLD_POLICE",
                 "suffix": "Children",
             },
             {
-                "name": "who are charged with an offence or crime during the year",
+                "name": "Who are charged with an offence or crime during the year",
                 "indicator": "JJ_CHLD_OFFENCE",
                 "suffix": "Children",
             },
-            # revise denominator: population children 0-17
-            # we don't have the ability yet to deal with rates that are not percentage
-            # {
-            #     "name": "committed against children (per 100,000 population aged 0-17)",
-            #     "indicator": "JJ_CHLD_CRIMERT",
-            #     "denominator": "EDUNF_SAP_L1T3",
-            #     "suffix": "Registered crimes",
-            # },
-            # revise denominator: population children 14-17
-            # we don't have the ability yet to deal with rates that are not percentage
-            # {
-            #     "name": "who are sentenced (per 100,000 population aged 14-17)",
-            #     "indicator": "JJ_CHLD_SENTENCERT",
-            #     "denominator": "EDUNF_SAP_L3",
-            #     "suffix": "Children",
-            # },
         ],
         "MAIN": {
             "name": "Child Victims of Crime",
@@ -351,14 +315,14 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
                 "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
                 "JJ_VC_PRS_UNSNT",
+                "JJ_PRISIONERS",
+                "JJ_PRISIONERS_RT",
             ],
-            "default": "JJ_CHLD_CRIME",
+            "default": "JJ_CHLD_CONVICTED",
         },
         "AREA_1": {
             "type": "bar",
@@ -367,14 +331,14 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
                 "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
                 "JJ_VC_PRS_UNSNT",
+                "JJ_PRISIONERS",
+                "JJ_PRISIONERS_RT",
             ],
-            "default": "JJ_CHLD_CRIME",
+            "default": "JJ_CHLD_CONVICTED",
         },
         "AREA_2": {
             "graphs": {
@@ -400,15 +364,166 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
                 "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
                 "JJ_VC_PRS_UNSNT",
+                "JJ_PRISIONERS",
+                "JJ_PRISIONERS_RT",
             ],
             "default_graph": "line",
-            "default": "JJ_CHLD_CRIME",
+            "default": "JJ_CHLD_CONVICTED",
+        },
+    },
+    "MARRIAGE": {
+        "NAME": "Child marriage and other harmful practices",
+        "CARDS": [
+            {
+                "name": "aged 15-19 years (by residence and wealth quintile) who are currently married or in union",
+                "indicator": "PT_F_15-19_MRD",
+                "suffix": "Percentage of girls",
+            },
+            {
+                "name": "aged 15-19 years (by residence and wealth quintile) who are currently married or in union",
+                "indicator": "PT_M_15-19_MRD",
+                "suffix": "Percentage of boys",
+            },
+        ],
+        "MAIN": {
+            "name": "Child Victims of Crime",
+            "geo": "Geographic area",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                size_max=40,
+                zoom=2.5,
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "PT_F_15-19_MRD",
+                "PT_M_15-19_MRD",
+                "PT_F_20-24_MRD_U15",
+                "PT_F_20-24_MRD_U18",
+                "PT_M_20-24_MRD_U18",
+            ],
+            "default": "PT_F_15-19_MRD",
+        },
+        "AREA_1": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
+            "indicators": [
+                "PT_F_15-19_MRD",
+                "PT_M_15-19_MRD",
+                "PT_F_20-24_MRD_U15",
+                "PT_F_20-24_MRD_U18",
+                "PT_M_20-24_MRD_U18",
+            ],
+            "default": "PT_F_15-19_MRD",
+        },
+        "AREA_2": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "PT_F_15-19_MRD",
+                "PT_M_15-19_MRD",
+                "PT_F_20-24_MRD_U15",
+                "PT_F_20-24_MRD_U18",
+                "PT_M_20-24_MRD_U18",
+            ],
+            "default_graph": "line",
+            "default": "PT_F_15-19_MRD",
+        },
+    },
+    "LABOUR": {
+        "NAME": "Child Labour",
+        "CARDS": [
+            {
+                "name": "(aged 5-17 years, by sex and age groups) engaged in child labour (economic activities)",
+                "indicator": "PT_CHLD_5-17_LBR_ECON",
+                "suffix": "Percentage of Children",
+            },
+        ],
+        "MAIN": {
+            "name": "Child Victims of Crime",
+            "geo": "Geographic area",
+            "options": dict(
+                lat="latitude",
+                lon="longitude",
+                size="OBS_VALUE",
+                text="Geographic area",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                size_max=40,
+                zoom=2.5,
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "default": "PT_CHLD_5-17_LBR_ECON",
+        },
+        "AREA_1": {
+            "type": "bar",
+            "options": dict(
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "default": "PT_CHLD_5-17_LBR_ECON",
+        },
+        "AREA_2": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "default_graph": "line",
+            "default": "PT_CHLD_5-17_LBR_ECON",
         },
     },
 }

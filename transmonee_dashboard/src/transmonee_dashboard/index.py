@@ -24,7 +24,15 @@ urls = (
 nav_items = (
     ("", html.Div([fa("fas fa-home"), "Home"])),
     ("education", html.Div([fa("fas fa-book"), "Education"])),
-    ("child-protection", html.Div([fa("fas fa-child"), "Child Protection"])),
+    (
+        "child-protection",
+        html.Div(
+            [
+                fa("fas fa-child"),
+                "Family environment and protection from violence and harmful practices",
+            ]
+        ),
+    ),
     ("child-health", html.Div([fa("fas fa-heartbeat"), "Health and Nutrition"])),
     (
         "child-poverty",
