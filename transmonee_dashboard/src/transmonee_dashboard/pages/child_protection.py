@@ -55,10 +55,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -92,17 +89,17 @@ indicators_dict = {
                     ),
                     "compare": "Sex",
                 },
-                # "line": {
-                #     "options": dict(
-                #         x="TIME_PERIOD",
-                #         y="OBS_VALUE",
-                #         color="Geographic area",
-                #         hover_name="Geographic area",
-                #         line_shape="spline",
-                #         render_mode="svg",
-                #     ),
-                #     "trace_options": dict(mode="lines+markers"),
-                # },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
             },
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
@@ -198,10 +195,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             # compare is the default selection
             "compare": "Sex",
@@ -333,10 +327,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -425,10 +416,7 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -498,25 +486,16 @@ indicators_dict = {
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
-            "indicators": [
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
-            ],
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
+                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
             ),
             "compare": "Sex",
-            "indicators": [
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
-            ],
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_2": {
@@ -542,10 +521,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "indicators": [
-                "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
-            ],
+            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
             "default_graph": "line",
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
