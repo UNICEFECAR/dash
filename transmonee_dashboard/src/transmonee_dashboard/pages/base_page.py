@@ -449,8 +449,6 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     country_text = f"{len(countries_selected)} Selected"
 
-    # print(countries_selected)
-
     selected_years = years[slice(*years_slider)]
 
     # cache the data based on selected years and countries
@@ -459,7 +457,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         years=selected_years,
         countries=list(countries_selected),
     )
-    # print("Selected countries are:", countries)
+
     get_filtered_dataset(**selections)
 
     return (
