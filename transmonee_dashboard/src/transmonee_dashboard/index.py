@@ -2,7 +2,7 @@ import dash_html_components as html
 
 from .app import app
 from .utils import DashRouter, DashNavBar
-from .pages import education, child_protection, home, child_health
+from .pages import education, child_protection, child_health, child_poverty, home
 from .components import fa
 
 
@@ -14,6 +14,7 @@ urls = (
     ("education", education.get_layout),
     ("child-protection", child_protection.get_layout),
     ("child-health", child_health.get_layout),
+    ("child-poverty", child_poverty.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -33,6 +34,12 @@ nav_items = (
         ),
     ),
     ("child-health", html.Div([fa("fas fa-heartbeat"), "Health and Nutrition"])),
+    (
+        "child-poverty",
+        html.Div(
+            [fa("fas fa-hand-holding-usd"), "Poverty and adequate standards of living"]
+        ),
+    ),
 )
 
 router = DashRouter(app, urls)

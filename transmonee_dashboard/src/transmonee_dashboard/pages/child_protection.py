@@ -11,7 +11,7 @@ indicators_dict = {
         "CARDS": [
             # revise denominator population: children 1-14?
             {
-                "name": "who experienced physical punishment or psychological aggression by caregivers",
+                "name": "Who experienced physical punishment or psychological aggression by caregivers",
                 "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "denominator": "EDUNF_SAP_L1T3",
                 "suffix": "Percent of Children",
@@ -92,17 +92,17 @@ indicators_dict = {
                     ),
                     "compare": "Sex",
                 },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
+                # "line": {
+                #     "options": dict(
+                #         x="TIME_PERIOD",
+                #         y="OBS_VALUE",
+                #         color="Geographic area",
+                #         hover_name="Geographic area",
+                #         line_shape="spline",
+                #         render_mode="svg",
+                #     ),
+                #     "trace_options": dict(mode="lines+markers"),
+                # },
             },
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
@@ -122,7 +122,7 @@ indicators_dict = {
                 "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
     },
@@ -130,24 +130,24 @@ indicators_dict = {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "in Residential Care",
+                "name": "In Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
                 "suffix": "Children",
             },
             # revise denominator: population children 0-17
             {
-                "name": "in Residential Care",
+                "name": "In Residential Care",
                 "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
                 "denominator": "EDUNF_SAP_L1T3",
                 "suffix": "Percent of Children",
             },
             {
-                "name": "in care of foster parents or guardians",
+                "name": "In care of foster parents or guardians",
                 "indicator": "PT_CHLD_INCARE_FOSTER",
                 "suffix": "Children",
             },
             {
-                "name": "available for adoption",
+                "name": "Available for adoption",
                 "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
                 "suffix": "Children",
             },
@@ -290,18 +290,18 @@ indicators_dict = {
         "NAME": "Juvenile Justice",
         "CARDS": [
             {
-                "name": "of children who entered pre-sentence detention (during the year, by sex)",
-                "indicator": "JJ_CHLD_DETENTION",
-                "suffix": "Total number",
+                "name": "Committed against children during the year",
+                "indicator": "JJ_CHLD_CRIME",
+                "suffix": "Registered crimes",
             },
             {
-                "name": "of children convicted for criminal activity (during the year, by sex)",
-                "indicator": "JJ_CHLD_CONVICTED",
-                "suffix": "Total number",
+                "name": "Who are reported as being in contact with the police because of their own behaviour during the year",
+                "indicator": "JJ_CHLD_POLICE",
+                "suffix": "Children",
             },
             {
-                "name": "sentencing rate (per 100,000 average population aged 14-17)",
-                "indicator": "JJ_CHLD_SENTENCERT",
+                "name": "Who are charged with an offence or crime during the year",
+                "indicator": "JJ_CHLD_OFFENCE",
                 "suffix": "Children",
             },
         ],
