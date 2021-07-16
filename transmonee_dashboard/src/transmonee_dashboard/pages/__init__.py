@@ -328,6 +328,36 @@ codes = [
     "WS_PPL_H-B",
     "WS_PPS_S-OD",
     "HT_NO_BTH_SHW_FLSH",
+    # Indicators of the Poverty Page
+    # sub-topic 1
+    "PV_SI_POV_EMP1",
+    "PV_SI_POV_DAY1",
+    "PV_SI_POV_UMIC",
+    "PV_SDG_SI_POV_NAHC",
+    "PV_WB_SI_POV_NAHC",
+    "PV_AROPE",
+    "PV_AROPRT",
+    "PV_SD_MDP_CSMP",
+    "PV_SD_MDP_MUHHC",
+    "PV_SD_MDP_MUHC",
+    "PV_SI_POV_MDIM",
+    "PV_SI_POV_MDIM_17",
+    "WS_PPL_W-B",
+    "WS_PPL_S-B",
+    "PV_SEV_MAT_DPRT",
+    # sub-topic 2
+    "PV_SI_COV_BENFTS",
+    "PV_SI_COV_LMKT",
+    "PV_SI_COV_SOCAST",
+    "PV_SI_COV_SOCINS",
+    "PV_SI_COV_WKINJRY",
+    "PV_SI_COV_CHLD",
+    "PV_SI_COV_DISAB",
+    "PV_SI_COV_MATNL",
+    "PV_SI_COV_POOR",
+    "PV_SI_COV_UEMP",
+    "PV_SI_COV_VULN",
+    "PV_SI_COV_PENSN",
 ]
 
 years = list(range(2010, 2021))
@@ -632,6 +662,8 @@ col_types = {
     "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
+    # "OBS_VALUE": str,
+    "TIME_PERIOD": int,
 }
 
 

@@ -194,13 +194,7 @@ def get_base_layout(**kwargs):
                 className="sticky-top bg-light",
             ),
             dbc.Row(
-                [
-                    dbc.CardDeck(
-                        id="cards_row",
-                        className="mt-3",
-                    ),
-                ],
-                justify="center",
+                [dbc.CardDeck(id="cards_row", className="mt-3",),], justify="center",
             ),
             html.Br(),
             # start first row
@@ -213,9 +207,7 @@ def get_base_layout(**kwargs):
                                     dcc.Dropdown(
                                         id="main_options",
                                         # className="dcc_control",
-                                        style={
-                                            "z-index": "11",
-                                        },
+                                        style={"z-index": "11",},
                                     ),
                                     dcc.Graph(id="main_area"),
                                     html.Div(
@@ -250,10 +242,7 @@ def get_base_layout(**kwargs):
                                     # style={"z-index": "15"},
                                 ),
                                 dcc.Graph(id="area_1"),
-                                dbc.RadioItems(
-                                    id="area_1_breakdowns",
-                                    inline=True,
-                                ),
+                                dbc.RadioItems(id="area_1_breakdowns", inline=True,),
                                 html.Div(
                                     fa("fas fa-info-circle"),
                                     id="area_1_info",
@@ -276,8 +265,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_2_options",
-                                    className="dcc_control",
+                                    id="area_2_options", className="dcc_control",
                                 ),
                                 html.Div(
                                     [dcc.Graph(id="area_2")],
@@ -318,8 +306,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_3_options",
-                                    className="dcc_control",
+                                    id="area_3_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_3"),
                                 html.Div(
@@ -344,8 +331,7 @@ def get_base_layout(**kwargs):
                         dbc.CardBody(
                             [
                                 dcc.Dropdown(
-                                    id="area_4_options",
-                                    className="dcc_control",
+                                    id="area_4_options", className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_4"),
                                 html.Div(
@@ -441,9 +427,7 @@ def get_filtered_dataset(theme, years, countries):
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
     ctx = dash.callback_context
@@ -465,8 +449,6 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     country_text = f"{len(countries_selected)} Selected"
 
-    print(countries_selected)
-
     selected_years = years[slice(*years_slider)]
 
     # cache the data based on selected years and countries
@@ -475,6 +457,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         years=selected_years,
         countries=list(countries_selected),
     )
+
     get_filtered_dataset(**selections)
 
     return (
@@ -510,7 +493,6 @@ def indicator_card(
     target_and_total_query = get_target_query(data, numors[0], "Sex", sex_code)
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
-
     indicator = numors
 
     # use filtered chached dataset
@@ -519,22 +501,15 @@ def indicator_card(
     # select last value for each country
     indicator_values = (
         filtered_data.query(query)
-        .groupby(
-            [
-                "Geographic area",
-                "TIME_PERIOD",
-            ]
-        )
+        .groupby(["Geographic area", "TIME_PERIOD",])
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
-
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
         .groupby("Geographic area", as_index=False)
         .last()
         .set_index(["Geographic area", "TIME_PERIOD"])
     )
-
     # check for denominator
     if denominator:
 
@@ -552,7 +527,7 @@ def indicator_card(
         denominator_values = filtered_data.query(query).set_index(
             ["Geographic area", "TIME_PERIOD"]
         )
-        # select only those denominators that match avalible indicators
+        # select only those denominators that match available indicators
         index_intersect = numerator_pairs.index.intersection(denominator_values.index)
 
         denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
@@ -650,9 +625,7 @@ def indicator_card(
 
 @app.callback(
     Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
@@ -678,19 +651,14 @@ def show_cards(selections, current_cards, indicators_dict):
     Output("area_2_options", "options"),
     Output("area_3_options", "options"),
     Output("area_4_options", "options"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_options(theme, indicators_dict):
     # potentially only use cached version
     return [
         [
-            {
-                "label": item["Indicator"],
-                "value": item["CODE"],
-            }
+            {"label": item["Indicator"], "value": item["CODE"],}
             for item in data[
                 data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
             ][["CODE", "Indicator"]]
@@ -710,9 +678,7 @@ def set_options(theme, indicators_dict):
     Output("area_2_options", "value"),
     Output("area_3_options", "value"),
     Output("area_4_options", "value"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data"),],
     [State("indicators", "data")],
 )
 def set_default_values(theme, indicators_dict):
@@ -731,12 +697,9 @@ def get_disag_total(data, indicator, dimension, default_total="Total"):
 
     data_disag_col = data[data["CODE"] == indicator][dimension]
     max_val_count = data_disag_col.value_counts().idxmax()
-    max_is_total = max_val_count == default_total
 
-    if max_is_total | (default_total not in data_disag_col.values):
-        return [max_val_count]
-    else:
-        return [max_val_count, default_total]
+    # return max_val_count only if Total not in dimension
+    return [default_total if default_total in data_disag_col.values else max_val_count]
 
 
 # this could be a potential function to be decorated per indicator in each area?
@@ -818,17 +781,15 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
         query_item = []
         for item in disag:
             item_total = []
-            for total in get_disag_total(data, indicator, item):
+            disag_total = get_disag_total(data, indicator, item)
+            for total in disag_total:
                 item_total.append(f"`{item}` == '{total}'")
             query_item.append(f"({' | '.join(item_total)})")
         return query_dim + " & " + " & ".join(query_item)
 
 
 @app.callback(
-    Output("area_1_breakdowns", "options"),
-    [
-        Input("area_1_options", "value"),
-    ],
+    Output("area_1_breakdowns", "options"), [Input("area_1_options", "value"),],
 )
 def breakdown_options(indicator):
 
@@ -855,12 +816,8 @@ def breakdown_options(indicator):
     # Output("area_2_options", "value"),
     # Output("area_3_options", "value"),
     # Output("area_4_options", "value"),
-    [
-        Input("area_1_breakdowns", "options"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("area_1_breakdowns", "options"),],
+    [State("indicators", "data"),],
 )
 def set_default_compare(compare_options, indicators_dict):
 
@@ -874,13 +831,8 @@ def set_default_compare(compare_options, indicators_dict):
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
-    [
-        Input("main_options", "value"),
-        Input("store", "data"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("main_options", "value"), Input("store", "data"),],
+    [State("indicators", "data"),],
 )
 def main_figure(indicator, selections, indicators_dict):
 
@@ -906,9 +858,9 @@ def main_figure(indicator, selections, indicators_dict):
         .reset_index()
     )
 
+    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-
     return px.scatter_mapbox(df, **options), source
 
 
@@ -920,9 +872,7 @@ def main_figure(indicator, selections, indicators_dict):
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_1_figure(selections, indicator, compare, indicators_dict):
 
@@ -979,16 +929,10 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
         Input("area_2_options", "value"),
         Input("area_2_types", "value"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data"),],
 )
 def area_2_figure(
-    selections,
-    area_1_selected,
-    area_2_selected,
-    selected_type,
-    indicators_dict,
+    selections, area_1_selected, area_2_selected, selected_type, indicators_dict,
 ):
 
     # only run if both areas (1 and 2) not empty
@@ -1052,13 +996,8 @@ def area_2_figure(
 @app.callback(
     Output("area_3", "figure"),
     Output("area_3_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_3_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_3_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_3_figure(selections, indicator, indicators_dict):
 
@@ -1099,13 +1038,8 @@ def area_3_figure(selections, indicator, indicators_dict):
 @app.callback(
     Output("area_4", "figure"),
     Output("area_4_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_4_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
+    [Input("store", "data"), Input("area_4_options", "value"),],
+    [State("indicators", "data"),],
 )
 def area_4_figure(selections, indicator, indicators_dict):
 
