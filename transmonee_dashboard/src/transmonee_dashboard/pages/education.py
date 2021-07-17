@@ -54,7 +54,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -102,7 +105,7 @@ indicators_dict = {
                 "EDUNF_NIR_L1_ENTRYAGE",
                 "EDUNF_TRANRA_L2",
             ],
-            # "default": "EDUNF_ROFST_L3",
+            "default": "EDUNF_GER_L3",
         },
         "AREA_3": {
             "type": "bar",
@@ -208,7 +211,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -259,7 +265,7 @@ indicators_dict = {
                 "EDUNF_LR_YOUTH",
                 "EDUNF_LR_ADULT",
             ],
-            # "default": "EDU_SDG_STU_L2_GLAST_MAT",
+            "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
         "AREA_3": {
             "type": "bar",
@@ -353,7 +359,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -414,7 +423,7 @@ indicators_dict = {
                 "EDUNF_STU_L2_PRV",
                 "EDUNF_STU_L3_PRV",
             ],
-            # "default": "EDUNF_PRP_L2",
+            "default": "EDUNF_PRP_L2",
         },
         "AREA_3": {
             "type": "bar",
