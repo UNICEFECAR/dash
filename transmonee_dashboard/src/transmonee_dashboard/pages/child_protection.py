@@ -140,14 +140,14 @@ indicators_dict = {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "In Residential Care",
+                "name": "in residential care (at the end of the year, by sex and age groups) - Includes persons aged 18 years old and over in some countries",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
-                "suffix": "Children",
+                "suffix": "Total number of Children",
             },
             {
-                "name": "In care of foster parents or guardians",
-                "indicator": "PT_CHLD_INCARE_FOSTER",
-                "suffix": "Children",
+                "name": "cared for by foster parents (at the end of the year, by age groups)",
+                "indicator": "PT_CHLD_CARED_BY_FOSTER",
+                "suffix": "Total number of Children",
             },
         ],
         "MAIN": {
@@ -297,11 +297,11 @@ indicators_dict = {
                 "indicator": "JJ_CHLD_SENTENCERT",
                 "suffix": "Children",
             },
-            {
-                "name": "Who are charged with an offence or crime during the year",
-                "indicator": "JJ_CHLD_OFFENCE",
-                "suffix": "Children",
-            },
+            # {
+            #     "name": "Who are charged with an offence or crime during the year",
+            #     "indicator": "JJ_CHLD_OFFENCE",
+            #     "suffix": "Children",
+            # },
         ],
         "MAIN": {
             "name": "Child Victims of Crime",
