@@ -463,7 +463,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
                 # if all countries are all selectred then stop
                 break
 
-    country_text = f"{len(list(countries_selected))} Selected"
+    country_text = f"{len(countries_selected)} Selected"
 
     selected_years = years[slice(*years_slider)]
 

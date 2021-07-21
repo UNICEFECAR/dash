@@ -6,3 +6,4 @@ mapbox
 Flask-Caching
 gunicorn==20.0.4
 dash_treeview_antd
+sentry-sdk[flask]
