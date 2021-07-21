@@ -360,6 +360,32 @@ codes = [
     "PV_SI_COV_UEMP",
     "PV_SI_COV_VULN",
     "PV_SI_COV_PENSN",
+    # indicators of the participation page
+    "PT_CHLD_Y0T4_REG",
+    "PP_SG_REG_BRTH90N",
+    "PP_SG_REG_DETH75N",
+    "PP_SG_NHR_IMPLN",
+    "PP_SG_NHR_INTEXSTN",
+    "PP_SG_NHR_NOSTUSN",
+    "PP_SG_NHR_NOAPPLN",
+    "JJ_CHLD_CRIME",
+    "JJ_CHLD_CRIMERT",
+    "PP_IT_USE_ii99",
+    "PP_SE_ADT_ACTS_ATCH",
+    "PP_SE_ADT_ACTS_CPT",
+    "PP_SE_ADT_ACTS_CDV",
+    "PP_SE_ADT_ACTS_SSHT",
+    "PP_SE_ADT_ACTS_PRGM",
+    "PP_SE_ADT_ACTS_PST",
+    "PP_SE_ADT_ACTS_SFWR",
+    "PP_SE_ADT_ACTS_TRFF",
+    "PP_SE_ADT_ACTS_CMFL",
+    "PP_IT_MOB_OWN",
+    "PP_ADOL_TVGM",
+    "PP_ADOL_INET",
+    "PP_ADOL_ITXT",
+    "PP_ADOL_WORK_PAID",
+    "PP_ADOL_WORK_HOME",
 ]
 
 years = list(range(2010, 2021))
@@ -588,7 +614,12 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
@@ -602,7 +633,10 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
