@@ -61,12 +61,11 @@ jobs:
 
       - name: Configure deployment and runtime settings on the webapp
         run: |
-          az configure --defaults group=${{ env.AZURE_RESOURCE_GROUP }}
-          az webapp config appsettings --name ${{ env.AZURE_WEBAPP_NAME }}  --settings \
+          az configure --defaults group=${{ env.AZURE_RESOURCE_GROUP }} web=${{ env.AZURE_WEBAPP_NAME }}
+          az webapp config appsettings set --settings \
               SCM_DO_BUILD_DURING_DEPLOYMENT=true \
               FLASK_ENV=production 
-          az webapp config set --name ${{ env.AZURE_WEBAPP_NAME }} \
-            --startup-file "run-transmonee_dashboard-dev"
+          az webapp config set --startup-file "run-transmonee_dashboard-dev"
             
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
