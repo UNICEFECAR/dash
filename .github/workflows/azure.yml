@@ -6,11 +6,11 @@ name: Build and deploy Flask app to Azure App Service
 on:
   push:
     branches: 
-      - main
-
+      - master
+      
 env:
-  WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}         # Replace with the name of your Azure web app
-  RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}   # Replace with the name of your Resource Group
+  AZURE_WEBAPP_NAME: 'tm-dash'       # Replace with the name of your Azure web app
+  AZURE_RESOURCE_GROUP: 'dapi-api'   # Replace with the name of your Resource Group
 
 jobs:
   build-and-test:
@@ -61,14 +61,13 @@ jobs:
 
       - name: Configure deployment and runtime settings on the webapp
         run: |
-          az configure --defaults ${{ env.RESOURCE_GROUP }}
-          az webapp config appsettings --name ${{ env.WEBAPP_NAME }} --settings \
+          az configure --defaults group=${{ env.AZURE_RESOURCE_GROUP }} web=${{ env.AZURE_WEBAPP_NAME }}
+          az webapp config appsettings set --settings \
               SCM_DO_BUILD_DURING_DEPLOYMENT=true \
               FLASK_ENV=production 
-          az webapp config set --name ${{ env.WEBAPP_NAME }} \
-            --startup-file "run-transmonee_dashboard-dev"
+          az webapp config set --startup-file "run-transmonee_dashboard-dev"
             
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.WEBAPP_NAME}}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}

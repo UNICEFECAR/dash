@@ -10,11 +10,21 @@ indicators_dict = {
         "NAME": "Violence against Children and Women",
         "CARDS": [
             # revise denominator population: children 1-14?
+            # {
+            #     "name": "Who experienced physical punishment or psychological aggression by caregivers",
+            #     "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
+            #     "denominator": "EDUNF_SAP_L1T3",
+            #     "suffix": "Percent of Children",
+            # },
             {
-                "name": "Who experienced physical punishment or psychological aggression by caregivers",
-                "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
-                "denominator": "EDUNF_SAP_L1T3",
-                "suffix": "Percent of Children",
+                "name": "subjected to physical violence in the previous 12 months (% by sex)",
+                "indicator": "PT_VC_VOV_PHYL",
+                "suffix": "Proportion of Population",
+            },
+            {
+                "name": "(by sex, age groups, residence and wealth quintile) who think that physical punishment is necessary to raise/educate children",
+                "indicator": "PT_ADLT_PS_NEC",
+                "suffix": "Percent of Adults",
             },
         ],
         "MAIN": {
@@ -130,26 +140,14 @@ indicators_dict = {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "In Residential Care",
+                "name": "in residential care (at the end of the year, by sex and age groups) - Includes persons aged 18 years old and over in some countries",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
-                "suffix": "Children",
-            },
-            # revise denominator: population children 0-17
-            {
-                "name": "In Residential Care",
-                "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
-                "denominator": "EDUNF_SAP_L1T3",
-                "suffix": "Percent of Children",
+                "suffix": "Total number of Children",
             },
             {
-                "name": "In care of foster parents or guardians",
-                "indicator": "PT_CHLD_INCARE_FOSTER",
-                "suffix": "Children",
-            },
-            {
-                "name": "Available for adoption",
-                "indicator": "PT_CHLD_ADOPTION_AVAILABLE",
-                "suffix": "Children",
+                "name": "cared for by foster parents (at the end of the year, by age groups)",
+                "indicator": "PT_CHLD_CARED_BY_FOSTER",
+                "suffix": "Total number of Children",
             },
         ],
         "MAIN": {
@@ -290,20 +288,20 @@ indicators_dict = {
         "NAME": "Juvenile Justice",
         "CARDS": [
             {
-                "name": "Committed against children during the year",
-                "indicator": "JJ_CHLD_CRIME",
-                "suffix": "Registered crimes",
+                "name": "of children who entered pre-sentence detention (during the year, by sex)",
+                "indicator": "JJ_CHLD_DETENTION",
+                "suffix": "Total number",
             },
             {
-                "name": "Who are reported as being in contact with the police because of their own behaviour during the year",
-                "indicator": "JJ_CHLD_POLICE",
+                "name": "sentencing rate (per 100,000 average population aged 14-17)",
+                "indicator": "JJ_CHLD_SENTENCERT",
                 "suffix": "Children",
             },
-            {
-                "name": "Who are charged with an offence or crime during the year",
-                "indicator": "JJ_CHLD_OFFENCE",
-                "suffix": "Children",
-            },
+            # {
+            #     "name": "Who are charged with an offence or crime during the year",
+            #     "indicator": "JJ_CHLD_OFFENCE",
+            #     "suffix": "Children",
+            # },
         ],
         "MAIN": {
             "name": "Child Victims of Crime",
@@ -388,14 +386,14 @@ indicators_dict = {
         "NAME": "Child marriage and other harmful practices",
         "CARDS": [
             {
-                "name": "aged 15-19 years (by residence and wealth quintile) who are currently married or in union",
-                "indicator": "PT_F_15-19_MRD",
-                "suffix": "Percentage of girls",
+                "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
+                "indicator": "PT_F_20-24_MRD_U18",
+                "suffix": "Percentage of women",
             },
             {
-                "name": "aged 15-19 years (by residence and wealth quintile) who are currently married or in union",
-                "indicator": "PT_M_15-19_MRD",
-                "suffix": "Percentage of boys",
+                "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
+                "indicator": "PT_M_20-24_MRD_U18",
+                "suffix": "Percentage of men",
             },
         ],
         "MAIN": {
@@ -425,7 +423,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -475,8 +476,8 @@ indicators_dict = {
         "NAME": "Child Labour",
         "CARDS": [
             {
-                "name": "(aged 5-17 years, by sex and age groups) engaged in child labour (economic activities)",
-                "indicator": "PT_CHLD_5-17_LBR_ECON",
+                "name": "(aged 5-17 years, by sex and age groups) engaged in child labour (economic activities and household chores)",
+                "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
                 "suffix": "Percentage of Children",
             },
         ],
@@ -495,16 +496,25 @@ indicators_dict = {
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
-            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "indicators": [
+                "PT_CHLD_5-17_LBR_ECON",
+                "PT_CHLD_5-17_LBR_ECON-HC",
+            ],
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
-            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "indicators": [
+                "PT_CHLD_5-17_LBR_ECON",
+                "PT_CHLD_5-17_LBR_ECON-HC",
+            ],
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_2": {
@@ -530,7 +540,10 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "indicators": ["PT_CHLD_5-17_LBR_ECON", "PT_CHLD_5-17_LBR_ECON-HC",],
+            "indicators": [
+                "PT_CHLD_5-17_LBR_ECON",
+                "PT_CHLD_5-17_LBR_ECON-HC",
+            ],
             "default_graph": "line",
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
