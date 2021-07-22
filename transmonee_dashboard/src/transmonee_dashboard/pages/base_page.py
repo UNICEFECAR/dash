@@ -37,6 +37,8 @@ from . import (
     countries,
     years,
     data,
+    countries_dict_filter,
+    countries_dict,
 )
 
 # set defaults
@@ -158,7 +160,7 @@ def get_base_layout(**kwargs):
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
-                                                    # "max-width": "300px",
+                                                    # "maxWidth": "300px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -467,11 +469,17 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     selected_years = years[slice(*years_slider)]
 
+    # Use the dictionary to return the values of the selected countries based on the SDMX codes
+    countries_selected = countries_dict_filter(countries_dict, countries_selected)
+    print(
+        "Dictionary Selected Countries Values",
+        countries_selected.values(),
+    )
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         years=selected_years,
-        countries=list(countries_selected),
+        countries=list(countries_selected.values()),
     )
 
     get_filtered_dataset(**selections)
