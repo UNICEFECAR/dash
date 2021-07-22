@@ -21,8 +21,6 @@ Flask==1.1.2
 Flask-Caching==1.10.1
 Flask-Compress==1.9.0
 future==0.18.2
-mapbox
-Flask-Caching
 gunicorn==20.0.4
 idna==2.10
 ipykernel==5.5.3
