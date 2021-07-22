@@ -28,7 +28,7 @@ def make_brand(**kwargs):
                     fa("far fa-chart-bar"),
                     html.Strong(
                         server.config["TITLE"],
-                        style={"font-size": "medium"},
+                        style={"fontSize": "medium"},
                     ),
                     html.Span(server.config["SUB_TITLE"]),
                 ],

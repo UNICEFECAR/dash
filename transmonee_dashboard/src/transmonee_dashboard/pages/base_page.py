@@ -131,8 +131,8 @@ def get_base_layout(**kwargs):
                                                     value=[0, len(years)],
                                                 ),
                                                 style={
-                                                    "max-height": "250px",
-                                                    "min-width": "500px",
+                                                    "maxHeight": "250px",
+                                                    "minWidth": "500px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -157,7 +157,7 @@ def get_base_layout(**kwargs):
                                                     data=selection_tree,
                                                 ),
                                                 style={
-                                                    "max-height": "250px",
+                                                    "maxHeight": "250px",
                                                     # "max-width": "300px",
                                                 },
                                                 className="overflow-auto",
@@ -214,7 +214,7 @@ def get_base_layout(**kwargs):
                                         id="main_options",
                                         # className="dcc_control",
                                         style={
-                                            "z-index": "11",
+                                            "zIndex": "11",
                                         },
                                     ),
                                     dcc.Graph(id="main_area"),
