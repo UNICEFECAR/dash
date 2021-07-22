@@ -7,6 +7,10 @@ on:
   push:
     branches: 
       - master
+      
+env:
+  AZURE_WEBAPP_NAME: 'tm-dash'       # Replace with the name of your Azure web app
+  AZURE_RESOURCE_GROUP: 'dapi-api'   # Replace with the name of your Resource Group
 
 jobs:
   build-and-test:
@@ -57,14 +61,14 @@ jobs:
 
       - name: Configure deployment and runtime settings on the webapp
         run: |
-          az configure --defaults ${{ secrets.AZURE_RESOURCE_GROUP }}
+          az configure --defaults ${{ env.AZURE_RESOURCE_GROUP }}
           az webapp config appsettings --name ${{ secrets.AZURE_WEBAPP_NAME }}  --settings \
               SCM_DO_BUILD_DURING_DEPLOYMENT=true \
               FLASK_ENV=production 
-          az webapp config set --name ${{ secrets.AZURE_WEBAPP_NAME }} \
+          az webapp config set --name ${{ env.AZURE_WEBAPP_NAME }} \
             --startup-file "run-transmonee_dashboard-dev"
             
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
