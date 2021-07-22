@@ -8,10 +8,6 @@ on:
     branches: 
       - master
 
-env:
-  WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}         # Replace with the name of your Azure web app
-  RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}   # Replace with the name of your Resource Group
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -61,14 +57,14 @@ jobs:
 
       - name: Configure deployment and runtime settings on the webapp
         run: |
-          az configure --defaults ${{ env.RESOURCE_GROUP }}
-          az webapp config appsettings --name ${{ env.WEBAPP_NAME }} --settings \
+          az configure --defaults ${{ secrets.AZURE_RESOURCE_GROUP }}
+          az webapp config appsettings --name ${{ secrets.AZURE_WEBAPP_NAME }}  --settings \
               SCM_DO_BUILD_DURING_DEPLOYMENT=true \
               FLASK_ENV=production 
-          az webapp config set --name ${{ env.WEBAPP_NAME }} \
+          az webapp config set --name ${{ secrets.AZURE_WEBAPP_NAME }} \
             --startup-file "run-transmonee_dashboard-dev"
             
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.WEBAPP_NAME}}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
