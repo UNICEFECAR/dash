@@ -6,7 +6,7 @@ name: Build and deploy Flask app to Azure App Service
 on:
   push:
     branches: 
-      - main
+      - master
 
 env:
   WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}         # Replace with the name of your Azure web app
