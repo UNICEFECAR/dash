@@ -556,7 +556,12 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
@@ -570,7 +575,10 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -640,7 +648,7 @@ try:
     sdmx = pd.read_csv(
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
-        storage_options={"Accept-Encoding": "gzip"},
+        # storage_options={"Accept-Encoding": "gzip"},
     )
 except urllib.error.HTTPError as e:
     raise e
