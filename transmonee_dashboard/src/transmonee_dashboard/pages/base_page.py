@@ -40,6 +40,7 @@ from . import (
     countries_dict_filter,
     countries_dict,
 )
+from flask import current_app as server
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -74,8 +75,10 @@ def get_base_layout(**kwargs):
     url_hash = (
         kwargs.get("hash")
         if kwargs.get("hash")
-        else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
+        else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
+        # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
+
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
@@ -87,19 +90,6 @@ def get_base_layout(**kwargs):
                             dbc.Row(
                                 [
                                     dbc.ButtonGroup(
-                                        [
-                                            dbc.Button(
-                                                value["NAME"],
-                                                id=key,
-                                                color=colours[num],
-                                                className="theme mx-1",
-                                                href=f"#{key.lower()}",
-                                                # active=url_hash == f"#{key.lower()}",
-                                            )
-                                            for num, (key, value) in enumerate(
-                                                indicators_dict.items()
-                                            )
-                                        ],
                                         id="themes",
                                     ),
                                 ],
@@ -686,6 +676,30 @@ def show_cards(selections, current_cards, indicators_dict):
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
     return cards
+
+
+@app.callback(
+    Output("themes", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("themes", "children"), State("indicators", "data")],
+)
+def show_themes(selections, current_themes, indicators_dict):
+    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
+
+    buttons = [
+        dbc.Button(
+            value["NAME"],
+            id=key,
+            color=colours[num],
+            className="theme mx-1",
+            href=f"#{key.lower()}",
+            active=url_hash == f"#{key.lower()}",
+        )
+        for num, (key, value) in enumerate(indicators_dict.items())
+    ]
+    return buttons
 
 
 @app.callback(
