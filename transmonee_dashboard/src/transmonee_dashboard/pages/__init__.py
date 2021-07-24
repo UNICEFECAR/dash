@@ -367,6 +367,8 @@ years = list(range(2010, 2021))
 # define the function that will return the values of the selected countries from the dictionary
 countries_dict_filter = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
 
+# a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
+# tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
 countries_dict = {
     "Albania": "Albania",
     "Andorra": "Andorra",

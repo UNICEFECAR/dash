@@ -471,10 +471,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     # Use the dictionary to return the values of the selected countries based on the SDMX codes
     countries_selected = countries_dict_filter(countries_dict, countries_selected)
-    print(
-        "Dictionary Selected Countries Values",
-        countries_selected.values(),
-    )
+
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
@@ -533,6 +530,7 @@ def indicator_card(
         )
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
+
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
         .groupby("Geographic area", as_index=False)
@@ -908,7 +906,6 @@ def main_figure(indicator, selections, indicators_dict):
         .reset_index()
     )
 
-    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     return px.scatter_mapbox(df, **options), source
