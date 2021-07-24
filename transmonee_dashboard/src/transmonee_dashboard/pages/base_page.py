@@ -755,6 +755,19 @@ def set_default_values(theme, indicators_dict):
     ]
 
 
+@app.callback(
+    Output("area_2_types", "value"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_default_chart_types(theme, indicators_dict):
+    # set the default chart type value for area 2 as by default nothing is selected and the chart is displayed by default
+    area = AREA_KEYS[2]
+    return indicators_dict[theme["theme"]][area].get("default_graph")
+
+
 # does this function assume dimension is a disaggregation?
 # should we call it only if dimension is a disaggregation?
 def get_disag_total(data, indicator, dimension, default_total="Total"):
