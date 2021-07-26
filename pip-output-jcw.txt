@@ -54,6 +54,6 @@ tornado==6.1
 traitlets==5.0.5
 -e git+https://dev-james@dev.azure.com/dev-james/Dash/_git/Dash@26cc7ee5b19da09583c7d200c09957d170b87b6e#egg=TransMonee_Dashboard&subdirectory=transmonee_dashboard
 uritemplate==3.0.1
-urllib3==1.26.4
+urllib3==1.26.5
 wcwidth==0.2.5
 Werkzeug==1.0.1
