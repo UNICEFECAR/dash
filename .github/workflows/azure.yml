@@ -46,7 +46,7 @@ jobs:
   - name: Configure deployment and runtime settings on the webapp
     uses: Azure/appservice-settings@v1
     with:  
-      app-name: ${{ env.WEBAPP_NAME }}
+      app-name: ${{ env.AZURE_WEBAPP_NAME }}
       app-settings-json: '[{ "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true" }, { "name": "FLASK_ENV", "value": "production"}]'
           
   # deploy web app
