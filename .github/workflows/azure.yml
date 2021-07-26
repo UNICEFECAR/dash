@@ -1,73 +1,62 @@
-# For more info on Python, GitHub Actions, and Azure App Service 
-# please head to https://aka.ms/python-webapps-actions
-
-name: Build and deploy Flask app to Azure App Service
-
+# Python on Linux Web App
+# Build a Python project (using Django/Flask/Bottle frameworks) and deploy it to Azure as a Linux web app.
+name: Deploy Python package to Azure Web App as a Linux web app.
 on:
   push:
     branches: 
       - master
       
+# CONFIGURATION
+# For help, go to https://github.com/Azure/Actions
+# See this in-depth article on CI for Python applications: https://azure.github.io/AppService/2020/12/11/cicd-for-python-apps.html
 env:
-  AZURE_WEBAPP_NAME: 'tm-dash'       # Replace with the name of your Azure web app
-  AZURE_RESOURCE_GROUP: 'dapi-api'   # Replace with the name of your Resource Group
+  AZURE_WEBAPP_NAME: tm-dash # set this to your application's name
+  WORKING_DIRECTORY: '.' # set this to the path to your path of working directory inside github repository, defaults to the repository root
+  PYTHON_VERSION: '3.8' 
+  STARTUP_COMMAND: 'run-transmonee_dashboard-dev' # set this to the startup command required to start the gunicorn server. default it is empty
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Create and start virtual environment
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-    
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-
-#     - name: test with PyTest
-#       run: pytest --cov=app --cov-report=xml
-
-    - name: Upload artifact for deployment jobs
-      uses: actions/upload-artifact@v2
-      with:
-        name: python-app
-        path: |
-          . 
-          !node_modules/
-          !venv/
-  
-  deploy-to-webapp:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: python-app
-          path: .
-
-      - name: Log in to Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_SERVICE_PRINCIPAL }}
-
-      - name: Configure deployment and runtime settings on the webapp
-        run: |
-          az configure --defaults group=${{ env.AZURE_RESOURCE_GROUP }} web=${{ env.AZURE_WEBAPP_NAME }}
-          az webapp config appsettings set --settings \
-              SCM_DO_BUILD_DURING_DEPLOYMENT=true \
-              FLASK_ENV=production 
-          az webapp config set --startup-file "run-transmonee_dashboard-dev"
-            
-      - name: Deploy to App Service
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+ build-and-deploy:
+  runs-on: ubuntu-latest
+  environment: dev
+  steps:
+  # checkout the repo 
+  - uses: actions/checkout@master
+  # setup python
+  - name: Setup Python
+    uses: actions/setup-python@v1
+    with:
+     python-version: ${{ env.PYTHON_VERSION }}
+     
+  # install dependencies
+  - name: python install
+    working-directory: ${{ env.WORKING_DIRECTORY }}
+    run: |
+     sudo apt install python${{ env.PYTHON_VERSION }}-venv
+     python -m venv --copies antenv
+     source antenv/bin/activate
+     pip install setuptools
+     pip install -r requirements.txt
+     
+  # Azure login
+  - uses: azure/login@v1
+    with:
+     creds: ${{ secrets.AZURE_SERVICE_PRINCIPAL }}
+     
+  - name: Configure deployment and runtime settings on the webapp
+    run: |
+      az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME } --settings \
+          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
+          FLASK_ENV=production
+          
+  # deploy web app
+  - uses: azure/webapps-deploy@v2
+    with:
+     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+     package: ${{ env.WORKING_DIRECTORY }}
+     startup-command: ${{ env.STARTUP_COMMAND }}
+     
+  # Azure logout
+  - name: logout
+    run: |
+     az logout
