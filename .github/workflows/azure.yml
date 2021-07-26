@@ -44,10 +44,10 @@ jobs:
      creds: ${{ secrets.AZURE_SERVICE_PRINCIPAL }}
      
   - name: Configure deployment and runtime settings on the webapp
-    run: |
-      az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --settings \
-          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
-          FLASK_ENV=production
+    uses: Azure/appservice-settings@v1
+    with:  
+      app-name: ${{ env.WEBAPP_NAME }}
+      app-settings-json: '[{ "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true" }, { "name": "FLASK_ENV", "value": "production"}]'
           
   # deploy web app
   - uses: azure/webapps-deploy@v2
