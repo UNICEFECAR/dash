@@ -45,7 +45,7 @@ jobs:
      
   - name: Configure deployment and runtime settings on the webapp
     run: |
-      az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME } --settings \
+      az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --settings \
           SCM_DO_BUILD_DURING_DEPLOYMENT=true \
           FLASK_ENV=production
           
