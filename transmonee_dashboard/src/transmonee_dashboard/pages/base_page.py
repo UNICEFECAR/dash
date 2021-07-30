@@ -72,6 +72,7 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
         kwargs.get("hash")
         if kwargs.get("hash")
@@ -466,7 +467,9 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         years=selected_years,
-        countries=list(countries_selected.values()),
+        countries=list(
+            countries_selected.values()
+        ),  # use the values after the change done
     )
 
     get_filtered_dataset(**selections)
@@ -626,9 +629,7 @@ def indicator_card(
             dbc.Popover(
                 [
                     dbc.PopoverHeader(f"Sources: {indicator}"),
-                    dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(sources))
-                    ),  # replace the tooltip with the desired bullet list layout, was str(sources)
+                    dbc.PopoverBody(str(sources)),
                 ],
                 id="hover",
                 target=card_id,
@@ -640,18 +641,6 @@ def indicator_card(
         id=card_id,
     )
     return card
-
-
-# this function is used to generate the list of countries that are part of the card's displayed result;
-# it displays the countries as a list, each on a separate line...
-def get_card_popover_body(sources):
-    card_countries = ""
-    for index, source_info in enumerate(sources):
-        if card_countries == "":
-            card_countries = f"- {source_info[0]}: {source_info[1]}"
-        else:
-            card_countries += f"\n- {source_info[0]}: {source_info[1]}"
-    return card_countries
 
 
 @app.callback(
@@ -678,6 +667,7 @@ def show_cards(selections, current_cards, indicators_dict):
     return cards
 
 
+# Added this function to add the button group and set the correct active button
 @app.callback(
     Output("themes", "children"),
     [
