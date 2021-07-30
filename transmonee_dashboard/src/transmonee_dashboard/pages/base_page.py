@@ -210,6 +210,13 @@ def get_base_layout(**kwargs):
                         dbc.Card(
                             dbc.CardBody(
                                 [
+                                    html.Div(
+                                        dbc.Alert(
+                                            "This is a sample main area Title...",
+                                            color="info",
+                                            id="main_area_title",
+                                        ),
+                                    ),
                                     dcc.Dropdown(
                                         id="main_options",
                                         # className="dcc_control",
@@ -245,6 +252,13 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         dbc.CardBody(
                             [
+                                html.Div(
+                                    dbc.Alert(
+                                        "This is a sample area 1 Title...",
+                                        color="info",
+                                        id="area_1_title",
+                                    ),
+                                ),
                                 dcc.Dropdown(
                                     id="area_1_options",
                                     # style={"z-index": "15"},
@@ -275,6 +289,13 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         dbc.CardBody(
                             [
+                                html.Div(
+                                    dbc.Alert(
+                                        "This is a sample area 2 Title...",
+                                        color="info",
+                                        id="area_2_title",
+                                    ),
+                                ),
                                 dcc.Dropdown(
                                     id="area_2_options",
                                     className="dcc_control",
@@ -317,6 +338,13 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         dbc.CardBody(
                             [
+                                html.Div(
+                                    dbc.Alert(
+                                        "This is a sample area 3 Title...",
+                                        color="info",
+                                        id="area_3_title",
+                                    ),
+                                ),
                                 dcc.Dropdown(
                                     id="area_3_options",
                                     className="dcc_control",
@@ -343,6 +371,13 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         dbc.CardBody(
                             [
+                                html.Div(
+                                    dbc.Alert(
+                                        "This is a sample area 4 Title...",
+                                        color="info",
+                                        id="area_4_title",
+                                    ),
+                                ),
                                 dcc.Dropdown(
                                     id="area_4_options",
                                     className="dcc_control",
