@@ -628,7 +628,7 @@ def indicator_card(
                     dbc.PopoverHeader(f"Sources: {indicator}"),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(sources))
-                    ),  # replace the tooltip with the desired bullet list layout
+                    ),  # replace the tooltip with the desired bullet list layout, was str(sources)
                 ],
                 id="hover",
                 target=card_id,
