@@ -208,39 +208,38 @@ def get_base_layout(**kwargs):
                 [
                     dbc.Col(
                         dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    html.Div(
-                                        dbc.Alert(
-                                            "This is a sample main area Title...",
-                                            color="info",
-                                            id="main_area_title",
+                            [
+                                dbc.CardHeader(
+                                    "This is a sample main area Title...",
+                                    id="main_area_title",
+                                ),
+                                dbc.CardBody(
+                                    [
+                                        dcc.Dropdown(
+                                            id="main_options",
+                                            # className="dcc_control",
+                                            style={
+                                                "zIndex": "11",
+                                            },
                                         ),
-                                    ),
-                                    dcc.Dropdown(
-                                        id="main_options",
-                                        # className="dcc_control",
-                                        style={
-                                            "zIndex": "11",
-                                        },
-                                    ),
-                                    dcc.Graph(id="main_area"),
-                                    html.Div(
-                                        fa("fas fa-info-circle"),
-                                        id="main_area_info",
-                                        className="float-right",
-                                    ),
-                                    dbc.Popover(
-                                        [
-                                            dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="main_area_sources"),
-                                        ],
-                                        id="hover",
-                                        target="main_area_info",
-                                        trigger="hover",
-                                    ),
-                                ]
-                            ),
+                                        dcc.Graph(id="main_area"),
+                                        html.Div(
+                                            fa("fas fa-info-circle"),
+                                            id="main_area_info",
+                                            className="float-right",
+                                        ),
+                                        dbc.Popover(
+                                            [
+                                                dbc.PopoverHeader("Sources"),
+                                                dbc.PopoverBody(id="main_area_sources"),
+                                            ],
+                                            id="hover",
+                                            target="main_area_info",
+                                            trigger="hover",
+                                        ),
+                                    ]
+                                ),
+                            ],
                         ),
                     ),
                 ],
