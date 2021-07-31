@@ -843,26 +843,63 @@ def breakdown_options(indicator):
 
 
 # Beto's Note: does it make sense to have default compare in config?
+# @app.callback(
+#     Output("area_1_breakdowns", "value"),
+#     [
+#         Input("area_1_breakdowns", "options"),
+#     ],
+#     [
+#         State("indicators", "data"),
+#     ],
+# )
+# def set_default_compare(compare_options, indicators_dict):
+
+#     return (
+#         compare_options[1]["value"]
+#         if len(compare_options) > 1
+#         else compare_options[0]["value"]
+#     )
+
+
 @app.callback(
-    # Output("main_options", "value"),
     Output("area_1_breakdowns", "value"),
-    # Output("area_2_options", "value"),
-    # Output("area_3_options", "value"),
-    # Output("area_4_options", "value"),
     [
         Input("area_1_breakdowns", "options"),
+        Input("store", "data"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    [State("indicators", "data")],
 )
-def set_default_compare(compare_options, indicators_dict):
-
-    return (
-        compare_options[1]["value"]
+def set_default_compare(compare_options, theme, indicators_dict):
+    default_compares = [
+        indicators_dict[theme["theme"]][area].get("compare")
         if len(compare_options) > 1
         else compare_options[0]["value"]
-    )
+        if area in indicators_dict[theme["theme"]]
+        else ""
+        for area in AREA_KEYS
+    ]
+    default_compares = [i for i in default_compares if i]
+    # return only the first because there is only one area with default compare
+    return default_compares[0]
+
+
+@app.callback(
+    Output("area_2_types", "value"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_default_graph_type(theme, indicators_dict):
+    default_types = [
+        indicators_dict[theme["theme"]].get(area).get("default_graph")
+        if area in indicators_dict[theme["theme"]]
+        else ""
+        for area in AREA_KEYS
+    ]
+    default_types = [i for i in default_types if i]
+    # return only the first because there is only one area with default graph type
+    return default_types[0]
 
 
 @app.callback(
