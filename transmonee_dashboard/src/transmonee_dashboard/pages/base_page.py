@@ -899,13 +899,17 @@ def main_figure(indicator, selections, indicators_dict):
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
-    print(df["TIME_PERIOD"].unique())
-    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     main_figure = px.scatter_mapbox(df, **options)
     # set last frame as the active one; i.e. select the max year as the default displayed year
     main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
+    # assign the data of the last year to the map; without this line the data will show the first year;
+    main_figure = go.Figure(
+        data=main_figure["frames"][-1]["data"],
+        frames=main_figure["frames"],
+        layout=main_figure.layout,
+    )
     return main_figure, source
 
 
