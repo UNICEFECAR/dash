@@ -363,7 +363,6 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         [
                             dbc.CardHeader(
-                                "This is a sample area 4 Title...",
                                 id="area_4_title",
                             ),
                             dbc.CardBody(
