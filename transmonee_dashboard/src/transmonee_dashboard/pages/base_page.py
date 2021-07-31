@@ -649,12 +649,10 @@ def indicator_card(
 # This function is used to generate the list of countries that are part of the card's displayed result;
 # it displays the countries as a list, each on a separate line...
 def get_card_popover_body(sources):
-    card_countries = ""
+    countries = []
     for index, source_info in enumerate(sources):
-        if card_countries == "":
-            card_countries = f"- {source_info[0]}: {source_info[1]}"
-        else:
-            card_countries += f"\n- {source_info[0]}: {source_info[1]}"
+        countries.append(f"- {source_info[0]}: {source_info[1]}")
+    card_countries = "\n".join(countries)
     return card_countries
 
 
