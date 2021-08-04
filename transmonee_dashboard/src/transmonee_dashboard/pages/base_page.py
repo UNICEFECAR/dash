@@ -37,7 +37,10 @@ from . import (
     countries,
     years,
     data,
+    countries_dict_filter,
+    countries_dict,
 )
+from flask import current_app as server
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -69,11 +72,14 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
         kwargs.get("hash")
         if kwargs.get("hash")
-        else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
+        else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
+        # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
+
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
@@ -85,19 +91,6 @@ def get_base_layout(**kwargs):
                             dbc.Row(
                                 [
                                     dbc.ButtonGroup(
-                                        [
-                                            dbc.Button(
-                                                value["NAME"],
-                                                id=key,
-                                                color=colours[num],
-                                                className="theme mx-1",
-                                                href=f"#{key.lower()}",
-                                                # active=url_hash == f"#{key.lower()}",
-                                            )
-                                            for num, (key, value) in enumerate(
-                                                indicators_dict.items()
-                                            )
-                                        ],
                                         id="themes",
                                     ),
                                 ],
@@ -131,8 +124,8 @@ def get_base_layout(**kwargs):
                                                     value=[0, len(years)],
                                                 ),
                                                 style={
-                                                    "max-height": "250px",
-                                                    "min-width": "500px",
+                                                    "maxHeight": "250px",
+                                                    "minWidth": "500px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -140,7 +133,7 @@ def get_base_layout(**kwargs):
                                         ],
                                     ),
                                     dbc.DropdownMenu(
-                                        label="Countries by sub-reigon: All",
+                                        label=f"Countries: {len(countries)}",
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
@@ -157,8 +150,8 @@ def get_base_layout(**kwargs):
                                                     data=selection_tree,
                                                 ),
                                                 style={
-                                                    "max-height": "250px",
-                                                    # "max-width": "300px",
+                                                    "maxHeight": "250px",
+                                                    # "maxWidth": "300px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -194,7 +187,13 @@ def get_base_layout(**kwargs):
                 className="sticky-top bg-light",
             ),
             dbc.Row(
-                [dbc.CardDeck(id="cards_row", className="mt-3",),], justify="center",
+                [
+                    dbc.CardDeck(
+                        id="cards_row",
+                        className="mt-3",
+                    ),
+                ],
+                justify="center",
             ),
             html.Br(),
             # start first row
@@ -202,30 +201,37 @@ def get_base_layout(**kwargs):
                 [
                     dbc.Col(
                         dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    dcc.Dropdown(
-                                        id="main_options",
-                                        # className="dcc_control",
-                                        style={"z-index": "11",},
-                                    ),
-                                    dcc.Graph(id="main_area"),
-                                    html.Div(
-                                        fa("fas fa-info-circle"),
-                                        id="main_area_info",
-                                        className="float-right",
-                                    ),
-                                    dbc.Popover(
-                                        [
-                                            dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="main_area_sources"),
-                                        ],
-                                        id="hover",
-                                        target="main_area_info",
-                                        trigger="hover",
-                                    ),
-                                ]
-                            ),
+                            [
+                                dbc.CardHeader(
+                                    id="main_area_title",
+                                ),
+                                dbc.CardBody(
+                                    [
+                                        dcc.Dropdown(
+                                            id="main_options",
+                                            # className="dcc_control",
+                                            style={
+                                                "zIndex": "11",
+                                            },
+                                        ),
+                                        dcc.Graph(id="main_area"),
+                                        html.Div(
+                                            fa("fas fa-info-circle"),
+                                            id="main_area_info",
+                                            className="float-right",
+                                        ),
+                                        dbc.Popover(
+                                            [
+                                                dbc.PopoverHeader("Sources"),
+                                                dbc.PopoverBody(id="main_area_sources"),
+                                            ],
+                                            id="hover",
+                                            target="main_area_info",
+                                            trigger="hover",
+                                        ),
+                                    ]
+                                ),
+                            ],
                         ),
                     ),
                 ],
@@ -235,66 +241,80 @@ def get_base_layout(**kwargs):
             dbc.CardDeck(
                 [
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_1_options",
-                                    # style={"z-index": "15"},
-                                ),
-                                dcc.Graph(id="area_1"),
-                                dbc.RadioItems(id="area_1_breakdowns", inline=True,),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_1_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_1_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_1_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_1_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_1_options",
+                                        # style={"z-index": "15"},
+                                    ),
+                                    dcc.Graph(id="area_1"),
+                                    dbc.RadioItems(
+                                        id="area_1_breakdowns",
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_1_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_1_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_1_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_1_parent",
                     ),
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_2_options", className="dcc_control",
-                                ),
-                                html.Div(
-                                    [dcc.Graph(id="area_2")],
-                                    className="pretty_container",
-                                ),
-                                dbc.RadioItems(
-                                    id="area_2_types",
-                                    options=[
-                                        {"label": "Line", "value": "line"},
-                                        {"label": "Bar", "value": "bar"},
-                                    ],
-                                    inline=True,
-                                ),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_2_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_2_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_2_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_2_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_2_options",
+                                        className="dcc_control",
+                                    ),
+                                    html.Div(
+                                        [dcc.Graph(id="area_2")],
+                                        className="pretty_container",
+                                    ),
+                                    dbc.RadioItems(
+                                        id="area_2_types",
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_2_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_2_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_2_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_2_parent",
                     ),
                 ],
@@ -303,53 +323,65 @@ def get_base_layout(**kwargs):
             dbc.CardDeck(
                 [
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_3_options", className="dcc_control",
-                                ),
-                                dcc.Graph(id="area_3"),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_3_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_3_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_3_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_3_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_3_options",
+                                        className="dcc_control",
+                                    ),
+                                    dcc.Graph(id="area_3"),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_3_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_3_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_3_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_3_parent",
                     ),
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_4_options", className="dcc_control",
-                                ),
-                                dcc.Graph(id="area_4"),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_4_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_4_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_4_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_4_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_4_options",
+                                        className="dcc_control",
+                                    ),
+                                    dcc.Graph(id="area_4"),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_4_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_4_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_4_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_4_parent",
                     ),
                 ],
@@ -427,7 +459,9 @@ def get_filtered_dataset(theme, years, countries):
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
     ],
-    [State("indicators", "data"),],
+    [
+        State("indicators", "data"),
+    ],
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
     ctx = dash.callback_context
@@ -436,26 +470,31 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     countries_selected = set()
     if programme_toggle and selected == "programme-toggle":
-        countries_selected = set(unicef_country_prog)
+        countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
     elif not country_selector:
-        countries_selected = set(countries)
+        countries_selected = countries
     else:
         for index in country_selector:
             countries_selected.update(selection_index[index])
-            if countries_selected == set(countries):
+            if countries_selected == countries:
                 # if all countries are all selectred then stop
                 break
 
-    country_text = f"{len(countries_selected)} Selected"
+    country_text = f"{len(list(countries_selected))} Selected"
 
     selected_years = years[slice(*years_slider)]
+
+    # Use the dictionary to return the values of the selected countries based on the SDMX codes
+    countries_selected = countries_dict_filter(countries_dict, countries_selected)
 
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         years=selected_years,
-        countries=list(countries_selected),
+        countries=list(
+            countries_selected.values()
+        ),  # use the values after the change done
     )
 
     get_filtered_dataset(**selections)
@@ -463,7 +502,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     return (
         selections,
         country_selector,
-        countries_selected == set(unicef_country_prog),
+        countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -501,9 +540,15 @@ def indicator_card(
     # select last value for each country
     indicator_values = (
         filtered_data.query(query)
-        .groupby(["Geographic area", "TIME_PERIOD",])
+        .groupby(
+            [
+                "Geographic area",
+                "TIME_PERIOD",
+            ]
+        )
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
+
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
         .groupby("Geographic area", as_index=False)
@@ -609,7 +654,9 @@ def indicator_card(
             dbc.Popover(
                 [
                     dbc.PopoverHeader(f"Sources: {indicator}"),
-                    dbc.PopoverBody(str(sources)),
+                    dbc.PopoverBody(
+                        dcc.Markdown(get_card_popover_body(sources))
+                    ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
                 target=card_id,
@@ -623,9 +670,21 @@ def indicator_card(
     return card
 
 
+# This function is used to generate the list of countries that are part of the card's displayed result;
+# it displays the countries as a list, each on a separate line...
+def get_card_popover_body(sources):
+    countries = []
+    for index, source_info in enumerate(sources):
+        countries.append(f"- {source_info[0]}: {source_info[1]}")
+    card_countries = "\n".join(countries)
+    return card_countries
+
+
 @app.callback(
     Output("cards_row", "children"),
-    [Input("store", "data"),],
+    [
+        Input("store", "data"),
+    ],
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
@@ -645,20 +704,50 @@ def show_cards(selections, current_cards, indicators_dict):
     return cards
 
 
+# Added this function to add the button group and set the correct active button
+@app.callback(
+    Output("themes", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("themes", "children"), State("indicators", "data")],
+)
+def show_themes(selections, current_themes, indicators_dict):
+    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
+
+    buttons = [
+        dbc.Button(
+            value["NAME"],
+            id=key,
+            color=colours[num],
+            className="theme mx-1",
+            href=f"#{key.lower()}",
+            active=url_hash == f"#{key.lower()}",
+        )
+        for num, (key, value) in enumerate(indicators_dict.items())
+    ]
+    return buttons
+
+
 @app.callback(
     Output("main_options", "options"),
     Output("area_1_options", "options"),
     Output("area_2_options", "options"),
     Output("area_3_options", "options"),
     Output("area_4_options", "options"),
-    [Input("store", "data"),],
+    [
+        Input("store", "data"),
+    ],
     [State("indicators", "data")],
 )
 def set_options(theme, indicators_dict):
     # potentially only use cached version
     return [
         [
-            {"label": item["Indicator"], "value": item["CODE"],}
+            {
+                "label": item["Indicator"],
+                "value": item["CODE"],
+            }
             for item in data[
                 data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
             ][["CODE", "Indicator"]]
@@ -673,12 +762,36 @@ def set_options(theme, indicators_dict):
 
 
 @app.callback(
+    Output("main_area_title", "children"),
+    Output("area_1_title", "children"),
+    Output("area_2_title", "children"),
+    Output("area_3_title", "children"),
+    Output("area_4_title", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_areas_titles(theme, indicators_dict):
+    return [
+        # use the get by key instead of [] to avoid keyerror exception when the name is not defined
+        indicators_dict[theme["theme"]][area].get("name")
+        if area in indicators_dict[theme["theme"]]
+        # empty string
+        else ""
+        for area in AREA_KEYS
+    ]
+
+
+@app.callback(
     Output("main_options", "value"),
     Output("area_1_options", "value"),
     Output("area_2_options", "value"),
     Output("area_3_options", "value"),
     Output("area_4_options", "value"),
-    [Input("store", "data"),],
+    [
+        Input("store", "data"),
+    ],
     [State("indicators", "data")],
 )
 def set_default_values(theme, indicators_dict):
@@ -689,6 +802,19 @@ def set_default_values(theme, indicators_dict):
         else ""
         for area in AREA_KEYS
     ]
+
+
+@app.callback(
+    Output("area_2_types", "value"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_default_chart_types(theme, indicators_dict):
+    # set the default chart type value for area 2 as by default nothing is selected and the chart is displayed by default
+    area = AREA_KEYS[2]
+    return indicators_dict[theme["theme"]][area].get("default_graph")
 
 
 # does this function assume dimension is a disaggregation?
@@ -789,7 +915,10 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
 
 
 @app.callback(
-    Output("area_1_breakdowns", "options"), [Input("area_1_options", "value"),],
+    Output("area_1_breakdowns", "options"),
+    [
+        Input("area_1_options", "value"),
+    ],
 )
 def breakdown_options(indicator):
 
@@ -816,8 +945,12 @@ def breakdown_options(indicator):
     # Output("area_2_options", "value"),
     # Output("area_3_options", "value"),
     # Output("area_4_options", "value"),
-    [Input("area_1_breakdowns", "options"),],
-    [State("indicators", "data"),],
+    [
+        Input("area_1_breakdowns", "options"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
 )
 def set_default_compare(compare_options, indicators_dict):
 
@@ -831,8 +964,13 @@ def set_default_compare(compare_options, indicators_dict):
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
-    [Input("main_options", "value"), Input("store", "data"),],
-    [State("indicators", "data"),],
+    [
+        Input("main_options", "value"),
+        Input("store", "data"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
 )
 def main_figure(indicator, selections, indicators_dict):
 
@@ -858,10 +996,20 @@ def main_figure(indicator, selections, indicators_dict):
         .reset_index()
     )
 
-    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    return px.scatter_mapbox(df, **options), source
+    main_figure = px.scatter_mapbox(df, **options)
+    # check if this area's config has an animation frame and hence a slider
+    if len(main_figure.layout["sliders"]) > 0:
+        # set last frame as the active one; i.e. select the max year as the default displayed year
+        main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
+        # assign the data of the last year to the map; without this line the data will show the first year;
+        main_figure = go.Figure(
+            data=main_figure["frames"][-1]["data"],
+            frames=main_figure["frames"],
+            layout=main_figure.layout,
+        )
+    return main_figure, source
 
 
 @app.callback(
@@ -872,7 +1020,9 @@ def main_figure(indicator, selections, indicators_dict):
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
     ],
-    [State("indicators", "data"),],
+    [
+        State("indicators", "data"),
+    ],
 )
 def area_1_figure(selections, indicator, compare, indicators_dict):
 
@@ -929,10 +1079,16 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
         Input("area_2_options", "value"),
         Input("area_2_types", "value"),
     ],
-    [State("indicators", "data"),],
+    [
+        State("indicators", "data"),
+    ],
 )
 def area_2_figure(
-    selections, area_1_selected, area_2_selected, selected_type, indicators_dict,
+    selections,
+    area_1_selected,
+    area_2_selected,
+    selected_type,
+    indicators_dict,
 ):
 
     # only run if both areas (1 and 2) not empty
@@ -996,8 +1152,13 @@ def area_2_figure(
 @app.callback(
     Output("area_3", "figure"),
     Output("area_3_sources", "children"),
-    [Input("store", "data"), Input("area_3_options", "value"),],
-    [State("indicators", "data"),],
+    [
+        Input("store", "data"),
+        Input("area_3_options", "value"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
 )
 def area_3_figure(selections, indicator, indicators_dict):
 
@@ -1038,8 +1199,13 @@ def area_3_figure(selections, indicator, indicators_dict):
 @app.callback(
     Output("area_4", "figure"),
     Output("area_4_sources", "children"),
-    [Input("store", "data"), Input("area_4_options", "value"),],
-    [State("indicators", "data"),],
+    [
+        Input("store", "data"),
+        Input("area_4_options", "value"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
 )
 def area_4_figure(selections, indicator, indicators_dict):
 

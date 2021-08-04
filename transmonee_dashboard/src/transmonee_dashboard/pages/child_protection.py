@@ -102,17 +102,17 @@ indicators_dict = {
                     ),
                     "compare": "Sex",
                 },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
+                # "line": {
+                #     "options": dict(
+                #         x="TIME_PERIOD",
+                #         y="OBS_VALUE",
+                #         color="Geographic area",
+                #         hover_name="Geographic area",
+                #         line_shape="spline",
+                #         render_mode="svg",
+                #     ),
+                #     "trace_options": dict(mode="lines+markers"),
+                # },
             },
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
