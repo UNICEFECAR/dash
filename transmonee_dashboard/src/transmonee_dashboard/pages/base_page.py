@@ -201,32 +201,37 @@ def get_base_layout(**kwargs):
                 [
                     dbc.Col(
                         dbc.Card(
-                            dbc.CardBody(
-                                [
-                                    dcc.Dropdown(
-                                        id="main_options",
-                                        # className="dcc_control",
-                                        style={
-                                            "zIndex": "11",
-                                        },
-                                    ),
-                                    dcc.Graph(id="main_area"),
-                                    html.Div(
-                                        fa("fas fa-info-circle"),
-                                        id="main_area_info",
-                                        className="float-right",
-                                    ),
-                                    dbc.Popover(
-                                        [
-                                            dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="main_area_sources"),
-                                        ],
-                                        id="hover",
-                                        target="main_area_info",
-                                        trigger="hover",
-                                    ),
-                                ]
-                            ),
+                            [
+                                dbc.CardHeader(
+                                    id="main_area_title",
+                                ),
+                                dbc.CardBody(
+                                    [
+                                        dcc.Dropdown(
+                                            id="main_options",
+                                            # className="dcc_control",
+                                            style={
+                                                "zIndex": "11",
+                                            },
+                                        ),
+                                        dcc.Graph(id="main_area"),
+                                        html.Div(
+                                            fa("fas fa-info-circle"),
+                                            id="main_area_info",
+                                            className="float-right",
+                                        ),
+                                        dbc.Popover(
+                                            [
+                                                dbc.PopoverHeader("Sources"),
+                                                dbc.PopoverBody(id="main_area_sources"),
+                                            ],
+                                            id="hover",
+                                            target="main_area_info",
+                                            trigger="hover",
+                                        ),
+                                    ]
+                                ),
+                            ],
                         ),
                     ),
                 ],
@@ -236,70 +241,80 @@ def get_base_layout(**kwargs):
             dbc.CardDeck(
                 [
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_1_options",
-                                    # style={"z-index": "15"},
-                                ),
-                                dcc.Graph(id="area_1"),
-                                dbc.RadioItems(
-                                    id="area_1_breakdowns",
-                                    inline=True,
-                                ),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_1_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_1_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_1_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_1_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_1_options",
+                                        # style={"z-index": "15"},
+                                    ),
+                                    dcc.Graph(id="area_1"),
+                                    dbc.RadioItems(
+                                        id="area_1_breakdowns",
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_1_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_1_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_1_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_1_parent",
                     ),
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_2_options",
-                                    className="dcc_control",
-                                ),
-                                html.Div(
-                                    [dcc.Graph(id="area_2")],
-                                    className="pretty_container",
-                                ),
-                                dbc.RadioItems(
-                                    id="area_2_types",
-                                    options=[
-                                        {"label": "Line", "value": "line"},
-                                        {"label": "Bar", "value": "bar"},
-                                    ],
-                                    inline=True,
-                                ),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_2_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_2_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_2_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_2_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_2_options",
+                                        className="dcc_control",
+                                    ),
+                                    html.Div(
+                                        [dcc.Graph(id="area_2")],
+                                        className="pretty_container",
+                                    ),
+                                    dbc.RadioItems(
+                                        id="area_2_types",
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_2_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_2_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_2_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_2_parent",
                     ),
                 ],
@@ -308,55 +323,65 @@ def get_base_layout(**kwargs):
             dbc.CardDeck(
                 [
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_3_options",
-                                    className="dcc_control",
-                                ),
-                                dcc.Graph(id="area_3"),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_3_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_3_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_3_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_3_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_3_options",
+                                        className="dcc_control",
+                                    ),
+                                    dcc.Graph(id="area_3"),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_3_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_3_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_3_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_3_parent",
                     ),
                     dbc.Card(
-                        dbc.CardBody(
-                            [
-                                dcc.Dropdown(
-                                    id="area_4_options",
-                                    className="dcc_control",
-                                ),
-                                dcc.Graph(id="area_4"),
-                                html.Div(
-                                    fa("fas fa-info-circle"),
-                                    id="area_4_info",
-                                    className="float-right",
-                                ),
-                                dbc.Popover(
-                                    [
-                                        dbc.PopoverHeader("Sources"),
-                                        dbc.PopoverBody(id="area_4_sources"),
-                                    ],
-                                    id="hover",
-                                    target="area_4_info",
-                                    trigger="hover",
-                                ),
-                            ]
-                        ),
+                        [
+                            dbc.CardHeader(
+                                id="area_4_title",
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id="area_4_options",
+                                        className="dcc_control",
+                                    ),
+                                    dcc.Graph(id="area_4"),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_4_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(id="area_4_sources"),
+                                        ],
+                                        id="hover",
+                                        target="area_4_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
                         id="area_4_parent",
                     ),
                 ],
@@ -732,6 +757,28 @@ def set_options(theme, indicators_dict):
         if area in indicators_dict[theme["theme"]]
         # empty string
         else [{"label": "", "value": ""}]
+        for area in AREA_KEYS
+    ]
+
+
+@app.callback(
+    Output("main_area_title", "children"),
+    Output("area_1_title", "children"),
+    Output("area_2_title", "children"),
+    Output("area_3_title", "children"),
+    Output("area_4_title", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_areas_titles(theme, indicators_dict):
+    return [
+        # use the get by key instead of [] to avoid keyerror exception when the name is not defined
+        indicators_dict[theme["theme"]][area].get("name")
+        if area in indicators_dict[theme["theme"]]
+        # empty string
+        else ""
         for area in AREA_KEYS
     ]
 
