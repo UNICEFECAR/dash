@@ -364,6 +364,69 @@ codes = [
 
 years = list(range(2010, 2021))
 
+# define the function that will return the values of the selected countries from the dictionary
+countries_dict_filter = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
+
+# a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
+# tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
+countries_dict = {
+    "Albania": "Albania",
+    "Andorra": "Andorra",
+    "Armenia": "Armenia",
+    "Austria": "Austria",
+    "Azerbaijan": "Azerbaijan",
+    "Belarus": "Belarus",
+    "Belgium": "Belgium",
+    "Bosnia and Herzegovina": "Bosnia and Herzegovina",
+    "Bulgaria": "Bulgaria",
+    "Croatia": "Croatia",
+    "Cyprus": "Cyprus",
+    "Czech Republic": "Czechia",  # we have this one is different
+    "Denmark": "Denmark",
+    "Estonia": "Estonia",
+    "Finland": "Finland",
+    "France": "France",
+    "Georgia": "Georgia",
+    "Germany": "Germany",
+    "Greece": "Greece",
+    "Holy See": "Holy See",
+    "Hungary": "Hungary",
+    "Iceland": "Iceland",
+    "Ireland": "Ireland",
+    "Italy": "Italy",
+    "Kazakhstan": "Kazakhstan",
+    "Kosovo (UN SC resolution 1244)": "Kosovo",  # we have this one is different
+    "Kyrgyzstan": "Kyrgyzstan",
+    "Latvia": "Latvia",
+    "Liechtenstein": "Liechtenstein",
+    "Lithuania": "Lithuania",
+    "Luxembourg": "Luxembourg",
+    "Malta": "Malta",
+    "Monaco": "Monaco",
+    "Montenegro": "Montenegro",
+    "Netherlands": "Netherlands",
+    "North Macedonia": "North Macedonia",
+    "Norway": "Norway",
+    "Poland": "Poland",
+    "Portugal": "Portugal",
+    "Romania": "Romania",
+    "Republic of Moldova": "Republic of Moldova",
+    "Russian Federation": "Russian Federation",
+    "San Marino": "San Marino",
+    "Serbia": "Serbia",
+    "Slovakia": "Slovakia",
+    "Slovenia": "Slovenia",
+    "Spain": "Spain",
+    "Sweden": "Sweden",
+    "Switzerland": "Switzerland",
+    "Tajikistan": "Tajikistan",
+    "Turkey": "Turkey",
+    "Turkmenistan": "Turkmenistan",
+    "Ukraine": "Ukraine",
+    "United Kingdom": "United Kingdom",
+    "Uzbekistan": "Uzbekistan",
+}
+
 countries = [
     "Albania",
     "Andorra",
@@ -376,7 +439,7 @@ countries = [
     "Bulgaria",
     "Croatia",
     "Cyprus",
-    "Czech Republic",
+    "Czech Republic",  # Czechia
     "Denmark",
     "Estonia",
     "Finland",
@@ -390,22 +453,22 @@ countries = [
     "Ireland",
     "Italy",
     "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)",
+    "Kosovo (UN SC resolution 1244)",  # Kosovo
     "Kyrgyzstan",
     "Latvia",
     "Liechtenstein",
     "Lithuania",
     "Luxembourg",
     "Malta",
-    "Moldova",
     "Monaco",
+    "Montenegro",
     "Netherlands",
     "North Macedonia",
     "Norway",
     "Poland",
     "Portugal",
-    "Republic of Montenegro",
     "Romania",
+    "Republic of Moldova",
     "Russian Federation",
     "San Marino",
     "Serbia",
@@ -434,7 +497,7 @@ unicef_country_prog = [
     "Greece",
     "Kazakhstan",
     "Kyrgyzstan",
-    "Kosovo (UN SC resolution 1244)",
+    "Kosovo (UN SC resolution 1244)",  # Kosovo
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
@@ -495,7 +558,7 @@ country_selections = [
             "Austria",
             "Belgium",
             "Cyprus",
-            "Czechia",
+            "Czech Republic",
             "Denmark",
             "Estonia",
             "Finland",
@@ -563,7 +626,7 @@ country_selections = [
                     "Bulgaria",
                     "Croatia",
                     "Cyprus",
-                    "Czechia",
+                    "Czech Republic",
                     "Denmark",
                     "Estonia",
                     "Finland",
@@ -693,16 +756,20 @@ except urllib.error.HTTPError as e:
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
 
+# Replace the list of countries by the list of dictionary countries values
 # TODO: Replace to static list
 data = data.merge(
     right=pd.DataFrame(
-        [dict(country=country, **geocode_address(country)) for country in countries]
+        [
+            dict(country=country, **geocode_address(country))
+            for country in countries_dict.values()
+        ]
     ),
     left_on="Geographic area",
     right_on="country",
 )
 
-# check and drop non-numeric observations, eg: SDMX accepts >95 as an OBS_VALUE
+# check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
 if filter_non_num.any():
     not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
