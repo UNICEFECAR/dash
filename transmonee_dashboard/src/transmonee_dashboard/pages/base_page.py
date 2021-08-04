@@ -37,7 +37,10 @@ from . import (
     countries,
     years,
     data,
+    countries_dict_filter,
+    countries_dict,
 )
+from flask import current_app as server
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -69,11 +72,14 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
         kwargs.get("hash")
         if kwargs.get("hash")
-        else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
+        else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
+        # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
+
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
@@ -85,19 +91,6 @@ def get_base_layout(**kwargs):
                             dbc.Row(
                                 [
                                     dbc.ButtonGroup(
-                                        [
-                                            dbc.Button(
-                                                value["NAME"],
-                                                id=key,
-                                                color=colours[num],
-                                                className="theme mx-1",
-                                                href=f"#{key.lower()}",
-                                                # active=url_hash == f"#{key.lower()}",
-                                            )
-                                            for num, (key, value) in enumerate(
-                                                indicators_dict.items()
-                                            )
-                                        ],
                                         id="themes",
                                     ),
                                 ],
@@ -158,7 +151,7 @@ def get_base_layout(**kwargs):
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
-                                                    # "max-width": "300px",
+                                                    # "maxWidth": "300px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -467,11 +460,16 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     selected_years = years[slice(*years_slider)]
 
+    # Use the dictionary to return the values of the selected countries based on the SDMX codes
+    countries_selected = countries_dict_filter(countries_dict, countries_selected)
+
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         years=selected_years,
-        countries=list(countries_selected),
+        countries=list(
+            countries_selected.values()
+        ),  # use the values after the change done
     )
 
     get_filtered_dataset(**selections)
@@ -525,6 +523,7 @@ def indicator_card(
         )
         .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
     ).reset_index()
+
     numerator_pairs = (
         indicator_values[indicator_values.DATA_SOURCE == len(numors)]
         .groupby("Geographic area", as_index=False)
@@ -680,6 +679,31 @@ def show_cards(selections, current_cards, indicators_dict):
     return cards
 
 
+# Added this function to add the button group and set the correct active button
+@app.callback(
+    Output("themes", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("themes", "children"), State("indicators", "data")],
+)
+def show_themes(selections, current_themes, indicators_dict):
+    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
+
+    buttons = [
+        dbc.Button(
+            value["NAME"],
+            id=key,
+            color=colours[num],
+            className="theme mx-1",
+            href=f"#{key.lower()}",
+            active=url_hash == f"#{key.lower()}",
+        )
+        for num, (key, value) in enumerate(indicators_dict.items())
+    ]
+    return buttons
+
+
 @app.callback(
     Output("main_options", "options"),
     Output("area_1_options", "options"),
@@ -731,6 +755,19 @@ def set_default_values(theme, indicators_dict):
         else ""
         for area in AREA_KEYS
     ]
+
+
+@app.callback(
+    Output("area_2_types", "value"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_default_chart_types(theme, indicators_dict):
+    # set the default chart type value for area 2 as by default nothing is selected and the chart is displayed by default
+    area = AREA_KEYS[2]
+    return indicators_dict[theme["theme"]][area].get("default_graph")
 
 
 # does this function assume dimension is a disaggregation?
@@ -912,7 +949,6 @@ def main_figure(indicator, selections, indicators_dict):
         .reset_index()
     )
 
-    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     return px.scatter_mapbox(df, **options), source
