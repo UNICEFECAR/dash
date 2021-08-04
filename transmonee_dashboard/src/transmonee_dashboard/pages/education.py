@@ -32,10 +32,15 @@ indicators_dict = {
             "options": dict(
                 lat="latitude",
                 lon="longitude",
+                # title="Out of School Children",
+                # locations="Geographic area",
+                # locationmode="country names",
                 size="OBS_VALUE",
                 text="Geographic area",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
+                # color_continuous_scale="Inferno",
+                # range_color=(0, 20),
                 size_max=40,
                 zoom=2.5,
                 animation_frame="TIME_PERIOD",
@@ -93,6 +98,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            "graph_options": ["Line", "Bar"],
             "default_graph": "line",
             "indicators": [
                 "EDUNF_NER_L02",
@@ -149,6 +155,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            # "graph_options": ["Line", "Bar"],
             "default_graph": "bar",
             "indicators": [
                 "EDUNF_CR_L1",
@@ -253,6 +260,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            "graph_options": ["Line", "Bar"],
             "default_graph": "line",
             "indicators": [
                 "ECD_CHLD_36-59M_LMPSL",
@@ -304,6 +312,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            "graph_options": ["Line", "Bar"],
             "default_graph": "bar",
             "indicators": [
                 "EDU_SDG_QUTP_L02",
@@ -406,6 +415,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            "graph_options": ["Line", "Bar"],
             "default_graph": "line",
             "indicators": [
                 "EDUNF_PRP_L02",
@@ -464,6 +474,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
+            "graph_options": ["Line", "Bar"],
             "default_graph": "bar",
             "indicators": [
                 "EDUNF_ADMIN_L1_GLAST_REA",

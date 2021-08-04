@@ -10,7 +10,8 @@ import datetime as dt
 import pandas as pd
 import numpy as np
 from itertools import cycle
-
+import json
+from urllib.request import urlopen
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -18,7 +19,7 @@ import dash_bootstrap_components as dbc
 from dash import callback_context
 from dash.dependencies import Input, Output, State, ClientsideFunction
 
-
+import os
 import plotly.io as pio
 import plotly.graph_objects as go
 import plotly.express as px
@@ -38,6 +39,7 @@ from . import (
     years,
     data,
 )
+import requests
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -285,10 +287,6 @@ def get_base_layout(**kwargs):
                                 ),
                                 dbc.RadioItems(
                                     id="area_2_types",
-                                    options=[
-                                        {"label": "Line", "value": "line"},
-                                        {"label": "Bar", "value": "bar"},
-                                    ],
                                     inline=True,
                                 ),
                                 html.Div(
@@ -348,6 +346,10 @@ def get_base_layout(**kwargs):
                                     className="dcc_control",
                                 ),
                                 dcc.Graph(id="area_4"),
+                                # dbc.RadioItems(
+                                #     id="area_4_types",
+                                #     inline=True,
+                                # ),
                                 html.Div(
                                     fa("fas fa-info-circle"),
                                     id="area_4_info",
@@ -701,6 +703,31 @@ def set_options(theme, indicators_dict):
 
 
 @app.callback(
+    Output("area_2_types", "options"),
+    Output("area_2_types", "value"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def set_chart_options(theme, indicators_dict):
+    all_areas_options = []
+    all_areas_defaults = []
+    for area in AREA_KEYS:
+        if area in indicators_dict[theme["theme"]]:
+            options = indicators_dict[theme["theme"]][area].get("graph_options")
+            default = indicators_dict[theme["theme"]][area].get("default_graph")
+            chart_options = []
+            if default is not None:
+                all_areas_defaults.append(default)
+            if options is not None:
+                for item in options:
+                    chart_options.append({"label": item, "value": item.lower()})
+                all_areas_options.append(chart_options)
+    return all_areas_options[0], all_areas_defaults[0]
+
+
+@app.callback(
     Output("main_options", "value"),
     Output("area_1_options", "value"),
     Output("area_2_options", "value"),
@@ -895,15 +922,63 @@ def main_figure(indicator, selections, indicators_dict):
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
         .sort_values(
-            by=["TIME_PERIOD"]
+            by=["OBS_VALUE"]
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
 
-    # print("Sorted Data", df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     return px.scatter_mapbox(df, **options), source
+    # return px.choropleth(df, **options), source
+
+    path_name = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/countries.json"
+    if os.path.isfile(path_name):
+        # Reading the countries from the geo json file
+        countries = json.load(open(path_name))
+    fig = go.Figure(
+        go.Choroplethmapbox(
+            name="Children out-of-school",
+            geojson=countries,
+            ids=df["Geographic area"],
+            z=df["OBS_VALUE"],
+            locations=df["Geographic area"],
+            featureidkey="properties.name",
+            colorscale="YlGnBu",
+            marker=dict(line=dict(color="black"), opacity=0.6),
+        )
+    )
+    fig.update_layout(
+        mapbox_style="open-street-map",
+        mapbox_zoom=2,
+        mapbox_center={"lat": 48.3794, "lon": 31.1656},
+    )
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig, source
+
+    fig = px.choropleth_mapbox(
+        df,
+        geojson=countries,
+        locations="Geographic area",
+        featureidkey="properties.ADMIN",  # was name
+        color="OBS_VALUE",
+        color_continuous_scale=px.colors.sequential.GnBu,
+        range_color=(0, df["OBS_VALUE"].max()),
+        mapbox_style="carto-positron",
+        zoom=2,
+        center={"lat": 48.3794, "lon": 31.1656},
+        opacity=0.5,
+        labels={
+            "OBS_VALUE": "Value",
+            "Geographic area": "Country",
+            "TIME_PERIOD": "Year",
+        },
+        animation_frame="TIME_PERIOD",
+        height=750,
+    )
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig, source
+    # return px.choropleth_mapbox(df, **options), source
 
 
 @app.callback(
@@ -1120,24 +1195,28 @@ def area_4_figure(selections, indicator, indicators_dict):
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        get_filtered_dataset(**selections)
-        .query(query)
-        .groupby(
-            [
-                "CODE",
-                "Indicator",
-                "Geographic area",
-                compare if compare else "TIME_PERIOD",
-            ]
+    # query data based on cache
+    data_cached = get_filtered_dataset(**selections).query(query)
+
+    # toggle time-series selection based on figure type
+    if fig_type == "bar":
+        # get rid of time-series for bar plot
+        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+        df = (
+            data_cached.groupby(
+                [
+                    "CODE",
+                    "Indicator",
+                    "Geographic area",
+                    compare if compare else "TIME_PERIOD",
+                ]
+            )
+            .agg(aggregates if compare else {"OBS_VALUE": "mean"})
+            .reset_index()
         )
-        .agg(
-            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-            if compare
-            else {"OBS_VALUE": "mean"}
-        )
-        .reset_index()
-    )
+    else:
+        # line plot: uses query directly keeping time series
+        df = data_cached
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
