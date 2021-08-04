@@ -9,7 +9,7 @@ from transmonee_dashboard.app import app
 @click.option(
     "-p",
     "--port",
-    default=8000,
+    default=8050,
     metavar="PORT",
     type=int,
     help="Port to run the development webserver on. Defaults to 8000.",
@@ -26,7 +26,7 @@ from transmonee_dashboard.app import app
 )
 @click.option(
     "--debug/--no-debug",
-    default=True,
+    default=False,
     help="Toggles whether the Dash app is run in debug mode. Defaults to True",
 )
 def main(port, host, debug):
