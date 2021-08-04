@@ -9,7 +9,7 @@ from transmonee_dashboard.app import app
 @click.option(
     "-p",
     "--port",
-    default=8050,
+    default=8000,
     metavar="PORT",
     type=int,
     help="Port to run the development webserver on. Defaults to 8000.",
