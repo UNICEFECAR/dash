@@ -37,19 +37,28 @@ nav_items = (
         html.Div(
             [
                 fa("fas fa-child"),
-                "Family environment and protection from violence and harmful practices",
+                "Family environment and protection",
             ]
         ),
     ),
     ("child-health", html.Div([fa("fas fa-heartbeat"), "Health and Nutrition"])),
     (
         "child-poverty",
-        html.Div(
-            [fa("fas fa-hand-holding-usd"), "Poverty and adequate standards of living"]
-        ),
+        html.Div([fa("fas fa-hand-holding-usd"), "Poverty"]),
     ),
     ("child-participation", html.Div([fa("fas fa-users"), "Participation"])),
 )
+
+nav_items_full_names = {
+    "education": "Education",
+    "child-protection": "Family environment and protection from violence and harmful practices",
+    "child-health": "Health and Nutrition",
+    "child-poverty": "Poverty and adequate standards of living",
+    "child-rights": "Child Rights Landscape",
+    "participation": "Participation",
+    "": "",
+    "": "",
+}
 
 router = DashRouter(app, urls)
 navbar = DashNavBar(app, nav_items)

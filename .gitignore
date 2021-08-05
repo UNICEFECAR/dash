@@ -107,3 +107,4 @@ ENV/
 # mypy
 .mypy_cache/
 cache-directory
+.DS_Store
