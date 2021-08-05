@@ -645,6 +645,16 @@ def indicator_card(
                     ),
                     html.H4(suffix, className="card-title"),
                     html.P(name, className="lead"),
+                    html.Div(
+                        fa("fas fa-info-circle"),
+                        id="card_info",
+                        # className="float-right",
+                        style={
+                            "position": "absolute",
+                            "bottom": "10px",
+                            "right": "10px",
+                        },
+                    ),
                 ],
                 style={
                     # "fontSize": 50,
@@ -659,7 +669,8 @@ def indicator_card(
                     ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
-                target=card_id,
+                target="card_info",
+                # target=card_id,
                 trigger="hover",
             ),
         ],
