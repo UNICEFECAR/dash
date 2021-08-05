@@ -647,7 +647,7 @@ def indicator_card(
                     html.P(name, className="lead"),
                     html.Div(
                         fa("fas fa-info-circle"),
-                        id="card_info",
+                        id=f"{card_id}_info",
                         # className="float-right",
                         style={
                             "position": "absolute",
@@ -669,8 +669,7 @@ def indicator_card(
                     ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
-                target="card_info",
-                # target=card_id,
+                target=f"{card_id}_info",
                 trigger="hover",
             ),
         ],
@@ -688,6 +687,7 @@ def get_card_popover_body(sources):
     for index, source_info in enumerate(sources):
         countries.append(f"- {source_info[0]}: {source_info[1]}")
     card_countries = "\n".join(countries)
+    print(card_countries)
     return card_countries
 
 
