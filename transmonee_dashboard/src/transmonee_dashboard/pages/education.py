@@ -27,7 +27,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Out of School Children",
+            "name": "Out-of-School Children",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -52,9 +52,13 @@ indicators_dict = {
             "default": "EDUNF_ROFST_L3",
         },
         "AREA_1": {
+            "name": "Education entry and transition",
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -64,10 +68,16 @@ indicators_dict = {
                 "EDUNF_STU_L1_TOT",
                 "EDUNF_STU_L2_TOT",
                 "EDUNF_STU_L3_TOT",
+                "EDUNF_GER_L2_GEN",
+                "EDUNF_GER_L2_VOC",
+                "EDUNF_GER_L3",
+                "EDUNF_GER_L3_GEN",
+                "EDUNF_GER_L3_VOC",
             ],
             "default": "EDUNF_ROFST_L3",
         },
         "AREA_2": {
+            "name": "Education entry and transition",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -102,9 +112,10 @@ indicators_dict = {
                 "EDUNF_NIR_L1_ENTRYAGE",
                 "EDUNF_TRANRA_L2",
             ],
-            # "default": "EDUNF_ROFST_L3",
+            "default": "EDUNF_TRANRA_L2",
         },
         "AREA_3": {
+            "name": "Safe and inclusive learning environments",
             "type": "bar",
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
@@ -124,6 +135,7 @@ indicators_dict = {
             "default": "EDU_CHLD_DISAB",
         },
         "AREA_4": {
+            "name": "Education completion (see other issue raised on moving a few of these indicators)",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -154,11 +166,6 @@ indicators_dict = {
                 "EDUNF_DR_L1",
                 "EDUNF_DR_L2",
                 "EDUNF_GER_L2",
-                "EDUNF_GER_L2_GEN",
-                "EDUNF_GER_L2_VOC",
-                "EDUNF_GER_L3",
-                "EDUNF_GER_L3_GEN",
-                "EDUNF_GER_L3_VOC",
             ],
             "default": "EDUNF_CR_L1",
         },
@@ -189,6 +196,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
+            "name": "What students know and can do",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -206,9 +214,13 @@ indicators_dict = {
             "default": "EDU_PISA_MAT",
         },
         "AREA_1": {
+            "name": "Foundational skills",
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -225,6 +237,7 @@ indicators_dict = {
             "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
         "AREA_2": {
+            "name": "Foundational skills",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -259,9 +272,10 @@ indicators_dict = {
                 "EDUNF_LR_YOUTH",
                 "EDUNF_LR_ADULT",
             ],
-            # "default": "EDU_SDG_STU_L2_GLAST_MAT",
+            "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
         "AREA_3": {
+            "name": "Trained and qualified teachers",
             "type": "bar",
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
@@ -276,6 +290,7 @@ indicators_dict = {
             "default": "EDU_SDG_TRTP_L2",
         },
         "AREA_4": {
+            "name": "Trained and qualified teachers",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -328,7 +343,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Education Expenditures and Legal Frameworks",
+            "name": "Guaranteeing and paying for education",  # "Education Expenditures and Legal Frameworks",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -351,9 +366,13 @@ indicators_dict = {
             "default": "EDU_FIN_EXP_PT_GDP",
         },
         "AREA_1": {
+            "name": "Public and private enrolments",
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -375,6 +394,7 @@ indicators_dict = {
             "default": "EDUNF_PRP_L1",
         },
         "AREA_2": {
+            "name": "Public and private enrolments",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -414,9 +434,10 @@ indicators_dict = {
                 "EDUNF_STU_L2_PRV",
                 "EDUNF_STU_L3_PRV",
             ],
-            # "default": "EDUNF_PRP_L2",
+            "default": "EDUNF_PRP_L2",
         },
         "AREA_3": {
+            "name": "Government education expenditure",
             "type": "bar",
             "options": dict(
                 x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
@@ -433,6 +454,7 @@ indicators_dict = {
             "default": "EDU_FIN_EXP_L2",
         },
         "AREA_4": {
+            "name": "Administration of learning assessments",
             "graphs": {
                 "bar": {
                     "options": dict(
