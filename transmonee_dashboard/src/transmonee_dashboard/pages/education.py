@@ -463,7 +463,7 @@ indicators_dict = {
                         barmode="group",
                         text="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
