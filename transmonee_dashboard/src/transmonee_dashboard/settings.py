@@ -2,6 +2,7 @@
 # Flask instance used by the Dash app. Any values corresponding to Dash
 # keword arguments will be passed They must be in UPPER CASE in order to take effect. For more information see
 # http://flask.pocoo.org/docs/config.
+import os
 
 # Your App's title. The value of this parameter will be propagated into
 # `app.title`
@@ -61,3 +62,11 @@ CONTENT_CONTAINER_ID = "page-content"
 
 # The ID of the element used to inject the navbar items into
 NAVBAR_CONTAINER_ID = "navbar-items"
+
+# CACHE settings
+CACHE_TYPE = os.environ.get("CACHE_TYPE")
+CACHE_REDIS_HOST = os.environ.get("CACHE_REDIS_HOST")
+CACHE_REDIS_PORT = os.environ.get("CACHE_REDIS_PORT")
+CACHE_REDIS_DB = os.environ("CACHE_REDIS_DB")
+CACHE_REDIS_URL = os.environ("CACHE_REDIS_URL")
+CACHE_DEFAULT_TIMEOUT = os.environ("CACHE_DEFAULT_TIMEOUT")

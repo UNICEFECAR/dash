@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  dash:
+    image: dash
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+
+  redis:
+    image: redis
+    container_name: redis-container
+    ports:
+      - "6379:6379"
