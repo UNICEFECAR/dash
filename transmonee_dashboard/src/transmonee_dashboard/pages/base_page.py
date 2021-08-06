@@ -437,10 +437,10 @@ def display_areas(theme, indicators_dict):
     return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
 
 
-@cache.memoize()  # will cache based on years and countries combo
+# @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, years, countries):
 
-    print("RE-CACHING!!")
+    # print("RE-CACHING!!")
 
     return data[
         (data["TIME_PERIOD"].isin(years)) & (data["Geographic area"].isin(countries))
@@ -497,7 +497,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         ),  # use the values after the change done
     )
 
-    get_filtered_dataset(**selections)
+    # get_filtered_dataset(**selections)
 
     return (
         selections,
@@ -641,7 +641,7 @@ def indicator_card(
         )
         else "None"
     )
-    print(name)
+    # print(name)
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -699,7 +699,7 @@ def get_card_popover_body(sources):
     for index, source_info in enumerate(sources):
         countries.append(f"- {source_info[0]}: {source_info[1]}")
     card_countries = "\n".join(countries)
-    print(card_countries)
+    # print(card_countries)
     return card_countries
 
 
