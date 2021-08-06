@@ -13,10 +13,12 @@ indicators_dict = {
                 "name": "(0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",
                 "suffix": "Percent of Children",
+                "average": True,
+                # "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Violence and Harmful Practices",
+            "name": "Demographic Info about Child Rights",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -86,28 +88,19 @@ indicators_dict = {
         "NAME": "Political Economy",
         "CARDS": [
             {
-                "name": "general government expenditure (% of GDP)",
-                "indicator": "EC_TEC_GRL_GOV_EXP",
-                "suffix": "Total",
+                "name": "by Sex",
+                "indicator": "EC_HDI",
+                "suffix": "Human Development Index",
             },
             {
-                "name": "government revenue (budgetary central government) as a proportion of GDP",
-                "indicator": "PT_CHLD_INRESIDENTIAL_RATE_B",
-                "suffix": "Total Percentage",
-            },
-            {
-                "name": "national estimate (% of total labor force, by sex)",
-                "indicator": "EC_SI_POV_GINI",
-                "suffix": "Unemployment",
-            },
-            {
-                "name": "population by country or territory of origin",
-                "indicator": "DM_SM_POP_REFG_OR",
-                "suffix": "Refugee",
+                "name": "Unemployment, modelled ILO estimate",
+                "indicator": "EC_SL_UEM_TOTL_NE_ZS",
+                "suffix": "Percentage of total labor force by sex",
+                "average": True,
             },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Child rights political economy",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -132,6 +125,8 @@ indicators_dict = {
                 "EC_TEC_LOC_GOV_EXP",
                 "EC_TEC_SSF_EXP",
                 "EC_GR_G14_GDP",
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
                 "EC_SP_GOV_EXP_TOT",
                 "EC_NY_GDP_PCAP_PP_CD",
@@ -165,6 +160,8 @@ indicators_dict = {
                 "EC_TEC_LOC_GOV_EXP",
                 "EC_TEC_SSF_EXP",
                 "EC_GR_G14_GDP",
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
                 "EC_SP_GOV_EXP_TOT",
                 "EC_NY_GDP_PCAP_PP_CD",
@@ -209,6 +206,8 @@ indicators_dict = {
                 "EC_TEC_LOC_GOV_EXP",
                 "EC_TEC_SSF_EXP",
                 "EC_GR_G14_GDP",
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
                 "EC_SP_GOV_EXP_TOT",
                 "EC_NY_GDP_PCAP_PP_CD",
@@ -226,14 +225,14 @@ indicators_dict = {
         "NAME": "Migration and Displacement",
         "CARDS": [
             {
-                "name": "by country or territory of origin",
-                "indicator": "DM_SM_POP_REFG_OR",
-                "suffix": "Refugee Population",
+                "name": "Net Migration",
+                "indicator": "EC_SL_UEM_TOTL_ZS",
+                "suffix": "Thousands of Persons",
             },
             {
-                "name": "International migrant stock by country of destination (by age)",
-                "indicator": "MG_INTNL_MG_CNTRY_DEST_PS",
-                "suffix": "Thousands of Persons",
+                "name": "First time asylum applicants",
+                "indicator": "DM_ASYL_FRST",
+                "suffix": "Persons",
             },
         ],
         "MAIN": {
@@ -319,28 +318,19 @@ indicators_dict = {
         "NAME": "Risks, humanitarian situation and impact of climate change",
         "CARDS": [
             {
-                "name": "deaths and missing persons attributed to disasters (per 100,000 population)",
+                "name": "of deaths and missing persons attributed to disasters",
                 "indicator": "CR_VC_DSR_MTMP",
-                "suffix": "Number of",
+                "suffix": "Number per 100,000 population",
             },
             {
-                "name": "directly affected persons attributed to disasters (per 100,000 population)",
-                "indicator": "CR_VC_DSR_DAFF",
-                "suffix": "Number of",
-            },
-            {
-                "name": "population with access to electricity (% by residence)",
-                "indicator": "CR_EG_ACS_ELEC",
+                "name": "population with primary reliance on clean fuels and technology",
+                "indicator": "CR_EG_EGY_CLEAN",
                 "suffix": "Proportion of",
-            },
-            {
-                "name": "adoption and implementation of national DRR strategies in line with the Sendai Framework",
-                "indicator": "CR_SG_DSR_LGRGSR",
-                "suffix": "Score of",
+                "average": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Child Victims of Risks, humanitarian situation and impact of climate change",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -425,18 +415,20 @@ indicators_dict = {
         "NAME": "Public spending on children",
         "CARDS": [
             {
-                "name": "public social expenditure (% of total general government expenditure)",
-                "indicator": "EC_TOT_PUB_EXP_TOT",
-                "suffix": "Total",
+                "name": "Government expenditure on education as a percentage of GDP",
+                "indicator": "EDU_FIN_EXP_PT_GDP",
+                "suffix": "Percent",
+                "average": True,
             },
             {
-                "name": "social expenditure (% of total general government expenditure)",
-                "indicator": "EC_FAM_PUB_EXP_TOT",
-                "suffix": "Family public",
+                "name": "Public social expenditure",
+                "indicator": "EC_TOT_PUB_EXP_GDP",
+                "suffix": "Total Percentage of GDP",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Public spending on children",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -451,6 +443,9 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "EC_SP_GOV_EXP_GDP",
                 "EC_TOT_PUB_EXP_GDP",
                 "EC_TOT_PUB_EXP_TOT",
                 "EC_FAM_PUB_EXP_GDP",
@@ -468,6 +463,9 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "EC_SP_GOV_EXP_GDP",
                 "EC_TOT_PUB_EXP_GDP",
                 "EC_TOT_PUB_EXP_TOT",
                 "EC_FAM_PUB_EXP_GDP",
@@ -499,6 +497,9 @@ indicators_dict = {
                 },
             },
             "indicators": [
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "EC_SP_GOV_EXP_GDP",
                 "EC_TOT_PUB_EXP_GDP",
                 "EC_TOT_PUB_EXP_TOT",
                 "EC_FAM_PUB_EXP_GDP",
@@ -512,8 +513,8 @@ indicators_dict = {
         "NAME": "Data on Children",
         "CARDS": [
             {
-                "name": "with national statistical plans with funding from Government",
-                "indicator": "CR_SG_STT_NSDSFDGVT",
+                "name": "with national statistical legislation exists that complies with the Fundamental Principles of Official Statistics",
+                "indicator": "CR_SG_STT_FPOS",
                 "suffix": "Countries",
             },
             {
