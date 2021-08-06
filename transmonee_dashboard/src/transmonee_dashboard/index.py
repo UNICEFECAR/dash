@@ -8,6 +8,7 @@ from .pages import (
     child_health,
     child_poverty,
     child_rights,
+    child_participation,
     home,
 )
 from .components import fa
@@ -23,6 +24,7 @@ urls = (
     ("child-health", child_health.get_layout),
     ("child-poverty", child_poverty.get_layout),
     ("child-rights", child_rights.get_layout),
+    ("child-participation", child_participation.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -47,6 +49,7 @@ nav_items = (
         html.Div([fa("fas fa-hand-holding-usd"), "Poverty"]),
     ),
     ("child-rights", html.Div([fa("fas fa-balance-scale"), "Child Rights"])),
+    ("child-participation", html.Div([fa("fas fa-users"), "Participation"])),
 )
 
 nav_items_full_names = {
