@@ -10,15 +10,15 @@ indicators_dict = {
         "NAME": "Health System",
         "CARDS": [
             {
-                "name": "Current health expenditure",
+                "name": "Current health expenditure as a percent of GDP",
                 "indicator": "HT_SH_XPD_CHEX_GD_ZS",
-                "suffix": "Percent of GDP",
+                "suffix": "Percent range",
                 "min_max": True,
             },
             {
-                "name": "Out-of-pocket expenditure",
+                "name": "Out-of-pocket expenditure - percent of current health expenditure",
                 "indicator": "HT_SH_XPD_OOPC_CH_ZS",
-                "suffix": "Percent of current health expenditure",
+                "suffix": "Percent range",
                 "min_max": True,
             },
         ],

@@ -630,7 +630,7 @@ def indicator_card(
     if min_max and len(sources) > 1:
         indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
         indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
-        indicator_header = f"[{indicator_min},{indicator_max}]"
+        indicator_header = f"[{indicator_min} - {indicator_max}]"
     else:
         indicator_header = "{:,.0f}".format(indicator_sum)
 
