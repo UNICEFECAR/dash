@@ -77,7 +77,6 @@ def get_base_layout(**kwargs):
         kwargs.get("hash")
         if kwargs.get("hash")
         else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
-        # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
 
     return html.Div(
@@ -641,7 +640,6 @@ def indicator_card(
         )
         else "None"
     )
-    print(name)
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -699,7 +697,6 @@ def get_card_popover_body(sources):
     for index, source_info in enumerate(sources):
         countries.append(f"- {source_info[0]}: {source_info[1]}")
     card_countries = "\n".join(countries)
-    print(card_countries)
     return card_countries
 
 
