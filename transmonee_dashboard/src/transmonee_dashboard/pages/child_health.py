@@ -10,14 +10,16 @@ indicators_dict = {
         "NAME": "Health System",
         "CARDS": [
             {
-                "name": "current health expenditure",
+                "name": "Current health expenditure as a percent of GDP",
                 "indicator": "HT_SH_XPD_CHEX_GD_ZS",
-                "suffix": "Percent of GDP",
+                "suffix": "Percent range",
+                "min_max": True,
             },
             {
-                "name": "Out-of-pocket expenditure (OOPS)",
+                "name": "Out-of-pocket expenditure - percent of current health expenditure",
                 "indicator": "HT_SH_XPD_OOPC_CH_ZS",
-                "suffix": "as Percent of current health expenditure",
+                "suffix": "Percent range",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -68,7 +70,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -163,16 +168,19 @@ indicators_dict = {
                 "name": "per 1,000 live births",
                 "indicator": "CME_MRM0",
                 "suffix": "Neonatal mortality rate",
+                "min_max": True,
             },
             {
                 "name": "per 1,000 live births",
                 "indicator": "CME_MRY0T4",
                 "suffix": "Under-5 mortality rate",
+                "min_max": True,
             },
             {
                 "name": "number, by sex and wealth quintile",
                 "indicator": "CME_TMY0T4",
                 "suffix": "Under-five deaths",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -221,7 +229,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             # compare is the default selection
             "compare": "Sex",
@@ -313,11 +324,13 @@ indicators_dict = {
                 "name": "who received the third dose of DPT-containing vaccine",
                 "indicator": "IM_DTP3",  # IM_DTP3
                 "suffix": "Percentage of surviving infants",
+                "min_max": True,
             },
             {
                 "name": "with at least 80% DTP3 coverage",
                 "indicator": "HT_DIST80DTP3_P",
                 "suffix": "Percentage of districts",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -350,7 +363,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -406,19 +422,22 @@ indicators_dict = {
         "NAME": "Nutrition",
         "CARDS": [
             {
-                "name": "by sex, age groups, residence and wealth quintile",
+                "name": "Overweight by sex, age groups, residence and wealth quintile",
                 "indicator": "NT_ANT_WHZ_PO2",
-                "suffix": "Overweight Percentage",
+                "suffix": "Percent",
+                "min_max": True,
             },
             {
-                "name": " by sex, age groups, residence and wealth quintile",
+                "name": "Stunting by sex, age groups, residence and wealth quintile",
                 "indicator": "NT_ANT_HAZ_NE2",
-                "suffix": "Stunting Percentage",
+                "suffix": "Percent",
+                "min_max": True,
             },
             {
-                "name": "by sex, age groups, residence and wealth quintile",
+                "name": "Exclusive breastfeeding by sex, age groups, residence and wealth quintile",
                 "indicator": "NT_BF_EXBF",
-                "suffix": "Exclusive breastfeeding Percentage",
+                "suffix": "Percent",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -454,7 +473,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -515,20 +537,22 @@ indicators_dict = {
     "ADOLESCENTS": {
         "NAME": "Adolescent health",
         "CARDS": [
+            # {
+            #     "name": "(10-19) popuation",
+            #     "indicator": "MT_SDG_SUICIDE",  # missing
+            #     "suffix": "Total Adolescent",
+            # },
             {
-                "name": "(10-19) popuation",
-                "indicator": "MT_SDG_SUICIDE",  # missing
-                "suffix": "Totla Adolescent",
-            },
-            {
-                "name": "per 1,000 women aged 15-19",
+                "name": "Adolescent birth rate",
                 "indicator": "FT_SP_DYN_ADKL",
-                "suffix": "Adolescent birth rate",
+                "suffix": "per 1,000 women aged 15-19",
+                "min_max": True,
             },
             {
-                "name": "deaths per 100,000 population, by sex",
+                "name": "Suicide mortality rate, by sex",
                 "indicator": "MT_SDG_SUICIDE",
-                "suffix": "Suicide mortality rate",
+                "suffix": "deaths per 100,000 population",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -568,7 +592,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -641,6 +668,7 @@ indicators_dict = {
                 "name": "per 1,000 uninfected population, by sex and age groups",
                 "indicator": "HT_SH_HIV_INCD",
                 "suffix": "Number of new HIV infections",
+                "min_max": True,
             },
             {
                 "name": "(aged 0-14 years) living with HIV",
@@ -648,9 +676,10 @@ indicators_dict = {
                 "suffix": "Children",
             },
             {
-                "name": "(aged 0-14 years) living with HIV and receiving antiretroviral therapy (ART)",
+                "name": "(aged 0-14 years) living with HIV and receiving antiretroviral therapy",
                 "indicator": "HVA_PED_ART_CVG",
                 "suffix": "Percentage of Children",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -684,7 +713,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [
@@ -745,11 +777,13 @@ indicators_dict = {
                 "name": "using safely managed drinking water services (%, by residence)",
                 "indicator": "WS_PPL_W-SM",
                 "suffix": "Proportion of population",
+                "min_max": True,
             },
             {
                 "name": "using safely managed sanitation services (%, by residence)",
                 "indicator": "WS_PPL_S-SM",
                 "suffix": "Proportion of population",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -779,7 +813,10 @@ indicators_dict = {
         "AREA_1": {
             "type": "bar",
             "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD",
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
             ),
             "compare": "Sex",
             "indicators": [

@@ -20,11 +20,13 @@ indicators_dict = {
                 "name": "subjected to physical violence in the previous 12 months (% by sex)",
                 "indicator": "PT_VC_VOV_PHYL",
                 "suffix": "Proportion of Population",
+                "min_max": True,
             },
             {
-                "name": "(by sex, age groups, residence and wealth quintile) who think that physical punishment is necessary to raise/educate children",
+                "name": "who think that physical punishment is necessary to raise/educate children",
                 "indicator": "PT_ADLT_PS_NEC",
                 "suffix": "Percent of Adults",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -296,12 +298,8 @@ indicators_dict = {
                 "name": "sentencing rate (per 100,000 average population aged 14-17)",
                 "indicator": "JJ_CHLD_SENTENCERT",
                 "suffix": "Children",
+                "min_max": True,
             },
-            # {
-            #     "name": "Who are charged with an offence or crime during the year",
-            #     "indicator": "JJ_CHLD_OFFENCE",
-            #     "suffix": "Children",
-            # },
         ],
         "MAIN": {
             "name": "Child Victims of Crime",
@@ -389,11 +387,13 @@ indicators_dict = {
                 "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
                 "indicator": "PT_F_20-24_MRD_U18",
                 "suffix": "Percentage of women",
+                "min_max": True,
             },
             {
                 "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
                 "indicator": "PT_M_20-24_MRD_U18",
                 "suffix": "Percentage of men",
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -479,6 +479,7 @@ indicators_dict = {
                 "name": "(aged 5-17 years, by sex and age groups) engaged in child labour (economic activities and household chores)",
                 "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
                 "suffix": "Percentage of Children",
+                "min_max": True,
             },
         ],
         "MAIN": {
