@@ -7,6 +7,7 @@ from .pages import (
     child_protection,
     child_health,
     child_poverty,
+    child_rights,
     child_participation,
     home,
 )
@@ -22,6 +23,7 @@ urls = (
     ("child-protection", child_protection.get_layout),
     ("child-health", child_health.get_layout),
     ("child-poverty", child_poverty.get_layout),
+    ("child-rights", child_rights.get_layout),
     ("child-participation", child_participation.get_layout),
 )
 
@@ -46,6 +48,7 @@ nav_items = (
         "child-poverty",
         html.Div([fa("fas fa-hand-holding-usd"), "Poverty"]),
     ),
+    ("child-rights", html.Div([fa("fas fa-balance-scale"), "Child Rights"])),
     ("child-participation", html.Div([fa("fas fa-users"), "Participation"])),
 )
 
