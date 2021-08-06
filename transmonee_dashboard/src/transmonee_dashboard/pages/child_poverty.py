@@ -14,12 +14,14 @@ indicators_dict = {
                 "indicator": "PV_SDG_SI_POV_NAHC",
                 "suffix": "Proportion of Population",
                 "absolute": True,
+                "min_max": True,
             },
             {
                 "name": "at risk of poverty or social exclusion (by sex and age groups)",
                 "indicator": "PV_AROPE",
                 "suffix": "Percent of People",
                 "absolute": True,
+                "min_max": True,
             },
         ],
         "MAIN": {
@@ -136,12 +138,14 @@ indicators_dict = {
                 "indicator": "PV_SI_COV_BENFTS",
                 "suffix": "Proportion of Population",
                 "abosolute": True,
+                "min_max": True,
             },
             {
                 "name": "receiving child/family cash benefit (%)",
                 "indicator": "PV_SI_COV_CHLD",
                 "suffix": "Proportion of Children/Households",
                 "abosolute": True,
+                "min_max": True,
             },
         ],
         "MAIN": {

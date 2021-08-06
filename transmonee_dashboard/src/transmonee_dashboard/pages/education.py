@@ -49,7 +49,7 @@ indicators_dict = {
                 "EDUNF_OFST_L2",
                 "EDUNF_OFST_L3",
             ],
-            "default": "EDUNF_ROFST_L3",
+            "default": "EDUNF_ROFST_L1",
         },
         "AREA_1": {
             "name": "Education entry and transition",
@@ -74,7 +74,7 @@ indicators_dict = {
                 "EDUNF_GER_L3_GEN",
                 "EDUNF_GER_L3_VOC",
             ],
-            "default": "EDUNF_ROFST_L3",
+            "default": "EDUNF_ROFST_L1",
         },
         "AREA_2": {
             "name": "Education entry and transition",

@@ -517,6 +517,8 @@ def indicator_card(
     denominator=None,
     absolute=False,
     sex_code="Total",
+    average=False,
+    min_max=False,
 ):
 
     # indicator could be a list --> great use of " in " instead of " == " !!!
@@ -621,6 +623,16 @@ def indicator_card(
     else:
         indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
         sources = numerator_pairs.index.tolist()
+        if average and len(sources) > 1:
+            indicator_sum = indicator_sum / len(sources)
+
+    # define indicator header text: the resultant number except for the min-max range
+    if min_max and len(sources) > 1:
+        indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
+        indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
+        indicator_header = f"[{indicator_min} - {indicator_max}]"
+    else:
+        indicator_header = "{:,.0f}".format(indicator_sum)
 
     label = (
         filtered_data[filtered_data["CODE"].isin(indicator)]["Indicator"].unique()[0]
@@ -635,7 +647,7 @@ def indicator_card(
             dbc.CardBody(
                 [
                     html.H1(
-                        "{:,.0f}".format(indicator_sum),
+                        indicator_header,
                         className="display-4",
                         style={
                             # "fontSize": 50,
@@ -698,6 +710,8 @@ def show_cards(selections, current_cards, indicators_dict):
             card.get("denominator"),
             card.get("absolute"),
             card.get("sex"),
+            card.get("average"),
+            card.get("min_max"),
         )
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
