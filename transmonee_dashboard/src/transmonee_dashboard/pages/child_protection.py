@@ -9,28 +9,21 @@ indicators_dict = {
     "VIOLENCE": {
         "NAME": "Violence against Children and Women",
         "CARDS": [
-            # revise denominator population: children 1-14?
-            # {
-            #     "name": "Who experienced physical punishment or psychological aggression by caregivers",
-            #     "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
-            #     "denominator": "EDUNF_SAP_L1T3",
-            #     "suffix": "Percent of Children",
-            # },
             {
-                "name": "subjected to physical violence in the previous 12 months (% by sex)",
+                "name": "Population subjected to physical violence in the previous 12 months",
                 "indicator": "PT_VC_VOV_PHYL",
-                "suffix": "Proportion of Population",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
             {
-                "name": "who think that physical punishment is necessary to raise/educate children",
+                "name": "Adults who think that physical punishment is necessary to raise/educate children",
                 "indicator": "PT_ADLT_PS_NEC",
-                "suffix": "Percent of Adults",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Violence and Harmful Practices",
+            "name": "Violence and Assault",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -62,9 +55,10 @@ indicators_dict = {
                 "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
             ],
-            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
+            "default": "PT_ADLT_PS_NEC",
         },
         "AREA_1": {
+            "name": "Violent Discipline",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -74,26 +68,14 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
-                "PT_F_GE15_SX_V_PTNR_12MNTH",
-                "PT_VC_VOV_PHYL",
-                "PT_VC_VOV_SEXL",
-                "PT_VC_VOV_ROBB",
-                "PT_VC_SNS_WALN",
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
-                "PT_F_18-29_SX-V_AGE-18",
-                "PT_M_18-29_SX-V_AGE-18",
-                "PT_VC_PRR_PHYV",
-                "PT_VC_PRR_SEXV",
-                "PT_VC_PRR_ROBB",
                 "PT_ADLT_PS_NEC",
-                "PT_F_15-49_W-BTNG",
-                "PT_M_15-49_W-BTNG",
                 "PT_ST_13-15_BUL_30-DYS",
             ],
-            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
+            "default": "PT_ADLT_PS_NEC",
         },
         "AREA_2": {
+            "name": "Crime, Assault, and Safety",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -123,37 +105,36 @@ indicators_dict = {
                 "PT_VC_VOV_SEXL",
                 "PT_VC_VOV_ROBB",
                 "PT_VC_SNS_WALN",
-                "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "PT_F_18-29_SX-V_AGE-18",
                 "PT_M_18-29_SX-V_AGE-18",
                 "PT_VC_PRR_PHYV",
                 "PT_VC_PRR_SEXV",
                 "PT_VC_PRR_ROBB",
-                "PT_ADLT_PS_NEC",
                 "PT_F_15-49_W-BTNG",
                 "PT_M_15-49_W-BTNG",
-                "PT_ST_13-15_BUL_30-DYS",
             ],
             "default_graph": "bar",
-            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
+            "default": "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
         },
     },
     "CARE": {
         "NAME": "Children without parental care",
         "CARDS": [
             {
-                "name": "in residential care (at the end of the year, by sex and age groups) - Includes persons aged 18 years old and over in some countries",
+                "name": "in residential care (at the end of the year) - Includes persons aged 18 years old and over in some countries",
                 "indicator": "PT_CHLD_INRESIDENTIAL",
-                "suffix": "Total number of Children",
+                "suffix": "Total number of children",
+                "absolute": True,
             },
             {
-                "name": "cared for by foster parents (at the end of the year, by age groups)",
+                "name": "cared for by foster parents (at the end of the year)",
                 "indicator": "PT_CHLD_CARED_BY_FOSTER",
-                "suffix": "Total number of Children",
+                "suffix": "Total number of children",
+                "absolute": True,
             },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Family Environment",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -196,6 +177,7 @@ indicators_dict = {
             "default": "PT_CHLD_INRESIDENTIAL",
         },
         "AREA_1": {
+            "name": "Residencial Care",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -218,22 +200,10 @@ indicators_dict = {
                 "PT_CHLD_LEFTRESCARE_TRANSFERED",
                 "PT_CHLD_LEFTRESCARE_DIED",
                 "PT_CHLD_LEFTRESCARE_OTHER",
-                "PT_CHLD_CARED_BY_FOSTER",
-                "PT_CHLD_CARED_BY_FOSTER_RATE",
-                "PT_CHLD_DISAB_FOSTER",
-                "PT_CHLD_CARED_GUARDIAN",
-                "PT_CHLD_CARED_GUARDIAN_RATE",
-                "PT_CHLD_DISAB_CARED_GUARDIAN",
-                "PT_CHLD_GUARDIAN",
-                "PT_CHLD_ENTEREDFOSTER",
-                "PT_CHLD_ADOPTION_RATE",
-                "PT_CHLD_ADOPTION",
-                "PT_CHLD_ADOPTION_DISAB",
-                "PT_CHLD_ADOPTION_AVAILABLE",
-                "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
         },
         "AREA_2": {
+            "name": "Foster Care and Adoption",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -257,17 +227,6 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PT_CHLD_INRESIDENTIAL",
-                "PT_CHLD_INRESIDENTIAL_RATE_B",
-                "PT_CHLD_DISAB_PUBLIC",
-                "PT_CHLD_LEFTRESCARE",
-                "PT_CHLD_LEFTRESCARE_RETURNED",
-                "PT_CHLD_LEFTRESCARE_INFAMILY",
-                "PT_CHLD_LEFTRESCARE_ADOPTED",
-                "PT_CHLD_LEFTRESCARE_INDEPENDENT",
-                "PT_CHLD_LEFTRESCARE_TRANSFERED",
-                "PT_CHLD_LEFTRESCARE_DIED",
-                "PT_CHLD_LEFTRESCARE_OTHER",
                 "PT_CHLD_CARED_BY_FOSTER",
                 "PT_CHLD_CARED_BY_FOSTER_RATE",
                 "PT_CHLD_DISAB_FOSTER",
@@ -283,26 +242,27 @@ indicators_dict = {
                 "PT_CHLD_ADOPTION_AVAILABLE_DISAB",
             ],
             "default_graph": "line",
-            "default": "PT_CHLD_INRESIDENTIAL",
+            "default": "PT_CHLD_CARED_BY_FOSTER",
         },
     },
     "JUSTICE": {
         "NAME": "Juvenile Justice",
         "CARDS": [
             {
-                "name": "of children who entered pre-sentence detention (during the year, by sex)",
+                "name": "who entered pre-sentence detention (during the year)",
                 "indicator": "JJ_CHLD_DETENTION",
-                "suffix": "Total number",
+                "suffix": "Total number of children",
+                "absolute": True,
             },
             {
-                "name": "sentencing rate (per 100,000 average population aged 14-17)",
+                "name": "age 14-17 years sentencing rate (per 100,000 average population)",
                 "indicator": "JJ_CHLD_SENTENCERT",
-                "suffix": "Children",
-                "min_max": True,
+                "suffix": "Average number of children among countries",
+                "average": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Access to Justice for Children",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -327,6 +287,7 @@ indicators_dict = {
             "default": "JJ_CHLD_CONVICTED",
         },
         "AREA_1": {
+            "name": "Children Victims and Prisoners",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -336,16 +297,14 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "JJ_CHLD_DETENTION",
                 "JJ_CHLD_CONVICTED",
-                "JJ_CHLD_SENTENCERT",
-                "JJ_VC_PRS_UNSNT",
                 "JJ_PRISIONERS",
                 "JJ_PRISIONERS_RT",
             ],
             "default": "JJ_CHLD_CONVICTED",
         },
         "AREA_2": {
+            "name": "Diversion, Sentencing, and Detention of Children",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -370,34 +329,31 @@ indicators_dict = {
             },
             "indicators": [
                 "JJ_CHLD_DETENTION",
-                "JJ_CHLD_CONVICTED",
                 "JJ_CHLD_SENTENCERT",
                 "JJ_VC_PRS_UNSNT",
-                "JJ_PRISIONERS",
-                "JJ_PRISIONERS_RT",
             ],
             "default_graph": "line",
-            "default": "JJ_CHLD_CONVICTED",
+            "default": "JJ_CHLD_DETENTION",
         },
     },
     "MARRIAGE": {
         "NAME": "Child marriage and other harmful practices",
         "CARDS": [
             {
-                "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
+                "name": "Women age 20-24 years married or in union before age 18",
                 "indicator": "PT_F_20-24_MRD_U18",
-                "suffix": "Percentage of women",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
             {
-                "name": "(aged 20-24 years, by residence and wealth quintile) married or in union before age 18",
+                "name": "Men age 20-24 years married or in union before age 18",
                 "indicator": "PT_M_20-24_MRD_U18",
-                "suffix": "Percentage of men",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Child Marriage",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -421,6 +377,7 @@ indicators_dict = {
             "default": "PT_F_15-19_MRD",
         },
         "AREA_1": {
+            "name": "Currently married or in union children age 15-19 years",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -432,13 +389,11 @@ indicators_dict = {
             "indicators": [
                 "PT_F_15-19_MRD",
                 "PT_M_15-19_MRD",
-                "PT_F_20-24_MRD_U15",
-                "PT_F_20-24_MRD_U18",
-                "PT_M_20-24_MRD_U18",
             ],
             "default": "PT_F_15-19_MRD",
         },
         "AREA_2": {
+            "name": "Currently married or in union adults before age 18 or 15 years",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -462,28 +417,26 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PT_F_15-19_MRD",
-                "PT_M_15-19_MRD",
                 "PT_F_20-24_MRD_U15",
                 "PT_F_20-24_MRD_U18",
                 "PT_M_20-24_MRD_U18",
             ],
-            "default_graph": "line",
-            "default": "PT_F_15-19_MRD",
+            "default_graph": "bar",
+            "default": "PT_F_20-24_MRD_U15",
         },
     },
     "LABOUR": {
         "NAME": "Child Labour",
         "CARDS": [
             {
-                "name": "(aged 5-17 years, by sex and age groups) engaged in child labour (economic activities and household chores)",
+                "name": "Children age 5-17 years who are involved in child labour",
                 "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
-                "suffix": "Percentage of Children",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Child Labour",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -504,6 +457,7 @@ indicators_dict = {
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_1": {
+            "name": "Child labour - only economic activities",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -514,11 +468,11 @@ indicators_dict = {
             "compare": "Sex",
             "indicators": [
                 "PT_CHLD_5-17_LBR_ECON",
-                "PT_CHLD_5-17_LBR_ECON-HC",
             ],
             "default": "PT_CHLD_5-17_LBR_ECON",
         },
         "AREA_2": {
+            "name": "Child labour - economic activities and household chores",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -542,11 +496,10 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PT_CHLD_5-17_LBR_ECON",
                 "PT_CHLD_5-17_LBR_ECON-HC",
             ],
-            "default_graph": "line",
-            "default": "PT_CHLD_5-17_LBR_ECON",
+            "default_graph": "bar",
+            "default": "PT_CHLD_5-17_LBR_ECON-HC",
         },
     },
 }

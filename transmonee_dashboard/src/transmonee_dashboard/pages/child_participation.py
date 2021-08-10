@@ -10,19 +10,14 @@ indicators_dict = {
         "NAME": "Birth registration and documentation",
         "CARDS": [
             {
-                "name": "whose births have been registered with a civil authority (%, by sex, age groups, residence and wealth quintile)",
+                "name": "Children whose births have been registered with a civil authority",
                 "indicator": "PT_CHLD_Y0T4_REG",
-                "suffix": "Proportion of Children",
-                "absolute": True,
-            },
-            {
-                "name": "with birth registration data that are at least 90 percent complete",
-                "indicator": "PP_SG_REG_BRTH90N",
-                "suffix": "Countries",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Poverty and Deprivation",
+            "name": "Birth and Death Registration",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -44,6 +39,7 @@ indicators_dict = {
             "default": "PT_CHLD_Y0T4_REG",
         },
         "AREA_1": {
+            "name": "Birth Registration",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -55,11 +51,11 @@ indicators_dict = {
             "indicators": [
                 "PT_CHLD_Y0T4_REG",
                 "PP_SG_REG_BRTH90N",
-                "PP_SG_REG_DETH75N",
             ],
             "default": "PT_CHLD_Y0T4_REG",
         },
         "AREA_2": {
+            "name": "Death Registration",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -83,11 +79,9 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PT_CHLD_Y0T4_REG",
-                "PP_SG_REG_BRTH90N",
                 "PP_SG_REG_DETH75N",
             ],
-            "default": "PT_CHLD_Y0T4_REG",
+            "default": "PP_SG_REG_DETH75N",
             "default_graph": "line",
         },
     },
@@ -95,23 +89,18 @@ indicators_dict = {
         "NAME": "Access to Justice",
         "CARDS": [
             {
-                "name": "with National Human Rights Institutions in compliance with the Paris Principles (A status)",
-                "indicator": "PP_SG_NHR_IMPLN",
-                "suffix": "Countries",
+                "name": "who brought or on whose behalf a complaint was brought to independent human rights mechanisms during the year",
+                "indicator": "",  # Missing
+                "suffix": "Children",
             },
             {
-                "name": "of registered crimes committed against children (during the year, by sex and age groups)",
+                "name": "of registered crimes committed against children (during the year)",
                 "indicator": "JJ_CHLD_CRIME",
                 "suffix": "Total Number",
             },
-            {
-                "name": "of crimes committed against children (per 100,000 average population aged 0-17)",
-                "indicator": "JJ_CHLD_CRIMERT",
-                "suffix": "Registered Rate",
-            },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Access to Justice",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -136,6 +125,7 @@ indicators_dict = {
             "default": "PP_SG_NHR_IMPLN",
         },
         "AREA_1": {
+            "name": "Countries with National Human Rights Institutions",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -145,18 +135,14 @@ indicators_dict = {
             ),
             # compare is the default selection
             "compare": "Sex",
-            "default": "PV_SI_COV_BENFTS",
             "indicators": [
-                "PP_SG_NHR_IMPLN",
-                "PP_SG_NHR_INTEXSTN",
-                "PP_SG_NHR_NOSTUSN",
-                "PP_SG_NHR_NOAPPLN",
                 "JJ_CHLD_CRIME",
                 "JJ_CHLD_CRIMERT",
             ],
-            "default": "PP_SG_NHR_IMPLN",
+            "default": "JJ_CHLD_CRIME",
         },
         "AREA_2": {
+            "name": "Crime and Justice",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -184,8 +170,6 @@ indicators_dict = {
                 "PP_SG_NHR_INTEXSTN",
                 "PP_SG_NHR_NOSTUSN",
                 "PP_SG_NHR_NOAPPLN",
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
             ],
             "default": "PP_SG_NHR_IMPLN",
             "default_graph": "line",
@@ -300,21 +284,24 @@ indicators_dict = {
     #     },
     # },
     "INFORMATION": {
-        "NAME": "Information, internet and right to privacy",
+        "NAME": "Information, Internet and Right to privacy",
         "CARDS": [
             {
-                "name": "with ICT skill: sending e-mails with attached files (%, by sex)",
-                "indicator": "PP_SE_ADT_ACTS_ATCH",
-                "suffix": "Proportion of youth and adults",
+                "name": "Internet users per 100 inhabitants",
+                "indicator": "PP_IT_USE_ii99",
+                "suffix": "Average among countries",
+                "absolute": True,
+                "average": True,
             },
             {
-                "name": "with ICT skill: copying or moving a file or folder (%, by sex)",
-                "indicator": "PP_SE_ADT_ACTS_CMFL",
-                "suffix": "Proportion of youth and adults",
+                "name": "Individuals who own a mobile telephone",
+                "indicator": "PP_IT_MOB_OWN",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Information, Internet and Right to privacy",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -344,6 +331,7 @@ indicators_dict = {
             "default": "PP_SE_ADT_ACTS_ATCH",
         },
         "AREA_1": {
+            "name": "Mobile phones and Internet",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -356,20 +344,12 @@ indicators_dict = {
             "default": "PV_SI_COV_BENFTS",
             "indicators": [
                 "PP_IT_USE_ii99",
-                "PP_SE_ADT_ACTS_ATCH",
-                "PP_SE_ADT_ACTS_CPT",
-                "PP_SE_ADT_ACTS_CDV",
-                "PP_SE_ADT_ACTS_SSHT",
-                "PP_SE_ADT_ACTS_PRGM",
-                "PP_SE_ADT_ACTS_PST",
-                "PP_SE_ADT_ACTS_SFWR",
-                "PP_SE_ADT_ACTS_TRFF",
-                "PP_SE_ADT_ACTS_CMFL",
                 "PP_IT_MOB_OWN",
             ],
-            "default": "PP_SE_ADT_ACTS_ATCH",
+            "default": "PP_IT_USE_ii99",
         },
         "AREA_2": {
+            "name": "Youth and Adults with ICT skills",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -393,7 +373,6 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PP_IT_USE_ii99",
                 "PP_SE_ADT_ACTS_ATCH",
                 "PP_SE_ADT_ACTS_CPT",
                 "PP_SE_ADT_ACTS_CDV",
@@ -403,28 +382,29 @@ indicators_dict = {
                 "PP_SE_ADT_ACTS_SFWR",
                 "PP_SE_ADT_ACTS_TRFF",
                 "PP_SE_ADT_ACTS_CMFL",
-                "PP_IT_MOB_OWN",
             ],
             "default": "PP_SE_ADT_ACTS_ATCH",
             "default_graph": "line",
         },
     },
     "LEISURE": {
-        "NAME": "Leisure and culture",
+        "NAME": "Leisure and Culture",
         "CARDS": [
             {
-                "name": "(15-year-olds) who watch TV or play video games, before or after school",
-                "indicator": "PP_ADOL_TVGM",
-                "suffix": "Percentage of Adolescents",
+                "name": "Adolescents (15-year-olds) who use the internet and social networks, before or after school",
+                "indicator": "PP_ADOL_WORK_PAID",
+                "suffix": "Percentage ranges among countries",
+                "min_max": True,
             },
             {
-                "name": "(15-year-olds) who use the internet and social networks, before or after school",
+                "name": "Adolescents (15-year-olds) who do paid work, before or after school",
                 "indicator": "PP_ADOL_INET",
-                "suffix": "Percentage of Adolescents",
+                "suffix": "Percentage ranges among countries",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Leisure and Culture",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -448,6 +428,7 @@ indicators_dict = {
             "default": "PP_ADOL_TVGM",
         },
         "AREA_1": {
+            "name": "TV or Play Video Games",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -460,14 +441,13 @@ indicators_dict = {
             "default": "PV_SI_COV_BENFTS",
             "indicators": [
                 "PP_ADOL_TVGM",
-                "PP_ADOL_INET",
-                "PP_ADOL_ITXT",
                 "PP_ADOL_WORK_PAID",
                 "PP_ADOL_WORK_HOME",
             ],
             "default": "PP_ADOL_TVGM",
         },
         "AREA_2": {
+            "name": "Internet and Social Networks",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -491,13 +471,10 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PP_ADOL_TVGM",
                 "PP_ADOL_INET",
                 "PP_ADOL_ITXT",
-                "PP_ADOL_WORK_PAID",
-                "PP_ADOL_WORK_HOME",
             ],
-            "default": "PP_ADOL_TVGM",
+            "default": "PP_ADOL_INET",
             "default_graph": "line",
         },
     },

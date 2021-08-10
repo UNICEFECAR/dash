@@ -10,15 +10,20 @@ indicators_dict = {
         "NAME": "Demography about Children",
         "CARDS": [
             {
-                "name": "(0-17) living with two parents",
+                "name": "age 0-17 years",
+                "indicator": "",
+                "suffix": "Total child population",
+                "absolute": True,
+            },
+            {
+                "name": "Children (0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",
-                "suffix": "Percent of Children",
-                "average": True,
-                # "min_max": True,
+                "suffix": "Percentage range among countries",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Demographic Info about Child Rights",
+            "name": "Demography",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -39,6 +44,7 @@ indicators_dict = {
             "default": "DM_FRATE_TOT",
         },
         "AREA_1": {
+            "name": " Child Population and Living Arrangements",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -49,11 +55,11 @@ indicators_dict = {
             "compare": "Sex",
             "indicators": [
                 "DM_CHLD_TWO_PRNT",
-                "DM_FRATE_TOT",
             ],
-            "default": "DM_FRATE_TOT",
+            "default": "DM_CHLD_TWO_PRNT",
         },
         "AREA_2": {
+            "name": "Total Fertility Rate",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -77,7 +83,6 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "DM_CHLD_TWO_PRNT",
                 "DM_FRATE_TOT",
             ],
             "default_graph": "bar",
@@ -88,19 +93,20 @@ indicators_dict = {
         "NAME": "Political Economy",
         "CARDS": [
             {
-                "name": "by Sex",
+                "name": "Human Development Index (HDI)",
                 "indicator": "EC_HDI",
-                "suffix": "Human Development Index",
+                "suffix": "Index value range among Countries",
+                "min_max": True,
             },
             {
-                "name": "Unemployment, modelled ILO estimate",
+                "name": "Unemployment estimate as % of Total Labor Force",
                 "indicator": "EC_SL_UEM_TOTL_NE_ZS",
-                "suffix": "Percentage of total labor force by sex",
-                "average": True,
+                "suffix": "Index value Range among Countries",
+                "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Child rights political economy",
+            "name": "Political Economy",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -139,6 +145,7 @@ indicators_dict = {
             "default": "EC_HDI",
         },
         "AREA_1": {
+            "name": "GDP and Public expenditure",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -150,7 +157,6 @@ indicators_dict = {
             "compare": "Sex",
             "default": "EC_NY_GDP_MKTP_KD_ZG",
             "indicators": [
-                "EC_HDI",
                 "EC_NY_GDP_MKTP_KD_ZG",
                 "EC_NY_GDP_PCAP_KD_ZG",
                 "EC_NE_DAB_TOTL_ZS",
@@ -164,15 +170,14 @@ indicators_dict = {
                 "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
                 "EC_SP_GOV_EXP_TOT",
-                "EC_NY_GDP_PCAP_PP_CD",
                 "EC_NY_GNP_ATLS_CD",
                 "EC_NY_GNP_PCAP_CD",
                 "EC_GC_DOD_TOTL_GD_ZS",
-                "EC_SI_POV_GINI",
-                "EC_SL_UEM_TOTL_NE_ZS",
+                "EC_SL_UEM_TOTL_ZS",
             ],
         },
         "AREA_2": {
+            "name": "Human Development and GDP",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -197,28 +202,13 @@ indicators_dict = {
             },
             "indicators": [
                 "EC_HDI",
-                "EC_NY_GDP_MKTP_KD_ZG",
-                "EC_NY_GDP_PCAP_KD_ZG",
-                "EC_NE_DAB_TOTL_ZS",
-                "EC_TEC_GRL_GOV_EXP",
-                "EC_TEC_CNT_GOV_EXP",
-                "EC_TEC_STA_GOV_EXP",
-                "EC_TEC_LOC_GOV_EXP",
-                "EC_TEC_SSF_EXP",
-                "EC_GR_G14_GDP",
-                "EDU_FIN_EXP_PT_GDP",
-                "HT_SH_XPD_GHED_GD_ZS",
-                "EC_SP_GOV_EXP_GDP",
-                "EC_SP_GOV_EXP_TOT",
                 "EC_NY_GDP_PCAP_PP_CD",
-                "EC_NY_GNP_ATLS_CD",
-                "EC_NY_GNP_PCAP_CD",
-                "EC_GC_DOD_TOTL_GD_ZS",
                 "EC_SI_POV_GINI",
                 "EC_SL_UEM_TOTL_NE_ZS",
+                "EC_SL_UEM_TOTL_ZS",
             ],
             "default_graph": "line",
-            "default": "EC_NY_GDP_PCAP_KD_ZG",
+            "default": "EC_HDI",
         },
     },
     "MIGRATION": {
@@ -228,15 +218,17 @@ indicators_dict = {
                 "name": "Net Migration",
                 "indicator": "EC_SL_UEM_TOTL_ZS",
                 "suffix": "Thousands of Persons",
+                "absolute": True,
             },
             {
-                "name": "First time asylum applicants",
+                "name": "Asylum applicants considered to be unaccompanied minors",
                 "indicator": "DM_ASYL_FRST",
                 "suffix": "Persons",
+                "absolute": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Migration and Displacement",
+            "name": "Migration and Displacement",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -251,16 +243,17 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "EC_SL_UEM_TOTL_ZS",
+                "DM_POP_NETM",
                 "DM_SM_POP_REFG",
                 "DM_SM_POP_REFG_OR",
                 "DM_ASYL_FRST",
                 "DM_ASYL_UASC",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
-            "default": "EC_SL_UEM_TOTL_ZS",
+            "default": "DM_POP_NETM",
         },
         "AREA_1": {
+            "name": "Migration",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -270,16 +263,13 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "EC_SL_UEM_TOTL_ZS",
                 "DM_SM_POP_REFG",
-                "DM_SM_POP_REFG_OR",
-                "DM_ASYL_FRST",
-                "DM_ASYL_UASC",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
-            "default": "EC_SL_UEM_TOTL_ZS",
+            "default": "DM_SM_POP_REFG",
         },
         "AREA_2": {
+            "name": "Refugee",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -303,12 +293,10 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "EC_SL_UEM_TOTL_ZS",
                 "DM_SM_POP_REFG",
                 "DM_SM_POP_REFG_OR",
                 "DM_ASYL_FRST",
                 "DM_ASYL_UASC",
-                "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
             "default_graph": "line",
             "default": "DM_SM_POP_REFG",
@@ -318,117 +306,20 @@ indicators_dict = {
         "NAME": "Risks, humanitarian situation and impact of climate change",
         "CARDS": [
             {
-                "name": "of deaths and missing persons attributed to disasters",
+                "name": "Deaths and missing persons attributed to disasters (per 100,000 population)",
                 "indicator": "CR_VC_DSR_MTMP",
-                "suffix": "Number per 100,000 population",
+                "suffix": "Rate range among countries",
+                "min_max": True,
             },
             {
-                "name": "population with primary reliance on clean fuels and technology",
+                "name": "Population with primary reliance on clean fuels and technology",
                 "indicator": "CR_EG_EGY_CLEAN",
-                "suffix": "Proportion of",
-                "average": True,
-            },
-        ],
-        "MAIN": {
-            "name": "Child Victims of Risks, humanitarian situation and impact of climate change",
-            "geo": "Geographic area",
-            "options": dict(
-                lat="latitude",
-                lon="longitude",
-                size="OBS_VALUE",
-                text="Geographic area",
-                color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.GnBu,
-                size_max=40,
-                zoom=2.5,
-                animation_frame="TIME_PERIOD",
-                height=750,
-            ),
-            "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
-                "CR_SG_DSR_LGRGSR",
-            ],
-            "default": "CR_VC_DSR_MTMP",
-        },
-        "AREA_1": {
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
-            "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
-                "CR_SG_DSR_LGRGSR",
-            ],
-            "default": "CR_VC_DSR_MTMP",
-        },
-        "AREA_2": {
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        text="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
-                "CR_SG_DSR_LGRGSR",
-            ],
-            "default": "CR_VC_DSR_MTMP",
-            "default_graph": "line",
-        },
-    },
-    "SPENDING": {
-        "NAME": "Public spending on children",
-        "CARDS": [
-            {
-                "name": "Government expenditure on education as a percentage of GDP",
-                "indicator": "EDU_FIN_EXP_PT_GDP",
-                "suffix": "Percent",
-                "average": True,
-            },
-            {
-                "name": "Public social expenditure",
-                "indicator": "EC_TOT_PUB_EXP_GDP",
-                "suffix": "Total Percentage of GDP",
+                "suffix": "Percentage range among countries",
                 "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Public spending on children",
+            "name": "Risks, humanitarian situation and impact of climate change",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -443,17 +334,18 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "EDU_FIN_EXP_PT_GDP",
-                "HT_SH_XPD_GHED_GD_ZS",
-                "EC_SP_GOV_EXP_GDP",
-                "EC_TOT_PUB_EXP_GDP",
-                "EC_TOT_PUB_EXP_TOT",
-                "EC_FAM_PUB_EXP_GDP",
-                "EC_FAM_PUB_EXP_TOT",
+                "CR_VC_DSR_MTMP",
+                "CR_VC_DSR_DAFF",
+                "CR_SH_STA_AIRP",
+                "CR_SH_STA_ASAIRP",
+                "CR_EG_EGY_CLEAN",
+                "CR_EG_ACS_ELEC",
+                "CR_SG_DSR_LGRGSR",
             ],
-            "default": "EC_TOT_PUB_EXP_TOT",
+            "default": "CR_VC_DSR_MTMP",
         },
         "AREA_1": {
+            "name": "Risks and Humanitarian Situation",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -463,17 +355,16 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "EDU_FIN_EXP_PT_GDP",
-                "HT_SH_XPD_GHED_GD_ZS",
-                "EC_SP_GOV_EXP_GDP",
-                "EC_TOT_PUB_EXP_GDP",
-                "EC_TOT_PUB_EXP_TOT",
-                "EC_FAM_PUB_EXP_GDP",
-                "EC_FAM_PUB_EXP_TOT",
+                "CR_VC_DSR_MTMP",
+                "CR_VC_DSR_DAFF",
+                "CR_SH_STA_AIRP",
+                "CR_SH_STA_ASAIRP",
+                "CR_SG_DSR_LGRGSR",
             ],
-            "default": "EC_TOT_PUB_EXP_TOT",
+            "default": "CR_VC_DSR_MTMP",
         },
         "AREA_2": {
+            "name": "Clean Environment",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -497,34 +388,43 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "EDU_FIN_EXP_PT_GDP",
-                "HT_SH_XPD_GHED_GD_ZS",
-                "EC_SP_GOV_EXP_GDP",
-                "EC_TOT_PUB_EXP_GDP",
-                "EC_TOT_PUB_EXP_TOT",
-                "EC_FAM_PUB_EXP_GDP",
-                "EC_FAM_PUB_EXP_TOT",
+                "CR_EG_EGY_CLEAN",
+                "CR_EG_ACS_ELEC",
             ],
-            "default": "EC_TOT_PUB_EXP_TOT",
+            "default": "CR_EG_EGY_CLEAN",
             "default_graph": "line",
         },
     },
-    "DATA": {
-        "NAME": "Data on Children",
+    "DATASPENDING": {
+        "NAME": "Data and Public spending on Children",
         "CARDS": [
+            {
+                "name": "Government expenditure on education as a % of GDP",
+                "indicator": "EDU_FIN_EXP_PT_GDP",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "Total public social expenditure as of % of GDP",
+                "indicator": "EC_TOT_PUB_EXP_GDP",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
+            },
             {
                 "name": "with national statistical legislation exists that complies with the Fundamental Principles of Official Statistics",
                 "indicator": "CR_SG_STT_FPOS",
                 "suffix": "Countries",
+                "absolute": True,
             },
             {
                 "name": "that have conducted at least one population and housing census in the last 10 years",
                 "indicator": "CR_SG_REG_CENSUSN",
                 "suffix": "Countries",
+                "absolute": True,
             },
         ],
         "MAIN": {
-            "name": "Child Victims of Crime",
+            "name": "Availability of data and Public Expendiure on Children",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -539,6 +439,13 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "EC_SP_GOV_EXP_GDP",
+                "EC_TOT_PUB_EXP_GDP",
+                "EC_TOT_PUB_EXP_TOT",
+                "EC_FAM_PUB_EXP_GDP",
+                "EC_FAM_PUB_EXP_TOT",
                 "CR_IQ_SCI_OVRL",
                 "CR_SG_STT_FPOS",
                 "CR_SG_STT_NSDSFND",
@@ -549,9 +456,10 @@ indicators_dict = {
                 "CR_SG_STT_CAPTY",
                 "CR_SG_REG_CENSUSN",
             ],
-            "default": "CR_IQ_SCI_OVRL",
+            "default": "EC_TOT_PUB_EXP_TOT",
         },
         "AREA_1": {
+            "name": "Government Spending on Children",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -561,19 +469,18 @@ indicators_dict = {
             ),
             "compare": "Sex",
             "indicators": [
-                "CR_IQ_SCI_OVRL",
-                "CR_SG_STT_FPOS",
-                "CR_SG_STT_NSDSFND",
-                "CR_SG_STT_NSDSIMPL",
-                "CR_SG_STT_NSDSFDGVT",
-                "CR_SG_STT_NSDSFDDNR",
-                "CR_SG_STT_NSDSFDOTHR",
-                "CR_SG_STT_CAPTY",
-                "CR_SG_REG_CENSUSN",
+                "EDU_FIN_EXP_PT_GDP",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "EC_SP_GOV_EXP_GDP",
+                "EC_TOT_PUB_EXP_GDP",
+                "EC_TOT_PUB_EXP_TOT",
+                "EC_FAM_PUB_EXP_GDP",
+                "EC_FAM_PUB_EXP_TOT",
             ],
-            "default": "CR_IQ_SCI_OVRL",
+            "default": "EC_TOT_PUB_EXP_TOT",
         },
         "AREA_2": {
+            "name": "Availalbity of Data on Children",
             "graphs": {
                 "bar": {
                     "options": dict(
