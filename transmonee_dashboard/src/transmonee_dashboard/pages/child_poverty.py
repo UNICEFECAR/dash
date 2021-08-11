@@ -10,17 +10,17 @@ indicators_dict = {
         "NAME": "Poverty and multi-dimensional deprivation",
         "CARDS": [
             {
-                "name": "living below the national poverty line (%, by residence)",
+                "name": "Population living below the national poverty line",
                 "indicator": "PV_SDG_SI_POV_NAHC",
-                "suffix": "Proportion of Population",
-                "absolute": True,
+                "suffix": "Percentage range among countries",
+                # "absolute": True,
                 "min_max": True,
             },
             {
-                "name": "at risk of poverty or social exclusion (by sex and age groups)",
+                "name": "People at risk of poverty or social exclusion",
                 "indicator": "PV_AROPE",
-                "suffix": "Percent of People",
-                "absolute": True,
+                "suffix": "Percentage range among countries",
+                # "absolute": True,
                 "min_max": True,
             },
         ],
@@ -59,6 +59,7 @@ indicators_dict = {
             "default": "PV_SDG_SI_POV_NAHC",
         },
         "AREA_1": {
+            "name": "Absolute Poverty",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -73,20 +74,14 @@ indicators_dict = {
                 "PV_SI_POV_UMIC",
                 "PV_SDG_SI_POV_NAHC",
                 "PV_WB_SI_POV_NAHC",
-                "PV_AROPE",
-                "PV_AROPRT",
-                "PV_SD_MDP_CSMP",
-                "PV_SD_MDP_MUHHC",
-                "PV_SD_MDP_MUHC",
-                "PV_SI_POV_MDIM",
-                "PV_SI_POV_MDIM_17",
                 "WS_PPL_W-B",
                 "WS_PPL_S-B",
                 "PV_SEV_MAT_DPRT",
             ],
-            "default": "PV_SDG_SI_POV_NAHC",
+            "default": "PV_SI_POV_EMP1",
         },
         "AREA_2": {
+            "name": "Relative Poverty and Deprivation",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -110,11 +105,6 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "PV_SI_POV_EMP1",
-                "PV_SI_POV_DAY1",
-                "PV_SI_POV_UMIC",
-                "PV_SDG_SI_POV_NAHC",
-                "PV_WB_SI_POV_NAHC",
                 "PV_AROPE",
                 "PV_AROPRT",
                 "PV_SD_MDP_CSMP",
@@ -122,34 +112,31 @@ indicators_dict = {
                 "PV_SD_MDP_MUHC",
                 "PV_SI_POV_MDIM",
                 "PV_SI_POV_MDIM_17",
-                "WS_PPL_W-B",
-                "WS_PPL_S-B",
-                "PV_SEV_MAT_DPRT",
             ],
             "default_graph": "line",
-            "default": "PV_SI_POV_EMP1",
+            "default": "PV_AROPE",
         },
     },
     "SOCIALPROTECTION": {
         "NAME": "Social protection system",
         "CARDS": [
             {
-                "name": "covered by at least one social protection benefit (%)",
+                "name": "Population covered by at least one social protection benefit",
                 "indicator": "PV_SI_COV_BENFTS",
-                "suffix": "Proportion of Population",
+                "suffix": "Percentage range among countries",
                 "abosolute": True,
                 "min_max": True,
             },
             {
-                "name": "receiving child/family cash benefit (%)",
+                "name": "Children/households receiving child/family cash benefits",
                 "indicator": "PV_SI_COV_CHLD",
-                "suffix": "Proportion of Children/Households",
+                "suffix": "Percentage range among countries",
                 "abosolute": True,
                 "min_max": True,
             },
         ],
         "MAIN": {
-            "name": "Children without parental care",
+            "name": "Social Protection Transfers",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -180,6 +167,7 @@ indicators_dict = {
             "default": "PV_SI_COV_BENFTS",
         },
         "AREA_1": {
+            "name": "Cash Benefits",
             "type": "bar",
             "options": dict(
                 x="Geographic area",
@@ -189,13 +177,8 @@ indicators_dict = {
             ),
             # compare is the default selection
             "compare": "Sex",
-            "default": "PV_SI_COV_BENFTS",
+            "default": "PV_SI_COV_CHLD",
             "indicators": [
-                "PV_SI_COV_BENFTS",
-                "PV_SI_COV_LMKT",
-                "PV_SI_COV_SOCAST",
-                "PV_SI_COV_SOCINS",
-                "PV_SI_COV_WKINJRY",
                 "PV_SI_COV_CHLD",
                 "PV_SI_COV_DISAB",
                 "PV_SI_COV_MATNL",
@@ -206,6 +189,7 @@ indicators_dict = {
             ],
         },
         "AREA_2": {
+            "name": "Social Assistances other than Cash",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -234,13 +218,6 @@ indicators_dict = {
                 "PV_SI_COV_SOCAST",
                 "PV_SI_COV_SOCINS",
                 "PV_SI_COV_WKINJRY",
-                "PV_SI_COV_CHLD",
-                "PV_SI_COV_DISAB",
-                "PV_SI_COV_MATNL",
-                "PV_SI_COV_POOR",
-                "PV_SI_COV_UEMP",
-                "PV_SI_COV_VULN",
-                "PV_SI_COV_PENSN",
             ],
             "default_graph": "line",
             "default": "PV_SI_COV_BENFTS",

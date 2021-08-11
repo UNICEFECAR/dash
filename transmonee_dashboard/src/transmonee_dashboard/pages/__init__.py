@@ -23,9 +23,15 @@ geocoder = Geocoder(access_token=mapbox_access_token)
 
 def geocode_address(address):
     """Geocode street address into lat/long."""
-    response = geocoder.forward(address)
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
+    # Add this change to return the correct lat/long for the country Czech Republic (returned by SDMX as Czechia)
+    if address == "Czechia":
+        address = "Czech Republic"
+    # Set the type of address to country in order to return the lat/long of the country Georgia and not the US State!
+    response = geocoder.forward(address, types=["country"])
+    # Add this condition to avoid any exception if the country name was not found
+    if response.json()["features"]:
+        coords = response.json()["features"][0]["center"]
+        return dict(longitude=coords[0], latitude=coords[1])
 
 
 codes = [
