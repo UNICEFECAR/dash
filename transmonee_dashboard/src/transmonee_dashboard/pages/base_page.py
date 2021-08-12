@@ -38,7 +38,7 @@ from . import (
     years,
     data,
     countries_dict_filter,
-    countries_dict,
+    countries_iso3_dict,
 )
 from flask import current_app as server
 
@@ -439,12 +439,8 @@ def display_areas(theme, indicators_dict):
 
 # @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, years, countries):
-
-    # print("RE-CACHING!!")
-
-    return data[
-        (data["TIME_PERIOD"].isin(years)) & (data["Geographic area"].isin(countries))
-    ]
+    # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
+    return data[(data["TIME_PERIOD"].isin(years)) & (data["REF_AREA"].isin(countries))]
 
 
 @app.callback(
@@ -485,9 +481,8 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
 
     selected_years = years[slice(*years_slider)]
 
-    # Use the dictionary to return the values of the selected countries based on the SDMX codes
-    countries_selected = countries_dict_filter(countries_dict, countries_selected)
-
+    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
+    countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
