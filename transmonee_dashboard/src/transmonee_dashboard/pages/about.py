@@ -7,4 +7,4 @@ from ..app import app
 
 
 def get_layout(**kwargs):
-    return html.Div(children=[html.H2("Home"), html.Img(src="assets/home.png")])
+    return html.Div("About")
