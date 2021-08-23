@@ -12,12 +12,12 @@ indicators_dict = {
             {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
-                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "suffix": "Primary to upper secondary aged children and adolescents",
             },
             {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
-                "suffix": "Primary to upper secondary aged Girls",
+                "suffix": "Primary to upper secondary aged girls",
                 "sex": "Female",
             },
             {
@@ -334,12 +334,12 @@ indicators_dict = {
             {
                 "name": "Enrolled in private institutions (primary, lower secondary and upper secondary education)",
                 "indicator": "EDUNF_STU_L1_PRV,EDUNF_STU_L2_PRV,EDUNF_STU_L3_PRV",
-                "suffix": "Children and Adolescents",
+                "suffix": "Children and adolescents",
             },
             {
                 "name": "Total in primary, lower secondary and upper secondary education",
                 "indicator": "EDUNF_TEACH_L1,EDUNF_TEACH_L2,EDUNF_TEACH_L3",
-                "suffix": "Classroom Teachers",
+                "suffix": "Classroom teachers",
             },
         ],
         "MAIN": {
