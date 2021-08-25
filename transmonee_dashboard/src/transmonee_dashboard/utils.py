@@ -138,25 +138,10 @@ class DashNavBar:
             if pathname is None:
                 # pathname is None on the first load of the app; ignore this
                 raise PreventUpdate("Ignoring first Location.pathname callback")
-            return self.make_nav2(pathname)
+            return self.make_nav(pathname)
 
     @component
     def make_nav(self, current_path, **kwargs):
-        nav_items = []
-        route_prefix = server.config["ROUTES_PATHNAME_PREFIX"]
-        for i, (path, text) in enumerate(self.nav_items):
-            href = get_url(path)
-            active = (current_path == href) or (i == 0 and current_path == route_prefix)
-            nav_item = dbc.NavItem(
-                dbc.NavLink(text, href=href, active=active),
-                className=f"menu-item{' active' if active else ''}",
-            )
-            nav_items.append(nav_item)
-        # TODO: move class name for nav container to config
-        return html.Ul(nav_items, className="header__menu", **kwargs)
-
-    @component
-    def make_nav2(self, current_path, **kwargs):
         nav_items = []
         route_prefix = server.config["ROUTES_PATHNAME_PREFIX"]
         for i, (path, text, sub_items) in enumerate(self.nav_items):
