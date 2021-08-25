@@ -70,7 +70,7 @@ nav_items2 = (
             ("education", html.Div([fa("fas fa-book"), "Education"])),
             (
                 "child-protection",
-                html.Div([fa("fas fa-child"), "Family environment and protection"]),
+                html.Div([fa("fas fa-child"), "Family Environment and Protection"]),
             ),
             (
                 "child-health",

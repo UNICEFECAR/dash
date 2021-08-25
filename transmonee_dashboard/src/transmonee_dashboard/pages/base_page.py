@@ -707,7 +707,7 @@ def indicator_card(
                 [
                     dbc.PopoverHeader(f"Sources: {indicator}"),
                     dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(sources))
+                        dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
@@ -726,10 +726,9 @@ def indicator_card(
 # it displays the countries as a list, each on a separate line...
 def get_card_popover_body(sources):
     countries = []
-    for index, source_info in enumerate(sources):
-        countries.append(f"- {source_info[0]}: {source_info[1]}")
+    for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+        countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
     card_countries = "\n".join(countries)
-    # print(card_countries)
     return card_countries
 
 
