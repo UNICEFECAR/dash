@@ -421,7 +421,7 @@ def display_areas(theme, indicators_dict):
     return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
 
 
-@cache.memoize()  # will cache based on years and countries combo
+# @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, years, countries):
 
     print("RE-CACHING!!")
@@ -929,10 +929,13 @@ def main_figure(indicator, selections, indicators_dict):
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    return px.scatter_mapbox(df, **options), source
-    # return px.choropleth(df, **options), source
 
-    path_name = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/countries.json"
+    # return px.scatter_mapbox(df, **options), source
+
+    # uncomment for option 1 and check in education page as the options are different
+    return px.choropleth(df, **options), source
+
+    path_name = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/countries.geo.json"
     if os.path.isfile(path_name):
         # Reading the countries from the geo json file
         countries = json.load(open(path_name))
@@ -954,13 +957,14 @@ def main_figure(indicator, selections, indicators_dict):
         mapbox_center={"lat": 48.3794, "lon": 31.1656},
     )
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-    return fig, source
+    # uncomment for option 2
+    # return fig, source
 
     fig = px.choropleth_mapbox(
         df,
         geojson=countries,
         locations="Geographic area",
-        featureidkey="properties.ADMIN",  # was name
+        featureidkey="properties.name",  # was name
         color="OBS_VALUE",
         color_continuous_scale=px.colors.sequential.GnBu,
         range_color=(0, df["OBS_VALUE"].max()),
@@ -977,8 +981,8 @@ def main_figure(indicator, selections, indicators_dict):
         height=750,
     )
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    # uncomment for option 3
     return fig, source
-    # return px.choropleth_mapbox(df, **options), source
 
 
 @app.callback(
