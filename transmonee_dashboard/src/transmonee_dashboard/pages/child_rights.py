@@ -9,12 +9,12 @@ indicators_dict = {
     "DEMOGRAPHY": {
         "NAME": "Demography about Children",
         "CARDS": [
-            {
-                "name": "age 0-17 years",
-                "indicator": "",
-                "suffix": "Total child population",
-                "absolute": True,
-            },
+            # {
+            #     "name": "age 0-17 years",
+            #     "indicator": "",
+            #     "suffix": "Total child population",
+            #     "absolute": True,
+            # },
             {
                 "name": "Children (0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",

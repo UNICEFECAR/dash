@@ -281,15 +281,6 @@ def get_base_layout(**kwargs):
                                         id="area_1_options",
                                         # style={"z-index": "15"},
                                     ),
-                                    html.Br(),
-                                    dbc.RadioItems(
-                                        id="area_1_types",
-                                        options=[
-                                            {"label": "Line", "value": "line"},
-                                            {"label": "Bar", "value": "bar"},
-                                        ],
-                                        inline=True,
-                                    ),
                                     dcc.Graph(id="area_1"),
                                     dbc.RadioItems(
                                         id="area_1_breakdowns",
@@ -325,21 +316,16 @@ def get_base_layout(**kwargs):
                                         id="area_2_options",
                                         className="dcc_control",
                                     ),
-                                    html.Br(),
+                                    html.Div(
+                                        [dcc.Graph(id="area_2")],
+                                        className="pretty_container",
+                                    ),
                                     dbc.RadioItems(
                                         id="area_2_types",
                                         options=[
                                             {"label": "Line", "value": "line"},
                                             {"label": "Bar", "value": "bar"},
                                         ],
-                                        inline=True,
-                                    ),
-                                    html.Div(
-                                        [dcc.Graph(id="area_2")],
-                                        className="pretty_container",
-                                    ),
-                                    dbc.RadioItems(
-                                        id="area_2_breakdowns",
                                         inline=True,
                                     ),
                                     html.Div(
@@ -887,7 +873,6 @@ def set_default_values(theme, indicators_dict):
 
 
 @app.callback(
-    Output("area_1_types", "value"),
     Output("area_2_types", "value"),
     [
         Input("store", "data"),
@@ -896,7 +881,7 @@ def set_default_values(theme, indicators_dict):
 )
 def set_default_chart_types(theme, indicators_dict):
     # set the default chart type value for areas 1 and 2 as by default nothing is selected and the chart is displayed by default
-    areas = AREA_KEYS[1:3]
+    areas = AREA_KEYS[2]
     defaults = [
         indicators_dict[theme["theme"]][area].get("default_graph") for area in areas
     ]
@@ -1024,30 +1009,6 @@ def breakdown_options(indicator):
     return options
 
 
-@app.callback(
-    Output("area_2_breakdowns", "options"),
-    [
-        Input("area_2_options", "value"),
-    ],
-)
-def breakdown_options_area2(indicator):
-
-    options = [{"label": "Total", "value": "Total"}]
-
-    for item in [
-        {"label": "Sex", "value": "Sex"},
-        {"label": "Age", "value": "Age"},
-        {"label": "Residence", "value": "Residence"},
-        {"label": "Wealth Quintile", "value": "Wealth Quintile"},
-    ]:
-
-        # OR: compute data[data["CODE"] == indicator] once outside loop?
-        if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
-            options.append(item)
-
-    return options
-
-
 # Beto's Note: does it make sense to have default compare in config?
 @app.callback(
     # Output("main_options", "value"),
@@ -1063,25 +1024,6 @@ def breakdown_options_area2(indicator):
     ],
 )
 def set_default_compare(compare_options, indicators_dict):
-
-    return (
-        compare_options[1]["value"]
-        if len(compare_options) > 1
-        else compare_options[0]["value"]
-    )
-
-
-# Beto's Note: does it make sense to have default compare in config?
-@app.callback(
-    Output("area_2_breakdowns", "value"),
-    [
-        Input("area_2_breakdowns", "options"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
-)
-def set_default_compare_area2(compare_options, indicators_dict):
 
     return (
         compare_options[1]["value"]
@@ -1148,31 +1090,23 @@ def main_figure(indicator, selections, indicators_dict):
         Input("store", "data"),
         Input("area_1_options", "value"),
         Input("area_1_breakdowns", "value"),
-        Input("area_1_types", "value"),
     ],
     [
         State("indicators", "data"),
     ],
 )
-def area_1_figure(selections, indicator, compare, selected_type, indicators_dict):
+def area_1_figure(selections, indicator, compare, indicators_dict):
 
     # only run if indicator not empty
     if not indicator:
         return {}, {}
 
-    # fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
-    default = indicators_dict[selections["theme"]]["AREA_1"]["default_graph"]
-    fig_type = selected_type if selected_type else default
-
-    config = indicators_dict[selections["theme"]]["AREA_1"]["graphs"][fig_type]
-    # compare = config.get("compare")
-    options = config.get("options")
-    traces = config.get("trace_options")
-
-    # options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
+    fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
+    options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
     compare = False if compare == "Total" else compare
 
     columns = ["CODE", "Indicator", "Geographic area"]
+    aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
     query = "CODE == @indicator"
 
     if compare:
@@ -1187,17 +1121,13 @@ def area_1_figure(selections, indicator, compare, selected_type, indicators_dict
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-
-    data_cached = get_filtered_dataset(**selections).query(query)
-
-    # toggle time-series selection based on figure type
-    if fig_type == "bar":
-        # get rid of time-series for bar plot
-        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        df = data_cached.groupby(columns).agg(aggregates).reset_index()
-    else:
-        # line plot: uses query directly keeping time series
-        df = data_cached
+    df = (
+        get_filtered_dataset(**selections)
+        .query(query)
+        .groupby(columns)
+        .agg(aggregates)
+        .reset_index()
+    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1205,69 +1135,10 @@ def area_1_figure(selections, indicator, compare, selected_type, indicators_dict
         options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
+    # fig.update_layout(title_x=1)
     fig.update_xaxes(categoryorder="total descending")
 
     return fig, source
-
-
-# @app.callback(
-#     Output("area_1", "figure"),
-#     Output("area_1_sources", "children"),
-#     [
-#         Input("store", "data"),
-#         Input("area_1_options", "value"),
-#         Input("area_1_breakdowns", "value"),
-#     ],
-#     [
-#         State("indicators", "data"),
-#     ],
-# )
-# def area_1_figure(selections, indicator, compare, indicators_dict):
-
-#     # only run if indicator not empty
-#     if not indicator:
-#         return {}, {}
-
-#     fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
-#     options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
-#     compare = False if compare == "Total" else compare
-
-#     columns = ["CODE", "Indicator", "Geographic area"]
-#     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-#     query = "CODE == @indicator"
-
-#     if compare:
-#         columns.append(compare)
-#         # total = get_disag_total(data, indicator, compare)
-#         # query = "{} & `{}` != '{}'".format(query, compare, total)
-#         total_if_disag_query = get_total_query(data, indicator, True, compare)
-#     else:
-#         total_if_disag_query = get_total_query(data, indicator)
-
-#     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
-
-#     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-#     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-#     df = (
-#         get_filtered_dataset(**selections)
-#         .query(query)
-#         .groupby(columns)
-#         .agg(aggregates)
-#         .reset_index()
-#     )
-
-#     options["labels"] = DEFAULT_LABELS.copy()
-#     options["labels"]["OBS_VALUE"] = name
-#     if compare:
-#         options["color"] = compare
-
-#     fig = getattr(px, fig_type)(df, **options)
-#     # fig.update_layout(title_x=1)
-#     fig.update_xaxes(categoryorder="total descending")
-
-#     return fig, source
 
 
 @app.callback(
@@ -1277,7 +1148,6 @@ def area_1_figure(selections, indicator, compare, selected_type, indicators_dict
         Input("store", "data"),
         Input("area_1_options", "value"),
         Input("area_2_options", "value"),
-        Input("area_2_breakdowns", "value"),
         Input("area_2_types", "value"),
     ],
     [
@@ -1288,7 +1158,6 @@ def area_2_figure(
     selections,
     area_1_selected,
     area_2_selected,
-    compare,
     selected_type,
     indicators_dict,
 ):
