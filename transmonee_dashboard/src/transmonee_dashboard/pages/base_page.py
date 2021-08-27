@@ -881,11 +881,8 @@ def set_default_values(theme, indicators_dict):
 )
 def set_default_chart_types(theme, indicators_dict):
     # set the default chart type value for areas 1 and 2 as by default nothing is selected and the chart is displayed by default
-    areas = AREA_KEYS[2]
-    defaults = [
-        indicators_dict[theme["theme"]][area].get("default_graph") for area in areas
-    ]
-    return defaults
+    area = AREA_KEYS[2]
+    return indicators_dict[theme["theme"]][area].get("default_graph")
 
 
 # does this function assume dimension is a disaggregation?

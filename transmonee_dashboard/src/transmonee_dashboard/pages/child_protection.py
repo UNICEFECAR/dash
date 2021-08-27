@@ -98,7 +98,6 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "default_graph": "bar",
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "PT_F_GE15_SX_V_PTNR_12MNTH",
