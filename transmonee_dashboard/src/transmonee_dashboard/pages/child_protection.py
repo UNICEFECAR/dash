@@ -59,14 +59,40 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Violent Discipline",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="Geographic area",
+                        hover_data=["Geographic area", "OBS_VALUE", "TIME_PERIOD"],
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "PT_ADLT_PS_NEC",
@@ -86,17 +112,17 @@ indicators_dict = {
                     ),
                     "compare": "Sex",
                 },
-                # "line": {
-                #     "options": dict(
-                #         x="TIME_PERIOD",
-                #         y="OBS_VALUE",
-                #         color="Geographic area",
-                #         hover_name="Geographic area",
-                #         line_shape="spline",
-                #         render_mode="svg",
-                #     ),
-                #     "trace_options": dict(mode="lines+markers"),
-                # },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
             },
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
@@ -178,15 +204,41 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Residencial Care",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="Geographic area",
+                        hover_data=["Geographic area", "OBS_VALUE", "TIME_PERIOD"],
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # # compare is the default selection
+            # "compare": "Sex",
             "default": "PT_CHLD_INRESIDENTIAL",
             "indicators": [
                 "PT_CHLD_INRESIDENTIAL",
