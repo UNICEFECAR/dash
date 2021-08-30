@@ -814,17 +814,6 @@ def show_themes(selections, current_themes, indicators_dict):
     ],
 )
 def set_options(theme, indicators_dict, id):
-    # ctx = dash.callback_context
-
-    # if not ctx.triggered:
-    #     control_id = "No clicks yet"
-    # else:
-    #     control_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    # ctx_msg = json.dumps(
-    #     {"states": ctx.states, "triggered": ctx.triggered, "inputs": ctx.inputs},
-    #     indent=2,
-    # )
     return [
         {
             "label": item["Indicator"],
