@@ -1,18 +1,9 @@
-import urllib
 import collections
-import datetime as dt
-import pandas as pd
-import numpy as np
-from dash.dependencies import Input, Output, State, ClientsideFunction
-import dash_core_components as dcc
+import urllib
+
 import dash_html_components as html
-import dash_bootstrap_components as dbc
 import pandas as pd
 from mapbox import Geocoder
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
