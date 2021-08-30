@@ -1,3 +1,4 @@
+from dash_html_components.Title import Title
 import pandas as pd
 
 import plotly.express as px
@@ -460,7 +461,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Nutrition status ",
+            "name": "Nutrition status",
             "geo": "Geographic area",
             "options": dict(
                 lat="latitude",
@@ -527,9 +528,9 @@ indicators_dict = {
                 "NT_BF_EIBF",
                 "NT_BF_EXBF",
                 "NT_CF_MAD",
-                "HT_SH_STA_ANEM",
-                "HT_SH_STA_ANEM_NPRG",
-                "HT_SH_STA_ANEM_PREG",
+                "NT_ANT_WHZ_PO2",
+                "NT_ANT_HAZ_NE2",
+                "HT_SN_STA_OVWGTN",
                 "NT_BW_UNW",
             ],
             "default": "NT_BW_LBW",
@@ -559,9 +560,9 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "NT_ANT_WHZ_PO2",
-                "NT_ANT_HAZ_NE2",
-                "HT_SN_STA_OVWGTN",
+                "HT_SH_STA_ANEM",
+                "HT_SH_STA_ANEM_NPRG",
+                "HT_SH_STA_ANEM_PREG",
             ],
             "default_graph": "line",
             "default": "NT_ANT_WHZ_PO2",
@@ -941,7 +942,10 @@ indicators_dict = {
     },
 }
 
+main_title = "Child Health"
+
 
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)

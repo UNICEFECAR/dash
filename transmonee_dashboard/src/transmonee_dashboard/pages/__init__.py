@@ -1,18 +1,9 @@
-import urllib
 import collections
-import datetime as dt
-import pandas as pd
-import numpy as np
-from dash.dependencies import Input, Output, State, ClientsideFunction
-import dash_core_components as dcc
+import urllib
+
 import dash_html_components as html
-import dash_bootstrap_components as dbc
 import pandas as pd
 from mapbox import Geocoder
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
@@ -22,16 +13,14 @@ geocoder = Geocoder(access_token=mapbox_access_token)
 
 
 def geocode_address(address):
-    """Geocode street address into lat/long."""
-    # Add this change to return the correct lat/long for the country Czech Republic (returned by SDMX as Czechia)
-    if address == "Czechia":
-        address = "Czech Republic"
+    """Geocode iso3 country code into lat/long."""
     # Set the type of address to country in order to return the lat/long of the country Georgia and not the US State!
-    response = geocoder.forward(address, types=["country"])
-    # Add this condition to avoid any exception if the country name was not found
-    if response.json()["features"]:
-        coords = response.json()["features"][0]["center"]
-        return dict(longitude=coords[0], latitude=coords[1])
+    # Had to change the ISO3 of Kosovo ==> need to check Kosovo ISO3 code returned by SDMX
+    response = geocoder.forward(
+        "KOS" if address == "XKX" else address, types=["country"]
+    )
+    coords = response.json()["features"][0]["center"]
+    return dict(longitude=coords[0], latitude=coords[1])
 
 
 codes = [
@@ -506,6 +495,66 @@ countries_dict = {
     "Uzbekistan": "Uzbekistan",
 }
 
+# a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
+# tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
+countries_iso3_dict = {
+    "Albania": "ALB",
+    "Andorra": "AND",
+    "Armenia": "ARM",
+    "Austria": "AUT",
+    "Azerbaijan": "AZE",
+    "Belarus": "BLR",
+    "Belgium": "BEL",
+    "Bosnia and Herzegovina": "BIH",
+    "Bulgaria": "BGR",
+    "Croatia": "HRV",
+    "Cyprus": "CYP",
+    "Czech Republic": "CZE",
+    "Denmark": "DNK",
+    "Estonia": "EST",
+    "Finland": "FIN",
+    "France": "FRA",
+    "Georgia": "GEO",
+    "Germany": "DEU",
+    "Greece": "GRC",
+    "Holy See": "VAT",
+    "Hungary": "HUN",
+    "Iceland": "ISL",
+    "Ireland": "IRL",
+    "Italy": "ITA",
+    "Kazakhstan": "KAZ",
+    "Kosovo (UN SC resolution 1244)": "XKX",  # UNDP defines it as KOS
+    "Kyrgyzstan": "KGZ",
+    "Latvia": "LVA",
+    "Liechtenstein": "LIE",
+    "Lithuania": "LTU",
+    "Luxembourg": "LUX",
+    "Malta": "MLT",
+    "Monaco": "MCO",
+    "Montenegro": "MNE",
+    "Netherlands": "NLD",
+    "North Macedonia": "MKD",
+    "Norway": "NOR",
+    "Poland": "POL",
+    "Portugal": "PRT",
+    "Republic of Moldova": "MDA",
+    "Romania": "ROU",
+    "Russian Federation": "RUS",
+    "San Marino": "SMR",
+    "Serbia": "SRB",
+    "Slovakia": "SVK",
+    "Slovenia": "SVN",
+    "Spain": "ESP",
+    "Sweden": "SWE",
+    "Switzerland": "CHE",
+    "Tajikistan": "TJK",
+    "Turkey": "TUR",
+    "Turkmenistan": "TKM",
+    "Ukraine": "UKR",
+    "United Kingdom": "GBR",
+    "Uzbekistan": "UZB",
+}
+
 countries = [
     "Albania",
     "Andorra",
@@ -546,8 +595,8 @@ countries = [
     "Norway",
     "Poland",
     "Portugal",
-    "Romania",
     "Republic of Moldova",
+    "Romania",
     "Russian Federation",
     "San Marino",
     "Serbia",
@@ -575,16 +624,16 @@ unicef_country_prog = [
     "Georgia",
     "Greece",
     "Kazakhstan",
+    "Kosovo (UN SC resolution 1244)",
     "Kyrgyzstan",
-    "Kosovo (UN SC resolution 1244)",  # Kosovo
     "Montenegro",
     "North Macedonia",
     "Republic of Moldova",
     "Romania",
     "Serbia",
     "Tajikistan",
-    "Turkmenistan",
     "Turkey",
+    "Turkmenistan",
     "Ukraine",
     "Uzbekistan",
 ]
@@ -841,10 +890,10 @@ data = data.merge(
     right=pd.DataFrame(
         [
             dict(country=country, **geocode_address(country))
-            for country in countries_dict.values()
+            for country in countries_iso3_dict.values()
         ]
     ),
-    left_on="Geographic area",
+    left_on="REF_AREA",  # was: Geographic area
     right_on="country",
 )
 

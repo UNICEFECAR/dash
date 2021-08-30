@@ -1,5 +1,6 @@
 -e ./transmonee_dashboard
 
+orjson
 dash_treeview_antd
 backcall==0.2.0
 boto3==1.17.42

@@ -96,7 +96,7 @@ indicators_dict = {
             {
                 "name": "of registered crimes committed against children (during the year)",
                 "indicator": "JJ_CHLD_CRIME",
-                "suffix": "Total Number",
+                "suffix": "Total number",
             },
         ],
         "MAIN": {
@@ -549,7 +549,10 @@ indicators_dict = {
     },
 }
 
+main_title = "Participation"
+
 
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)

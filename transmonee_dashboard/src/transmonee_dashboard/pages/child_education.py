@@ -537,6 +537,10 @@ indicators_dict = {
 }
 
 
+main_title = "Education"
+
+
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)

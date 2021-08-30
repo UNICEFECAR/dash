@@ -1,33 +1,13 @@
-from re import split
-import re
-import urllib
-import pickle
-import copy
-import pathlib
 import dash
-import math
-import datetime as dt
-import pandas as pd
-import numpy as np
-from itertools import cycle
-import json
-
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_bootstrap_components as dbc
-from dash import callback_context
+import dash_treeview_antd
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 
-
-import plotly.io as pio
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-
-import dash_treeview_antd
-
-from ..components import fa
-from ..app import app, cache
 from . import (
     mapbox_access_token,
     unicef_country_prog,
@@ -38,9 +18,10 @@ from . import (
     years,
     data,
     countries_dict_filter,
-    countries_dict,
+    countries_iso3_dict,
 )
-from flask import current_app as server
+from ..app import app, cache
+from ..components import fa
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -72,16 +53,42 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    main_title = kwargs.get("main_title")
+
     # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
         kwargs.get("hash")
         if kwargs.get("hash")
         else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
-        # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
-
     return html.Div(
         [
+            html.Div(
+                className="heading",
+                style={"padding": 36},
+                children=[
+                    html.Div(
+                        className="heading-content",
+                        children=[
+                            html.Div(
+                                className="heading-panel",
+                                style={"padding": 20},
+                                children=[
+                                    html.H1(
+                                        main_title,
+                                        id="main_title",
+                                        className="heading-title",
+                                    ),
+                                    html.P(
+                                        id="subtitle",
+                                        className="heading-subtitle",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            ),
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
             dbc.Row(
@@ -308,7 +315,10 @@ def get_base_layout(**kwargs):
                                         # id="area_2_options",
                                         className="dcc_control",
                                     ),
-                                    html.Br(),
+                                    html.Div(
+                                        [dcc.Graph(id="area_2")],
+                                        className="pretty_container",
+                                    ),
                                     dbc.RadioItems(
                                         id={"type": "area_types", "index": 2},
                                         # id="area_2_types",
@@ -516,13 +526,23 @@ def display_areas(theme, indicators_dict, id):
     return area not in indicators_dict[theme]
 
 
-# @cache.memoize()  # will cache based on years and countries combo
-def get_filtered_dataset(theme, years, countries):
+@cache.memoize()  # will cache based on years and countries combo
+def get_filtered_dataset(theme, indicators_dict, years, countries):
 
-    # print("RE-CACHING!!")
+    print("CACHE BREAK!!!")
+    indicators = []
+    for area in AREA_KEYS:
+        if area in indicators_dict[theme]:
+            indicators.extend(indicators_dict[theme][area]["indicators"])
+    # add card indicators
+    for card in indicators_dict[theme]["CARDS"]:
+        indicators.extend(card["indicator"].split(","))
 
+    # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
     return data[
-        (data["TIME_PERIOD"].isin(years)) & (data["Geographic area"].isin(countries))
+        (data["TIME_PERIOD"].isin(years))
+        & (data["REF_AREA"].isin(countries))
+        & (data["CODE"].isin(indicators))
     ]
 
 
@@ -543,45 +563,47 @@ def get_filtered_dataset(theme, years, countries):
     ],
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
+
     ctx = dash.callback_context
-
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
-
     countries_selected = set()
+
     if programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
-    elif not country_selector:
+    # Add the condition to know when the user unchecks the UNICEF country programs!
+    elif not country_selector or (
+        not programme_toggle and selected == "programme-toggle"
+    ):
         countries_selected = countries
+        # Add this to check all the items in the selection tree
+        country_selector = ["0"]
     else:
         for index in country_selector:
             countries_selected.update(selection_index[index])
             if countries_selected == countries:
-                # if all countries are all selectred then stop
+                # if all countries are all selected then stop
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-
     selected_years = years[slice(*years_slider)]
 
-    # Use the dictionary to return the values of the selected countries based on the SDMX codes
-    countries_selected = countries_dict_filter(countries_dict, countries_selected)
-
+    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
+    countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
+        indicators_dict=indicators,
         years=selected_years,
-        countries=list(
-            countries_selected.values()
-        ),  # use the values after the change done
+        countries=list(countries_selected.values()),
     )
 
-    # get_filtered_dataset(**selections)
-
+    get_filtered_dataset(**selections)
     return (
         selections,
         country_selector,
-        countries_selected == unicef_country_prog,
+        # Fix the condition after using the dict of name/iso for countries
+        list(countries_selected.keys()) == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -605,18 +627,18 @@ def indicator_card(
 
     numors = numerator.split(",")
 
+    # use filtered chached dataset
+    filtered_data = get_filtered_dataset(**selections)
+
     # build the (target + rest total) query
     # target code is Total unless is not None
     sex_code = sex_code if sex_code else "Total"
     # use one of the numerators if more than one --> assume all have the same disaggregation
     # other possibility could be to generalize more get_target_query function ...
-    target_and_total_query = get_target_query(data, numors[0], "Sex", sex_code)
+    target_and_total_query = get_target_query(filtered_data, numors[0], "Sex", sex_code)
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
-
-    # use filtered chached dataset
-    filtered_data = get_filtered_dataset(**selections)
 
     # select last value for each country
     indicator_values = (
@@ -713,14 +735,6 @@ def indicator_card(
     else:
         indicator_header = "{:,.0f}".format(indicator_sum)
 
-    label = (
-        filtered_data[filtered_data["CODE"].isin(indicator)]["Indicator"].unique()[0]
-        if len(
-            filtered_data[filtered_data["CODE"].isin(indicator)]["Indicator"].unique()
-        )
-        else "None"
-    )
-    # print(name)
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -756,7 +770,7 @@ def indicator_card(
                 [
                     dbc.PopoverHeader(f"Sources: {indicator}"),
                     dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(sources))
+                        dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
@@ -775,10 +789,9 @@ def indicator_card(
 # it displays the countries as a list, each on a separate line...
 def get_card_popover_body(sources):
     countries = []
-    for index, source_info in enumerate(sources):
-        countries.append(f"- {source_info[0]}: {source_info[1]}")
+    for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+        countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
     card_countries = "\n".join(countries)
-    # print(card_countries)
     return card_countries
 
 
@@ -809,6 +822,21 @@ def show_cards(selections, current_cards, indicators_dict):
 
 
 # Added this function to add the button group and set the correct active button
+@app.callback(
+    # Output("main_title", "children"),
+    Output("subtitle", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def show_header_titles(theme, indicators_dict):
+    subtitle = indicators_dict[theme["theme"]].get("NAME")
+    return subtitle
+
+
+# Added this function to add the button group and set the correct active button,
+# TODO: This can be replaced by a generic callback to set the active button on click
 @app.callback(
     Output("themes", "children"),
     [
@@ -1067,6 +1095,8 @@ def main_figure(indicator, selections, indicators_dict):
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
     # compare = "Sex"
 
+    data = get_filtered_dataset(**selections)
+
     # total = "Total"  # potentially move to this config
     query = "CODE == @indicator"
     total_if_disag_query = get_total_query(data, indicator)
@@ -1076,8 +1106,7 @@ def main_figure(indicator, selections, indicators_dict):
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
 
     df = (
-        get_filtered_dataset(**selections)
-        .query(query)
+        data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
         .sort_values(
@@ -1150,7 +1179,10 @@ def area_figure(
     compare = False if compare == "Total" else compare
 
     columns = ["CODE", "Indicator", "Geographic area"]
+    aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
     query = "CODE == @indicator"
+
+    data = get_filtered_dataset(**selections)
 
     if compare:
         columns.append(compare)
@@ -1162,17 +1194,7 @@ def area_figure(
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-
-    data_cached = get_filtered_dataset(**selections).query(query)
-
-    # toggle time-series selection based on figure type
-    if fig_type == "bar":
-        # get rid of time-series for bar plot
-        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        df = data_cached.groupby(columns).agg(aggregates).reset_index()
-    else:
-        # line plot: uses query directly keeping time series
-        df = data_cached
+    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1180,8 +1202,7 @@ def area_figure(
         options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
+    # fig.update_layout(title_x=1)
     fig.update_xaxes(categoryorder="total descending")
 
     return fig, source
@@ -1194,7 +1215,6 @@ def area_figure(
         Input("store", "data"),
         Input("area_1_options", "value"),
         Input("area_2_options", "value"),
-        Input("area_2_breakdowns", "value"),
         Input("area_2_types", "value"),
     ],
     [
@@ -1205,7 +1225,6 @@ def area_2_figure(
     selections,
     area_1_selected,
     area_2_selected,
-    compare,
     selected_type,
     indicators_dict,
 ):
@@ -1226,12 +1245,14 @@ def area_2_figure(
     # aggregates = {"OBS_VALUE": "mean"}
     query = "CODE == @indicator"
 
+    data = get_filtered_dataset(**selections)
+
     # assuming area_2 is for totals, then use area_1 logic for totals
     total_if_disag_query = get_total_query(data, indicator)
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     # query data based on cache
-    data_cached = get_filtered_dataset(**selections).query(query)
+    data_cached = data.query(query)
 
     # toggle time-series selection based on figure type
     if fig_type == "bar":
@@ -1241,15 +1262,6 @@ def area_2_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
-
-    # if compare:
-    #     columns.append(compare)
-    #     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-    #     total = get_disag_total(data, indicator, compare)
-    #     query = "{} & `{}` != '{}'".format(query, compare, total)
-    # else:
-    #     # if no compare then get single value for the year
-    #     columns.append("TIME_PERIOD")
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
@@ -1289,6 +1301,8 @@ def area_3_figure(selections, indicator, indicators_dict):
     compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
     options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
 
+    data = get_filtered_dataset(**selections)
+
     total = "Total"  # potentially move to this config
     cohorts = data[data["CODE"] == indicator][compare].unique()
     query = "CODE in @indicator"
@@ -1298,8 +1312,7 @@ def area_3_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        get_filtered_dataset(**selections)
-        .query(query)
+        data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", compare])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
         .reset_index()
@@ -1339,6 +1352,8 @@ def area_4_figure(selections, indicator, indicators_dict):
     options = config.get("options")
     traces = config.get("trace_options")
 
+    data = get_filtered_dataset(**selections)
+
     query = "CODE == @indicator"
     if compare:
         query = "{} & {} != 'Total'".format(query, compare)
@@ -1346,8 +1361,7 @@ def area_4_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        get_filtered_dataset(**selections)
-        .query(query)
+        data.query(query)
         .groupby(
             [
                 "CODE",

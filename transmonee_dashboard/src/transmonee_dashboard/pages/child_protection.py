@@ -59,40 +59,14 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Violent Discipline",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="Geographic area",
-                        hover_data=["Geographic area", "OBS_VALUE", "TIME_PERIOD"],
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            # "type": "bar",
-            # "options": dict(
-            #     x="Geographic area",
-            #     y="OBS_VALUE",
-            #     barmode="group",
-            #     text="TIME_PERIOD",
-            # ),
-            # "compare": "Sex",
+            "type": "bar",
+            "options": dict(
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
+            ),
+            "compare": "Sex",
             "indicators": [
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "PT_ADLT_PS_NEC",
@@ -204,41 +178,15 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Residencial Care",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="Geographic area",
-                        hover_data=["Geographic area", "OBS_VALUE", "TIME_PERIOD"],
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            # "type": "bar",
-            # "options": dict(
-            #     x="Geographic area",
-            #     y="OBS_VALUE",
-            #     barmode="group",
-            #     text="TIME_PERIOD",
-            # ),
-            # # compare is the default selection
-            # "compare": "Sex",
+            "type": "bar",
+            "options": dict(
+                x="Geographic area",
+                y="OBS_VALUE",
+                barmode="group",
+                text="TIME_PERIOD",
+            ),
+            # compare is the default selection
+            "compare": "Sex",
             "default": "PT_CHLD_INRESIDENTIAL",
             "indicators": [
                 "PT_CHLD_INRESIDENTIAL",
@@ -557,6 +505,10 @@ indicators_dict = {
 }
 
 
+main_title = "Family environment and protection from violence and harmful practices"
+
+
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)
