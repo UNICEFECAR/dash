@@ -9,12 +9,12 @@ indicators_dict = {
     "DEMOGRAPHY": {
         "NAME": "Demography about Children",
         "CARDS": [
-            {
-                "name": "age 0-17 years",
-                "indicator": "",
-                "suffix": "Total child population",
-                "absolute": True,
-            },
+            # {
+            #     "name": "age 0-17 years",
+            #     "indicator": "",
+            #     "suffix": "Total child population",
+            #     "absolute": True,
+            # },
             {
                 "name": "Children (0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",
@@ -95,13 +95,13 @@ indicators_dict = {
             {
                 "name": "Human Development Index (HDI)",
                 "indicator": "EC_HDI",
-                "suffix": "Index value range among Countries",
+                "suffix": "Index value range among countries",
                 "min_max": True,
             },
             {
                 "name": "Unemployment estimate as % of Total Labor Force",
                 "indicator": "EC_SL_UEM_TOTL_NE_ZS",
-                "suffix": "Index value Range among Countries",
+                "suffix": "Index value range among countries",
                 "min_max": True,
             },
         ],
@@ -217,7 +217,7 @@ indicators_dict = {
             {
                 "name": "Net Migration",
                 "indicator": "EC_SL_UEM_TOTL_ZS",
-                "suffix": "Thousands of Persons",
+                "suffix": "Thousands of persons",
                 "absolute": True,
             },
             {

@@ -96,7 +96,7 @@ indicators_dict = {
             {
                 "name": "of registered crimes committed against children (during the year)",
                 "indicator": "JJ_CHLD_CRIME",
-                "suffix": "Total Number",
+                "suffix": "Total number",
             },
         ],
         "MAIN": {

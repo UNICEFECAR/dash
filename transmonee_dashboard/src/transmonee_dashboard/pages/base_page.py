@@ -38,7 +38,7 @@ from . import (
     years,
     data,
     countries_dict_filter,
-    countries_dict,
+    countries_iso3_dict,
 )
 from flask import current_app as server
 
@@ -439,12 +439,8 @@ def display_areas(theme, indicators_dict):
 
 # @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, years, countries):
-
-    # print("RE-CACHING!!")
-
-    return data[
-        (data["TIME_PERIOD"].isin(years)) & (data["Geographic area"].isin(countries))
-    ]
+    # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
+    return data[(data["TIME_PERIOD"].isin(years)) & (data["REF_AREA"].isin(countries))]
 
 
 @app.callback(
@@ -465,29 +461,30 @@ def get_filtered_dataset(theme, years, countries):
 )
 def apply_filters(theme, years_slider, country_selector, programme_toggle, indicators):
     ctx = dash.callback_context
-
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
-
     countries_selected = set()
     if programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
-    elif not country_selector:
+    # Add the condition to know when the user unchecks the UNICEF country programs!
+    elif not country_selector or (
+        not programme_toggle and selected == "programme-toggle"
+    ):
         countries_selected = countries
+        # Add this to check all the items in the selection tree
+        country_selector = ["0"]
     else:
         for index in country_selector:
             countries_selected.update(selection_index[index])
             if countries_selected == countries:
-                # if all countries are all selectred then stop
+                # if all countries are all selected then stop
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-
     selected_years = years[slice(*years_slider)]
 
-    # Use the dictionary to return the values of the selected countries based on the SDMX codes
-    countries_selected = countries_dict_filter(countries_dict, countries_selected)
-
+    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
+    countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
@@ -498,11 +495,11 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     )
 
     # get_filtered_dataset(**selections)
-
     return (
         selections,
         country_selector,
-        countries_selected == unicef_country_prog,
+        # Fix the condition after using the dict of name/iso for countries
+        list(countries_selected.keys()) == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
