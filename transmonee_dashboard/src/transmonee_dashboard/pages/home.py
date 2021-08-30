@@ -43,6 +43,11 @@ def get_layout(**kwargs):
                                         src="assets/home.png",
                                         className="rounded mx-auto d-block",
                                     ),
+                                    html.Br(),
+                                    html.H4(
+                                        "What you can find here...",
+                                        className="card-title",
+                                    ),
                                 ]
                             ),
                         ]
