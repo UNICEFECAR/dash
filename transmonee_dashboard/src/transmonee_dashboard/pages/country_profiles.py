@@ -21,7 +21,7 @@ def get_layout(**kwargs):
                                 style={"padding": 20},
                                 children=[
                                     html.H1(
-                                        "Home",
+                                        "Country Profiles",
                                         id="main_title",
                                         className="heading-title",
                                     ),
@@ -31,25 +31,5 @@ def get_layout(**kwargs):
                     ),
                 ],
             ),
-            html.Br(),
-            html.Div(
-                children=[
-                    dbc.Card(
-                        [
-                            dbc.CardHeader(html.H3("State of Children Rights")),
-                            dbc.CardBody(
-                                [
-                                    html.Img(
-                                        src="assets/home.png",
-                                        className="rounded mx-auto d-block",
-                                    ),
-                                ]
-                            ),
-                        ]
-                    ),
-                ],
-                style={"textAlign": "center"},
-            ),
-            html.Br(),
         ],
     )

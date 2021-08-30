@@ -10,8 +10,9 @@ from .pages import (
     child_rights,
     child_participation,
     home,
-    about,
-    contact,
+    overview,
+    resources,
+    country_profiles,
 )
 from .components import fa
 
@@ -21,14 +22,15 @@ from .components import fa
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
 urls = (
     ("", home.get_layout),
-    ("about", about.get_layout),
-    ("contact", contact.get_layout),
+    ("overview", overview.get_layout),
     ("education", education.get_layout),
     ("child-protection", child_protection.get_layout),
     ("child-health", child_health.get_layout),
     ("child-poverty", child_poverty.get_layout),
     ("child-rights", child_rights.get_layout),
     ("child-participation", child_participation.get_layout),
+    ("profiles", country_profiles.get_layout),
+    ("resources", resources.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -37,7 +39,7 @@ urls = (
 # keyword argument for a Dash component (ie a Dash Component or a string).
 nav_items = (
     ("", html.Div([fa("fas fa-home"), "Home"]), []),
-    ("about", html.Div([fa("fas fa-info-circle"), "About"]), []),
+    ("overview", html.Div([fa("fas fa-info-circle"), "Overview"]), []),
     (
         "sectors",
         "Sectors",
@@ -69,7 +71,8 @@ nav_items = (
             ("ecd", html.Div([fa("fas fa-baby"), "ECD"])),
         ],
     ),
-    ("contact", html.Div([fa("fas fa-address-book"), "Contact"]), []),
+    ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
+    ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
 )
 
 nav_items_full_names = {
