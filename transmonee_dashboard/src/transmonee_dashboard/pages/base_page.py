@@ -203,7 +203,8 @@ def get_base_layout(**kwargs):
                         dbc.Card(
                             [
                                 dbc.CardHeader(
-                                    id="main_area_title",
+                                    id={"type": "area_title", "index": 0},
+                                    # id="main_area_title",
                                 ),
                                 dbc.CardBody(
                                     [
@@ -244,7 +245,8 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         [
                             dbc.CardHeader(
-                                id="area_1_title",
+                                id={"type": "area_title", "index": 1},
+                                # id="area_1_title",
                             ),
                             dbc.CardBody(
                                 [
@@ -290,12 +292,14 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id="area_1_parent",
+                        id={"type": "area_parent", "index": 1},
+                        # id="area_1_parent",
                     ),
                     dbc.Card(
                         [
                             dbc.CardHeader(
-                                id="area_2_title",
+                                id={"type": "area_title", "index": 2},
+                                # id="area_2_title",
                             ),
                             dbc.CardBody(
                                 [
@@ -346,7 +350,8 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id="area_2_parent",
+                        id={"type": "area_parent", "index": 2},
+                        # id="area_2_parent",
                     ),
                 ],
             ),
@@ -356,7 +361,8 @@ def get_base_layout(**kwargs):
                     dbc.Card(
                         [
                             dbc.CardHeader(
-                                id="area_3_title",
+                                id={"type": "area_title", "index": 3},
+                                # id="area_3_title",
                             ),
                             dbc.CardBody(
                                 [
@@ -387,12 +393,14 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id="area_3_parent",
+                        id={"type": "area_parent", "index": 3},
+                        # id="area_3_parent",
                     ),
                     dbc.Card(
                         [
                             dbc.CardHeader(
-                                id="area_4_title",
+                                id={"type": "area_title", "index": 4},
+                                # id="area_4_title",
                             ),
                             dbc.CardBody(
                                 [
@@ -423,7 +431,8 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id="area_4_parent",
+                        id={"type": "area_parent", "index": 4},
+                        # id="area_4_parent",
                     ),
                 ],
             ),
@@ -466,16 +475,17 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
 
 
 @app.callback(
-    Output("area_1_parent", "hidden"),
-    Output("area_2_parent", "hidden"),
-    Output("area_3_parent", "hidden"),
-    Output("area_4_parent", "hidden"),
+    Output({"type": "area_parent", "index": MATCH}, "hidden"),
     Input("theme", "hash"),
-    State("indicators", "data"),
+    [
+        State("indicators", "data"),
+        State({"type": "area_parent", "index": MATCH}, "id"),
+    ],
 )
-def display_areas(theme, indicators_dict):
+def display_areas(theme, indicators_dict, id):
+    area = f"AREA_{id['index']}"
     theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
-    return [area not in indicators_dict[theme] for area in AREA_KEYS if area != "MAIN"]
+    return area not in indicators_dict[theme]
 
 
 # @cache.memoize()  # will cache based on years and countries combo
@@ -833,25 +843,21 @@ def set_options(theme, indicators_dict, id):
 
 
 @app.callback(
-    Output("main_area_title", "children"),
-    Output("area_1_title", "children"),
-    Output("area_2_title", "children"),
-    Output("area_3_title", "children"),
-    Output("area_4_title", "children"),
+    Output({"type": "area_title", "index": MATCH}, "children"),
+    Input("store", "data"),
     [
-        Input("store", "data"),
+        State("indicators", "data"),
+        State({"type": "area_title", "index": MATCH}, "id"),
     ],
-    [State("indicators", "data")],
 )
-def set_areas_titles(theme, indicators_dict):
-    return [
-        # use the get by key instead of [] to avoid keyerror exception when the name is not defined
+def set_areas_titles(theme, indicators_dict, id):
+    area = f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
+    # use the get by key instead of [] to avoid keyerror exception when the name is not defined
+    return (
         indicators_dict[theme["theme"]][area].get("name")
         if area in indicators_dict[theme["theme"]]
-        # empty string
         else ""
-        for area in AREA_KEYS
-    ]
+    )
 
 
 @app.callback(
