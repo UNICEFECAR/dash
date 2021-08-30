@@ -139,11 +139,34 @@ indicators_dict = {
         },
         "AREA_3": {
             "name": "Safe and inclusive learning environments",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "EDU_SDG_SCH_L1",
                 "EDU_SDG_SCH_L2",

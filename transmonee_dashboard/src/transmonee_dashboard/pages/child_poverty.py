@@ -60,14 +60,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Absolute Poverty",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PV_SI_POV_EMP1",
                 "PV_SI_POV_DAY1",
@@ -168,15 +191,38 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Cash Benefits",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # # compare is the default selection
+            # "compare": "Sex",
             "default": "PV_SI_COV_CHLD",
             "indicators": [
                 "PV_SI_COV_CHLD",

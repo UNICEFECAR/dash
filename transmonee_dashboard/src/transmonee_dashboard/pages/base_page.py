@@ -371,8 +371,22 @@ def get_base_layout(**kwargs):
                                         # id="area_3_options",
                                         className="dcc_control",
                                     ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 3},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    html.Br(),
                                     dcc.Graph(
                                         id={"type": "area", "index": 3},
+                                    ),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 3},
+                                        inline=True,
                                     ),
                                     html.Div(
                                         fa("fas fa-info-circle"),
@@ -409,8 +423,22 @@ def get_base_layout(**kwargs):
                                         # id="area_4_options",
                                         className="dcc_control",
                                     ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 4},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    html.Br(),
                                     dcc.Graph(
                                         id={"type": "area", "index": 4},
+                                    ),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 4},
+                                        inline=True,
                                     ),
                                     html.Div(
                                         fa("fas fa-info-circle"),
@@ -997,6 +1025,9 @@ def breakdown_options(indicator, id):
     return options
 
 
+# Input("main_options", "value"),
+
+
 @app.callback(
     Output({"type": "area_breakdowns", "index": MATCH}, "value"),
     [
@@ -1020,12 +1051,14 @@ def set_default_compare(
     print("default_compare**************", default_compare)
     return default_compare if default_compare else compare_options[0]["value"]
 
+    # Input("main_options", "value"),
+
 
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
     [
-        Input("main_options", "value"),
+        Input({"type": "area_options", "index": 0}, "value"),
         Input("store", "data"),
     ],
     [
@@ -1094,7 +1127,7 @@ def main_figure(indicator, selections, indicators_dict):
         State({"type": "area_options", "index": MATCH}, "id"),
     ],
 )
-def area_1_figure(
+def area_figure(
     selections,
     indicator,
     compare,
@@ -1111,11 +1144,6 @@ def area_1_figure(
     print(selected_type)
     # only run if indicator not empty
     if not indicator:
-        # or (
-        #     not option_id["index"]
-        #     == 1
-        #     # and not dimension_id["index"] == 1
-        # and not type_id["index"] == 1)
         return {}, {}
 
     # fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
