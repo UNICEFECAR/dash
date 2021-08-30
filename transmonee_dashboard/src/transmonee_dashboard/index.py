@@ -3,7 +3,7 @@ import dash_html_components as html
 from .app import app
 from .utils import DashRouter, DashNavBar
 from .pages import (
-    education,
+    child_education,
     child_protection,
     child_health,
     child_poverty,
@@ -23,7 +23,7 @@ from .components import fa
 urls = (
     ("", home.get_layout),
     ("overview", overview.get_layout),
-    ("education", education.get_layout),
+    ("child-education", child_education.get_layout),
     ("child-protection", child_protection.get_layout),
     ("child-health", child_health.get_layout),
     ("child-poverty", child_poverty.get_layout),
@@ -44,7 +44,7 @@ nav_items = (
         "sectors",
         "Sectors",
         [
-            ("education", html.Div([fa("fas fa-book"), "Education"])),
+            ("child-education", html.Div([fa("fas fa-book"), "Education"])),
             (
                 "child-protection",
                 html.Div([fa("fas fa-child"), "Family Environment and Protection"]),
