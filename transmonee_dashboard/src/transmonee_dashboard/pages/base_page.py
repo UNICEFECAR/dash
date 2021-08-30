@@ -1025,9 +1025,6 @@ def breakdown_options(indicator, id):
     return options
 
 
-# Input("main_options", "value"),
-
-
 @app.callback(
     Output({"type": "area_breakdowns", "index": MATCH}, "value"),
     [
@@ -1139,24 +1136,17 @@ def area_figure(
     # type_id,
 ):
     print(id)
-    print(indicator)
-    print(compare)
-    print(selected_type)
     # only run if indicator not empty
     if not indicator:
         return {}, {}
 
-    # fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
     area = f"AREA_{id['index']}"
     default = indicators_dict[selections["theme"]][area]["default_graph"]
     fig_type = selected_type if selected_type else default
-
     config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     # compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
-
-    # options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
     compare = False if compare == "Total" else compare
 
     columns = ["CODE", "Indicator", "Geographic area"]
@@ -1164,8 +1154,6 @@ def area_figure(
 
     if compare:
         columns.append(compare)
-        # total = get_disag_total(data, indicator, compare)
-        # query = "{} & `{}` != '{}'".format(query, compare, total)
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
@@ -1197,64 +1185,6 @@ def area_figure(
     fig.update_xaxes(categoryorder="total descending")
 
     return fig, source
-
-
-# @app.callback(
-#     Output("area_1", "figure"),
-#     Output("area_1_sources", "children"),
-#     [
-#         Input("store", "data"),
-#         Input("area_1_options", "value"),
-#         Input("area_1_breakdowns", "value"),
-#     ],
-#     [
-#         State("indicators", "data"),
-#     ],
-# )
-# def area_1_figure(selections, indicator, compare, indicators_dict):
-
-#     # only run if indicator not empty
-#     if not indicator:
-#         return {}, {}
-
-#     fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
-#     options = indicators_dict[selections["theme"]]["AREA_1"]["options"]
-#     compare = False if compare == "Total" else compare
-
-#     columns = ["CODE", "Indicator", "Geographic area"]
-#     aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-#     query = "CODE == @indicator"
-
-#     if compare:
-#         columns.append(compare)
-#         # total = get_disag_total(data, indicator, compare)
-#         # query = "{} & `{}` != '{}'".format(query, compare, total)
-#         total_if_disag_query = get_total_query(data, indicator, True, compare)
-#     else:
-#         total_if_disag_query = get_total_query(data, indicator)
-
-#     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
-
-#     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-#     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-#     df = (
-#         get_filtered_dataset(**selections)
-#         .query(query)
-#         .groupby(columns)
-#         .agg(aggregates)
-#         .reset_index()
-#     )
-
-#     options["labels"] = DEFAULT_LABELS.copy()
-#     options["labels"]["OBS_VALUE"] = name
-#     if compare:
-#         options["color"] = compare
-
-#     fig = getattr(px, fig_type)(df, **options)
-#     # fig.update_layout(title_x=1)
-#     fig.update_xaxes(categoryorder="total descending")
-
-#     return fig, source
 
 
 @app.callback(
@@ -1445,33 +1375,3 @@ def area_4_figure(selections, indicator, indicators_dict):
     fig.update_xaxes(categoryorder="total descending")
 
     return fig, source
-
-
-# Commented code below by James
-
-# subfig = make_subplots(specs=[[{"secondary_y": True}]])
-
-# indicator = "EDUNF_DR_L1"
-# line_data = (
-#     data.query(query)
-#     .groupby(["CODE", "Indicator", "Geographic area", compare])
-#     .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-#     .reset_index()
-# )
-
-# line = px.line(
-#     line_data,
-#     x="Geographic area",
-#     y="OBS_VALUE",
-#     color=compare,
-#     text="TIME_PERIOD",
-#     # labels={"Indicator": "Dropout Rate"},
-# )
-# line.update_traces(
-#     yaxis="y2",
-#     mode="markers",
-#     marker=dict(size=12, line=dict(width=2, color="DarkSlateGrey")),
-#     # selector=dict(mode="markers"),
-# )
-
-# subfig.add_traces(fig.data + line.data)
