@@ -7,6 +7,9 @@ import pathlib
 import dash
 import math
 import datetime as dt
+from dash_html_components.Div import Div
+from dash_html_components.H1 import H1
+from dash_html_components.P import P
 import pandas as pd
 import numpy as np
 from itertools import cycle
@@ -72,6 +75,8 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
 
     indicators_dict = kwargs.get("indicators")
+    main_title = kwargs.get("main_title")
+
     # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
         kwargs.get("hash")
@@ -79,9 +84,34 @@ def get_base_layout(**kwargs):
         else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
         # else "#{}".format(next(iter(indicators_dict.values()))["NAME"].lower())
     )
-
     return html.Div(
         [
+            html.Div(
+                className="heading",
+                style={"padding": 36},
+                children=[
+                    html.Div(
+                        className="heading-content",
+                        children=[
+                            html.Div(
+                                className="heading-panel",
+                                style={"padding": 20},
+                                children=[
+                                    html.H1(
+                                        main_title,
+                                        id="main_title",
+                                        className="heading-title",
+                                    ),
+                                    html.P(
+                                        id="subtitle",
+                                        className="heading-subtitle",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            ),
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
             dbc.Row(
@@ -674,7 +704,7 @@ def indicator_card(
                 [
                     dbc.PopoverHeader(f"Sources: {indicator}"),
                     dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(sources))
+                        dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
                 ],
                 id="hover",
@@ -693,10 +723,9 @@ def indicator_card(
 # it displays the countries as a list, each on a separate line...
 def get_card_popover_body(sources):
     countries = []
-    for index, source_info in enumerate(sources):
-        countries.append(f"- {source_info[0]}: {source_info[1]}")
+    for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+        countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
     card_countries = "\n".join(countries)
-    # print(card_countries)
     return card_countries
 
 
@@ -724,6 +753,20 @@ def show_cards(selections, current_cards, indicators_dict):
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
     return cards
+
+
+# Added this function to add the button group and set the correct active button
+@app.callback(
+    # Output("main_title", "children"),
+    Output("subtitle", "children"),
+    [
+        Input("store", "data"),
+    ],
+    [State("indicators", "data")],
+)
+def show_header_titles(theme, indicators_dict):
+    subtitle = indicators_dict[theme["theme"]].get("NAME")
+    return subtitle
 
 
 # Added this function to add the button group and set the correct active button
@@ -834,7 +877,7 @@ def set_default_values(theme, indicators_dict):
     [State("indicators", "data")],
 )
 def set_default_chart_types(theme, indicators_dict):
-    # set the default chart type value for area 2 as by default nothing is selected and the chart is displayed by default
+    # set the default chart type value for areas 1 and 2 as by default nothing is selected and the chart is displayed by default
     area = AREA_KEYS[2]
     return indicators_dict[theme["theme"]][area].get("default_graph")
 

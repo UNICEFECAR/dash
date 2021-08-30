@@ -108,4 +108,4 @@ ENV/
 .mypy_cache/
 cache-directory
 .DS_Store
-.idea
+.idea/

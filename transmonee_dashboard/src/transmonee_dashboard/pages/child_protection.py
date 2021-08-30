@@ -86,17 +86,17 @@ indicators_dict = {
                     ),
                     "compare": "Sex",
                 },
-                # "line": {
-                #     "options": dict(
-                #         x="TIME_PERIOD",
-                #         y="OBS_VALUE",
-                #         color="Geographic area",
-                #         hover_name="Geographic area",
-                #         line_shape="spline",
-                #         render_mode="svg",
-                #     ),
-                #     "trace_options": dict(mode="lines+markers"),
-                # },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
             },
             "indicators": [
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
@@ -505,6 +505,10 @@ indicators_dict = {
 }
 
 
+main_title = "Family environment and protection from violence and harmful practices"
+
+
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)

@@ -1,3 +1,4 @@
+from dash_html_components.Title import Title
 import pandas as pd
 
 import plotly.express as px
@@ -780,7 +781,10 @@ indicators_dict = {
     },
 }
 
+main_title = "Child Health"
+
 
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
     return get_base_layout(**kwargs)
