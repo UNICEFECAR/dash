@@ -10,13 +10,13 @@ import datetime as dt
 import pandas as pd
 import numpy as np
 from itertools import cycle
-
+import json
 
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash import callback_context
-from dash.dependencies import Input, Output, State, ClientsideFunction
+from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 
 
 import plotly.io as pio
@@ -208,7 +208,8 @@ def get_base_layout(**kwargs):
                                 dbc.CardBody(
                                     [
                                         dcc.Dropdown(
-                                            id="main_options",
+                                            id={"type": "area_options", "index": 0},
+                                            # id="main_options",
                                             # className="dcc_control",
                                             style={
                                                 "zIndex": "11",
@@ -248,21 +249,26 @@ def get_base_layout(**kwargs):
                             dbc.CardBody(
                                 [
                                     dcc.Dropdown(
-                                        id="area_1_options",
-                                        # style={"z-index": "15"},
+                                        # id="area_1_options",
+                                        id={"type": "area_options", "index": 1},
+                                        className="dcc_control",
                                     ),
                                     html.Br(),
                                     dbc.RadioItems(
-                                        id="area_1_types",
+                                        id={"type": "area_types", "index": 1},
+                                        # id="area_1_types",
                                         options=[
                                             {"label": "Line", "value": "line"},
                                             {"label": "Bar", "value": "bar"},
                                         ],
                                         inline=True,
                                     ),
-                                    dcc.Graph(id="area_1"),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 1},
+                                    ),
                                     dbc.RadioItems(
-                                        id="area_1_breakdowns",
+                                        id={"type": "area_breakdowns", "index": 1},
+                                        # id="area_1_breakdowns",
                                         inline=True,
                                     ),
                                     html.Div(
@@ -273,7 +279,9 @@ def get_base_layout(**kwargs):
                                     dbc.Popover(
                                         [
                                             dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="area_1_sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 1},
+                                            ),
                                         ],
                                         id="hover",
                                         target="area_1_info",
@@ -292,12 +300,14 @@ def get_base_layout(**kwargs):
                             dbc.CardBody(
                                 [
                                     dcc.Dropdown(
-                                        id="area_2_options",
+                                        id={"type": "area_options", "index": 2},
+                                        # id="area_2_options",
                                         className="dcc_control",
                                     ),
                                     html.Br(),
                                     dbc.RadioItems(
-                                        id="area_2_types",
+                                        id={"type": "area_types", "index": 2},
+                                        # id="area_2_types",
                                         options=[
                                             {"label": "Line", "value": "line"},
                                             {"label": "Bar", "value": "bar"},
@@ -305,11 +315,16 @@ def get_base_layout(**kwargs):
                                         inline=True,
                                     ),
                                     html.Div(
-                                        [dcc.Graph(id="area_2")],
+                                        [
+                                            dcc.Graph(
+                                                id={"type": "area", "index": 2},
+                                            )
+                                        ],
                                         className="pretty_container",
                                     ),
                                     dbc.RadioItems(
-                                        id="area_2_breakdowns",
+                                        id={"type": "area_breakdowns", "index": 2},
+                                        # id="area_2_breakdowns",
                                         inline=True,
                                     ),
                                     html.Div(
@@ -320,7 +335,9 @@ def get_base_layout(**kwargs):
                                     dbc.Popover(
                                         [
                                             dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="area_2_sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 2},
+                                            ),
                                         ],
                                         id="hover",
                                         target="area_2_info",
@@ -344,10 +361,13 @@ def get_base_layout(**kwargs):
                             dbc.CardBody(
                                 [
                                     dcc.Dropdown(
-                                        id="area_3_options",
+                                        id={"type": "area_options", "index": 3},
+                                        # id="area_3_options",
                                         className="dcc_control",
                                     ),
-                                    dcc.Graph(id="area_3"),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 3},
+                                    ),
                                     html.Div(
                                         fa("fas fa-info-circle"),
                                         id="area_3_info",
@@ -356,7 +376,9 @@ def get_base_layout(**kwargs):
                                     dbc.Popover(
                                         [
                                             dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="area_3_sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 3},
+                                            ),
                                         ],
                                         id="hover",
                                         target="area_3_info",
@@ -375,10 +397,13 @@ def get_base_layout(**kwargs):
                             dbc.CardBody(
                                 [
                                     dcc.Dropdown(
-                                        id="area_4_options",
+                                        id={"type": "area_options", "index": 4},
+                                        # id="area_4_options",
                                         className="dcc_control",
                                     ),
-                                    dcc.Graph(id="area_4"),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 4},
+                                    ),
                                     html.Div(
                                         fa("fas fa-info-circle"),
                                         id="area_4_info",
@@ -387,7 +412,9 @@ def get_base_layout(**kwargs):
                                     dbc.Popover(
                                         [
                                             dbc.PopoverHeader("Sources"),
-                                            dbc.PopoverBody(id="area_4_sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 4},
+                                            ),
                                         ],
                                         id="hover",
                                         target="area_4_info",
@@ -769,34 +796,39 @@ def show_themes(selections, current_themes, indicators_dict):
 
 
 @app.callback(
-    Output("main_options", "options"),
-    Output("area_1_options", "options"),
-    Output("area_2_options", "options"),
-    Output("area_3_options", "options"),
-    Output("area_4_options", "options"),
+    Output({"type": "area_options", "index": MATCH}, "options"),
+    Input("store", "data"),
     [
-        Input("store", "data"),
+        State("indicators", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
     ],
-    [State("indicators", "data")],
 )
-def set_options(theme, indicators_dict):
-    # potentially only use cached version
+def set_options(theme, indicators_dict, id):
+    # ctx = dash.callback_context
+
+    # if not ctx.triggered:
+    #     control_id = "No clicks yet"
+    # else:
+    #     control_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    # ctx_msg = json.dumps(
+    #     {"states": ctx.states, "triggered": ctx.triggered, "inputs": ctx.inputs},
+    #     indent=2,
+    # )
     return [
-        [
-            {
-                "label": item["Indicator"],
-                "value": item["CODE"],
-            }
-            for item in data[
-                data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
-            ][["CODE", "Indicator"]]
-            .drop_duplicates()
-            .to_dict("records")
-        ]
-        if area in indicators_dict[theme["theme"]]
-        # empty string
-        else [{"label": "", "value": ""}]
-        for area in AREA_KEYS
+        {
+            "label": item["Indicator"],
+            "value": item["CODE"],
+        }
+        for item in data[
+            data["CODE"].isin(
+                indicators_dict[theme["theme"]][
+                    f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
+                ]["indicators"]
+            )
+        ][["CODE", "Indicator"]]
+        .drop_duplicates()
+        .to_dict("records")
     ]
 
 
@@ -823,41 +855,31 @@ def set_areas_titles(theme, indicators_dict):
 
 
 @app.callback(
-    Output("main_options", "value"),
-    Output("area_1_options", "value"),
-    Output("area_2_options", "value"),
-    Output("area_3_options", "value"),
-    Output("area_4_options", "value"),
+    Output({"type": "area_options", "index": MATCH}, "value"),
+    Input("store", "data"),
     [
-        Input("store", "data"),
+        State("indicators", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
     ],
-    [State("indicators", "data")],
 )
-def set_default_values(theme, indicators_dict):
-
-    return [
-        indicators_dict[theme["theme"]][area].get("default")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-        for area in AREA_KEYS
-    ]
+def set_default_values(theme, indicators_dict, id):
+    # TODO: check area existence
+    return indicators_dict[theme["theme"]][
+        f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
+    ].get("default")
 
 
 @app.callback(
-    Output("area_1_types", "value"),
-    Output("area_2_types", "value"),
+    Output({"type": "area_types", "index": MATCH}, "value"),
+    Input("store", "data"),
     [
-        Input("store", "data"),
+        State("indicators", "data"),
+        State({"type": "area_types", "index": MATCH}, "id"),
     ],
-    [State("indicators", "data")],
 )
-def set_default_chart_types(theme, indicators_dict):
+def set_default_chart_types(theme, indicators_dict, id):
     # set the default chart type value for areas 1 and 2 as by default nothing is selected and the chart is displayed by default
-    areas = AREA_KEYS[1:3]
-    defaults = [
-        indicators_dict[theme["theme"]][area].get("default_graph") for area in areas
-    ]
-    return defaults
+    return indicators_dict[theme["theme"]][f"AREA_{id['index']}"].get("default_graph")
 
 
 # does this function assume dimension is a disaggregation?
@@ -958,12 +980,13 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
 
 
 @app.callback(
-    Output("area_1_breakdowns", "options"),
+    Output({"type": "area_breakdowns", "index": MATCH}, "options"),
+    Input({"type": "area_options", "index": MATCH}, "value"),
     [
-        Input("area_1_options", "value"),
+        State({"type": "area_breakdowns", "index": MATCH}, "id"),
     ],
 )
-def breakdown_options(indicator):
+def breakdown_options(indicator, id):
 
     options = [{"label": "Total", "value": "Total"}]
 
@@ -973,8 +996,6 @@ def breakdown_options(indicator):
         {"label": "Residence", "value": "Residence"},
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
     ]:
-
-        # OR: compute data[data["CODE"] == indicator] once outside loop?
         if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
             options.append(item)
 
@@ -982,69 +1003,27 @@ def breakdown_options(indicator):
 
 
 @app.callback(
-    Output("area_2_breakdowns", "options"),
+    Output({"type": "area_breakdowns", "index": MATCH}, "value"),
     [
-        Input("area_2_options", "value"),
-    ],
-)
-def breakdown_options_area2(indicator):
-
-    options = [{"label": "Total", "value": "Total"}]
-
-    for item in [
-        {"label": "Sex", "value": "Sex"},
-        {"label": "Age", "value": "Age"},
-        {"label": "Residence", "value": "Residence"},
-        {"label": "Wealth Quintile", "value": "Wealth Quintile"},
-    ]:
-
-        # OR: compute data[data["CODE"] == indicator] once outside loop?
-        if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
-            options.append(item)
-
-    return options
-
-
-# Beto's Note: does it make sense to have default compare in config?
-@app.callback(
-    # Output("main_options", "value"),
-    Output("area_1_breakdowns", "value"),
-    # Output("area_2_options", "value"),
-    # Output("area_3_options", "value"),
-    # Output("area_4_options", "value"),
-    [
-        Input("area_1_breakdowns", "options"),
+        Input("store", "data"),
+        Input({"type": "area_breakdowns", "index": MATCH}, "options"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
     ],
     [
         State("indicators", "data"),
+        State({"type": "area_breakdowns", "index": MATCH}, "id"),
     ],
 )
-def set_default_compare(compare_options, indicators_dict):
-
-    return (
-        compare_options[1]["value"]
-        if len(compare_options) > 1
-        else compare_options[0]["value"]
-    )
-
-
-# Beto's Note: does it make sense to have default compare in config?
-@app.callback(
-    Output("area_2_breakdowns", "value"),
-    [
-        Input("area_2_breakdowns", "options"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
-)
-def set_default_compare_area2(compare_options, indicators_dict):
-
-    return (
-        compare_options[1]["value"]
-        if len(compare_options) > 1
-        else compare_options[0]["value"]
-    )
+def set_default_compare(
+    selections, compare_options, selected_type, indicators_dict, id
+):
+    area = f"AREA_{id['index']}"
+    default = indicators_dict[selections["theme"]][area]["default_graph"]
+    fig_type = selected_type if selected_type else default
+    config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+    default_compare = config.get("compare")
+    print("default_compare**************", default_compare)
+    return default_compare if default_compare else compare_options[0]["value"]
 
 
 @app.callback(
@@ -1097,31 +1076,59 @@ def main_figure(indicator, selections, indicators_dict):
         )
     return main_figure, source
 
+    # State({"type": "area_breakdowns", "index": MATCH}, "id"),
+    # State({"type": "area_types", "index": MATCH}, "id"),
+    # State({"type": "area_options", "index": MATCH}, "id"),
+
+    # Input({"type": "area_breakdowns", "index": MATCH}, "value"),
+    # Input({"type": "area_types", "index": MATCH}, "value"),
+    # Input({"type": "area_options", "index": MATCH}, "value"),
+
 
 @app.callback(
-    Output("area_1", "figure"),
-    Output("area_1_sources", "children"),
+    Output({"type": "area", "index": MATCH}, "figure"),
+    Output({"type": "area_sources", "index": MATCH}, "children"),
     [
         Input("store", "data"),
-        Input("area_1_options", "value"),
-        Input("area_1_breakdowns", "value"),
-        Input("area_1_types", "value"),
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_breakdowns", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
     ],
     [
         State("indicators", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
     ],
 )
-def area_1_figure(selections, indicator, compare, selected_type, indicators_dict):
-
+def area_1_figure(
+    selections,
+    indicator,
+    compare,
+    selected_type,
+    indicators_dict,
+    id,
+    # option_id,
+    # dimension_id,
+    # type_id,
+):
+    print(id)
+    print(indicator)
+    print(compare)
+    print(selected_type)
     # only run if indicator not empty
     if not indicator:
+        # or (
+        #     not option_id["index"]
+        #     == 1
+        #     # and not dimension_id["index"] == 1
+        # and not type_id["index"] == 1)
         return {}, {}
 
     # fig_type = indicators_dict[selections["theme"]]["AREA_1"]["type"]
-    default = indicators_dict[selections["theme"]]["AREA_1"]["default_graph"]
+    area = f"AREA_{id['index']}"
+    default = indicators_dict[selections["theme"]][area]["default_graph"]
     fig_type = selected_type if selected_type else default
 
-    config = indicators_dict[selections["theme"]]["AREA_1"]["graphs"][fig_type]
+    config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     # compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
