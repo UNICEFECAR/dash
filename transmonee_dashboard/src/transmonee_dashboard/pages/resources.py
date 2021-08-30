@@ -43,7 +43,7 @@ def get_layout(**kwargs):
                             html.Div(
                                 children=[
                                     html.P(
-                                        "This is a dashboard developed using Tableau to reflect the indicators' data availability in UNICEF Data Warehourse. For more info about this dashboard, please click on the button below."
+                                        "This is a dashboard developed using Tableau to reflect the indicators' data availability in UNICEF TransMonEE Data Warehourse. For more info about this dashboard, please click on the button below."
                                     ),
                                 ],
                                 className="panel-content",
@@ -77,7 +77,11 @@ def get_layout(**kwargs):
                             html.Div(
                                 children=[
                                     html.P(
-                                        "In this section you have access to the UNICEF Data Warehouse webservice where you can search and export raw data."
+                                        [
+                                            "In this section you have access to the UNICEF Data Warehouse webservice where you can search and export raw data.",
+                                            html.Br(),
+                                            "Please make sure to filter the Dataflow dropdown and select 'TRANSMONEE - ECARO for TransMonEE' option.",
+                                        ],
                                     ),
                                 ],
                                 className="panel-content",
