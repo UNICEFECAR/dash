@@ -315,10 +315,7 @@ def get_base_layout(**kwargs):
                                         # id="area_2_options",
                                         className="dcc_control",
                                     ),
-                                    html.Div(
-                                        [dcc.Graph(id="area_2")],
-                                        className="pretty_container",
-                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_types", "index": 2},
                                         # id="area_2_types",
@@ -870,21 +867,22 @@ def show_themes(selections, current_themes, indicators_dict):
     ],
 )
 def set_options(theme, indicators_dict, id):
-    return [
-        {
-            "label": item["Indicator"],
-            "value": item["CODE"],
-        }
-        for item in data[
-            data["CODE"].isin(
-                indicators_dict[theme["theme"]][
-                    f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
-                ]["indicators"]
-            )
-        ][["CODE", "Indicator"]]
-        .drop_duplicates()
-        .to_dict("records")
-    ]
+    area = f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
+    return (
+        [
+            {
+                "label": item["Indicator"],
+                "value": item["CODE"],
+            }
+            for item in data[
+                data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
+            ][["CODE", "Indicator"]]
+            .drop_duplicates()
+            .to_dict("records")
+        ]
+        if area in indicators_dict[theme["theme"]]
+        else []
+    )
 
 
 @app.callback(
@@ -914,10 +912,12 @@ def set_areas_titles(theme, indicators_dict, id):
     ],
 )
 def set_default_values(theme, indicators_dict, id):
-    # TODO: check area existence
-    return indicators_dict[theme["theme"]][
-        f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
-    ].get("default")
+    area = f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
+    return (
+        indicators_dict[theme["theme"]][area].get("default")
+        if area in indicators_dict[theme["theme"]]
+        else ""
+    )
 
 
 @app.callback(
@@ -929,8 +929,13 @@ def set_default_values(theme, indicators_dict, id):
     ],
 )
 def set_default_chart_types(theme, indicators_dict, id):
-    # set the default chart type value for areas 1 and 2 as by default nothing is selected and the chart is displayed by default
-    return indicators_dict[theme["theme"]][f"AREA_{id['index']}"].get("default_graph")
+    area = f"AREA_{id['index']}"
+    # set the default chart type value of the chart that is being displayed by default
+    return (
+        indicators_dict[theme["theme"]][area].get("default_graph")
+        if area in indicators_dict[theme["theme"]]
+        else ""
+    )
 
 
 # does this function assume dimension is a disaggregation?
@@ -1069,14 +1074,18 @@ def set_default_compare(
     selections, compare_options, selected_type, indicators_dict, id
 ):
     area = f"AREA_{id['index']}"
-    default = indicators_dict[selections["theme"]][area]["default_graph"]
-    fig_type = selected_type if selected_type else default
-    config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-    default_compare = config.get("compare")
-    print("default_compare**************", default_compare)
-    return default_compare if default_compare else compare_options[0]["value"]
-
-    # Input("main_options", "value"),
+    if area in indicators_dict[selections["theme"]]:
+        default = indicators_dict[selections["theme"]][area]["default_graph"]
+        fig_type = selected_type if selected_type else default
+        config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+        default_compare = config.get("compare")
+        return (
+            default_compare
+            if default_compare in compare_options
+            else compare_options[1]["value"]
+            if len(compare_options) > 1
+            else compare_options[0]["value"]
+        )
 
 
 @app.callback(
@@ -1164,7 +1173,7 @@ def area_figure(
     # dimension_id,
     # type_id,
 ):
-    print(id)
+    # print(id)
     # only run if indicator not empty
     if not indicator:
         return {}, {}
