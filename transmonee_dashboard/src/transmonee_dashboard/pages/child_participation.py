@@ -40,14 +40,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Birth Registration",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PT_CHLD_Y0T4_REG",
                 "PP_SG_REG_BRTH90N",

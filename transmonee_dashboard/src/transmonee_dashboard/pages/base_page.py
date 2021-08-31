@@ -387,7 +387,6 @@ def get_base_layout(**kwargs):
                                         ],
                                         inline=True,
                                     ),
-                                    html.Br(),
                                     dcc.Graph(
                                         id={"type": "area", "index": 3},
                                     ),
@@ -439,7 +438,6 @@ def get_base_layout(**kwargs):
                                         ],
                                         inline=True,
                                     ),
-                                    html.Br(),
                                     dcc.Graph(
                                         id={"type": "area", "index": 4},
                                     ),
@@ -1054,7 +1052,6 @@ def breakdown_options(indicator, id):
     ]:
         if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
             options.append(item)
-
     return options
 
 
@@ -1080,7 +1077,9 @@ def set_default_compare(
         config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
         default_compare = config.get("compare")
         return (
-            default_compare
+            "Total"
+            if fig_type == "line"
+            else default_compare
             if default_compare in compare_options
             else compare_options[1]["value"]
             if len(compare_options) > 1
@@ -1182,7 +1181,6 @@ def area_figure(
     default = indicators_dict[selections["theme"]][area]["default_graph"]
     fig_type = selected_type if selected_type else default
     config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-    # compare = config.get("compare")
     options = config.get("options")
     traces = config.get("trace_options")
     compare = False if compare == "Total" else compare
@@ -1195,6 +1193,7 @@ def area_figure(
 
     if compare:
         columns.append(compare)
+        print(columns)
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
@@ -1203,17 +1202,27 @@ def area_figure(
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
 
+    data_cached = get_filtered_dataset(**selections).query(query)
+
+    # toggle time-series selection based on figure type
+    if fig_type == "bar":
+        # get rid of time-series for bar plot
+        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+        df = data_cached.groupby(columns).agg(aggregates).reset_index()
+    else:
+        # line plot: uses query directly keeping time series
+        df = data_cached
+    print(df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
 
     fig = getattr(px, fig_type)(df, **options)
-    # fig.update_layout(title_x=1)
+    if traces:
+        fig.update_traces(**traces)
     fig.update_xaxes(categoryorder="total descending")
-
     return fig, source
 
 

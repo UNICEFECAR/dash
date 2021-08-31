@@ -59,14 +59,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Violent Discipline",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "PT_ADLT_PS_NEC",
@@ -178,15 +201,38 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Residencial Care",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # # compare is the default selection
+            # "compare": "Sex",
             "default": "PT_CHLD_INRESIDENTIAL",
             "indicators": [
                 "PT_CHLD_INRESIDENTIAL",
@@ -288,14 +334,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Children Victims and Prisoners",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "JJ_CHLD_CONVICTED",
                 "JJ_PRISIONERS",
@@ -378,14 +447,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Currently married or in union children age 15-19 years",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PT_F_15-19_MRD",
                 "PT_M_15-19_MRD",
@@ -458,14 +550,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Child labour - only economic activities",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "PT_CHLD_5-17_LBR_ECON",
             ],
