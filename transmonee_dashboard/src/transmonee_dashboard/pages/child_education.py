@@ -261,14 +261,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Foundational skills",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "ECD_CHLD_36-59M_LMPSL",
                 "EDU_SDG_STU_L2_GLAST_MAT",
@@ -322,11 +345,34 @@ indicators_dict = {
         },
         "AREA_3": {
             "name": "Trained and qualified teachers",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "EDU_SDG_TRTP_L02",
                 "EDU_SDG_TRTP_L1",
@@ -413,14 +459,37 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Public and private enrolments",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area",
+            #     y="OBS_VALUE",
+            #     barmode="group",
+            #     text="TIME_PERIOD",
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "EDUNF_PRP_L02",
                 "EDUNF_PRP_L1",
@@ -484,11 +553,34 @@ indicators_dict = {
         },
         "AREA_3": {
             "name": "Government education expenditure",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            # "type": "bar",
+            # "options": dict(
+            #     x="Geographic area", y="OBS_VALUE", barmode="group", text="TIME_PERIOD"
+            # ),
+            # "compare": "Sex",
             "indicators": [
                 "EDU_FIN_EXP_L02",
                 "EDU_FIN_EXP_L1",
@@ -510,6 +602,14 @@ indicators_dict = {
                         text="TIME_PERIOD",
                     ),
                 },
+                # "pie": {
+                #     "options": dict(
+                #         values="OBS_VALUE",
+                #         names="Geographic area",
+                #         hover_data=["Geographic area", "TIME_PERIOD", "OBS_VALUE"],
+                #         labels={"Geographic area": "Country", "TIME_PERIOD": "Year"},
+                #     ),
+                # },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",

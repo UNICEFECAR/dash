@@ -831,7 +831,6 @@ def show_header_titles(theme, indicators_dict):
 
 
 # Added this function to add the button group and set the correct active button,
-# TODO: This can be replaced by a generic callback to set the active button on click
 @app.callback(
     Output("themes", "children"),
     [
@@ -1220,6 +1219,9 @@ def area_figure(
     fig = getattr(px, fig_type)(df, **options)
     if traces:
         fig.update_traces(**traces)
+    # Add this code to avoid having decimal year on the x-axis for time series charts
+    if fig_type == "line":
+        fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
     fig.update_xaxes(categoryorder="total descending")
     return fig, source
 
