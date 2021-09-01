@@ -1193,7 +1193,6 @@ def area_figure(
 
     if compare:
         columns.append(compare)
-        print(columns)
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
@@ -1213,7 +1212,6 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
-    print(df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:

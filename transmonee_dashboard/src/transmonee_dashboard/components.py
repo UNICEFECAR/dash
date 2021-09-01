@@ -140,6 +140,125 @@ def make_header(**kwargs):
 
 
 @component
+def make_footer(**kwargs):
+    return html.Footer(
+        id="footer",
+        className="footer",
+        children=[
+            html.Div(
+                className="footer__inner",
+                children=[
+                    html.Div(
+                        className="footer__top",
+                        children=[
+                            html.Div(
+                                className="footer__left",
+                                children=[
+                                    html.Div(
+                                        className="footer__logo",
+                                        children=[
+                                            make_brand(),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                className="footer__right",
+                                children=[
+                                    html.Div(
+                                        className="footer__nav",
+                                        children=[
+                                            html.Ul(
+                                                className="footer__menu",
+                                                children=[
+                                                    html.Li(
+                                                        children=[
+                                                            html.A(
+                                                                "UNICEF Data",
+                                                                href="/overview",
+                                                            ),
+                                                            html.Ul(
+                                                                className="sub-menu",
+                                                                children=[
+                                                                    html.Li(
+                                                                        html.A(
+                                                                            "Contact Us",
+                                                                            href="#",
+                                                                        ),
+                                                                    ),
+                                                                    html.Li(
+                                                                        html.A(
+                                                                            "Legal",
+                                                                            href="#",
+                                                                        ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    )
+                                                ],
+                                            )
+                                        ],
+                                    ),
+                                    html.Div(
+                                        className="footer__nav",
+                                        children=[
+                                            html.Ul(
+                                                className="footer__menu",
+                                                children=[
+                                                    html.Li(
+                                                        children=[
+                                                            html.A(
+                                                                "Support us",
+                                                                href="#",
+                                                            ),
+                                                            html.Ul(
+                                                                className="sub-menu",
+                                                                children=[
+                                                                    html.Li(
+                                                                        html.A(
+                                                                            "Twitter",
+                                                                            href="https://twitter.com/UNICEFData",
+                                                                            target="_blank",
+                                                                        ),
+                                                                    ),
+                                                                    html.Li(
+                                                                        html.A(
+                                                                            "Support UNICEF",
+                                                                            href="http://www.supportunicef.org/",
+                                                                            target="_blank",
+                                                                        ),
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                        ],
+                                                    )
+                                                ],
+                                            )
+                                        ],
+                                    ),
+                                    html.Div(
+                                        className="footer__nav footer__nav--last",
+                                        children=[
+                                            html.A(
+                                                "Go back to UNICEF.org",
+                                                href="https://www.unicef.org/",
+                                                target="_blank",
+                                            )
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ],
+        **kwargs,
+    )
+
+
+@component
 def make_sidebar(**kwargs):
     return html.Nav(
         id=f"sidebar",

@@ -7,7 +7,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from .components import make_header, make_sidebar
+from .components import make_footer, make_header, make_sidebar
+from .components import fa
 
 
 def main_layout_header():
@@ -59,7 +60,27 @@ def main_default_layout():
                     ),
                 ],
             ),
+            make_footer(),
+            html.Button(
+                id="btnScroll",
+                title="Scroll to top",
+                className="btn btn-dark scroll-top",
+                children=[
+                    fa("fas fa-chevron-up"),
+                ],
+                style={
+                    "border-radius": 50,
+                    "position": "fixed",
+                    "right": 20,
+                    "bottom": 20,
+                    "z-index": 1101,
+                    "width": 50,
+                    "height": 50,
+                    "padding": 12,
+                    "border": 0,
+                    "display": "none",
+                },
+            ),
         ],
         id="mainContainer",
     )
-
