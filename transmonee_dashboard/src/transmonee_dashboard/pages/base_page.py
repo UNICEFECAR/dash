@@ -933,7 +933,7 @@ def main_figure(indicator, selections, indicators_dict):
     # return px.scatter_mapbox(df, **options), source
 
     # uncomment for option 1 and check in education page as the options are different
-    return px.choropleth(df, **options), source
+    # return px.choropleth(df, **options), source
 
     path_name = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/countries.geo.json"
     if os.path.isfile(path_name):
