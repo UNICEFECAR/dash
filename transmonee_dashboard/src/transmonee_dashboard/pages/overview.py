@@ -91,23 +91,49 @@ def get_layout(**kwargs):
                                 children=[
                                     html.P(
                                         [
-                                            "UNICEF Europe and Central Asia Regional",
+                                            html.B(
+                                                "UNICEF Europe and Central Asia Regional Office"
+                                            ),
                                             html.Br(),
-                                            "Office Planning, Monitoring and Evaluation Section",
-                                        ],
-                                    ),
-                                    html.B("Postal address:"),
-                                    html.P(
-                                        [
-                                            "UNICEF Europe and Central Asia Regional Office",
-                                            html.Br(),
-                                            "Planning, Monitoring and Evaluation Section",
+                                            html.B(
+                                                "Planning, Monitoring and Evaluation Section"
+                                            ),
                                             html.Br(),
                                             "Palais des Nations",
                                             html.Br(),
                                             "CH-1211 Geneva 10",
                                             html.Br(),
                                             "Switzerland",
+                                        ],
+                                    ),
+                                    html.P(
+                                        [
+                                            html.B("Carlos Acosta"),
+                                            html.Br(),
+                                            "Regional Chief of Programme & Planning",
+                                            html.Br(),
+                                            "Regional Programme Planning & M&E, ECARO",
+                                            html.Br(),
+                                            "Email: ",
+                                            html.A(
+                                                "caacosta@unicef.org",
+                                                href="mailto:caacosta@unicef.org",
+                                            ),
+                                        ],
+                                    ),
+                                    html.P(
+                                        [
+                                            html.B("James Cranwell Ward"),
+                                            html.Br(),
+                                            "Technology Specialist",
+                                            html.Br(),
+                                            "Deputy Director Operations & Finance",
+                                            html.Br(),
+                                            "Email: ",
+                                            html.A(
+                                                "jcranwellward@unicef.org",
+                                                href="mailto:jcranwellward@unicef.org",
+                                            ),
                                         ],
                                     ),
                                 ],

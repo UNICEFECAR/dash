@@ -128,7 +128,7 @@ def get_base_layout(**kwargs):
                                                             years
                                                         )
                                                     },
-                                                    value=[0, len(years)],
+                                                    value=[0, len(years) - 1],
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
@@ -458,9 +458,9 @@ def get_filtered_dataset(theme, indicators_dict, years, countries):
 
     # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
     return data[
-        (data["TIME_PERIOD"].isin(years)) &
-        (data["REF_AREA"].isin(countries)) &
-        (data["CODE"].isin(indicators))
+        (data["TIME_PERIOD"].isin(years))
+        & (data["REF_AREA"].isin(countries))
+        & (data["CODE"].isin(indicators))
     ]
 
 
@@ -504,7 +504,9 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-    selected_years = years[slice(*years_slider)]
+    # need to include the last selected year as it was exluded in the previous method
+    selected_years = years[years_slider[0] : years_slider[1] + 1]
+    # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
@@ -513,9 +515,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         indicators_dict=indicators,
         years=selected_years,
-        countries=list(
-            countries_selected.values()
-        ),
+        countries=list(countries_selected.values()),
     )
 
     get_filtered_dataset(**selections)
@@ -756,7 +756,7 @@ def show_header_titles(theme, indicators_dict):
 
 
 # Added this function to add the button group and set the correct active button,
-#TODO: This can be replaced by a generic callback to set the active button on click
+# TODO: This can be replaced by a generic callback to set the active button on click
 @app.callback(
     Output("themes", "children"),
     [
@@ -1103,13 +1103,7 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        data
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
-    )
+    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1227,8 +1221,7 @@ def area_3_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        data
-        .query(query)
+        data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", compare])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
         .reset_index()
@@ -1277,8 +1270,7 @@ def area_4_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        data
-        .query(query)
+        data.query(query)
         .groupby(
             [
                 "CODE",
