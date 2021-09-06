@@ -1123,15 +1123,6 @@ def main_figure(indicator, selections, indicators_dict):
         )
     return main_figure, source
 
-    # State({"type": "area_breakdowns", "index": MATCH}, "id"),
-    # State({"type": "area_types", "index": MATCH}, "id"),
-    # State({"type": "area_options", "index": MATCH}, "id"),
-
-    # Input({"type": "area_breakdowns", "index": MATCH}, "value"),
-    # Input({"type": "area_types", "index": MATCH}, "value"),
-    # Input({"type": "area_options", "index": MATCH}, "value"),
-
-
 @app.callback(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
