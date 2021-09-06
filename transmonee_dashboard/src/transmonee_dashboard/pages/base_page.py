@@ -1123,6 +1123,7 @@ def main_figure(indicator, selections, indicators_dict):
         )
     return main_figure, source
 
+
 @app.callback(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
@@ -1144,9 +1145,6 @@ def area_figure(
     selected_type,
     indicators_dict,
     id,
-    # option_id,
-    # dimension_id,
-    # type_id,
 ):
     # print(id)
     # only run if indicator not empty
