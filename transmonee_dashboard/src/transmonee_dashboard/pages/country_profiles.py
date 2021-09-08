@@ -1,11 +1,15 @@
+import dash
+from dash_bootstrap_components._components.Row import Row
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash_html_components.Br import Br
+import dash_table
 from dash.dependencies import Input, State, Output
 import pandas as pd
 
 from ..app import app
-from . import countries_iso3_dict
+from . import countries_iso3_dict, data
 
 topics_subtopics = {
     "Education": [
@@ -14,7 +18,7 @@ topics_subtopics = {
         {"Governance": "Governance"},
     ],
     "Family Environment and Protection": [
-        {"Violence": "Violence against Children and Women"},
+        {"Violence": "Violence against children and women"},
         {"Care": "Children without parental care"},
         {"Justice": "Juvenile Justice"},
         {"Marriage": "Child marriage and other harmful practices"},
@@ -34,19 +38,21 @@ topics_subtopics = {
         {"Protection": "Social protection system"},
     ],
     "Child Rights Landscape": [
-        {"Demography": "Demography about Children"},
-        {"Economy": "Political Economy"},
-        {"Migration": "Migration and Displacement"},
+        {"Demography": "Demography about children"},
+        {"Economy": "Political economy"},
+        {"Migration": "Migration and displacement"},
         {"Risks": "Risks, humanitarian situation and impact of climate change"},
         {"Data": "Data and Public spending on Children"},
     ],
     "Participation": [
         {"Registration": "Birth registration and documentation"},
         {"Access": "Access to Justice"},
-        {"Information": "Information, Internet and Right to privacy"},
-        {"Leisure": "Leisure and Culture"},
+        {"Information": "Information, internet and right to privacy"},
+        {"Leisure": "Leisure and culture"},
     ],
 }
+
+subtopics_indicators = {}
 
 
 def get_layout(**kwargs):
@@ -94,6 +100,7 @@ def get_layout(**kwargs):
                                             }
                                             for key in countries_iso3_dict.keys()
                                         ],
+                                        placeholder="Select a country...",
                                     ),
                                 ],
                                 className="my-2",
@@ -103,7 +110,12 @@ def get_layout(**kwargs):
                                 [
                                     dcc.Dropdown(
                                         id="sectors",
-                                        style={"zIndex": "11", "minWidth": 400},
+                                        style={
+                                            "zIndex": "11",
+                                            "minWidth": 400,
+                                            "maxWidth": 600,
+                                        },
+                                        placeholder="Select one or multiple sectors",
                                         options=get_sectors(),
                                         multi=True,
                                     ),
@@ -112,8 +124,10 @@ def get_layout(**kwargs):
                                         style={
                                             "zIndex": "11",
                                             "minWidth": 400,
+                                            "maxWidth": 600,
                                             "paddingLeft": 4,
                                         },
+                                        placeholder="Select one or multiple sub-topics",
                                         multi=True,
                                     ),
                                 ],
@@ -125,10 +139,11 @@ def get_layout(**kwargs):
                                     html.Button(
                                         "Generate Profile",
                                         id="generate",
+                                        n_clicks=0,
                                         className="btn btn-primary",
                                     )
                                 ],
-                                className="my-2",
+                                className="my-4",
                                 justify="center",
                             ),
                         ],
@@ -138,26 +153,30 @@ def get_layout(**kwargs):
             ),
             html.Div(
                 [
-                    html.Div(
+                    dbc.Row(
                         [
                             html.H6(
                                 ["Country Data"],
-                                className="subtitle padded",
-                            ),
-                            html.Div(
-                                [
-                                    html.Table(
-                                        id="tbl_country_profile",
-                                        className="tiny-header",
-                                    )
-                                ],
-                                style={"overflow-x": "auto"},
+                                style={
+                                    "borderLeft": "5px solid #1cabe2",
+                                    "background": "#fff",
+                                    "padding": 10,
+                                    "marginTop": 10,
+                                    "marginBottom": 15,
+                                    "height": 40,
+                                },
                             ),
                         ],
-                        className=" twelve columns",
-                    )
+                    ),
+                    dbc.Row(
+                        [
+                            html.Div(
+                                id="tbl_country_profile",
+                                style={"width": "100%"},
+                            ),
+                        ],
+                    ),
                 ],
-                className="row ",
                 id="country_profile",
             ),
         ],
@@ -183,8 +202,11 @@ def get_sectors():
 def get_selected_country(iso_code):
     key_list = list(countries_iso3_dict.keys())
     val_list = list(countries_iso3_dict.values())
-    position = val_list.index(iso_code)
-    return key_list[position]
+    if iso_code is not None:
+        position = val_list.index(iso_code)
+        return key_list[position]
+    else:
+        return ""
 
 
 @app.callback(
@@ -194,16 +216,18 @@ def get_selected_country(iso_code):
     ],
 )
 def get_subsectors(selected_sectors):
-    all_sub_topics = [
-        [
-            {
-                "label": list(sub_topic.values())[0],
-                "value": list(sub_topic.keys())[0],
-            }
-            for sub_topic in topics_subtopics[sector]
+    all_sub_topics = []
+    if selected_sectors is not None:
+        all_sub_topics = [
+            [
+                {
+                    "label": list(sub_topic.values())[0],
+                    "value": list(sub_topic.values())[0],
+                }
+                for sub_topic in topics_subtopics[sector]
+            ]
+            for sector in selected_sectors
         ]
-        for sector in selected_sectors
-    ]
     final_sub_topics = []
     if all_sub_topics is not None:
         for sub_topics in all_sub_topics:
@@ -211,16 +235,14 @@ def get_subsectors(selected_sectors):
     return final_sub_topics
 
 
-@app.callback(
-    Output("tbl_country_profile", "children"),
-    [
-        Input("sectors", "value"),
-        Input("sub_topics", "value"),
-    ],
-)
+# @app.callback(
+#     Output("tbl_country_profile", "children"),
+#     [
+#         Input("sectors", "value"),
+#         Input("sub_topics", "value"),
+#     ],
+# )
 def generate_profile(topics, sub_topics):
-    print(topics)
-    print(sub_topics)
     df_country_data = pd.DataFrame(
         columns=["Country", "Sector", "Sub-Topic", "Indicator", "Year", "Value"]
     )
@@ -235,12 +257,10 @@ def generate_profile(topics, sub_topics):
         },
         ignore_index=True,
     )
-
-    print(df_country_data)
-    return make_dash_table(df_country_data)
+    return make_html_table(df_country_data)
 
 
-def make_dash_table(df):
+def make_html_table(df):
     """Return a dash definition of an HTML table for a Pandas dataframe"""
     table = []
     html_row = []
@@ -255,3 +275,85 @@ def make_dash_table(df):
             html_row.append(html.Td([row[i]]))
         table.append(html.Tr(html_row))
     return table
+
+
+@app.callback(
+    Output("tbl_country_profile", "children"),
+    Input("generate", "n_clicks"),
+    [
+        State("countries", "value"),
+        State("sub_topics", "value"),
+    ],
+)
+def generate_country_profile(n_clicks, country, sub_topics):
+    ctx = dash.callback_context
+    changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if changed_id == "generate":
+        # filter data by selected country
+        df_country_data = data[data["REF_AREA"] == country]
+        # filter on the selected sub-topics related indicators by using the data dictionary Indicator sheet
+        data_dict_file = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/indicator_dictionary_TM_v8.xlsx"
+        # read indicators table from excel data-dictionary
+        indicators_df = pd.read_excel(data_dict_file, sheet_name="Indicator")
+        # subtopics_groups = indicators_df.groupby("Issue")
+        filtered_subtopics_groups = indicators_df[indicators_df.Issue.isin(sub_topics)]
+        df_country_data = df_country_data[
+            df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
+        ]
+
+        df_country_data.rename(
+            columns={
+                "Geographic area": "Country",
+                "TIME_PERIOD": "Year",
+                "OBS_VALUE": "Value",
+                "CODE": "Code",
+            },
+            inplace=True,
+        )
+
+        df_country_data = pd.merge(df_country_data, indicators_df, on=["Code"])
+        df_country_data.rename(
+            columns={
+                "Theme": "Sector",
+                "Issue": "Subtopic",
+            },
+            inplace=True,
+        )
+        df_country_data = df_country_data[
+            [
+                "Country",
+                "Sector",
+                "Subtopic",
+                "Code",
+                "Indicator",
+                "Year",
+                "Value",
+            ]
+        ]
+
+        # check if no data is available for the current user's selection
+        if len(df_country_data) == 0:
+            return html.Div(
+                ["No data available..."],
+                className="alert alert-danger fade show w-100",
+            )
+        else:
+            return dash_table.DataTable(
+                columns=[{"name": i, "id": i} for i in df_country_data.columns],
+                data=df_country_data.to_dict("records"),
+                style_cell={"textAlign": "right", "paddingLeft": 2},
+                style_data={
+                    "whiteSpace": "normal",
+                    "height": "auto",
+                },
+                style_data_conditional=[
+                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"}
+                ],
+                sort_action="native",
+                sort_mode="multi",
+                column_selectable="single",
+                page_action="native",
+                page_current=0,
+                page_size=10,
+                export_format="csv",
+            )
