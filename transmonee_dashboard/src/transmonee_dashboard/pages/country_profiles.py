@@ -11,14 +11,16 @@ import pandas as pd
 from ..app import app
 from . import countries_iso3_dict, data
 
+
 topics_subtopics = {
+    "All": ["All"],
     "Education": [
         {"Participation": "Participation"},
         {"Quality": "Learning Quality"},
         {"Governance": "Governance"},
     ],
     "Family Environment and Protection": [
-        {"Violence": "Violence against children and women"},
+        {"Violence": "Violence against Children and Women"},
         {"Care": "Children without parental care"},
         {"Justice": "Juvenile Justice"},
         {"Marriage": "Child marriage and other harmful practices"},
@@ -38,21 +40,19 @@ topics_subtopics = {
         {"Protection": "Social protection system"},
     ],
     "Child Rights Landscape": [
-        {"Demography": "Demography about children"},
-        {"Economy": "Political economy"},
-        {"Migration": "Migration and displacement"},
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
         {"Risks": "Risks, humanitarian situation and impact of climate change"},
         {"Data": "Data and Public spending on Children"},
     ],
     "Participation": [
         {"Registration": "Birth registration and documentation"},
         {"Access": "Access to Justice"},
-        {"Information": "Information, internet and right to privacy"},
-        {"Leisure": "Leisure and culture"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
     ],
 }
-
-subtopics_indicators = {}
 
 
 def get_layout(**kwargs):
@@ -156,7 +156,7 @@ def get_layout(**kwargs):
                     dbc.Row(
                         [
                             html.H6(
-                                ["Country Data"],
+                                id="table_title",
                                 style={
                                     "borderLeft": "5px solid #1cabe2",
                                     "background": "#fff",
@@ -194,19 +194,21 @@ def get_sectors():
 
 
 @app.callback(
-    Output("country_name", "children"),
     [
-        Input("countries", "value"),
+        Output("country_name", "children"),
+        Output("table_title", "children"),
     ],
+    Input("countries", "value"),
 )
 def get_selected_country(iso_code):
     key_list = list(countries_iso3_dict.keys())
     val_list = list(countries_iso3_dict.values())
     if iso_code is not None:
         position = val_list.index(iso_code)
-        return key_list[position]
+        country_name = key_list[position]
+        return [country_name, f"{country_name} Fact Sheet"]
     else:
-        return ""
+        return ["", ""]
 
 
 @app.callback(
@@ -216,8 +218,10 @@ def get_selected_country(iso_code):
     ],
 )
 def get_subsectors(selected_sectors):
+    topics_subtopics_keys = list(topics_subtopics.keys())
+    del topics_subtopics_keys[0]
     all_sub_topics = []
-    if selected_sectors is not None:
+    if (selected_sectors is not None) and (selected_sectors != ["All"]):
         all_sub_topics = [
             [
                 {
@@ -228,8 +232,25 @@ def get_subsectors(selected_sectors):
             ]
             for sector in selected_sectors
         ]
+    elif selected_sectors == ["All"]:
+        all_sub_topics = [
+            [
+                {
+                    "label": list(sub_topic.values())[0],
+                    "value": list(sub_topic.values())[0],
+                }
+                for sub_topic in topics_subtopics[sector]
+            ]
+            for sector in topics_subtopics_keys
+        ]
     final_sub_topics = []
     if all_sub_topics is not None:
+        final_sub_topics = [
+            {
+                "label": "All",
+                "value": "All",
+            }
+        ]
         for sub_topics in all_sub_topics:
             final_sub_topics += sub_topics
     return final_sub_topics
@@ -282,10 +303,11 @@ def make_html_table(df):
     Input("generate", "n_clicks"),
     [
         State("countries", "value"),
+        State("sectors", "value"),
         State("sub_topics", "value"),
     ],
 )
-def generate_country_profile(n_clicks, country, sub_topics):
+def generate_country_profile(n_clicks, country, sectors, sub_topics):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "generate":
@@ -296,7 +318,12 @@ def generate_country_profile(n_clicks, country, sub_topics):
         # read indicators table from excel data-dictionary
         indicators_df = pd.read_excel(data_dict_file, sheet_name="Indicator")
         # subtopics_groups = indicators_df.groupby("Issue")
-        filtered_subtopics_groups = indicators_df[indicators_df.Issue.isin(sub_topics)]
+        if sub_topics != ["All"]:
+            filtered_subtopics_groups = indicators_df[
+                indicators_df.Issue.isin(sub_topics)
+            ]
+        else:
+            filtered_subtopics_groups = indicators_df
         df_country_data = df_country_data[
             df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
         ]
