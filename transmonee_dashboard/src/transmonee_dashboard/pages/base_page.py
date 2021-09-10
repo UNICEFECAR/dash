@@ -102,7 +102,7 @@ def get_base_layout(**kwargs):
                                                             years
                                                         )
                                                     },
-                                                    value=[0, len(years)],
+                                                    value=[0, len(years) - 1],
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
@@ -508,7 +508,9 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-    selected_years = years[slice(*years_slider)]
+    # need to include the last selected year as it was exluded in the previous method
+    selected_years = years[years_slider[0] : years_slider[1] + 1]
+    # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)

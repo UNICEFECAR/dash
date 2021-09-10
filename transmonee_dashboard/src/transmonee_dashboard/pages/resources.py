@@ -4,6 +4,9 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, State, Output
 
 from ..app import app
+import pandas as pd
+from io import StringIO
+from . import df_sources
 
 
 def get_layout(**kwargs):
@@ -104,5 +107,50 @@ def get_layout(**kwargs):
                 className="panel",
             ),
             html.Br(),
+            html.Div(
+                children=[
+                    html.Div(
+                        children=[html.H3("Data Sources")],
+                        className="panel-header",
+                    ),
+                    html.Div(
+                        children=[
+                            html.Div(
+                                children=get_data_sources(),
+                                className="panel-content",
+                            ),
+                        ],
+                        className="panel-body",
+                    ),
+                    html.Div(
+                        children=[],
+                        className="panel-footer",
+                    ),
+                ],
+                className="panel",
+            ),
+            html.Br(),
         ],
     )
+
+
+def get_data_sources():
+    sources_tabs = dcc.Tabs(
+        [
+            dcc.Tab(
+                label=f"{source} (" + str(len(group)) + ")",
+                children=[
+                    html.Ul(
+                        children=[
+                            html.Li(indicator, className="list-group-item")
+                            for indicator in group["Name"]
+                        ],
+                        className="list-group",
+                    )
+                ],
+                style={"fontWeight": "bold"},
+            )
+            for source, group in df_sources
+        ]
+    )
+    return sources_tabs
