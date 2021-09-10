@@ -6,6 +6,7 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 import pandas as pd
 from io import StringIO
+from . import df_sources
 
 
 def get_layout(**kwargs):
@@ -134,12 +135,6 @@ def get_layout(**kwargs):
 
 
 def get_data_sources():
-    # path to excel data dictionary in repo
-    data_dict_file = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/indicator_dictionary_TM_v8.xlsx"
-    # read Snapshot sheet from excel data-dictionary
-    snapshot_df = pd.read_excel(data_dict_file, sheet_name="Snapshot")
-    snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
-    df_sources = snapshot_df.groupby("Source")
     sources_tabs = dcc.Tabs(
         [
             dcc.Tab(
