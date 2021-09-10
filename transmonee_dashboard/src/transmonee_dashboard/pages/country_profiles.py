@@ -317,7 +317,6 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
         data_dict_file = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/indicator_dictionary_TM_v8.xlsx"
         # read indicators table from excel data-dictionary
         indicators_df = pd.read_excel(data_dict_file, sheet_name="Indicator")
-        # subtopics_groups = indicators_df.groupby("Issue")
         if sub_topics != ["All"]:
             filtered_subtopics_groups = indicators_df[
                 indicators_df.Issue.isin(sub_topics)
