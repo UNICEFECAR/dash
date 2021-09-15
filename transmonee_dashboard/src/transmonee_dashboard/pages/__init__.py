@@ -1,9 +1,11 @@
 import collections
+from io import BytesIO
 import urllib
 
 import dash_html_components as html
 import pandas as pd
 from mapbox import Geocoder
+import requests
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
@@ -912,6 +914,13 @@ data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 # TODO: calculations for children age population
 
 indicators = data["Indicator"].unique()
+
+# path to excel data dictionary in repo
+github_url = "https://github.com/UNICEFECAR/data-etl/blob/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx?raw=true"
+data_dict_content = requests.get(github_url).content
+# read indicators table from excel data-dictionary
+df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
+df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 
 
 def page_not_found(pathname):

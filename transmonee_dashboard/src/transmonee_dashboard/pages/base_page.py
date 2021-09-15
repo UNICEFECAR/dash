@@ -458,9 +458,9 @@ def get_filtered_dataset(theme, indicators_dict, years, countries):
 
     # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
     return data[
-        (data["TIME_PERIOD"].isin(years)) &
-        (data["REF_AREA"].isin(countries)) &
-        (data["CODE"].isin(indicators))
+        (data["TIME_PERIOD"].isin(years))
+        & (data["REF_AREA"].isin(countries))
+        & (data["CODE"].isin(indicators))
     ]
 
 
@@ -513,9 +513,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         indicators_dict=indicators,
         years=selected_years,
-        countries=list(
-            countries_selected.values()
-        ),
+        countries=list(countries_selected.values()),
     )
 
     get_filtered_dataset(**selections)
@@ -756,7 +754,7 @@ def show_header_titles(theme, indicators_dict):
 
 
 # Added this function to add the button group and set the correct active button,
-#TODO: This can be replaced by a generic callback to set the active button on click
+# TODO: This can be replaced by a generic callback to set the active button on click
 @app.callback(
     Output("themes", "children"),
     [
@@ -1036,9 +1034,16 @@ def main_figure(indicator, selections, indicators_dict):
     total_if_disag_query = get_total_query(data, indicator)
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
     df = (
         data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
@@ -1048,7 +1053,9 @@ def main_figure(indicator, selections, indicators_dict):
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
-
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     main_figure = px.scatter_mapbox(df, **options)
@@ -1101,15 +1108,19 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
 
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        data
-        .query(query)
-        .groupby(columns)
-        .agg(aggregates)
-        .reset_index()
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
     )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
+    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
+    if df.empty:
+        return {}, ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1178,9 +1189,19 @@ def area_2_figure(
         # line plot: uses query directly keeping time series
         df = data_cached
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
@@ -1227,8 +1248,7 @@ def area_3_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        data
-        .query(query)
+        data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", compare])
         .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
         .reset_index()
@@ -1277,8 +1297,7 @@ def area_4_figure(selections, indicator, indicators_dict):
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
     df = (
-        data
-        .query(query)
+        data.query(query)
         .groupby(
             [
                 "CODE",

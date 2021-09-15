@@ -9,7 +9,7 @@ from dash.dependencies import Input, State, Output
 import pandas as pd
 
 from ..app import app
-from . import countries_iso3_dict, data
+from . import countries_iso3_dict, data, df_topics_subtopics
 
 
 topics_subtopics = {
@@ -313,16 +313,12 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
     if changed_id == "generate":
         # filter data by selected country
         df_country_data = data[data["REF_AREA"] == country]
-        # filter on the selected sub-topics related indicators by using the data dictionary Indicator sheet
-        data_dict_file = "/workspaces/dash/transmonee_dashboard/src/transmonee_dashboard/assets/indicator_dictionary_TM_v8.xlsx"
-        # read indicators table from excel data-dictionary
-        indicators_df = pd.read_excel(data_dict_file, sheet_name="Indicator")
         if sub_topics != ["All"]:
-            filtered_subtopics_groups = indicators_df[
-                indicators_df.Issue.isin(sub_topics)
+            filtered_subtopics_groups = df_topics_subtopics[
+                df_topics_subtopics.Issue.isin(sub_topics)
             ]
         else:
-            filtered_subtopics_groups = indicators_df
+            filtered_subtopics_groups = df_topics_subtopics
         df_country_data = df_country_data[
             df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
         ]
@@ -337,7 +333,7 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
             inplace=True,
         )
 
-        df_country_data = pd.merge(df_country_data, indicators_df, on=["Code"])
+        df_country_data = pd.merge(df_country_data, df_topics_subtopics, on=["Code"])
         df_country_data.rename(
             columns={
                 "Theme": "Sector",
