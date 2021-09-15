@@ -63,32 +63,6 @@ def get_base_layout(**kwargs):
     )
     return html.Div(
         [
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
-                    html.Div(
-                        className="heading-content",
-                        children=[
-                            html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
-                                children=[
-                                    html.H1(
-                                        main_title,
-                                        id="main_title",
-                                        className="heading-title",
-                                    ),
-                                    html.P(
-                                        id="subtitle",
-                                        className="heading-subtitle",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    )
-                ],
-            ),
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
             dbc.Row(
@@ -192,6 +166,36 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
+            ),
+            dbc.Row(
+                dbc.Col(
+                    html.Div(
+                        className="heading",
+                        style={"padding": 36},
+                        children=[
+                            html.Div(
+                                className="heading-content",
+                                children=[
+                                    html.Div(
+                                        className="heading-panel",
+                                        style={"padding": 20},
+                                        children=[
+                                            html.H1(
+                                                main_title,
+                                                id="main_title",
+                                                className="heading-title",
+                                            ),
+                                            html.P(
+                                                id="subtitle",
+                                                className="heading-subtitle",
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            )
+                        ],
+                    )
+                ),
             ),
             dbc.Row(
                 [
@@ -566,8 +570,9 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-    # need to include the last selected year
+    # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
+    # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
@@ -817,6 +822,7 @@ def show_header_titles(theme, indicators_dict):
 
 
 # Added this function to add the button group and set the correct active button,
+# TODO: This can be replaced by a generic callback to set the active button on click
 @app.callback(
     Output("themes", "children"),
     [
@@ -1177,6 +1183,40 @@ def area_figure(
 
     name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
     source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
+
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+    if compare:
+        options["color"] = compare
+
+    fig = getattr(px, fig_type)(df, **options)
+    # fig.update_layout(title_x=1)
+    fig.update_xaxes(categoryorder="total descending")
+
+    return fig, source
+
+
+@app.callback(
+    Output("area_2", "figure"),
+    Output("area_2_sources", "children"),
+    [
+        Input("store", "data"),
+        Input("area_1_options", "value"),
+        Input("area_2_options", "value"),
+        Input("area_2_types", "value"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
+)
+def area_2_figure(
+    selections,
+    area_1_selected,
+    area_2_selected,
+    selected_type,
+    indicators_dict,
+):
 
     data_cached = get_filtered_dataset(**selections).query(query)
 
@@ -1188,6 +1228,122 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
+
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+
+    # if compare:
+    #     options["color"] = compare
+
+    fig = getattr(px, fig_type)(df, **options)
+    if traces:
+        fig.update_traces(**traces)
+    fig.update_xaxes(categoryorder="total descending")
+
+    return fig, source
+
+
+@app.callback(
+    Output("area_3", "figure"),
+    Output("area_3_sources", "children"),
+    [
+        Input("store", "data"),
+        Input("area_3_options", "value"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
+)
+def area_3_figure(selections, indicator, indicators_dict):
+
+    # only run if indicator not empty
+    if not indicator or not "AREA_3" in indicators_dict[selections["theme"]]:
+        return {}, {}
+
+    fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
+    compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
+    options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
+
+    data = get_filtered_dataset(**selections)
+
+    total = "Total"  # potentially move to this config
+    cohorts = data[data["CODE"] == indicator][compare].unique()
+    query = "CODE in @indicator"
+    if len(cohorts) > 1:
+        query = "{} & {} != @total".format(query, compare)
+
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    df = (
+        data.query(query)
+        .groupby(["CODE", "Indicator", "Geographic area", compare])
+        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
+        .reset_index()
+    )
+
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+    if len(cohorts) > 1:
+        options["color"] = compare
+
+    fig = getattr(px, fig_type)(df, **options)
+    fig.update_xaxes(categoryorder="total descending")
+    return fig, source
+
+
+@app.callback(
+    Output("area_4", "figure"),
+    Output("area_4_sources", "children"),
+    [
+        Input("store", "data"),
+        Input("area_4_options", "value"),
+    ],
+    [
+        State("indicators", "data"),
+    ],
+)
+def area_4_figure(selections, indicator, indicators_dict):
+
+    # only run if indicator not empty
+    if not indicator or not "AREA_4" in indicators_dict[selections["theme"]]:
+        return {}, {}
+
+    default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
+    fig_type = default
+    config = indicators_dict[selections["theme"]]["AREA_4"]["graphs"][fig_type]
+    compare = config.get("compare")
+    options = config.get("options")
+    traces = config.get("trace_options")
+
+    data = get_filtered_dataset(**selections)
+
+    query = "CODE == @indicator"
+    if compare:
+        query = "{} & {} != 'Total'".format(query, compare)
+
+    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    df = (
+        data.query(query)
+        .groupby(
+            [
+                "CODE",
+                "Indicator",
+                "Geographic area",
+                compare if compare else "TIME_PERIOD",
+            ]
+        )
+        .agg(
+            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
+            if compare
+            else {"OBS_VALUE": "mean"}
+        )
+        .reset_index()
+    )
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:

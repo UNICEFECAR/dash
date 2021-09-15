@@ -60,5 +60,6 @@ uritemplate==3.0.1
 urllib3==1.26.5
 wcwidth==0.2.5
 Werkzeug==1.0.1
+openpyxl==3.0.7
 
 sentry-sdk[flask]
