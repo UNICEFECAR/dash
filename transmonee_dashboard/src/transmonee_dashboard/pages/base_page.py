@@ -1095,8 +1095,16 @@ def main_figure(indicator, selections, indicators_dict):
     total_if_disag_query = get_total_query(data, indicator)
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
     df = (
         data.query(query)
@@ -1107,6 +1115,10 @@ def main_figure(indicator, selections, indicators_dict):
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1173,8 +1185,16 @@ def area_figure(
 
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
     data_cached = get_filtered_dataset(**selections).query(query)
 
@@ -1186,6 +1206,10 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:
