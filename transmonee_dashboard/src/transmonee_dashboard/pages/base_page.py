@@ -1101,8 +1101,16 @@ def main_figure(indicator, selections, indicators_dict):
     total_if_disag_query = get_total_query(data, indicator)
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
     df = (
         data.query(query)
@@ -1113,6 +1121,10 @@ def main_figure(indicator, selections, indicators_dict):
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1128,6 +1140,7 @@ def main_figure(indicator, selections, indicators_dict):
             layout=main_figure.layout,
         )
     return main_figure, source
+
 
 @app.callback(
     Output({"type": "area", "index": MATCH}, "figure"),
@@ -1150,9 +1163,6 @@ def area_figure(
     selected_type,
     indicators_dict,
     id,
-    # option_id,
-    # dimension_id,
-    # type_id,
 ):
     # print(id)
     # only run if indicator not empty
@@ -1181,42 +1191,16 @@ def area_figure(
 
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = data.query(query).groupby(columns).agg(aggregates).reset_index()
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    if compare:
-        options["color"] = compare
-
-    fig = getattr(px, fig_type)(df, **options)
-    # fig.update_layout(title_x=1)
-    fig.update_xaxes(categoryorder="total descending")
-
-    return fig, source
-
-
-@app.callback(
-    Output("area_2", "figure"),
-    Output("area_2_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_1_options", "value"),
-        Input("area_2_options", "value"),
-        Input("area_2_types", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
-)
-def area_2_figure(
-    selections,
-    area_1_selected,
-    area_2_selected,
-    selected_type,
-    indicators_dict,
-):
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
     data_cached = get_filtered_dataset(**selections).query(query)
 
@@ -1229,121 +1213,9 @@ def area_2_figure(
         # line plot: uses query directly keeping time series
         df = data_cached
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-
-    # if compare:
-    #     options["color"] = compare
-
-    fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
-    fig.update_xaxes(categoryorder="total descending")
-
-    return fig, source
-
-
-@app.callback(
-    Output("area_3", "figure"),
-    Output("area_3_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_3_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
-)
-def area_3_figure(selections, indicator, indicators_dict):
-
-    # only run if indicator not empty
-    if not indicator or not "AREA_3" in indicators_dict[selections["theme"]]:
-        return {}, {}
-
-    fig_type = indicators_dict[selections["theme"]]["AREA_3"]["type"]
-    compare = indicators_dict[selections["theme"]]["AREA_3"]["compare"]
-    options = indicators_dict[selections["theme"]]["AREA_3"]["options"]
-
-    data = get_filtered_dataset(**selections)
-
-    total = "Total"  # potentially move to this config
-    cohorts = data[data["CODE"] == indicator][compare].unique()
-    query = "CODE in @indicator"
-    if len(cohorts) > 1:
-        query = "{} & {} != @total".format(query, compare)
-
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        data.query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", compare])
-        .agg({"TIME_PERIOD": "last", "OBS_VALUE": "last"})
-        .reset_index()
-    )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    if len(cohorts) > 1:
-        options["color"] = compare
-
-    fig = getattr(px, fig_type)(df, **options)
-    fig.update_xaxes(categoryorder="total descending")
-    return fig, source
-
-
-@app.callback(
-    Output("area_4", "figure"),
-    Output("area_4_sources", "children"),
-    [
-        Input("store", "data"),
-        Input("area_4_options", "value"),
-    ],
-    [
-        State("indicators", "data"),
-    ],
-)
-def area_4_figure(selections, indicator, indicators_dict):
-
-    # only run if indicator not empty
-    if not indicator or not "AREA_4" in indicators_dict[selections["theme"]]:
-        return {}, {}
-
-    default = indicators_dict[selections["theme"]]["AREA_4"]["default_graph"]
-    fig_type = default
-    config = indicators_dict[selections["theme"]]["AREA_4"]["graphs"][fig_type]
-    compare = config.get("compare")
-    options = config.get("options")
-    traces = config.get("trace_options")
-
-    data = get_filtered_dataset(**selections)
-
-    query = "CODE == @indicator"
-    if compare:
-        query = "{} & {} != 'Total'".format(query, compare)
-
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-    df = (
-        data.query(query)
-        .groupby(
-            [
-                "CODE",
-                "Indicator",
-                "Geographic area",
-                compare if compare else "TIME_PERIOD",
-            ]
-        )
-        .agg(
-            {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-            if compare
-            else {"OBS_VALUE": "mean"}
-        )
-        .reset_index()
-    )
-
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:

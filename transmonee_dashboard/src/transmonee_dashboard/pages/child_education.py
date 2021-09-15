@@ -602,14 +602,6 @@ indicators_dict = {
                         text="TIME_PERIOD",
                     ),
                 },
-                # "pie": {
-                #     "options": dict(
-                #         values="OBS_VALUE",
-                #         names="Geographic area",
-                #         hover_data=["Geographic area", "TIME_PERIOD", "OBS_VALUE"],
-                #         labels={"Geographic area": "Country", "TIME_PERIOD": "Year"},
-                #     ),
-                # },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
