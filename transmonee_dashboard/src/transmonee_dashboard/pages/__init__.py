@@ -813,6 +813,20 @@ country_selections = [
     },
 ]
 
+data_sources = {
+    "CDDEM": "CountDown 2030",
+    "ESTAT": "Euro Stat",
+    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+    "ILO": "International Labour Organization",
+    "WHO": "World Health Organization",
+    "Immunization Monitoring (WHO)": "World Health Organization",
+    "WB": "World Bank",
+    "OECD": "Organisation for Economic Co-operation and Development",
+    "SDG": "Sustainable Development Goals",
+    "UIS": "UNESCO Institute for Statistics",
+    "UNDP": "United Nations Development Programme",
+}
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -934,6 +948,7 @@ df_sources.rename(
     },
     inplace=True,
 )
+df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
 df_sources = df_sources.groupby("Source")
 
 

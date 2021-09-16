@@ -6,22 +6,8 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 import pandas as pd
 from io import StringIO
-from . import df_sources
+from . import df_sources, data_sources
 import dash_table
-
-data_sources = {
-    "CDDEM": "CountDown 2030",
-    "ESTAT": "Euro Stat",
-    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
-    "ILO": "International Labour Organization",
-    "WHO": "World Health Organization",
-    "Immunization Monitoring (WHO)": "World Health Organization",
-    "WB": "World Bank",
-    "OECD": "Organisation for Economic Co-operation and Development",
-    "SDG": "Sustainable Development Goals",
-    "UIS": "UNESCO Institute for Statistics",
-    "UNDP": "United Nations Development Programme",
-}
 
 
 def get_layout(**kwargs):
@@ -169,24 +155,23 @@ def get_data_sources():
                         ],
                     ),
                     html.Br(),
-                    # html.Ul(
-                    #     children=[
-                    #         html.Li(indicator, className="list-group-item")
-                    #         for indicator in group["Name"]
-                    #     ],
-                    #     className="list-group",
-                    # ),
                     dash_table.DataTable(
                         columns=[
                             {"name": i, "id": i}
-                            for i in ["Sector", "Subtopic", "Indicator", "Source"]
+                            for i in [
+                                "Sector",
+                                "Subtopic",
+                                "Indicator",
+                                "Source_Full",
+                            ]
                         ],
                         data=group.to_dict("records"),
-                        style_cell={"textAlign": "center", "paddingLeft": 2},
+                        style_cell={"textAlign": "center", "fontWeight": "bold"},
                         style_data={
                             "whiteSpace": "normal",
                             "height": "auto",
                             "textAlign": "left",
+                            "fontWeight": "regular",
                         },
                         style_data_conditional=[
                             {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
@@ -202,7 +187,11 @@ def get_data_sources():
                         page_action="native",
                         page_current=0,
                         page_size=20,
-                        export_format="csv",
+                        export_format="xlsx",
+                        export_headers="display",
+                        hidden_columns=["Source_Full"],
+                        export_columns="all",
+                        css=[{"selector": ".show-hide", "rule": "display: none"}],
                     ),
                     dbc.Popover(
                         [
