@@ -916,13 +916,25 @@ data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 indicators = data["Indicator"].unique()
 
 # path to excel data dictionary in repo
-github_url = "https://github.com/UNICEFECAR/data-etl/blob/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx?raw=true"
+github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
 # Reading the downloaded content and turning it into a pandas dataframe and read Snapshot sheet from excel data-dictionary
 snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
-snapshot_df.dropna(subset = ["Source_name"], inplace=True)
+snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
-df_sources = snapshot_df.groupby("Source")
+# read indicators table from excel data-dictionary
+indicators_df = pd.read_excel(data_dict_content, sheet_name="Indicator")
+indicators_df.dropna(subset=["Issue"], inplace=True)
+df_sources = pd.merge(snapshot_df, indicators_df, on=["Code"])
+df_sources.rename(
+    columns={
+        "Name_y": "Indicator",
+        "Theme": "Sector",
+        "Issue": "Subtopic",
+    },
+    inplace=True,
+)
+df_sources = df_sources.groupby("Source")
 
 
 def page_not_found(pathname):
