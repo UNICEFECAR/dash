@@ -1120,7 +1120,21 @@ def main_figure(indicator, selections, indicators_dict):
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
-        return {}, ""
+        return {
+            "layout": {
+                "xaxis": {"visible": False},
+                "yaxis": {"visible": False},
+                "annotations": [
+                    {
+                        "text": "No data is available for selected filters",
+                        "xref": "paper",
+                        "yref": "paper",
+                        "showarrow": False,
+                        "font": {"size": 28},
+                    }
+                ],
+            }
+        }, ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1211,7 +1225,21 @@ def area_figure(
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
-        return {}, ""
+        return {
+            "layout": {
+                "xaxis": {"visible": False},
+                "yaxis": {"visible": False},
+                "annotations": [
+                    {
+                        "text": "No data is available for selected filters",
+                        "xref": "paper",
+                        "yref": "paper",
+                        "showarrow": False,
+                        "font": {"size": 28},
+                    }
+                ],
+            }
+        }, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     if compare:
