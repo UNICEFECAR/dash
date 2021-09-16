@@ -11,7 +11,7 @@ import pandas as pd
 from ..app import app
 from . import countries_iso3_dict, data, df_topics_subtopics
 
-
+pd.options.display.float_format = "{:,.2f}".format
 topics_subtopics = {
     "All": ["All"],
     "Education": [
@@ -346,7 +346,6 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
                 "Country",
                 "Sector",
                 "Subtopic",
-                "Code",
                 "Indicator",
                 "Year",
                 "Value",
@@ -360,22 +359,44 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
                 className="alert alert-danger fade show w-100",
             )
         else:
+            # round the value to 2 decimal places
+            df_country_data = df_country_data.round({"Value": 2})
             return dash_table.DataTable(
                 columns=[{"name": i, "id": i} for i in df_country_data.columns],
                 data=df_country_data.to_dict("records"),
-                style_cell={"textAlign": "right", "paddingLeft": 2},
+                style_cell={
+                    "textAlign": "center",
+                    "paddingLeft": 2,
+                    "fontWeight": "bold",
+                },
                 style_data={
                     "whiteSpace": "normal",
                     "height": "auto",
+                    "textAlign": "left",
+                    "fontWeight": "regular",
                 },
                 style_data_conditional=[
-                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"}
+                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
+                    {"if": {"column_id": "Value"}, "fontWeight": "bold"},
+                    {
+                        "if": {
+                            "filter_query": "{{Value}} = {}".format(
+                                df_country_data["Value"].max()
+                            ),
+                            "column_id": "Value",
+                        },
+                        "backgroundColor": "#FF4136",
+                        "color": "white",
+                    },
                 ],
                 sort_action="native",
                 sort_mode="multi",
                 column_selectable="single",
                 page_action="native",
                 page_current=0,
-                page_size=10,
+                page_size=20,
                 export_format="csv",
+                export_columns="all",
+                hidden_columns=["Country"],
+                css=[{"selector": ".show-hide", "rule": "display: none"}],
             )
