@@ -63,6 +63,32 @@ def get_base_layout(**kwargs):
     )
     return html.Div(
         [
+            html.Div(
+                className="heading",
+                style={"padding": 36},
+                children=[
+                    html.Div(
+                        className="heading-content",
+                        children=[
+                            html.Div(
+                                className="heading-panel",
+                                style={"padding": 20},
+                                children=[
+                                    html.H1(
+                                        main_title,
+                                        id="main_title",
+                                        className="heading-title",
+                                    ),
+                                    html.P(
+                                        id="subtitle",
+                                        className="heading-subtitle",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            ),
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
             dbc.Row(
@@ -166,36 +192,6 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
-            ),
-            dbc.Row(
-                dbc.Col(
-                    html.Div(
-                        className="heading",
-                        style={"padding": 36},
-                        children=[
-                            html.Div(
-                                className="heading-content",
-                                children=[
-                                    html.Div(
-                                        className="heading-panel",
-                                        style={"padding": 20},
-                                        children=[
-                                            html.H1(
-                                                main_title,
-                                                id="main_title",
-                                                className="heading-title",
-                                            ),
-                                            html.P(
-                                                id="subtitle",
-                                                className="heading-subtitle",
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ],
-                    )
-                ),
             ),
             dbc.Row(
                 [

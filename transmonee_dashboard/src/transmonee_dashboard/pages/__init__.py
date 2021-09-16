@@ -908,7 +908,7 @@ if filter_non_num.any():
 
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-
+data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
@@ -920,7 +920,7 @@ github_url = "https://github.com/UNICEFECAR/data-etl/blob/proto_API/tmee/data_in
 data_dict_content = requests.get(github_url).content
 # Reading the downloaded content and turning it into a pandas dataframe and read Snapshot sheet from excel data-dictionary
 snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
-snapshot_df.dropna(subset = ["Source_name"], inplace=True)
+snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
 df_sources = snapshot_df.groupby("Source")
 
