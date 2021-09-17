@@ -1,11 +1,11 @@
 import collections
-from io import BytesIO
 import urllib
 
 import dash_html_components as html
 import pandas as pd
 from mapbox import Geocoder
 import requests
+from io import BytesIO
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
