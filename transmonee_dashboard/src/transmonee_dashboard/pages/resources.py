@@ -6,7 +6,8 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 import pandas as pd
 from io import StringIO
-from . import df_sources
+from . import df_sources, data_sources
+import dash_table
 
 
 def get_layout(**kwargs):
@@ -110,7 +111,7 @@ def get_layout(**kwargs):
             html.Div(
                 children=[
                     html.Div(
-                        children=[html.H3("Data Sources")],
+                        children=[html.H3("Indicators by Data Sources")],
                         className="panel-header",
                     ),
                     html.Div(
@@ -140,17 +141,72 @@ def get_data_sources():
             dcc.Tab(
                 label=f"{source} (" + str(len(group)) + ")",
                 children=[
-                    html.Ul(
+                    html.Br(),
+                    html.Div(
+                        className="heading-panel",
+                        style={"padding": 20},
                         children=[
-                            html.Li(indicator, className="list-group-item")
-                            for indicator in group["Name"]
+                            html.H1(
+                                data_sources[source],
+                                id="source_title",
+                                className="heading-title",
+                                style={"fontSize": 24},
+                            ),
                         ],
-                        className="list-group",
-                    )
+                    ),
+                    html.Br(),
+                    dash_table.DataTable(
+                        columns=[
+                            {"name": i, "id": i}
+                            for i in [
+                                "Sector",
+                                "Subtopic",
+                                "Indicator",
+                                "Source_Full",
+                            ]
+                        ],
+                        data=group.to_dict("records"),
+                        style_cell={"textAlign": "center", "fontWeight": "bold"},
+                        style_data={
+                            "whiteSpace": "normal",
+                            "height": "auto",
+                            "textAlign": "left",
+                            "fontWeight": "regular",
+                        },
+                        style_data_conditional=[
+                            {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
+                            {
+                                "if": {"state": "active"},
+                                "backgroundColor": "#808080",
+                                "border": "1px solid #FFFFFF",
+                            },
+                        ],
+                        sort_action="native",
+                        sort_mode="multi",
+                        column_selectable="single",
+                        page_action="native",
+                        page_current=0,
+                        page_size=20,
+                        export_format="xlsx",
+                        export_headers="display",
+                        hidden_columns=["Source_Full"],
+                        export_columns="all",
+                        css=[{"selector": ".show-hide", "rule": "display: none"}],
+                    ),
+                    dbc.Popover(
+                        [
+                            dbc.PopoverBody(data_sources[source]),
+                        ],
+                        id="hover",
+                        target=f"source-{num}",
+                        placement="bottom",
+                        trigger="hover",
+                    ),
                 ],
                 style={"fontWeight": "bold"},
+                id=f"source-{num}",
             )
-            for source, group in df_sources
+            for num, [source, group] in enumerate(df_sources)
         ]
     )
     return sources_tabs
