@@ -35,7 +35,8 @@ def get_layout(**kwargs):
             html.Br(),
             html.Div(
                 "Work in Progress - will be available soon",
-                className="alert alert-warning fade show",
+                className="alert alert-info fade show",
+                style={"textAlign": "center", "fontSize": 20},
             ),
             html.Br(),
         ],
