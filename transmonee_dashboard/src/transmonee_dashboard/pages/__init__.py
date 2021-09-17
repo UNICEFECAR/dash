@@ -1,11 +1,11 @@
 import collections
+from io import BytesIO
 import urllib
 
 import dash_html_components as html
 import pandas as pd
 from mapbox import Geocoder
 import requests
-from io import BytesIO
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
@@ -813,6 +813,20 @@ country_selections = [
     },
 ]
 
+data_sources = {
+    "CDDEM": "CountDown 2030",
+    "ESTAT": "Euro Stat",
+    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+    "ILO": "International Labour Organization",
+    "WHO": "World Health Organization",
+    "Immunization Monitoring (WHO)": "World Health Organization",
+    "WB": "World Bank",
+    "OECD": "Organisation for Economic Co-operation and Development",
+    "SDG": "Sustainable Development Goals",
+    "UIS": "UNESCO Institute for Statistics",
+    "UNDP": "United Nations Development Programme",
+}
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -916,13 +930,26 @@ data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 indicators = data["Indicator"].unique()
 
 # path to excel data dictionary in repo
-github_url = "https://github.com/UNICEFECAR/data-etl/blob/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx?raw=true"
+github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
 # Reading the downloaded content and turning it into a pandas dataframe and read Snapshot sheet from excel data-dictionary
 snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
-snapshot_df.dropna(subset = ["Source_name"], inplace=True)
+snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
-df_sources = snapshot_df.groupby("Source")
+# read indicators table from excel data-dictionary
+df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
+df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
+df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
+df_sources.rename(
+    columns={
+        "Name_y": "Indicator",
+        "Theme": "Sector",
+        "Issue": "Subtopic",
+    },
+    inplace=True,
+)
+df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
+df_sources = df_sources.groupby("Source")
 
 
 def page_not_found(pathname):

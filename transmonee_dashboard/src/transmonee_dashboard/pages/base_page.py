@@ -63,6 +63,32 @@ def get_base_layout(**kwargs):
     )
     return html.Div(
         [
+            html.Div(
+                className="heading",
+                style={"padding": 36},
+                children=[
+                    html.Div(
+                        className="heading-content",
+                        children=[
+                            html.Div(
+                                className="heading-panel",
+                                style={"padding": 20},
+                                children=[
+                                    html.H1(
+                                        main_title,
+                                        id="main_title",
+                                        className="heading-title",
+                                    ),
+                                    html.P(
+                                        id="subtitle",
+                                        className="heading-subtitle",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            ),
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
             dbc.Row(
@@ -102,7 +128,7 @@ def get_base_layout(**kwargs):
                                                             years
                                                         )
                                                     },
-                                                    value=[0, len(years) - 1],
+                                                    value=[0, len(years)],
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
@@ -166,36 +192,6 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
-            ),
-            dbc.Row(
-                dbc.Col(
-                    html.Div(
-                        className="heading",
-                        style={"padding": 36},
-                        children=[
-                            html.Div(
-                                className="heading-content",
-                                children=[
-                                    html.Div(
-                                        className="heading-panel",
-                                        style={"padding": 20},
-                                        children=[
-                                            html.H1(
-                                                main_title,
-                                                id="main_title",
-                                                className="heading-title",
-                                            ),
-                                            html.P(
-                                                id="subtitle",
-                                                className="heading-subtitle",
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ],
-                    )
-                ),
             ),
             dbc.Row(
                 [
@@ -508,9 +504,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
                 break
 
     country_text = f"{len(list(countries_selected))} Selected"
-    # need to include the last selected year as it was exluded in the previous method
-    selected_years = years[years_slider[0] : years_slider[1] + 1]
-    # selected_years = years[slice(*years_slider)]
+    selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
@@ -1040,9 +1034,16 @@ def main_figure(indicator, selections, indicators_dict):
     total_if_disag_query = get_total_query(data, indicator)
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
     df = (
         data.query(query)
         .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
@@ -1052,7 +1053,9 @@ def main_figure(indicator, selections, indicators_dict):
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
-
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     main_figure = px.scatter_mapbox(df, **options)
@@ -1105,9 +1108,19 @@ def area_1_figure(selections, indicator, compare, indicators_dict):
 
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
     df = data.query(query).groupby(columns).agg(aggregates).reset_index()
+    if df.empty:
+        return {}, ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1176,9 +1189,19 @@ def area_2_figure(
         # line plot: uses query directly keeping time series
         df = data_cached
 
-    name = data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-    source = data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+    name = (
+        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
+        else ""
+    )
+    source = (
+        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
+        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        else ""
+    )
 
+    if df.empty:
+        return {}, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
