@@ -13,6 +13,10 @@ from .pages import (
     overview,
     resources,
     country_profiles,
+    adolescent,
+    disability,
+    gender,
+    ecd,
 )
 from .components import fa
 
@@ -31,6 +35,10 @@ urls = (
     ("child-participation", child_participation.get_layout),
     ("profiles", country_profiles.get_layout),
     ("resources", resources.get_layout),
+    ("adolescent", adolescent.get_layout),
+    ("disability", disability.get_layout),
+    ("gender", gender.get_layout),
+    ("ecd", ecd.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
