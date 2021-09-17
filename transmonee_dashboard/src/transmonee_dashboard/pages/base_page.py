@@ -223,6 +223,23 @@ def get_base_layout(**kwargs):
                                                 "zIndex": "11",
                                             },
                                         ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Checkbox(
+                                                    id="latest-data-toggle",
+                                                    className="custom-control-input",
+                                                ),
+                                                dbc.Label(
+                                                    "Show latest data points",
+                                                    html_for="latest-data-toggle",
+                                                    className="custom-control-label",
+                                                    color="primary",
+                                                ),
+                                            ],
+                                            className="custom-control custom-switch m-2",
+                                            check=True,
+                                            inline=True,
+                                        ),
                                         dcc.Graph(id="main_area"),
                                         html.Div(
                                             fa("fas fa-info-circle"),
@@ -1079,13 +1096,14 @@ def set_default_compare(
     Output("main_area_sources", "children"),
     [
         Input({"type": "area_options", "index": 0}, "value"),
+        Input("latest-data-toggle", "checked"),
         Input("store", "data"),
     ],
     [
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, selections, indicators_dict):
+def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
     # compare = "Sex"
@@ -1136,9 +1154,25 @@ def main_figure(indicator, selections, indicators_dict):
             }
         }, ""
 
+    if latest_data:
+        # remove the animation frame to be able to show more than one year in the map
+        options.pop("animation_frame")
+        # add the year to show on hover
+        options["hover_name"] = "TIME_PERIOD"
+        # keep only the latest value of every country
+        df = df.sort_values(["Geographic area", "TIME_PERIOD"]).drop_duplicates(
+            "Geographic area", keep="last"
+        )
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     main_figure = px.scatter_mapbox(df, **options)
+
+    if latest_data:
+        # hide the year range slider and the animation buttons
+        main_figure["layout"].pop("sliders")
+        main_figure["layout"].pop("updatemenus")
+
     # check if this area's config has an animation frame and hence a slider
     if len(main_figure.layout["sliders"]) > 0:
         # set last frame as the active one; i.e. select the max year as the default displayed year
