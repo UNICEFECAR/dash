@@ -70,14 +70,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Unmet needs for medical examination",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "HT_SH_ACS_UNHC",
                 "HT_ADOL_UNMETMED_NOUNMET",
@@ -101,7 +118,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -206,15 +225,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Mortality rates - NMR, U5M, MMR",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "default": "CME_MRY0T4",
             "indicators": [
                 "CME_MRY0T4",
@@ -232,7 +267,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -319,14 +356,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "DPT, PCV3 and Measles vaccine",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "IM_DTP3",
                 "HT_SH_ACS_HPV",
@@ -344,7 +398,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -423,14 +479,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Nutrition and IYFC",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "NT_BW_LBW",
                 "NT_BF_EIBF",
@@ -451,7 +524,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -529,14 +604,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Birth, Mortality, and Suicide Rates including Life Satisfaction",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "FT_SP_DYN_ADKL",
                 "MT_SDG_SUICIDE",
@@ -554,7 +646,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -639,14 +733,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Living with HIV and/or receiving antiretroviral therapy (ART)",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "HVA_PMTCT_ARV_CVG",
                 "HT_SH_HIV_0014",
@@ -665,7 +776,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -728,14 +841,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Safely Managed Drinking Water Services",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "WS_PPL_W-SM",
                 "WS_PPL_S-SM",
@@ -753,7 +883,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },

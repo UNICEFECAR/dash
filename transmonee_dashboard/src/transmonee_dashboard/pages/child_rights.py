@@ -45,14 +45,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": " Child Population and Living Arrangements",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "DM_CHLD_TWO_PRNT",
             ],
@@ -66,7 +83,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -146,15 +165,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "GDP and Public expenditure",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "default": "EC_NY_GDP_MKTP_KD_ZG",
             "indicators": [
                 "EC_NY_GDP_MKTP_KD_ZG",
@@ -184,7 +219,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -254,14 +291,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Migration",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "DM_SM_POP_REFG",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
@@ -276,7 +330,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -346,14 +402,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Risks and Humanitarian Situation",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
@@ -371,7 +444,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -460,14 +535,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Government Spending on Children",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "EDU_FIN_EXP_PT_GDP",
                 "HT_SH_XPD_GHED_GD_ZS",
@@ -487,7 +579,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },

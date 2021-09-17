@@ -40,14 +40,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Birth Registration",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "PT_CHLD_Y0T4_REG",
                 "PP_SG_REG_BRTH90N",
@@ -62,7 +79,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -126,15 +145,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Countries with National Human Rights Institutions",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "indicators": [
                 "JJ_CHLD_CRIME",
                 "JJ_CHLD_CRIMERT",
@@ -149,7 +184,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -332,15 +369,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "Mobile phones and Internet",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "default": "PV_SI_COV_BENFTS",
             "indicators": [
                 "PP_IT_USE_ii99",
@@ -356,7 +409,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },
@@ -429,15 +484,31 @@ indicators_dict = {
         },
         "AREA_1": {
             "name": "TV or Play Video Games",
-            "type": "bar",
-            "options": dict(
-                x="Geographic area",
-                y="OBS_VALUE",
-                barmode="group",
-                text="TIME_PERIOD",
-            ),
-            # compare is the default selection
-            "compare": "Sex",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
             "default": "PV_SI_COV_BENFTS",
             "indicators": [
                 "PP_ADOL_TVGM",
@@ -454,7 +525,9 @@ indicators_dict = {
                         x="Geographic area",
                         y="OBS_VALUE",
                         barmode="group",
-                        text="TIME_PERIOD",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
                     ),
                     "compare": "Sex",
                 },

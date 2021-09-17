@@ -46,7 +46,7 @@ EXTERNAL_STYLESHEETS = [
 ]
 
 # Externally hosted Javascript files go in here.
-EXTERNAL_SCRIPTS = ["https://code.jquery.com/jquery-3.2.1.slim.min.js"]
+EXTERNAL_SCRIPTS = ["https://code.jquery.com/jquery-3.6.0.min.js"]
 
 
 #
