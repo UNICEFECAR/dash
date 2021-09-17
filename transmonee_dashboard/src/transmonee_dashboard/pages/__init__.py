@@ -937,9 +937,9 @@ snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
 snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
 # read indicators table from excel data-dictionary
-indicators_df = pd.read_excel(data_dict_content, sheet_name="Indicator")
-indicators_df.dropna(subset=["Issue"], inplace=True)
-df_sources = pd.merge(snapshot_df, indicators_df, on=["Code"])
+df_topics_subtopics = pd.read_excel(data_dict_content, sheet_name="Indicator")
+df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
+df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
