@@ -919,14 +919,14 @@ def main_figure(indicator, selections, indicators_dict):
     df = (
         get_filtered_dataset(**selections)
         .query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
-        .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
+        .agg({"OBS_VALUE": "last"})  # , "longitude": "last", "latitude": "last"})
         .sort_values(
-            by=["OBS_VALUE"]
+            by=["TIME_PERIOD"]
         )  # Add sorting by Year to display the years in proper order
         .reset_index()
     )
-
+    # print(df)
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
@@ -941,12 +941,12 @@ def main_figure(indicator, selections, indicators_dict):
         countries = json.load(open(path_name))
     fig = go.Figure(
         go.Choroplethmapbox(
-            name="Children out-of-school",
+            # name="Children out-of-school",
             geojson=countries,
-            ids=df["Geographic area"],
+            ids=df["REF_AREA"],
             z=df["OBS_VALUE"],
-            locations=df["Geographic area"],
-            featureidkey="properties.name",
+            locations=df["REF_AREA"],
+            featureidkey="properties.id",
             colorscale="YlGnBu",
             marker=dict(line=dict(color="black"), opacity=0.6),
         )
@@ -963,8 +963,8 @@ def main_figure(indicator, selections, indicators_dict):
     fig = px.choropleth_mapbox(
         df,
         geojson=countries,
-        locations="Geographic area",
-        featureidkey="properties.name",  # was name
+        locations="REF_AREA",
+        featureidkey="id",  # was properties.name
         color="OBS_VALUE",
         color_continuous_scale=px.colors.sequential.GnBu,
         range_color=(0, df["OBS_VALUE"].max()),
@@ -976,7 +976,9 @@ def main_figure(indicator, selections, indicators_dict):
             "OBS_VALUE": "Value",
             "Geographic area": "Country",
             "TIME_PERIOD": "Year",
+            "REF_AREA": "ISO3 Code",
         },
+        hover_data=["OBS_VALUE", "Geographic area", "TIME_PERIOD"],
         animation_frame="TIME_PERIOD",
         height=750,
     )
