@@ -13,6 +13,7 @@ from .pages import (
     overview,
     resources,
     country_profiles,
+    indicator_search,
     adolescent,
     disability,
     gender,
@@ -34,6 +35,7 @@ urls = (
     ("child-rights", child_rights.get_layout),
     ("child-participation", child_participation.get_layout),
     ("profiles", country_profiles.get_layout),
+    ("indicator_search", indicator_search.get_layout),
     ("resources", resources.get_layout),
     ("adolescent", adolescent.get_layout),
     ("disability", disability.get_layout),
@@ -80,6 +82,7 @@ nav_items = (
         ],
     ),
     ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
+    ("indicator_search", html.Div([fa("fas fa-table"), "Indicators"]), []),
     ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
 )
 

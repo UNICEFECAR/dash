@@ -7,9 +7,54 @@ from dash_html_components.Br import Br
 import dash_table
 from dash.dependencies import Input, State, Output
 import pandas as pd
+from pandas.io.formats import style
+import re
 
 from ..app import app
-from . import countries_iso3_dict, data, df_topics_subtopics, topics_subtopics
+from . import countries_iso3_dict, data, df_topics_subtopics, data_sources, df_sources
+
+pd.options.display.float_format = "{:,.2f}".format
+topics_subtopics = {
+    "All": ["All"],
+    "Education": [
+        {"Participation": "Participation"},
+        {"Quality": "Learning Quality"},
+        {"Governance": "Governance"},
+    ],
+    "Family Environment and Protection": [
+        {"Violence": "Violence against Children and Women"},
+        {"Care": "Children without parental care"},
+        {"Justice": "Juvenile Justice"},
+        {"Marriage": "Child marriage and other harmful practices"},
+        {"Labour": "Child Labour"},
+    ],
+    "Health and Nutrition": [
+        {"HS": "Health System"},
+        {"MNCH": "Maternal, newborn and child health"},
+        {"Immunization": "Immunization"},
+        {"Nutrition": "Nutrition"},
+        {"Adolescent": "Adolescent health"},
+        {"HIVAIDS": "HIV and AIDS"},
+        {"Wash": "Water, sanitation and hygiene"},
+    ],
+    "Poverty": [
+        {"Poverty": "Poverty and multi-dimensional deprivation"},
+        {"Protection": "Social protection system"},
+    ],
+    "Child Rights Landscape": [
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
+        {"Risks": "Risks, humanitarian situation and impact of climate change"},
+        {"Data": "Data and Public spending on Children"},
+    ],
+    "Participation": [
+        {"Registration": "Birth registration and documentation"},
+        {"Access": "Access to Justice"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
+    ],
+}
 
 
 def get_layout(**kwargs):
@@ -27,7 +72,7 @@ def get_layout(**kwargs):
                                 style={"padding": 20},
                                 children=[
                                     html.H1(
-                                        "Country Profiles",
+                                        "Indicators Search",
                                         id="main_title",
                                         className="heading-title",
                                     ),
@@ -47,30 +92,80 @@ def get_layout(**kwargs):
                         [
                             dbc.Row(
                                 [
-                                    dcc.Dropdown(
-                                        id="countries",
-                                        style={"zIndex": "999", "width": 300},
+                                    dbc.RadioItems(
                                         options=[
                                             {
-                                                "label": key,
-                                                "value": countries_iso3_dict[key],
-                                            }
-                                            for key in countries_iso3_dict.keys()
+                                                "label": "Search by Sector",
+                                                "value": "SEC",
+                                            },
+                                            {
+                                                "label": "Search by Indicator",
+                                                "value": "IND",
+                                            },
                                         ],
-                                        placeholder="Select a country...",
+                                        value="SEC",
+                                        inline=True,
+                                        id="search_type",
                                     ),
                                 ],
-                                className="my-2",
                                 justify="center",
+                                style={"paddingTop": 4},
                             ),
                             dbc.Row(
                                 [
+                                    dbc.InputGroup(
+                                        children=[
+                                            dbc.InputGroupAddon(
+                                                "Indicator", addon_type="prepend"
+                                            ),
+                                            dbc.Input(
+                                                id="txtIndicator",
+                                                style={
+                                                    "height": "2.5rem",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "paddingLeft": 20,
+                                            "paddingRight": 20,
+                                        },
+                                    ),
+                                    # dcc.Dropdown(
+                                    #     id="drpIndicators",
+                                    #     style={
+                                    #         "zIndex": "11",
+                                    #         "minWidth": 400,
+                                    #         "maxWidth": 600,
+                                    #     },
+                                    #     placeholder="Select one or multiple sources",
+                                    #     options=get_indicators(),
+                                    #     multi=True,
+                                    # ),
+                                ],
+                                className="my-2",
+                                justify="center",
+                                id="row_search_sources",
+                            ),
+                            dbc.Row(
+                                [
+                                    dcc.Dropdown(
+                                        id="sources",
+                                        style={
+                                            "zIndex": "11",
+                                            "minWidth": 400,
+                                            "maxWidth": 600,
+                                        },
+                                        placeholder="Select one or multiple sources",
+                                        options=get_sources(),
+                                        multi=True,
+                                    ),
                                     dcc.Dropdown(
                                         id="sectors",
                                         style={
                                             "zIndex": "11",
                                             "minWidth": 400,
                                             "maxWidth": 600,
+                                            "paddingLeft": 4,
                                         },
                                         placeholder="Select one or multiple sectors",
                                         options=get_sectors(),
@@ -90,15 +185,20 @@ def get_layout(**kwargs):
                                 ],
                                 className="my-2 mx-4",
                                 justify="center",
+                                id="row_search_indicators",
                             ),
                             dbc.Row(
                                 [
-                                    html.Button(
-                                        "Generate Profile",
-                                        id="generate",
-                                        n_clicks=0,
-                                        className="btn btn-primary",
-                                    )
+                                    dbc.Button(
+                                        html.Span(
+                                            [
+                                                "Search",
+                                                html.I(className="fas fa-search ml-2"),
+                                            ],
+                                        ),
+                                        color="primary",
+                                        id="search",
+                                    ),
                                 ],
                                 className="my-4",
                                 justify="center",
@@ -128,7 +228,7 @@ def get_layout(**kwargs):
                     dbc.Row(
                         [
                             html.Div(
-                                id="tbl_country_profile",
+                                id="tbl_indicators",
                                 style={"width": "100%"},
                             ),
                         ],
@@ -138,6 +238,16 @@ def get_layout(**kwargs):
             ),
         ],
     )
+
+
+def get_sources():
+    return [
+        {
+            "label": data_sources[key],
+            "value": key,
+        }
+        for key in data_sources
+    ]
 
 
 def get_sectors():
@@ -152,11 +262,25 @@ def get_sectors():
 
 @app.callback(
     [
-        Output("country_name", "children"),
-        Output("table_title", "children"),
+        Output("row_search_sources", "hidden"),
+        Output("row_search_indicators", "hidden"),
     ],
-    Input("countries", "value"),
+    Input("search_type", "value"),
 )
+def show_hide_search_type(type):
+    if type == "IND":
+        return [False, True]
+    else:
+        return [True, False]
+
+
+# @app.callback(
+#     [
+#         Output("country_name", "children"),
+#         Output("table_title", "children"),
+#     ],
+#     Input("countries", "value"),
+# )
 def get_selected_country(iso_code):
     key_list = list(countries_iso3_dict.keys())
     val_list = list(countries_iso3_dict.values())
@@ -168,12 +292,12 @@ def get_selected_country(iso_code):
         return ["", ""]
 
 
-@app.callback(
-    Output("sub_topics", "options"),
-    [
-        Input("sectors", "value"),
-    ],
-)
+# @app.callback(
+#     Output("sub_topics", "options"),
+#     [
+#         Input("sectors", "value"),
+#     ],
+# )
 def get_subsectors(selected_sectors):
     topics_subtopics_keys = list(topics_subtopics.keys())
     del topics_subtopics_keys[0]
@@ -213,31 +337,6 @@ def get_subsectors(selected_sectors):
     return final_sub_topics
 
 
-# @app.callback(
-#     Output("tbl_country_profile", "children"),
-#     [
-#         Input("sectors", "value"),
-#         Input("sub_topics", "value"),
-#     ],
-# )
-def generate_profile(topics, sub_topics):
-    df_country_data = pd.DataFrame(
-        columns=["Country", "Sector", "Sub-Topic", "Indicator", "Year", "Value"]
-    )
-    df_country_data = df_country_data.append(
-        {
-            "Country": "Lebanon",
-            "Sector": "Poverty",
-            "Sub-Topic": "Social Protection System",
-            "Indicator": "Proportion of population covered by at least one social protection benefit (%)",
-            "Year": "2020",
-            "Value": "38",
-        },
-        ignore_index=True,
-    )
-    return make_html_table(df_country_data)
-
-
 def make_html_table(df):
     """Return a dash definition of an HTML table for a Pandas dataframe"""
     table = []
@@ -256,71 +355,64 @@ def make_html_table(df):
 
 
 @app.callback(
-    Output("tbl_country_profile", "children"),
-    Input("generate", "n_clicks"),
+    Output("tbl_indicators", "children"),
+    Input("search", "n_clicks"),
     [
-        State("countries", "value"),
+        State("txtIndicator", "value"),
+        State("sources", "value"),
         State("sectors", "value"),
         State("sub_topics", "value"),
+        State("search_type", "value"),
     ],
 )
-def generate_country_profile(n_clicks, country, sectors, sub_topics):
+def search_indicators(n_clicks, indicator, sources, topics, sub_topics, type):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if changed_id == "generate":
-        # filter data by selected country
-        df_country_data = data[data["REF_AREA"] == country]
-        if sub_topics != ["All"]:
-            filtered_subtopics_groups = df_topics_subtopics[
-                df_topics_subtopics.Issue.isin(sub_topics)
+    if changed_id == "search":
+        df_indicators_data = pd.DataFrame()
+        if type == "IND":
+            df_indicators_data = df_sources[
+                df_sources["Indicator"].str.contains(indicator, case=False, regex=False)
             ]
         else:
-            filtered_subtopics_groups = df_topics_subtopics
-        df_country_data = df_country_data[
-            df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
-        ]
+            # filter data by selected sector/source
+            if sources != ["All"]:
+                filtered_subtopics_groups = df_sources[df_sources.Source.isin(sources)]
+            elif sub_topics != ["All"]:
+                filtered_subtopics_groups = df_sources[
+                    df_sources.Issue.isin(sub_topics)
+                ]
+            else:
+                filtered_subtopics_groups = df_sources
+            df_indicators_data = df_sources[
+                df_sources.Code.isin(filtered_subtopics_groups["Code"])
+            ]
 
-        df_country_data.rename(
-            columns={
-                "Geographic area": "Country",
-                "TIME_PERIOD": "Year",
-                "OBS_VALUE": "Value",
-                "CODE": "Code",
-            },
-            inplace=True,
-        )
-
-        df_country_data = pd.merge(df_country_data, df_topics_subtopics, on=["Code"])
-        df_country_data.rename(
-            columns={
-                "Theme": "Sector",
-                "Issue": "Subtopic",
-            },
-            inplace=True,
-        )
-        df_country_data = df_country_data[
+        # df_indicators_data = pd.merge(
+        #     df_indicators_data, df_topics_subtopics, on=["Code"]
+        # )
+        df_indicators_data = df_indicators_data[
             [
-                "Country",
+                # "Country",
                 "Sector",
                 "Subtopic",
                 "Indicator",
-                "Year",
-                "Value",
+                # "Year",
+                # "Value",
             ]
         ]
 
         # check if no data is available for the current user's selection
-        if len(df_country_data) == 0:
+        if len(df_indicators_data) == 0:
             return html.Div(
                 ["No data available..."],
                 className="alert alert-danger fade show w-100",
             )
         else:
             # round the value to 2 decimal places
-            df_country_data = df_country_data.round({"Value": 2})
             return dash_table.DataTable(
-                columns=[{"name": i, "id": i} for i in df_country_data.columns],
-                data=df_country_data.to_dict("records"),
+                columns=[{"name": i, "id": i} for i in df_indicators_data.columns],
+                data=df_indicators_data.to_dict("records"),
                 style_cell={
                     "textAlign": "center",
                     "paddingLeft": 2,
@@ -334,19 +426,9 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
                 },
                 style_data_conditional=[
                     {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
-                    {"if": {"column_id": "Value"}, "fontWeight": "bold"},
-                    {
-                        "if": {
-                            "filter_query": "{{Value}} = {}".format(
-                                df_country_data["Value"].max()
-                            ),
-                            "column_id": "Value",
-                        },
-                        "backgroundColor": "#FF4136",
-                        "color": "white",
-                    },
                 ],
                 sort_action="native",
+                filter_action="native",
                 sort_mode="multi",
                 column_selectable="single",
                 page_action="native",

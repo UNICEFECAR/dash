@@ -819,13 +819,100 @@ data_sources = {
     "Helix": " Health Entrepreneurship and LIfestyle Xchange",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
-    "Immunization Monitoring (WHO)": "World Health Organization",
+    "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
     "WB": "World Bank",
     "OECD": "Organisation for Economic Co-operation and Development",
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
 }
+
+topics_subtopics = {
+    "All": ["All"],
+    "Education": [
+        {"Participation": "Participation"},
+        {"Quality": "Learning Quality"},
+        {"Governance": "Governance"},
+    ],
+    "Family Environment and Protection": [
+        {"Violence": "Violence against Children and Women"},
+        {"Care": "Children without parental care"},
+        {"Justice": "Juvenile Justice"},
+        {"Marriage": "Child marriage and other harmful practices"},
+        {"Labour": "Child Labour"},
+    ],
+    "Health and Nutrition": [
+        {"HS": "Health System"},
+        {"MNCH": "Maternal, newborn and child health"},
+        {"Immunization": "Immunization"},
+        {"Nutrition": "Nutrition"},
+        {"Adolescent": "Adolescent health"},
+        {"HIVAIDS": "HIV and AIDS"},
+        {"Wash": "Water, sanitation and hygiene"},
+    ],
+    "Poverty": [
+        {"Poverty": "Poverty and multi-dimensional deprivation"},
+        {"Protection": "Social protection system"},
+    ],
+    "Child Rights Landscape": [
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
+        {"Risks": "Risks, humanitarian situation and impact of climate change"},
+        {"Data": "Data and Public spending on Children"},
+    ],
+    "Participation": [
+        {"Registration": "Birth registration and documentation"},
+        {"Access": "Access to Justice"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
+    ],
+}
+
+dict_topics_subtopics = {
+    "Education": ["Participation", "Learning Quality", "Governance"],
+    "Family Environment and Protection": [
+        "Violence against Children and Women",
+        "Children without parental care",
+        "Juvenile Justice",
+        "Child marriage and other harmful practices",
+        "Child Labour",
+    ],
+    "Health and Nutrition": [
+        "Health System",
+        "Maternal, newborn and child health",
+        "Immunization",
+        "Nutrition",
+        "Adolescent health",
+        "HIV and AIDS",
+        "Water, sanitation and hygiene",
+    ],
+    "Poverty": [
+        "Poverty and multi-dimensional deprivation",
+        "Social protection system",
+    ],
+    "Child Rights Landscape": [
+        "Demography about Children",
+        "Political Economy",
+        "Migration and Displacement",
+        "Risks, humanitarian situation and impact of climate change",
+        "Data and Public spending on Children",
+    ],
+    "Participation": [
+        "Birth registration and documentation",
+        "Access to Justice",
+        "Information, Internet and Right to privacy",
+        "Leisure and Culture",
+    ],
+}
+
+
+def get_sector(subtopic):
+    for key in dict_topics_subtopics.keys():
+        if subtopic.strip() in dict_topics_subtopics.get(key):
+            return key
+    return ""
+
 
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
@@ -940,16 +1027,23 @@ snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[
 df_topics_subtopics = pd.read_excel(data_dict_content, sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
+
+# Concatenate sectors/subtopics dictionary value lists
+sitan_subtopics = sum(dict_topics_subtopics.values(), [])
+
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
-        "Theme": "Sector",
         "Issue": "Subtopic",
     },
     inplace=True,
 )
+# filter the sources to keep only sitan related sectors and sub-topics
+df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
+df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
-df_sources = df_sources.groupby("Source")
+df_sources_groups = df_sources.groupby("Source")
+df_sources_summary_groups = df_sources.groupby("Source_Full")
 
 
 def page_not_found(pathname):
