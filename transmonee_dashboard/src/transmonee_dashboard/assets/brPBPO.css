@@ -25,6 +25,7 @@
     line-height: 15ch;
     color: #ffffff;
     text-align: center;
+    vertical-align: middle;
     content: "Loading...";
     animation: spin 4s ease, loadingtext 1s linear;
     animation-iteration-count: infinite;
