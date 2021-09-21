@@ -1,54 +1,48 @@
-._dash-loading-callback {
-  font-family: sans-serif;
-  padding-top: 50px;
-  color: rgb(90, 90, 90);
-
-  -webkit-animation: fadein 0.5s ease-in 7s forwards; /* Safari, Chrome and Opera > 12.1 */
-     -moz-animation: fadein 0.5s; /* Firefox < 16 */
-      -ms-animation: fadein 0.5s; /* Internet Explorer */
-       -o-animation: fadein 0.5s; /* Opera < 12.1 */
-          animation: fadein 0.5s ease-in 7s forwards;  
-
-
-  
-  /* The banner */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
-  text-align: center;
-  cursor: progress;
-  z-index: 9999;
+._dash-loading-callback::before {
+    z-index: 9999;
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0,0,0,0.5);
 }
-
-
-@keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+._dash-loading-callback::after {
+    background: rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    z-index: 9999;
+    position: fixed;
+    width: 15ch;
+    height: 15ch;
+    top: calc(50vh - 15ch / 2);
+    left: calc(50vw - 15ch / 2);
+    border-left: 3px solid white;
+    border-right: 3px solid white;
+    border-top: 3px solid rgba(0,0,0,0);
+    border-bottom: 3px solid rgba(0,0,0,0);
+    border-radius: 50%;
+    line-height: 15ch;
+    color: #ffffff;
+    text-align: center;
+    content: "Loading...";
+    animation: spin 4s ease, loadingtext 1s linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: forwards;
 }
-
-/* Firefox < 16 */
-@-moz-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+@keyframes loadingtext {
+    0%    {content: "Loading...";}
+    16.7% {content: "Loading ..";}
+    33.3% {content: "Loading  .";}
+    50%   {content: "Loading   ";}
+    66.7% {content: "Loading.  ";}
+    83.3% {content: "Loading.. ";}
+    100%  {content: "Loading...";}
 }
-
-/* Safari, Chrome and Opera > 12.1 */
-@-webkit-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Internet Explorer */
-@-ms-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Opera < 12.1 */
-@-o-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    } to {
+        transform: rotate(360deg);
+    }
 }
