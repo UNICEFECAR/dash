@@ -5,7 +5,6 @@ from flask_caching import Cache
 from . import create_flask, create_dash
 from .layouts import main_layout_header, main_layout_sidebar, main_default_layout
 
-
 sentry_sdk.init(
     dsn="https://5f42c982ec844b7ea35b62bef6e117cb@o33646.ingest.sentry.io/5874251",
     integrations=[FlaskIntegration()],
@@ -28,7 +27,6 @@ app = create_dash(server)
 cache = Cache(
     app.server, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "cache-directory"}
 )
-
 
 # Push an application context so we can use Flask's 'current_app'
 with server.app_context():

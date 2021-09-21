@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout
+from .base_page import get_base_layout, geo_json_countries
 
 indicators_dict = {
     "POVERTYDEPRIVATION": {
@@ -28,14 +28,27 @@ indicators_dict = {
             "name": "Poverty and Deprivation",
             "geo": "Geographic area",
             "options": dict(
-                lat="latitude",
-                lon="longitude",
-                size="OBS_VALUE",
-                text="Geographic area",
+                geojson=geo_json_countries,
+                locations="REF_AREA",
+                featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
-                size_max=40,
-                zoom=2.5,
+                mapbox_style="carto-positron",
+                zoom=2,
+                center={"lat": 48.3794, "lon": 31.1656},
+                opacity=0.5,
+                labels={
+                    "OBS_VALUE": "Value",
+                    "Geographic area": "Country",
+                    "TIME_PERIOD": "Year",
+                    "REF_AREA": "ISO3 Code",
+                },
+                hover_data={
+                    "OBS_VALUE": True,
+                    "REF_AREA": False,
+                    "Geographic area": True,
+                    "TIME_PERIOD": True,
+                },
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
@@ -158,14 +171,27 @@ indicators_dict = {
             "name": "Social Protection Transfers",
             "geo": "Geographic area",
             "options": dict(
-                lat="latitude",
-                lon="longitude",
-                size="OBS_VALUE",
-                text="Geographic area",
+                geojson=geo_json_countries,
+                locations="REF_AREA",
+                featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
-                size_max=40,
-                zoom=2.5,
+                mapbox_style="carto-positron",
+                zoom=2,
+                center={"lat": 48.3794, "lon": 31.1656},
+                opacity=0.5,
+                labels={
+                    "OBS_VALUE": "Value",
+                    "Geographic area": "Country",
+                    "TIME_PERIOD": "Year",
+                    "REF_AREA": "ISO3 Code",
+                },
+                hover_data={
+                    "OBS_VALUE": True,
+                    "REF_AREA": False,
+                    "Geographic area": True,
+                    "TIME_PERIOD": True,
+                },
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),

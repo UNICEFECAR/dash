@@ -1,3 +1,6 @@
+from functools import lru_cache
+import json
+import os
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -7,6 +10,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
+from flask import current_app as server
+
 
 from . import (
     mapbox_access_token,
@@ -51,7 +56,6 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def get_base_layout(**kwargs):
-
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
 
@@ -1091,6 +1095,19 @@ def set_default_compare(
         )
 
 
+@lru_cache
+def get_geo_json_countries():
+    # countries_filename = os.path.join(app.server.root_path, "assets", "countries.geo.json")
+    countries_filename = os.path.join(server.config["APP_ASSETS"], "countries.geo.json")
+    if os.path.isfile(countries_filename):
+        # Reading the countries from the geo json file
+        geo_json_countries = json.load(open(countries_filename))
+    return geo_json_countries
+
+
+geo_json_countries = get_geo_json_countries()
+
+
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
@@ -1128,7 +1145,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     df = (
         data.query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
+        .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
         .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
         .sort_values(
             by=["TIME_PERIOD"]
@@ -1166,7 +1183,9 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    main_figure = px.scatter_mapbox(df, **options)
+
+    main_figure = px.choropleth_mapbox(df, **options)
+    main_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     if latest_data:
         # hide the year range slider and the animation buttons

@@ -922,7 +922,7 @@ if filter_non_num.any():
 
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-
+data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
