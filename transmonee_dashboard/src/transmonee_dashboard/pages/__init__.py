@@ -2,6 +2,7 @@ import collections
 import urllib
 
 import dash_html_components as html
+import numpy as np
 import pandas as pd
 from mapbox import Geocoder
 import requests
@@ -926,8 +927,12 @@ data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
-
 indicators = data["Indicator"].unique()
+
+# extract the indicators that have gender/sex disaggregation
+gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
 
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
