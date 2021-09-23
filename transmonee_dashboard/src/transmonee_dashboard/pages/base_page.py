@@ -701,6 +701,7 @@ def indicator_card(
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
         elif absolute:
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
@@ -1232,7 +1233,6 @@ def area_figure(
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
-
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     name = (
@@ -1278,6 +1278,18 @@ def area_figure(
     options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
+        if compare == "Wealth Quintile":
+            wealth_dict = {
+                "Lowest": 0,
+                "Second": 1,
+                "Middle": 2,
+                "Fourth": 3,
+                "Highest": 4,
+            }
+            df.sort_values(by=[compare], key=lambda x: x.map(wealth_dict), inplace=True)
+        else:
+            # sort by the compare value to have the legend in the right ascending order
+            df.sort_values(by=[compare], inplace=True)
 
     fig = getattr(px, fig_type)(df, **options)
     if traces:
@@ -1286,4 +1298,5 @@ def area_figure(
     if fig_type == "line":
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
     fig.update_xaxes(categoryorder="total descending")
+
     return fig, source
