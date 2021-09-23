@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "DEMOGRAPHY": {
@@ -26,7 +26,6 @@ indicators_dict = {
             "name": "Demography",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -141,7 +140,6 @@ indicators_dict = {
             "name": "Political Economy",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -294,7 +292,6 @@ indicators_dict = {
             "name": "Migration and Displacement",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -417,7 +414,6 @@ indicators_dict = {
             "name": "Risks, humanitarian situation and impact of climate change",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -554,7 +550,6 @@ indicators_dict = {
             "name": "Availability of data and Public Expendiure on Children",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",

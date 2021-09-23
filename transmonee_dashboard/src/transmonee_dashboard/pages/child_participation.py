@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "REGISTRATION": {
@@ -20,7 +20,6 @@ indicators_dict = {
             "name": "Birth and Death Registration",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -135,7 +134,6 @@ indicators_dict = {
             "name": "Access to Justice",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -367,7 +365,6 @@ indicators_dict = {
             "name": "Information, Internet and Right to privacy",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
@@ -501,7 +498,6 @@ indicators_dict = {
             "name": "Leisure and Culture",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",

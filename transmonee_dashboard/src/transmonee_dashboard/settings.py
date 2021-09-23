@@ -5,7 +5,7 @@
 
 # Your App's title. The value of this parameter will be propagated into
 # `app.title`
-import os
+import pathlib
 
 
 TITLE = "TransMonee Dashboard"
@@ -64,7 +64,3 @@ CONTENT_CONTAINER_ID = "page-content"
 
 # The ID of the element used to inject the navbar items into
 NAVBAR_CONTAINER_ID = "navbar-items"
-
-# Define the application root path and the assets folder path
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))  # refers to application_top
-APP_ASSETS = os.path.join(APP_ROOT, "assets")
