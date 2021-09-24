@@ -21,6 +21,7 @@ from . import (
     countries_dict_filter,
     countries_iso3_dict,
     geo_json_countries,
+    df_sources,
 )
 from ..app import app, cache
 from ..components import fa
@@ -640,6 +641,10 @@ def indicator_card(
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
 
+    df_indicator_sources = df_sources[df_sources['Code'].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
+    indicator_sources = "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+
     # select last value for each country
     indicator_values = (
         filtered_data.query(query)
@@ -649,11 +654,11 @@ def indicator_card(
                 "TIME_PERIOD",
             ]
         )
-        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+        .agg({"OBS_VALUE": "sum", "CODE": "count"})
     ).reset_index()
 
     numerator_pairs = (
-        indicator_values[indicator_values.DATA_SOURCE == len(numors)]
+        indicator_values[indicator_values.CODE == len(numors)]
         .groupby("Geographic area", as_index=False)
         .last()
         .set_index(["Geographic area", "TIME_PERIOD"])
@@ -769,7 +774,7 @@ def indicator_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(f"Sources: {indicator}"),
+                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
