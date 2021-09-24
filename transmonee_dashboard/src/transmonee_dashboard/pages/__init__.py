@@ -15,7 +15,10 @@ sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANS
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-geo_json_file = pathlib.Path("assets/countries.geo.json").absolute()
+geo_json_file = (
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+)
+print(geo_json_file)
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
