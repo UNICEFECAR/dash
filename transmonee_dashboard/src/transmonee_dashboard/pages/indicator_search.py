@@ -95,11 +95,11 @@ def get_layout(**kwargs):
                                     dbc.RadioItems(
                                         options=[
                                             {
-                                                "label": "Search by Sector",
+                                                "label": "Search Indicator by Source and Sector",
                                                 "value": "SEC",
                                             },
                                             {
-                                                "label": "Search by Indicator",
+                                                "label": "Search Indicator by Keyword",
                                                 "value": "IND",
                                             },
                                         ],
@@ -123,6 +123,7 @@ def get_layout(**kwargs):
                                                 style={
                                                     "height": "2.5rem",
                                                 },
+                                                placeholder="Enter search keyword...",
                                             ),
                                         ],
                                         style={
@@ -199,6 +200,17 @@ def get_layout(**kwargs):
                                         color="primary",
                                         id="search",
                                     ),
+                                    dbc.Button(
+                                        html.Span(
+                                            [
+                                                "Clear",
+                                                html.I(className="fas fa-eraser ml-2"),
+                                            ],
+                                        ),
+                                        color="warning",
+                                        id="clear",
+                                        style={"marginLeft": 12},
+                                    ),
                                 ],
                                 className="my-4",
                                 justify="center",
@@ -210,26 +222,27 @@ def get_layout(**kwargs):
             ),
             html.Div(
                 [
-                    dbc.Row(
-                        [
-                            html.H6(
-                                id="table_title",
-                                style={
-                                    "borderLeft": "5px solid #1cabe2",
-                                    "background": "#fff",
-                                    "padding": 10,
-                                    "marginTop": 10,
-                                    "marginBottom": 15,
-                                    "height": 40,
-                                },
-                            ),
-                        ],
-                    ),
+                    # dbc.Row(
+                    #     [
+                    #         html.H6(
+                    #             id="table_title",
+                    #             style={
+                    #                 "borderLeft": "5px solid #1cabe2",
+                    #                 "background": "#fff",
+                    #                 "padding": 10,
+                    #                 "marginTop": 10,
+                    #                 "marginBottom": 15,
+                    #                 "height": 40,
+                    #             },
+                    #         ),
+                    #     ],
+                    # ),
                     dbc.Row(
                         [
                             html.Div(
                                 id="tbl_indicators",
-                                style={"width": "100%"},
+                                style={"width": "100%",
+                                "paddingTop": 20},
                             ),
                         ],
                     ),
@@ -259,6 +272,17 @@ def get_sectors():
         for key in topics_subtopics
     ]
 
+@app.callback(
+    [
+        Output("sectors", "value"),
+        Output("sources", "value"),
+        Output("sub_topics", "value"),
+        Output("txtIndicator", "value"),
+    ],
+    Input("clear", "n_clicks"),
+)
+def reset_search_controls(type):
+    return ["","","",""]
 
 @app.callback(
     [
