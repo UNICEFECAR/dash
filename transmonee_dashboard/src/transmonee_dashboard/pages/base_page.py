@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 
+
 from . import (
     mapbox_access_token,
     unicef_country_prog,
@@ -19,6 +20,7 @@ from . import (
     data,
     countries_dict_filter,
     countries_iso3_dict,
+    geo_json_countries,
 )
 from ..app import app, cache
 from ..components import fa
@@ -51,7 +53,6 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def get_base_layout(**kwargs):
-
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
 
@@ -1129,8 +1130,8 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     df = (
         data.query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
-        .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
+        .agg({"OBS_VALUE": "last"})
         .sort_values(
             by=["TIME_PERIOD"]
         )  # Add sorting by Year to display the years in proper order
@@ -1167,7 +1168,10 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    main_figure = px.scatter_mapbox(df, **options)
+    options["geojson"] = geo_json_countries
+
+    main_figure = px.choropleth_mapbox(df, **options)
+    main_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     if latest_data:
         # hide the year range slider and the animation buttons
@@ -1290,7 +1294,7 @@ def area_figure(
         else:
             # sort by the compare value to have the legend in the right ascending order
             df.sort_values(by=[compare], inplace=True)
-
+            
     fig = getattr(px, fig_type)(df, **options)
     if traces:
         fig.update_traces(**traces)

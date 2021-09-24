@@ -1,28 +1,23 @@
+import json
+import pathlib
 import collections
+from io import BytesIO
 import urllib
 
 import dash_html_components as html
 import pandas as pd
-from mapbox import Geocoder
 import requests
-from io import BytesIO
+
+# TODO: Move all of these to env/setting vars from production
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
-
-geocoder = Geocoder(access_token=mapbox_access_token)
-
-
-def geocode_address(address):
-    """Geocode iso3 country code into lat/long."""
-    # Set the type of address to country in order to return the lat/long of the country Georgia and not the US State!
-    # Had to change the ISO3 of Kosovo ==> need to check Kosovo ISO3 code returned by SDMX
-    response = geocoder.forward(
-        "KOS" if address == "XKX" else address, types=["country"]
-    )
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
+geo_json_file = (
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+)
+with open(geo_json_file) as shapes_file:
+    geo_json_countries = json.load(shapes_file)
 
 
 codes = [
@@ -430,6 +425,9 @@ codes = [
     "CR_SG_STT_NSDSFDOTHR",
     "CR_SG_STT_CAPTY",
     "CR_SG_REG_CENSUSN",
+    "DM_CHLD_POP",
+    "DM_ADOL_POP",
+    "DM_CHLD_POP_PT",
 ]
 
 years = list(range(2010, 2021))
@@ -982,23 +980,9 @@ try:
 except urllib.error.HTTPError as e:
     raise e
 
-
 # no need to create column CODE, just rename indicator
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
-
-# Replace the list of countries by the list of dictionary countries values
-# TODO: Replace to static list
-data = data.merge(
-    right=pd.DataFrame(
-        [
-            dict(country=country, **geocode_address(country))
-            for country in countries_iso3_dict.values()
-        ]
-    ),
-    left_on="REF_AREA",  # was: Geographic area
-    right_on="country",
-)
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
@@ -1024,7 +1008,7 @@ snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
 snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
 # read indicators table from excel data-dictionary
-df_topics_subtopics = pd.read_excel(data_dict_content, sheet_name="Indicator")
+df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
 

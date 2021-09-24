@@ -14,9 +14,7 @@ def create_flask(config_object=f"{__package__}.settings"):
 
     # load additional settings that will override the defaults in settings.py. eg
     # $ export TRANSMONEE_DASHBOARD_SETTINGS=/some/path/prod_settings.py
-    server.config.from_envvar(
-        "TRANSMONEE_DASHBOARD_SETTINGS", silent=True
-    )
+    server.config.from_envvar("TRANSMONEE_DASHBOARD_SETTINGS", silent=True)
 
     return server
 
