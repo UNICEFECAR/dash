@@ -1283,7 +1283,19 @@ def area_figure(
     options["labels"]["OBS_VALUE"] = name
     if compare:
         options["color"] = compare
-
+        if compare == "Wealth Quintile":
+            wealth_dict = {
+                "Lowest": 0,
+                "Second": 1,
+                "Middle": 2,
+                "Fourth": 3,
+                "Highest": 4,
+            }
+            df.sort_values(by=[compare], key=lambda x: x.map(wealth_dict), inplace=True)
+        else:
+            # sort by the compare value to have the legend in the right ascending order
+            df.sort_values(by=[compare], inplace=True)
+            
     fig = getattr(px, fig_type)(df, **options)
     if traces:
         fig.update_traces(**traces)
