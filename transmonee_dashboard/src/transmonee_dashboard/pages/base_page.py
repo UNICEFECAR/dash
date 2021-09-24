@@ -702,6 +702,7 @@ def indicator_card(
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
         elif absolute:
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
