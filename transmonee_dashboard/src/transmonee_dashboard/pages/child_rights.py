@@ -9,12 +9,12 @@ indicators_dict = {
     "DEMOGRAPHY": {
         "NAME": "Demography about Children",
         "CARDS": [
-            # {
-            #     "name": "age 0-17 years",
-            #     "indicator": "",
-            #     "suffix": "Total child population",
-            #     "absolute": True,
-            # },
+            {
+                "name": "age 0-17 years",
+                "indicator": "DM_CHLD_POP",
+                "suffix": "Total child population (expressed in thousands)",
+                "absolute": True,
+            },
             {
                 "name": "Children (0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",
@@ -50,6 +50,9 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
+                "DM_CHLD_POP",
+                "DM_ADOL_POP",
+                "DM_CHLD_POP_PT",
                 "DM_CHLD_TWO_PRNT",
                 "DM_FRATE_TOT",
             ],
@@ -84,6 +87,9 @@ indicators_dict = {
             "default_graph": "bar",
             "indicators": [
                 "DM_CHLD_TWO_PRNT",
+                "DM_CHLD_POP",
+                "DM_ADOL_POP",
+                "DM_CHLD_POP_PT",
             ],
             "default": "DM_CHLD_TWO_PRNT",
         },

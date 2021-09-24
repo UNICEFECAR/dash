@@ -6,7 +6,7 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 import pandas as pd
 from io import StringIO
-from . import df_sources, data_sources
+from . import df_sources, data_sources, df_sources_groups, df_sources_summary_groups
 import dash_table
 
 
@@ -136,8 +136,103 @@ def get_layout(**kwargs):
 
 
 def get_data_sources():
-    sources_tabs = dcc.Tabs(
-        [
+    df_summary = pd.DataFrame(columns=["Source", "Sector", "Count"])
+
+    for num, [source, group] in enumerate(df_sources_summary_groups):
+        df_summary_sectors = group.groupby("Sector")
+        for num, [sector, sector_group] in enumerate(df_summary_sectors):
+            df_summary = df_summary.append(
+                {"Source": source, "Sector": sector, "Count": len(sector_group)},
+                ignore_index=True,
+            )
+        # Add the total count
+        df_summary = df_summary.append(
+            {"Source": "Subtotal", "Sector": "", "Count": len(group)},
+            ignore_index=True,
+        )
+    # Add the total count
+    df_summary = df_summary.append(
+        {"Source": "Total", "Sector": "", "Count": len(df_sources)},
+        ignore_index=True,
+    )
+    summary_tab = dcc.Tab(
+        label="Summary (" + str(len(df_sources)) + ")",
+        children=[
+            html.Br(),
+            html.Div(
+                className="heading-panel",
+                style={"padding": 20},
+                children=[
+                    html.H1(
+                        "Summary of Indicators by Source",
+                        id="source_title",
+                        className="heading-title",
+                        style={"fontSize": 24},
+                    ),
+                ],
+            ),
+            html.Br(),
+            dash_table.DataTable(
+                columns=[
+                    {"name": i, "id": i}
+                    for i in [
+                        "Source",
+                        "Sector",
+                        "Count",
+                    ]
+                ],
+                data=df_summary.to_dict("records"),
+                style_cell={"textAlign": "center", "fontWeight": "bold"},
+                style_data={
+                    "whiteSpace": "normal",
+                    "height": "auto",
+                    "textAlign": "left",
+                    "fontWeight": "regular",
+                },
+                style_data_conditional=[
+                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
+                    {
+                        "if": {"state": "active"},
+                        "backgroundColor": "#808080",
+                        "border": "1px solid #FFFFFF",
+                    },
+                    {
+                        "if": {
+                            "filter_query": "{Source} = 'Total' or {Source} = 'Subtotal'",
+                        },
+                        "backgroundColor": "grey",
+                        "color": "white",
+                        "fontWeight": "bold",
+                    },
+                ],
+                filter_action="native",
+                sort_action="native",
+                sort_mode="multi",
+                column_selectable="single",
+                page_action="native",
+                page_current=0,
+                page_size=20,
+                export_format="xlsx",
+                export_headers="display",
+                # hidden_columns=["Source"],
+                export_columns="all",
+                css=[{"selector": ".show-hide", "rule": "display: none"}],
+            ),
+            dbc.Popover(
+                [
+                    dbc.PopoverBody("Summary"),
+                ],
+                id="hover",
+                target="summary-sources",
+                placement="bottom",
+                trigger="hover",
+            ),
+        ],
+        style={"fontWeight": "bold"},
+        id="summary-sources",
+    )
+
+    sources_tabs = [
             dcc.Tab(
                 label=f"{source} (" + str(len(group)) + ")",
                 children=[
@@ -206,7 +301,8 @@ def get_data_sources():
                 style={"fontWeight": "bold"},
                 id=f"source-{num}",
             )
-            for num, [source, group] in enumerate(df_sources)
+            for num, [source, group] in enumerate(df_sources_groups)
         ]
-    )
-    return sources_tabs
+
+    sources_tabs.insert(0, summary_tab)
+    return dcc.Tabs(id="sources-tabs", children=sources_tabs)
