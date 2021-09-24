@@ -8,8 +8,6 @@ import dash_html_components as html
 import pandas as pd
 import requests
 
-print("Intialise")
-
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
@@ -18,7 +16,6 @@ mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5Mn
 geo_json_file = (
     pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
 )
-print(geo_json_file)
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
@@ -428,6 +425,9 @@ codes = [
     "CR_SG_STT_NSDSFDOTHR",
     "CR_SG_STT_CAPTY",
     "CR_SG_REG_CENSUSN",
+    "DM_CHLD_POP",
+    "DM_ADOL_POP",
+    "DM_CHLD_POP_PT",
 ]
 
 years = list(range(2010, 2021))
@@ -825,6 +825,93 @@ data_sources = {
     "UNDP": "United Nations Development Programme",
 }
 
+topics_subtopics = {
+    "All": ["All"],
+    "Education": [
+        {"Participation": "Participation"},
+        {"Quality": "Learning Quality"},
+        {"Governance": "Governance"},
+    ],
+    "Family Environment and Protection": [
+        {"Violence": "Violence against Children and Women"},
+        {"Care": "Children without parental care"},
+        {"Justice": "Juvenile Justice"},
+        {"Marriage": "Child marriage and other harmful practices"},
+        {"Labour": "Child Labour"},
+    ],
+    "Health and Nutrition": [
+        {"HS": "Health System"},
+        {"MNCH": "Maternal, newborn and child health"},
+        {"Immunization": "Immunization"},
+        {"Nutrition": "Nutrition"},
+        {"Adolescent": "Adolescent health"},
+        {"HIVAIDS": "HIV and AIDS"},
+        {"Wash": "Water, sanitation and hygiene"},
+    ],
+    "Poverty": [
+        {"Poverty": "Poverty and multi-dimensional deprivation"},
+        {"Protection": "Social protection system"},
+    ],
+    "Child Rights Landscape": [
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
+        {"Risks": "Risks, humanitarian situation and impact of climate change"},
+        {"Data": "Data and Public spending on Children"},
+    ],
+    "Participation": [
+        {"Registration": "Birth registration and documentation"},
+        {"Access": "Access to Justice"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
+    ],
+}
+
+dict_topics_subtopics = {
+    "Education": ["Participation", "Learning Quality", "Governance"],
+    "Family Environment and Protection": [
+        "Violence against Children and Women",
+        "Children without parental care",
+        "Juvenile Justice",
+        "Child marriage and other harmful practices",
+        "Child Labour",
+    ],
+    "Health and Nutrition": [
+        "Health System",
+        "Maternal, newborn and child health",
+        "Immunization",
+        "Nutrition",
+        "Adolescent health",
+        "HIV and AIDS",
+        "Water, sanitation and hygiene",
+    ],
+    "Poverty": [
+        "Poverty and multi-dimensional deprivation",
+        "Social protection system",
+    ],
+    "Child Rights Landscape": [
+        "Demography about Children",
+        "Political Economy",
+        "Migration and Displacement",
+        "Risks, humanitarian situation and impact of climate change",
+        "Data and Public spending on Children",
+    ],
+    "Participation": [
+        "Birth registration and documentation",
+        "Access to Justice",
+        "Information, Internet and Right to privacy",
+        "Leisure and Culture",
+    ],
+}
+
+
+def get_sector(subtopic):
+    for key in dict_topics_subtopics.keys():
+        if subtopic.strip() in dict_topics_subtopics.get(key):
+            return key
+    return ""
+
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -924,20 +1011,24 @@ snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[
 df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
+
+# Concatenate sectors/subtopics dictionary value lists
+sitan_subtopics = sum(dict_topics_subtopics.values(), [])
+
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
-        "Theme": "Sector",
         "Issue": "Subtopic",
     },
     inplace=True,
 )
+# filter the sources to keep only sitan related sectors and sub-topics
+df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
+df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
-df_sources = df_sources.groupby("Source")
+df_sources_groups = df_sources.groupby("Source")
+df_sources_summary_groups = df_sources.groupby("Source_Full")
 
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))
-
-
-print("Done")

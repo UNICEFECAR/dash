@@ -9,50 +9,7 @@ from dash.dependencies import Input, State, Output
 import pandas as pd
 
 from ..app import app
-from . import countries_iso3_dict, data, df_topics_subtopics
-
-pd.options.display.float_format = "{:,.2f}".format
-topics_subtopics = {
-    "All": ["All"],
-    "Education": [
-        {"Participation": "Participation"},
-        {"Quality": "Learning Quality"},
-        {"Governance": "Governance"},
-    ],
-    "Family Environment and Protection": [
-        {"Violence": "Violence against Children and Women"},
-        {"Care": "Children without parental care"},
-        {"Justice": "Juvenile Justice"},
-        {"Marriage": "Child marriage and other harmful practices"},
-        {"Labour": "Child Labour"},
-    ],
-    "Health and Nutrition": [
-        {"HS": "Health System"},
-        {"MNCH": "Maternal, newborn and child health"},
-        {"Immunization": "Immunization"},
-        {"Nutrition": "Nutrition"},
-        {"Adolescent": "Adolescent health"},
-        {"HIVAIDS": "HIV and AIDS"},
-        {"Wash": "Water, sanitation and hygiene"},
-    ],
-    "Poverty": [
-        {"Poverty": "Poverty and multi-dimensional deprivation"},
-        {"Protection": "Social protection system"},
-    ],
-    "Child Rights Landscape": [
-        {"Demography": "Demography about Children"},
-        {"Economy": "Political Economy"},
-        {"Migration": "Migration and Displacement"},
-        {"Risks": "Risks, humanitarian situation and impact of climate change"},
-        {"Data": "Data and Public spending on Children"},
-    ],
-    "Participation": [
-        {"Registration": "Birth registration and documentation"},
-        {"Access": "Access to Justice"},
-        {"Information": "Information, Internet and Right to privacy"},
-        {"Leisure": "Leisure and Culture"},
-    ],
-}
+from . import countries_iso3_dict, data, df_topics_subtopics, topics_subtopics
 
 
 def get_layout(**kwargs):
