@@ -1127,10 +1127,10 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
+    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
-        else ""
+        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
     )
 
     df = (
@@ -1245,15 +1245,20 @@ def area_figure(
 
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
+    indicator_name = (
+        data[data["CODE"] == indicator]["Indicator"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Indicator"].unique()) > 0
+        else ""
+    )
     name = (
         data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
+    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
-        else ""
+        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
     )
 
     data_cached = get_filtered_dataset(**selections).query(query)
@@ -1286,6 +1291,9 @@ def area_figure(
         }, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
+    # set the chart title
+    options["title"] = indicator_name
+
     if compare:
         options["color"] = compare
         if compare == "Wealth Quintile":
