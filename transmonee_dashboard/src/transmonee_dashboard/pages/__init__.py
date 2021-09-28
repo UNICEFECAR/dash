@@ -780,12 +780,7 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
+                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
             },
             {
                 "label": "Pre-accession countries",
@@ -799,10 +794,7 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
+            {"label": "Russian Federation", "value": ["Russian Federation"],},
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -965,7 +957,8 @@ col_types = {
     "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
-    # "OBS_VALUE": str,
+    "OBS_STATUS": str,
+    "Observation Status": str,
     "TIME_PERIOD": int,
 }
 
@@ -984,6 +977,9 @@ except urllib.error.HTTPError as e:
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
 
+# replace Yes by 1 and No by 0
+data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
 if filter_non_num.any():
@@ -993,7 +989,7 @@ if filter_non_num.any():
 
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-
+data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
@@ -1016,11 +1012,7 @@ df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 
 df_sources.rename(
-    columns={
-        "Name_y": "Indicator",
-        "Issue": "Subtopic",
-    },
-    inplace=True,
+    columns={"Name_y": "Indicator", "Issue": "Subtopic",}, inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
 df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
