@@ -984,6 +984,10 @@ except urllib.error.HTTPError as e:
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
 
+# replace Yes by 1 and No by 0
+binaries = {"Yes": 1, "No": 0}
+data["OBS_VALUE"] = data["OBS_VALUE"].map(binaries).fillna(data["OBS_VALUE"])
+
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
 if filter_non_num.any():
@@ -993,7 +997,7 @@ if filter_non_num.any():
 
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-
+data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
