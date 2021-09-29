@@ -1,3 +1,4 @@
+from enum import unique
 import dash
 from dash_bootstrap_components._components.Row import Row
 import dash_core_components as dcc
@@ -11,50 +12,14 @@ from pandas.io.formats import style
 import re
 
 from ..app import app
-from . import countries_iso3_dict, data, df_topics_subtopics, data_sources, df_sources
-
-pd.options.display.float_format = "{:,.2f}".format
-topics_subtopics = {
-    "All": ["All"],
-    "Education": [
-        {"Participation": "Participation"},
-        {"Quality": "Learning Quality"},
-        {"Governance": "Governance"},
-    ],
-    "Family Environment and Protection": [
-        {"Violence": "Violence against Children and Women"},
-        {"Care": "Children without parental care"},
-        {"Justice": "Juvenile Justice"},
-        {"Marriage": "Child marriage and other harmful practices"},
-        {"Labour": "Child Labour"},
-    ],
-    "Health and Nutrition": [
-        {"HS": "Health System"},
-        {"MNCH": "Maternal, newborn and child health"},
-        {"Immunization": "Immunization"},
-        {"Nutrition": "Nutrition"},
-        {"Adolescent": "Adolescent health"},
-        {"HIVAIDS": "HIV and AIDS"},
-        {"Wash": "Water, sanitation and hygiene"},
-    ],
-    "Poverty": [
-        {"Poverty": "Poverty and multi-dimensional deprivation"},
-        {"Protection": "Social protection system"},
-    ],
-    "Child Rights Landscape": [
-        {"Demography": "Demography about Children"},
-        {"Economy": "Political Economy"},
-        {"Migration": "Migration and Displacement"},
-        {"Risks": "Risks, humanitarian situation and impact of climate change"},
-        {"Data": "Data and Public spending on Children"},
-    ],
-    "Participation": [
-        {"Registration": "Birth registration and documentation"},
-        {"Access": "Access to Justice"},
-        {"Information": "Information, Internet and Right to privacy"},
-        {"Leisure": "Leisure and Culture"},
-    ],
-}
+from . import (
+    countries_iso3_dict,
+    data,
+    df_topics_subtopics,
+    topics_subtopics,
+    data_sources,
+    df_sources,
+)
 
 
 def get_layout(**kwargs):
@@ -95,21 +60,26 @@ def get_layout(**kwargs):
                                     dbc.RadioItems(
                                         options=[
                                             {
-                                                "label": "Search Indicator by Source and Sector",
+                                                "label": "Search Indicators by Source and Sector",
                                                 "value": "SEC",
                                             },
                                             {
-                                                "label": "Search Indicator by Keyword",
+                                                "label": "Search Indicators by Keyword",
                                                 "value": "IND",
+                                            },
+                                            {
+                                                "label": "Search Data by Indicator",
+                                                "value": "DAT",
                                             },
                                         ],
                                         value="SEC",
                                         inline=True,
+                                        style={"fontWeight": "bold"},
                                         id="search_type",
                                     ),
                                 ],
                                 justify="center",
-                                style={"paddingTop": 4},
+                                style={"paddingTop": 8},
                             ),
                             dbc.Row(
                                 [
@@ -131,21 +101,28 @@ def get_layout(**kwargs):
                                             "paddingRight": 20,
                                         },
                                     ),
-                                    # dcc.Dropdown(
-                                    #     id="drpIndicators",
-                                    #     style={
-                                    #         "zIndex": "11",
-                                    #         "minWidth": 400,
-                                    #         "maxWidth": 600,
-                                    #     },
-                                    #     placeholder="Select one or multiple sources",
-                                    #     options=get_indicators(),
-                                    #     multi=True,
-                                    # ),
                                 ],
                                 className="my-2",
                                 justify="center",
                                 id="row_search_sources",
+                            ),
+                            dbc.Row(
+                                [
+                                    dcc.Dropdown(
+                                        id="drpIndicators",
+                                        style={
+                                            "zIndex": "11",
+                                            "minWidth": 800,
+                                            "maxWidth": 1000,
+                                        },
+                                        placeholder="Select one or multiple indicators...",
+                                        options=get_indicators(),
+                                        multi=True,
+                                    ),
+                                ],
+                                className="my-2",
+                                justify="center",
+                                id="row_search_data",
                             ),
                             dbc.Row(
                                 [
@@ -222,32 +199,16 @@ def get_layout(**kwargs):
             ),
             html.Div(
                 [
-                    # dbc.Row(
-                    #     [
-                    #         html.H6(
-                    #             id="table_title",
-                    #             style={
-                    #                 "borderLeft": "5px solid #1cabe2",
-                    #                 "background": "#fff",
-                    #                 "padding": 10,
-                    #                 "marginTop": 10,
-                    #                 "marginBottom": 15,
-                    #                 "height": 40,
-                    #             },
-                    #         ),
-                    #     ],
-                    # ),
                     dbc.Row(
                         [
                             html.Div(
                                 id="tbl_indicators",
-                                style={"width": "100%",
-                                "paddingTop": 20},
+                                style={"width": "100%", "paddingTop": 20},
                             ),
                         ],
                     ),
                 ],
-                id="country_profile",
+                id="indicators_result",
             ),
         ],
     )
@@ -272,110 +233,46 @@ def get_sectors():
         for key in topics_subtopics
     ]
 
+
+def get_indicators():
+    return [
+        {
+            "label": source["Indicator"],
+            "value": source["Code"],
+        }
+        for index, source in df_sources.iterrows()
+    ]
+
+
 @app.callback(
     [
         Output("sectors", "value"),
         Output("sources", "value"),
         Output("sub_topics", "value"),
         Output("txtIndicator", "value"),
+        Output("drpIndicators", "value"),
     ],
     Input("clear", "n_clicks"),
 )
 def reset_search_controls(type):
-    return ["","","",""]
+    return ["", "", "", "", ""]
+
 
 @app.callback(
     [
         Output("row_search_sources", "hidden"),
         Output("row_search_indicators", "hidden"),
+        Output("row_search_data", "hidden"),
     ],
     Input("search_type", "value"),
 )
 def show_hide_search_type(type):
     if type == "IND":
-        return [False, True]
+        return [False, True, True]
+    elif type == "DAT":
+        return [True, True, False]
     else:
-        return [True, False]
-
-
-# @app.callback(
-#     [
-#         Output("country_name", "children"),
-#         Output("table_title", "children"),
-#     ],
-#     Input("countries", "value"),
-# )
-def get_selected_country(iso_code):
-    key_list = list(countries_iso3_dict.keys())
-    val_list = list(countries_iso3_dict.values())
-    if iso_code is not None:
-        position = val_list.index(iso_code)
-        country_name = key_list[position]
-        return [country_name, f"{country_name} Fact Sheet"]
-    else:
-        return ["", ""]
-
-
-# @app.callback(
-#     Output("sub_topics", "options"),
-#     [
-#         Input("sectors", "value"),
-#     ],
-# )
-def get_subsectors(selected_sectors):
-    topics_subtopics_keys = list(topics_subtopics.keys())
-    del topics_subtopics_keys[0]
-    all_sub_topics = []
-    if (selected_sectors is not None) and (selected_sectors != ["All"]):
-        all_sub_topics = [
-            [
-                {
-                    "label": list(sub_topic.values())[0],
-                    "value": list(sub_topic.values())[0],
-                }
-                for sub_topic in topics_subtopics[sector]
-            ]
-            for sector in selected_sectors
-        ]
-    elif selected_sectors == ["All"]:
-        all_sub_topics = [
-            [
-                {
-                    "label": list(sub_topic.values())[0],
-                    "value": list(sub_topic.values())[0],
-                }
-                for sub_topic in topics_subtopics[sector]
-            ]
-            for sector in topics_subtopics_keys
-        ]
-    final_sub_topics = []
-    if all_sub_topics is not None:
-        final_sub_topics = [
-            {
-                "label": "All",
-                "value": "All",
-            }
-        ]
-        for sub_topics in all_sub_topics:
-            final_sub_topics += sub_topics
-    return final_sub_topics
-
-
-def make_html_table(df):
-    """Return a dash definition of an HTML table for a Pandas dataframe"""
-    table = []
-    html_row = []
-    # Add the columns
-    for i in range(len(df.columns)):
-        html_row.append(html.Td([df.columns[i]]))
-    table.append(html.Tr(html_row))
-
-    for index, row in df.iterrows():
-        html_row = []
-        for i in range(len(row)):
-            html_row.append(html.Td([row[i]]))
-        table.append(html.Tr(html_row))
-    return table
+        return [True, False, True]
 
 
 @app.callback(
@@ -386,17 +283,81 @@ def make_html_table(df):
         State("sources", "value"),
         State("sectors", "value"),
         State("sub_topics", "value"),
+        State("drpIndicators", "value"),
         State("search_type", "value"),
     ],
 )
-def search_indicators(n_clicks, indicator, sources, topics, sub_topics, type):
+def search_indicators(
+    n_clicks, keywords, sources, topics, sub_topics, indicators, type
+):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
         df_indicators_data = pd.DataFrame()
         if type == "IND":
             df_indicators_data = df_sources[
-                df_sources["Indicator"].str.contains(indicator, case=False, regex=False)
+                (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
+                | (
+                    df_sources["Indicator"]
+                    .str.replace("-", " ")
+                    .str.contains(keywords, case=False, regex=True)
+                )
+            ]
+            df_indicators_data = df_indicators_data[
+                [
+                    "Sector",
+                    "Subtopic",
+                    "Indicator",
+                ]
+            ]
+        elif type == "DAT":
+            # Filter the data to keep only selected indicators
+            df_indicators_data = data[data["CODE"].isin(indicators)]
+            # Filter the data to keep only Totals where more than diaggregation code is available
+            df_indicators_data = df_indicators_data[
+                (
+                    (df_indicators_data["SEX"] == "_T")
+                    | (len(df_indicators_data["SEX"].unique()) == 1)
+                )
+                & (
+                    (df_indicators_data["AGE"] == "_T")
+                    | (len(df_indicators_data["AGE"].unique()) == 1)
+                )
+                & (
+                    (df_indicators_data["RESIDENCE"] == "_T")
+                    | (len(df_indicators_data["RESIDENCE"].unique()) == 1)
+                )
+                & (
+                    (df_indicators_data["WEALTH_QUINTILE"] == "_T")
+                    | (len(df_indicators_data["WEALTH_QUINTILE"].unique()) == 1)
+                )
+            ]
+
+            df_indicators_data = pd.merge(
+                df_indicators_data,
+                df_topics_subtopics,
+                left_on=["CODE"],
+                right_on=["Code"],
+            )
+            df_indicators_data.rename(
+                columns={
+                    "TIME_PERIOD": "Year",
+                    "Theme": "Sector",
+                    "Issue": "Subtopic",
+                    "OBS_VALUE": "Value",
+                    "Geographic area": "Country",
+                },
+                inplace=True,
+            )
+            df_indicators_data = df_indicators_data[
+                [
+                    "Sector",
+                    "Subtopic",
+                    "Indicator",
+                    "Country",
+                    "Year",
+                    "Value",
+                ]
             ]
         else:
             # filter data by selected sector/source
@@ -411,20 +372,13 @@ def search_indicators(n_clicks, indicator, sources, topics, sub_topics, type):
             df_indicators_data = df_sources[
                 df_sources.Code.isin(filtered_subtopics_groups["Code"])
             ]
-
-        # df_indicators_data = pd.merge(
-        #     df_indicators_data, df_topics_subtopics, on=["Code"]
-        # )
-        df_indicators_data = df_indicators_data[
-            [
-                # "Country",
-                "Sector",
-                "Subtopic",
-                "Indicator",
-                # "Year",
-                # "Value",
+            df_indicators_data = df_indicators_data[
+                [
+                    "Sector",
+                    "Subtopic",
+                    "Indicator",
+                ]
             ]
-        ]
 
         # check if no data is available for the current user's selection
         if len(df_indicators_data) == 0:
@@ -460,6 +414,5 @@ def search_indicators(n_clicks, indicator, sources, topics, sub_topics, type):
                 page_size=20,
                 export_format="csv",
                 export_columns="all",
-                hidden_columns=["Country"],
                 css=[{"selector": ".show-hide", "rule": "display: none"}],
             )

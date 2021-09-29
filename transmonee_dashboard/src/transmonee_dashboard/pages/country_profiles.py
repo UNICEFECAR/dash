@@ -280,6 +280,26 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
             df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
         ]
 
+        # Filter the data to keep only Totals where more than diaggregation code is available
+        df_country_data = df_country_data[
+            (
+                (df_country_data["SEX"] == "_T")
+                | (len(df_country_data["SEX"].unique()) == 1)
+            )
+            & (
+                (df_country_data["AGE"] == "_T")
+                | (len(df_country_data["AGE"].unique()) == 1)
+            )
+            & (
+                (df_country_data["RESIDENCE"] == "_T")
+                | (len(df_country_data["RESIDENCE"].unique()) == 1)
+            )
+            & (
+                (df_country_data["WEALTH_QUINTILE"] == "_T")
+                | (len(df_country_data["WEALTH_QUINTILE"].unique()) == 1)
+            )
+        ]
+
         df_country_data.rename(
             columns={
                 "Geographic area": "Country",
