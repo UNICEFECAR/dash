@@ -269,65 +269,97 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "generate":
         # filter data by selected country
-        df_country_data = data[data["REF_AREA"] == country]
+        df_filtered_country_data = data[data["REF_AREA"] == country]
         if sub_topics != ["All"]:
             filtered_subtopics_groups = df_topics_subtopics[
                 df_topics_subtopics.Issue.isin(sub_topics)
             ]
         else:
             filtered_subtopics_groups = df_topics_subtopics
-        df_country_data = df_country_data[
-            df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
-        ]
 
-        # Filter the data to keep only Totals where more than diaggregation code is available
-        df_country_data = df_country_data[
-            (
-                (df_country_data["SEX"] == "_T")
-                | (len(df_country_data["SEX"].unique()) == 1)
-            )
-            & (
-                (df_country_data["AGE"] == "_T")
-                | (len(df_country_data["AGE"].unique()) == 1)
-            )
-            & (
-                (df_country_data["RESIDENCE"] == "_T")
-                | (len(df_country_data["RESIDENCE"].unique()) == 1)
-            )
-            & (
-                (df_country_data["WEALTH_QUINTILE"] == "_T")
-                | (len(df_country_data["WEALTH_QUINTILE"].unique()) == 1)
-            )
-        ]
-
-        df_country_data.rename(
-            columns={
-                "Geographic area": "Country",
-                "TIME_PERIOD": "Year",
-                "OBS_VALUE": "Value",
-                "CODE": "Code",
-            },
-            inplace=True,
-        )
-
-        df_country_data = pd.merge(df_country_data, df_topics_subtopics, on=["Code"])
-        df_country_data.rename(
-            columns={
-                "Theme": "Sector",
-                "Issue": "Subtopic",
-            },
-            inplace=True,
-        )
-        df_country_data = df_country_data[
-            [
-                "Country",
-                "Sector",
-                "Subtopic",
+        df_country_data = pd.DataFrame(
+            columns=[
+                "CODE",
                 "Indicator",
-                "Year",
-                "Value",
+                "Geographic area",
+                "TIME_PERIOD",
+                "OBS_VALUE",
+                "SEX",
+                "AGE",
+                "RESIDENCE",
+                "WEALTH_QUINTILE",
             ]
+        )
+        # Filter the data to keep only selected indicators
+        df_filtered_country_data = df_filtered_country_data[
+            df_filtered_country_data.CODE.isin(filtered_subtopics_groups["Code"])
         ]
+        if len(df_filtered_country_data) > 0:
+            # group by indicator code in order to filter each indicator's data alone
+            df_country_data_groups = df_filtered_country_data.groupby(
+                "CODE", as_index=False
+            )
+            for num, [code, group] in enumerate(df_country_data_groups):
+                # Filter the data to keep only Totals where more than diaggregation code is available
+                group_totals = group[
+                    ((group["SEX"] == "_T") | (len(group["SEX"].unique()) == 1))
+                    & ((group["AGE"] == "_T") | (len(group["AGE"].unique()) == 1))
+                    & (
+                        (group["RESIDENCE"] == "_T")
+                        | (len(group["RESIDENCE"].unique()) == 1)
+                    )
+                    & (
+                        (group["WEALTH_QUINTILE"] == "_T")
+                        | (len(group["WEALTH_QUINTILE"].unique()) == 1)
+                    )
+                ]
+                df_country_data = df_country_data.append(
+                    group_totals[
+                        [
+                            "CODE",
+                            "Indicator",
+                            "Geographic area",
+                            "TIME_PERIOD",
+                            "OBS_VALUE",
+                            "SEX",
+                            "AGE",
+                            "RESIDENCE",
+                            "WEALTH_QUINTILE",
+                        ]
+                    ],
+                    ignore_index=True,
+                )
+
+            df_country_data.rename(
+                columns={
+                    "Geographic area": "Country",
+                    "TIME_PERIOD": "Year",
+                    "OBS_VALUE": "Value",
+                    "CODE": "Code",
+                },
+                inplace=True,
+            )
+
+            df_country_data = pd.merge(
+                df_country_data, df_topics_subtopics, on=["Code"]
+            )
+            df_country_data.rename(
+                columns={
+                    "Theme": "Sector",
+                    "Issue": "Subtopic",
+                },
+                inplace=True,
+            )
+            df_country_data = df_country_data[
+                [
+                    "Country",
+                    "Sector",
+                    "Subtopic",
+                    "Indicator",
+                    "Year",
+                    "Value",
+                ]
+            ]
 
         # check if no data is available for the current user's selection
         if len(df_country_data) == 0:

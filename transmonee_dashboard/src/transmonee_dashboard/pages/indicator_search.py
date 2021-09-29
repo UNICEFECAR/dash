@@ -11,6 +11,8 @@ import pandas as pd
 from pandas.io.formats import style
 import re
 
+from transmonee_dashboard.pages.base_page import indicator_card
+
 from ..app import app
 from . import (
     countries_iso3_dict,
@@ -311,54 +313,83 @@ def search_indicators(
                 ]
             ]
         elif type == "DAT":
-            # Filter the data to keep only selected indicators
-            df_indicators_data = data[data["CODE"].isin(indicators)]
-            # Filter the data to keep only Totals where more than diaggregation code is available
-            df_indicators_data = df_indicators_data[
-                (
-                    (df_indicators_data["SEX"] == "_T")
-                    | (len(df_indicators_data["SEX"].unique()) == 1)
-                )
-                & (
-                    (df_indicators_data["AGE"] == "_T")
-                    | (len(df_indicators_data["AGE"].unique()) == 1)
-                )
-                & (
-                    (df_indicators_data["RESIDENCE"] == "_T")
-                    | (len(df_indicators_data["RESIDENCE"].unique()) == 1)
-                )
-                & (
-                    (df_indicators_data["WEALTH_QUINTILE"] == "_T")
-                    | (len(df_indicators_data["WEALTH_QUINTILE"].unique()) == 1)
-                )
-            ]
-
-            df_indicators_data = pd.merge(
-                df_indicators_data,
-                df_topics_subtopics,
-                left_on=["CODE"],
-                right_on=["Code"],
-            )
-            df_indicators_data.rename(
-                columns={
-                    "TIME_PERIOD": "Year",
-                    "Theme": "Sector",
-                    "Issue": "Subtopic",
-                    "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
-                },
-                inplace=True,
-            )
-            df_indicators_data = df_indicators_data[
-                [
-                    "Sector",
-                    "Subtopic",
+            df_indicators_data = pd.DataFrame(
+                columns=[
+                    "CODE",
                     "Indicator",
-                    "Country",
-                    "Year",
-                    "Value",
+                    "Geographic area",
+                    "TIME_PERIOD",
+                    "OBS_VALUE",
+                    "SEX",
+                    "AGE",
+                    "RESIDENCE",
+                    "WEALTH_QUINTILE",
                 ]
-            ]
+            )
+            # Filter the data to keep only selected indicators
+            df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
+            if len(df_filtered_indicators_data) > 0:
+                # group by indicator code in order to filter each indicator's data alone
+                df_indicators_data_groups = df_filtered_indicators_data.groupby(
+                    "CODE", as_index=False
+                )
+                for num, [code, group] in enumerate(df_indicators_data_groups):
+                    # Filter the data to keep only Totals where more than diaggregation code is available
+                    group_totals = group[
+                        ((group["SEX"] == "_T") | (len(group["SEX"].unique()) == 1))
+                        & ((group["AGE"] == "_T") | (len(group["AGE"].unique()) == 1))
+                        & (
+                            (group["RESIDENCE"] == "_T")
+                            | (len(group["RESIDENCE"].unique()) == 1)
+                        )
+                        & (
+                            (group["WEALTH_QUINTILE"] == "_T")
+                            | (len(group["WEALTH_QUINTILE"].unique()) == 1)
+                        )
+                    ]
+                    df_indicators_data = df_indicators_data.append(
+                        group_totals[
+                            [
+                                "CODE",
+                                "Indicator",
+                                "Geographic area",
+                                "TIME_PERIOD",
+                                "OBS_VALUE",
+                                "SEX",
+                                "AGE",
+                                "RESIDENCE",
+                                "WEALTH_QUINTILE",
+                            ]
+                        ],
+                        ignore_index=True,
+                    )
+                df_indicators_data = pd.merge(
+                    df_indicators_data,
+                    df_topics_subtopics,
+                    left_on=["CODE"],
+                    right_on=["Code"],
+                )
+                df_indicators_data.rename(
+                    columns={
+                        "TIME_PERIOD": "Year",
+                        "Theme": "Sector",
+                        "Issue": "Subtopic",
+                        "OBS_VALUE": "Value",
+                        "Geographic area": "Country",
+                    },
+                    inplace=True,
+                )
+
+                df_indicators_data = df_indicators_data[
+                    [
+                        "Sector",
+                        "Subtopic",
+                        "Indicator",
+                        "Country",
+                        "Year",
+                        "Value",
+                    ]
+                ]
         else:
             # filter data by selected sector/source
             if sources != ["All"]:
