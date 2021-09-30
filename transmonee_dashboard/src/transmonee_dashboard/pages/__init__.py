@@ -428,6 +428,9 @@ codes = [
     "DM_CHLD_POP",
     "DM_ADOL_POP",
     "DM_CHLD_POP_PT",
+    "EDUNF_FEP_L3_GEN",
+    "EDUNF_FEP_L3_VOC",
+    "DM_POP_NETM",
 ]
 
 years = list(range(2010, 2021))
