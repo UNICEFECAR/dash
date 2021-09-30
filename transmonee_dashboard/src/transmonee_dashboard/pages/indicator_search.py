@@ -295,7 +295,6 @@ def search_indicators(
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
-        df_indicators_data = pd.DataFrame()
         if type == "IND":
             df_indicators_data = df_sources[
                 (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
@@ -313,19 +312,7 @@ def search_indicators(
                 ]
             ]
         elif type == "DAT":
-            df_indicators_data = pd.DataFrame(
-                columns=[
-                    "CODE",
-                    "Indicator",
-                    "Geographic area",
-                    "TIME_PERIOD",
-                    "OBS_VALUE",
-                    "SEX",
-                    "AGE",
-                    "RESIDENCE",
-                    "WEALTH_QUINTILE",
-                ]
-            )
+            df_indicators_data = pd.DataFrame()
             # Filter the data to keep only selected indicators
             df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
             if len(df_filtered_indicators_data) > 0:
@@ -347,22 +334,17 @@ def search_indicators(
                             | (len(group["WEALTH_QUINTILE"].unique()) == 1)
                         )
                     ]
-                    df_indicators_data = df_indicators_data.append(
-                        group_totals[
-                            [
-                                "CODE",
-                                "Indicator",
-                                "Geographic area",
-                                "TIME_PERIOD",
-                                "OBS_VALUE",
-                                "SEX",
-                                "AGE",
-                                "RESIDENCE",
-                                "WEALTH_QUINTILE",
-                            ]
-                        ],
-                        ignore_index=True,
+
+                    df_indicators_data = (
+                        group_totals
+                        if df_indicators_data is None
+                        else df_indicators_data.append(
+                            group_totals,
+                            ignore_index=True,
+                        )
                     )
+
+                # merge to get the sector and sub-topic
                 df_indicators_data = pd.merge(
                     df_indicators_data,
                     df_topics_subtopics,

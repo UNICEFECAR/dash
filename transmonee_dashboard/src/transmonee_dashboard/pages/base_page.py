@@ -1337,12 +1337,14 @@ def area_figure(
             df.sort_values(by=[compare], inplace=True)
 
     fig = getattr(px, fig_type)(df, **options)
+
     if traces:
         fig.update_traces(**traces)
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
 
+    # fig.update_xaxes(categoryorder="total descending")
     fig.update_layout(layout)
 
     return fig, source

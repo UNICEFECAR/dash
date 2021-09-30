@@ -428,6 +428,9 @@ codes = [
     "DM_CHLD_POP",
     "DM_ADOL_POP",
     "DM_CHLD_POP_PT",
+    "EDUNF_FEP_L3_GEN",
+    "EDUNF_FEP_L3_VOC",
+    "DM_POP_NETM",
 ]
 
 years = list(range(2010, 2021))
@@ -780,7 +783,12 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
@@ -794,7 +802,10 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -969,7 +980,7 @@ try:
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
         storage_options={"Accept-Encoding": "gzip"},
-        low_memory=False
+        low_memory=False,
     )
 except urllib.error.HTTPError as e:
     raise e
@@ -1013,7 +1024,11 @@ df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 
 df_sources.rename(
-    columns={"Name_y": "Indicator", "Issue": "Subtopic",}, inplace=True,
+    columns={
+        "Name_y": "Indicator",
+        "Issue": "Subtopic",
+    },
+    inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
 df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
