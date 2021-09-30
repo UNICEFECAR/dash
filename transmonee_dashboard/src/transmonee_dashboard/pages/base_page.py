@@ -1346,5 +1346,4 @@ def area_figure(
 
     # fig.update_xaxes(categoryorder="total descending")
     fig.update_layout(layout)
-
     return fig, source
