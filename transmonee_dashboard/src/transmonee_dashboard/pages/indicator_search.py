@@ -312,38 +312,42 @@ def search_indicators(
                 ]
             ]
         elif type == "DAT":
-            df_indicators_data = pd.DataFrame()
             # Filter the data to keep only selected indicators
             df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
             if len(df_filtered_indicators_data) > 0:
-                # group by indicator code in order to filter each indicator's data alone
-                df_indicators_data_groups = df_filtered_indicators_data.groupby(
-                    "CODE", as_index=False
-                )
-                for num, [code, group] in enumerate(df_indicators_data_groups):
-                    # Filter the data to keep only Totals where more than diaggregation code is available
-                    group_totals = group[
-                        ((group["SEX"] == "_T") | (len(group["SEX"].unique()) == 1))
-                        & ((group["AGE"] == "_T") | (len(group["AGE"].unique()) == 1))
-                        & (
-                            (group["RESIDENCE"] == "_T")
-                            | (len(group["RESIDENCE"].unique()) == 1)
-                        )
-                        & (
-                            (group["WEALTH_QUINTILE"] == "_T")
-                            | (len(group["WEALTH_QUINTILE"].unique()) == 1)
-                        )
-                    ]
-
-                    df_indicators_data = (
-                        group_totals
-                        if df_indicators_data is None
-                        else df_indicators_data.append(
-                            group_totals,
-                            ignore_index=True,
-                        )
+                # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
+                df_dimensions_count = df_filtered_indicators_data.groupby("CODE").apply(
+                    lambda ind: pd.Series(
+                        {
+                            "Sex_Count": ind["SEX"].nunique(),
+                            "Age_Count": ind["AGE"].nunique(),
+                            "Residence_Count": ind["RESIDENCE"].nunique(),
+                            "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
+                        }
                     )
-
+                )
+                df_indicators_data = pd.merge(
+                    df_filtered_indicators_data, df_dimensions_count, on=["CODE"]
+                )
+                # Filter the data to keep the total or the other dimension when there is only one disaggregation
+                df_indicators_data = df_indicators_data[
+                    (
+                        (df_indicators_data["SEX"] == "_T")
+                        | (df_indicators_data["Sex_Count"] == 1)
+                    )
+                    & (
+                        (df_indicators_data["AGE"] == "_T")
+                        | (df_indicators_data["Age_Count"] == 1)
+                    )
+                    & (
+                        (df_indicators_data["RESIDENCE"] == "_T")
+                        | (df_indicators_data["Residence_Count"] == 1)
+                    )
+                    & (
+                        (df_indicators_data["WEALTH_QUINTILE"] == "_T")
+                        | (df_indicators_data["Wealth_Count"] == 1)
+                    )
+                ]
                 # merge to get the sector and sub-topic
                 df_indicators_data = pd.merge(
                     df_indicators_data,
@@ -361,7 +365,7 @@ def search_indicators(
                     },
                     inplace=True,
                 )
-
+                # keep only selected columns
                 df_indicators_data = df_indicators_data[
                     [
                         "Sector",
