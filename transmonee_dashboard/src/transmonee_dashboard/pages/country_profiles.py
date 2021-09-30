@@ -276,8 +276,36 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
             ]
         else:
             filtered_subtopics_groups = df_topics_subtopics
+
+        # Filter country data to keep only selected sectors and sub-topics
         df_country_data = df_country_data[
             df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
+        ]
+
+        # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
+        df_dimensions_count = df_country_data.groupby("CODE").apply(
+            lambda ind: pd.Series(
+                {
+                    "Sex_Count": ind["SEX"].nunique(),
+                    "Age_Count": ind["AGE"].nunique(),
+                    "Residence_Count": ind["RESIDENCE"].nunique(),
+                    "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
+                }
+            )
+        )
+        df_country_data = pd.merge(df_country_data, df_dimensions_count, on=["CODE"])
+        # Filter the data to keep the total or the other dimension when there is only one disaggregation
+        df_country_data = df_country_data[
+            ((df_country_data["SEX"] == "_T") | (df_country_data["Sex_Count"] == 1))
+            & ((df_country_data["AGE"] == "_T") | (df_country_data["Age_Count"] == 1))
+            & (
+                (df_country_data["RESIDENCE"] == "_T")
+                | (df_country_data["Residence_Count"] == 1)
+            )
+            & (
+                (df_country_data["WEALTH_QUINTILE"] == "_T")
+                | (df_country_data["Wealth_Count"] == 1)
+            )
         ]
 
         df_country_data.rename(
