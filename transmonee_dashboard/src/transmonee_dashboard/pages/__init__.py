@@ -428,6 +428,9 @@ codes = [
     "DM_CHLD_POP",
     "DM_ADOL_POP",
     "DM_CHLD_POP_PT",
+    "EDUNF_FEP_L3_GEN",
+    "EDUNF_FEP_L3_VOC",
+    "DM_POP_NETM",
 ]
 
 years = list(range(2010, 2021))
@@ -817,7 +820,7 @@ data_sources = {
     "Helix": " Health Entrepreneurship and LIfestyle Xchange",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
-    "Immunization Monitoring (WHO)": "World Health Organization",
+    "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
     "WB": "World Bank",
     "OECD": "Organisation for Economic Co-operation and Development",
     "SDG": "Sustainable Development Goals",
@@ -977,6 +980,7 @@ try:
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
         storage_options={"Accept-Encoding": "gzip"},
+        low_memory=False,
     )
 except urllib.error.HTTPError as e:
     raise e

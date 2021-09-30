@@ -276,6 +276,7 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
             ]
         else:
             filtered_subtopics_groups = df_topics_subtopics
+
         # Filter country data to keep only selected sectors and sub-topics
         df_country_data = df_country_data[
             df_country_data.CODE.isin(filtered_subtopics_groups["Code"])

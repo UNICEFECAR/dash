@@ -7,7 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
-
+import textwrap
 
 from . import (
     mapbox_access_token,
@@ -640,6 +640,13 @@ def indicator_card(
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
     unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
@@ -1248,7 +1255,6 @@ def area_figure(
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
-
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     indicator_name = (
@@ -1299,8 +1305,21 @@ def area_figure(
         }, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    # set the chart title
-    options["title"] = indicator_name
+
+    # set the chart title, wrap the text when the indicator name is too long
+    chart_title = textwrap.wrap(
+        indicator_name,
+        width=74,
+    )
+    chart_title = "<br>".join(chart_title)
+    # set the layout to center the chart title and change its font size and color
+    layout = go.Layout(
+        title=chart_title,
+        title_x=0.5,
+        font=dict(family="Arial", size=12),
+        legend=dict(x=0.9, y=0.5),
+        xaxis={"categoryorder": "total descending"},
+    )
 
     if compare:
         options["color"] = compare
@@ -1318,10 +1337,13 @@ def area_figure(
             df.sort_values(by=[compare], inplace=True)
 
     fig = getattr(px, fig_type)(df, **options)
+
     if traces:
         fig.update_traces(**traces)
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
-    fig.update_xaxes(categoryorder="total descending")
+
+    # fig.update_xaxes(categoryorder="total descending")
+    fig.update_layout(layout)
     return fig, source
