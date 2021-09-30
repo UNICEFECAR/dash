@@ -1,3 +1,4 @@
+import textwrap
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -641,9 +642,13 @@ def indicator_card(
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
 
-    df_indicator_sources = df_sources[df_sources['Code'].isin(indicator)]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
-    indicator_sources = "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     # select last value for each country
     indicator_values = (
@@ -1127,10 +1132,12 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
     )
 
     df = (
@@ -1255,10 +1262,12 @@ def area_figure(
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
     )
 
     data_cached = get_filtered_dataset(**selections).query(query)
@@ -1289,10 +1298,15 @@ def area_figure(
                 ],
             }
         }, ""
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     # set the chart title
-    options["title"] = indicator_name
+    chart_title = textwrap.wrap(
+        indicator_name,
+        width=70,
+    )
+    chart_title = "<br>".join(chart_title)
 
     if compare:
         options["color"] = compare
@@ -1308,12 +1322,60 @@ def area_figure(
         else:
             # sort by the compare value to have the legend in the right ascending order
             df.sort_values(by=[compare], inplace=True)
-            
-    fig = getattr(px, fig_type)(df, **options)
-    if traces:
-        fig.update_traces(**traces)
-    # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line":
-        fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
-    fig.update_xaxes(categoryorder="total descending")
+
+    layout = go.Layout(
+        title=chart_title,
+        title_x=0.5,
+        font=dict(family="Arial", size=12, color="#909090"),
+        legend=dict(x=0.9, y=0.5),
+    )
+
+    # check for binary indicators to generate a pie chart
+    if name == "Binary":
+        color_palette_list = [
+            "#009ACD",
+            "#ADD8E6",
+            "#63D1F4",
+            "#0EBFE9",
+            "#C1F0F6",
+            "#0099CC",
+        ]
+        labels = ["Yes", "No"]
+        percentages = [
+            len(df[df["OBS_VALUE"] == 1]) / len(df),
+            len(df[df["OBS_VALUE"] == 0]) / len(df),
+        ]
+        yes_countries_hover = textwrap.wrap(
+            "; ".join(df[df["OBS_VALUE"] == 1]["Geographic area"]),
+            width=40,
+        )
+        yes_countries_hover = "<br>".join(yes_countries_hover)
+        no_countries_hover = textwrap.wrap(
+            "; ".join(df[df["OBS_VALUE"] == 0]["Geographic area"]),
+            width=40,
+        )
+        no_countries_hover = "<br>".join(no_countries_hover)
+        countries_hover = [yes_countries_hover, no_countries_hover]
+        trace = go.Pie(
+            labels=labels,
+            hoverinfo="label+percent",
+            values=percentages,
+            textposition="outside",
+            marker=dict(colors=color_palette_list[0:2]),
+            rotation=90,
+            customdata=countries_hover,
+            hovertemplate="<b>%{label} <br>Percentage: %{percent} </br>Countries:</b></br>%{customdata}",
+        )
+        data = [trace]
+        fig = go.Figure(data=data, layout=layout)
+    else:
+        fig = getattr(px, fig_type)(df, **options)
+        if traces:
+            fig.update_traces(**traces)
+        # Add this code to avoid having decimal year on the x-axis for time series charts
+        if fig_type == "line":
+            fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
+        fig.update_xaxes(categoryorder="total descending")
+
+    fig.update_layout(layout)
     return fig, source
