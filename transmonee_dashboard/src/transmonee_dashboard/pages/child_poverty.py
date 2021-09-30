@@ -34,7 +34,7 @@ indicators_dict = {
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -176,7 +176,7 @@ indicators_dict = {
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
