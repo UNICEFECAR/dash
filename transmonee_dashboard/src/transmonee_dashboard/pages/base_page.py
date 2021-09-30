@@ -641,9 +641,13 @@ def indicator_card(
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
 
-    df_indicator_sources = df_sources[df_sources['Code'].isin(indicator)]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
-    indicator_sources = "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     # select last value for each country
     indicator_values = (
@@ -1127,10 +1131,12 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
     )
 
     df = (
@@ -1255,10 +1261,12 @@ def area_figure(
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources['Code'] == indicator]
-    unique_indicator_sources = df_indicator_sources['Source_Full'].unique()
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        "; ".join(list(unique_indicator_sources)) if len(unique_indicator_sources) > 0 else ""
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
     )
 
     data_cached = get_filtered_dataset(**selections).query(query)
@@ -1308,7 +1316,7 @@ def area_figure(
         else:
             # sort by the compare value to have the legend in the right ascending order
             df.sort_values(by=[compare], inplace=True)
-            
+
     fig = getattr(px, fig_type)(df, **options)
     if traces:
         fig.update_traces(**traces)
