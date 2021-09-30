@@ -1,3 +1,4 @@
+import textwrap
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -1312,6 +1313,7 @@ def area_figure(
         width=74,
     )
     chart_title = "<br>".join(chart_title)
+
     # set the layout to center the chart title and change its font size and color
     layout = go.Layout(
         title=chart_title,
