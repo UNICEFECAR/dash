@@ -780,7 +780,12 @@ country_selections = [
             },
             {
                 "label": "Other",
-                "value": ["Andorra", "Monaco", "Holy See", "San Marino",],
+                "value": [
+                    "Andorra",
+                    "Monaco",
+                    "Holy See",
+                    "San Marino",
+                ],
             },
             {
                 "label": "Pre-accession countries",
@@ -794,7 +799,10 @@ country_selections = [
                     "Turkey",
                 ],
             },
-            {"label": "Russian Federation", "value": ["Russian Federation"],},
+            {
+                "label": "Russian Federation",
+                "value": ["Russian Federation"],
+            },
             {
                 "label": "United Kingdom (left EU on January 31, 2020)",
                 "value": ["United Kingdom"],
@@ -1012,7 +1020,11 @@ df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 
 df_sources.rename(
-    columns={"Name_y": "Indicator", "Issue": "Subtopic",}, inplace=True,
+    columns={
+        "Name_y": "Indicator",
+        "Issue": "Subtopic",
+    },
+    inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
 df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
