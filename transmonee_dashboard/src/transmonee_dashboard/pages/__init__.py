@@ -1031,6 +1031,7 @@ df_sources.rename(
     inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
+df_sources["Subtopic"] = df_sources["Subtopic"].str.strip()
 df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
 df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
