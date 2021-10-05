@@ -419,7 +419,7 @@ def get_indicators():
     ],
     Input("clear", "n_clicks"),
 )
-def reset_search_controls(type):
+def reset_search_controls(n_clicks):
     return ["", "", "", "", "", "", ""]
 
 
@@ -442,18 +442,18 @@ def show_hide_search_type(type):
 
 @app.callback(
     Output("tbl_indicators", "children"),
+    Input("search", "n_clicks"),
     [
-        Input("search", "n_clicks"),
-        Input("sources", "value"),
-        Input({"type": "sectors", "index": 1}, "value"),
-        Input({"type": "sub_topics", "index": 1}, "value"),
-        Input("txtIndicator", "value"),
-        Input("drpIndicators", "value"),
-        Input("search_type", "value"),
+        State("sources", "value"),
+        State({"type": "sectors", "index": 1}, "value"),
+        State({"type": "sub_topics", "index": 1}, "value"),
+        State("drpIndicators", "value"),
+        State("txtIndicator", "value"),
+        State("search_type", "value"),
     ],
 )
 def search_indicators(
-    n_clicks, sources, topics, sub_topics, keywords, indicators, type
+    n_clicks, sources, topics, sub_topics, indicators, keywords, type
 ):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
