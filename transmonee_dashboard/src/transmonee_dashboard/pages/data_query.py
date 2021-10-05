@@ -59,7 +59,7 @@ def get_layout(**kwargs):
                     id="search-tabs",
                     children=[
                         dcc.Tab(
-                            label="Search Indicator Data",
+                            label="Search Indicators and Indicators' Data",
                             children=[
                                 html.Br(),
                                 html.Div(
@@ -239,6 +239,14 @@ def get_layout(**kwargs):
                                 ),
                             ],
                             style={"fontWeight": "bold", "padding": 20},
+                            selected_style={
+                                "borderTop": "1px solid #d6d6d6",
+                                "borderBottom": "1px solid #d6d6d6",
+                                "backgroundColor": "#1cabe2",
+                                "color": "white",
+                                "fontWeight": "bold",
+                                "padding": 20,
+                            },
                             id="indicator-search",
                         ),
                         dcc.Tab(
@@ -367,6 +375,14 @@ def get_layout(**kwargs):
                                 ),
                             ],
                             style={"fontWeight": "bold"},
+                            selected_style={
+                                "borderTop": "1px solid #d6d6d6",
+                                "borderBottom": "1px solid #d6d6d6",
+                                "backgroundColor": "#1cabe2",
+                                "color": "white",
+                                "fontWeight": "bold",
+                                "padding": 20,
+                            },
                             id="country-search",
                         ),
                     ],
