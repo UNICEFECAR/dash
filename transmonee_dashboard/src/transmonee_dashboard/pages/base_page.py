@@ -4,6 +4,8 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_treeview_antd
+import numpy as np
+from scipy.stats import zscore
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -292,6 +294,25 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 1},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 1,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                            # "color": "#1cabe2",
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 1},
                                         inline=True,
@@ -345,6 +366,24 @@ def get_base_layout(**kwargs):
                                         ],
                                         className="pretty_container",
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 2,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 2},
                                         inline=True,
@@ -398,6 +437,24 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 3},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 3,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 3},
                                         inline=True,
@@ -446,6 +503,24 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 4},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 4,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 4},
                                         inline=True,
@@ -1218,6 +1293,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         Input({"type": "area_options", "index": MATCH}, "value"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
     ],
     [
         State("indicators", "data"),
@@ -1229,6 +1305,7 @@ def area_figure(
     indicator,
     compare,
     selected_type,
+    exclude_outliers,
     indicators_dict,
     id,
 ):
@@ -1286,6 +1363,14 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
+
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        df["z_scores"] = np.abs(zscore(df["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        df = df[df["z_scores"] < 3]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
