@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "VIOLENCE": {
@@ -26,14 +26,13 @@ indicators_dict = {
             "name": "Violence and Assault",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -169,14 +168,13 @@ indicators_dict = {
             "name": "Family Environment",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -328,14 +326,13 @@ indicators_dict = {
             "name": "Access to Justice for Children",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -451,14 +448,13 @@ indicators_dict = {
             "name": "Child Marriage",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -566,14 +562,13 @@ indicators_dict = {
             "name": "Child Labour",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",

@@ -1,29 +1,24 @@
+import json
+import pathlib
 import collections
+from io import BytesIO
 import urllib
 
 import dash_html_components as html
 import numpy as np
 import pandas as pd
-from mapbox import Geocoder
 import requests
-from io import BytesIO
+
+# TODO: Move all of these to env/setting vars from production
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
-
-geocoder = Geocoder(access_token=mapbox_access_token)
-
-
-def geocode_address(address):
-    """Geocode iso3 country code into lat/long."""
-    # Set the type of address to country in order to return the lat/long of the country Georgia and not the US State!
-    # Had to change the ISO3 of Kosovo ==> need to check Kosovo ISO3 code returned by SDMX
-    response = geocoder.forward(
-        "KOS" if address == "XKX" else address, types=["country"]
-    )
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
+geo_json_file = (
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+)
+with open(geo_json_file) as shapes_file:
+    geo_json_countries = json.load(shapes_file)
 
 
 codes = [
@@ -431,6 +426,12 @@ codes = [
     "CR_SG_STT_NSDSFDOTHR",
     "CR_SG_STT_CAPTY",
     "CR_SG_REG_CENSUSN",
+    "DM_CHLD_POP",
+    "DM_ADOL_POP",
+    "DM_CHLD_POP_PT",
+    "EDUNF_FEP_L3_GEN",
+    "EDUNF_FEP_L3_VOC",
+    "DM_POP_NETM",
 ]
 
 years = list(range(2010, 2021))
@@ -820,13 +821,100 @@ data_sources = {
     "Helix": " Health Entrepreneurship and LIfestyle Xchange",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
-    "Immunization Monitoring (WHO)": "World Health Organization",
+    "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
     "WB": "World Bank",
     "OECD": "Organisation for Economic Co-operation and Development",
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
 }
+
+topics_subtopics = {
+    "All": ["All"],
+    "Education": [
+        {"Participation": "Participation"},
+        {"Quality": "Learning Quality"},
+        {"Governance": "Governance"},
+    ],
+    "Family Environment and Protection": [
+        {"Violence": "Violence against Children and Women"},
+        {"Care": "Children without parental care"},
+        {"Justice": "Juvenile Justice"},
+        {"Marriage": "Child marriage and other harmful practices"},
+        {"Labour": "Child Labour"},
+    ],
+    "Health and Nutrition": [
+        {"HS": "Health System"},
+        {"MNCH": "Maternal, newborn and child health"},
+        {"Immunization": "Immunization"},
+        {"Nutrition": "Nutrition"},
+        {"Adolescent": "Adolescent health"},
+        {"HIVAIDS": "HIV and AIDS"},
+        {"Wash": "Water, sanitation and hygiene"},
+    ],
+    "Poverty": [
+        {"Poverty": "Poverty and multi-dimensional deprivation"},
+        {"Protection": "Social protection system"},
+    ],
+    "Child Rights Landscape": [
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
+        {"Risks": "Risks, humanitarian situation and impact of climate change"},
+        {"Data": "Data and Public spending on Children"},
+    ],
+    "Participation": [
+        {"Registration": "Birth registration and documentation"},
+        {"Access": "Access to Justice"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
+    ],
+}
+
+dict_topics_subtopics = {
+    "Education": ["Participation", "Learning Quality", "Governance"],
+    "Family Environment and Protection": [
+        "Violence against Children and Women",
+        "Children without parental care",
+        "Juvenile Justice",
+        "Child marriage and other harmful practices",
+        "Child Labour",
+    ],
+    "Health and Nutrition": [
+        "Health System",
+        "Maternal, newborn and child health",
+        "Immunization",
+        "Nutrition",
+        "Adolescent health",
+        "HIV and AIDS",
+        "Water, sanitation and hygiene",
+    ],
+    "Poverty": [
+        "Poverty and multi-dimensional deprivation",
+        "Social protection system",
+    ],
+    "Child Rights Landscape": [
+        "Demography about Children",
+        "Political Economy",
+        "Migration and Displacement",
+        "Risks, humanitarian situation and impact of climate change",
+        "Data and Public spending on Children",
+    ],
+    "Participation": [
+        "Birth registration and documentation",
+        "Access to Justice",
+        "Information, Internet and Right to privacy",
+        "Leisure and Culture",
+    ],
+}
+
+
+def get_sector(subtopic):
+    for key in dict_topics_subtopics.keys():
+        if subtopic.strip() in dict_topics_subtopics.get(key):
+            return key
+    return ""
+
 
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
@@ -881,7 +969,8 @@ col_types = {
     "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
-    # "OBS_VALUE": str,
+    "OBS_STATUS": str,
+    "Observation Status": str,
     "TIME_PERIOD": int,
 }
 
@@ -892,27 +981,17 @@ try:
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
         storage_options={"Accept-Encoding": "gzip"},
+        low_memory=False,
     )
 except urllib.error.HTTPError as e:
     raise e
-
 
 # no need to create column CODE, just rename indicator
 sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
 
-# Replace the list of countries by the list of dictionary countries values
-# TODO: Replace to static list
-data = data.merge(
-    right=pd.DataFrame(
-        [
-            dict(country=country, **geocode_address(country))
-            for country in countries_iso3_dict.values()
-        ]
-    ),
-    left_on="REF_AREA",  # was: Geographic area
-    right_on="country",
-)
+# replace Yes by 1 and No by 0
+data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
@@ -942,19 +1021,27 @@ snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
 snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
 # read indicators table from excel data-dictionary
-df_topics_subtopics = pd.read_excel(data_dict_content, sheet_name="Indicator")
+df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
+
+# Concatenate sectors/subtopics dictionary value lists
+sitan_subtopics = sum(dict_topics_subtopics.values(), [])
+
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
-        "Theme": "Sector",
         "Issue": "Subtopic",
     },
     inplace=True,
 )
+# filter the sources to keep only sitan related sectors and sub-topics
+df_sources["Subtopic"] = df_sources["Subtopic"].str.strip()
+df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
+df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
-df_sources = df_sources.groupby("Source")
+df_sources_groups = df_sources.groupby("Source")
+df_sources_summary_groups = df_sources.groupby("Source_Full")
 
 
 def page_not_found(pathname):

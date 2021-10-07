@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "HS": {
@@ -27,14 +27,13 @@ indicators_dict = {
             "name": "Health System - coverage, expenditure, and insurance",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -196,14 +195,13 @@ indicators_dict = {
             "name": "Status of Maternal, Newborn, and Child Health",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -357,14 +355,13 @@ indicators_dict = {
             "name": "Immunization - access and coverage",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -490,14 +487,13 @@ indicators_dict = {
             "name": "Nutrition status",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -624,14 +620,13 @@ indicators_dict = {
             "name": "Adolescent Health Status",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -772,14 +767,13 @@ indicators_dict = {
             "name": "HIV and AIDS",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -901,14 +895,13 @@ indicators_dict = {
             "name": "Drinking Water and Sanitation Services",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",

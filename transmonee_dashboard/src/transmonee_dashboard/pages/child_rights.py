@@ -3,18 +3,18 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "DEMOGRAPHY": {
         "NAME": "Demography about Children",
         "CARDS": [
-            # {
-            #     "name": "age 0-17 years",
-            #     "indicator": "",
-            #     "suffix": "Total child population",
-            #     "absolute": True,
-            # },
+            {
+                "name": "age 0-17 years",
+                "indicator": "DM_CHLD_POP",
+                "suffix": "Total child population (expressed in thousands)",
+                "absolute": True,
+            },
             {
                 "name": "Children (0-17) living with two parents",
                 "indicator": "DM_CHLD_TWO_PRNT",
@@ -26,14 +26,13 @@ indicators_dict = {
             "name": "Demography",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -51,6 +50,9 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
+                "DM_CHLD_POP",
+                "DM_ADOL_POP",
+                "DM_CHLD_POP_PT",
                 "DM_CHLD_TWO_PRNT",
                 "DM_FRATE_TOT",
             ],
@@ -85,6 +87,9 @@ indicators_dict = {
             "default_graph": "bar",
             "indicators": [
                 "DM_CHLD_TWO_PRNT",
+                "DM_CHLD_POP",
+                "DM_ADOL_POP",
+                "DM_CHLD_POP_PT",
             ],
             "default": "DM_CHLD_TWO_PRNT",
         },
@@ -141,14 +146,13 @@ indicators_dict = {
             "name": "Political Economy",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -294,14 +298,13 @@ indicators_dict = {
             "name": "Migration and Displacement",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -417,14 +420,13 @@ indicators_dict = {
             "name": "Risks, humanitarian situation and impact of climate change",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -554,14 +556,13 @@ indicators_dict = {
             "name": "Availability of data and Public Expendiure on Children",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",

@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 from . import data, years
-from .base_page import get_base_layout, geo_json_countries
+from .base_page import get_base_layout
 
 indicators_dict = {
     "PARTICIPATION": {
@@ -30,14 +30,13 @@ indicators_dict = {
             "name": "Out-of-School Children",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -253,14 +252,13 @@ indicators_dict = {
             "name": "What students know and can do",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -454,14 +452,13 @@ indicators_dict = {
             "name": "Guaranteeing and paying for education",  # "Education Expenditures and Legal Frameworks",
             "geo": "Geographic area",
             "options": dict(
-                geojson=geo_json_countries,
                 locations="REF_AREA",
                 featureidkey="id",
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
                 zoom=2,
-                center={"lat": 48.3794, "lon": 31.1656},
+                center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",

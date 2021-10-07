@@ -1,17 +1,16 @@
-from functools import lru_cache
-import json
-import os
+import textwrap
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_treeview_antd
+import numpy as np
+from scipy.stats import zscore
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
-from flask import current_app as server
-
+import textwrap
 
 from . import (
     mapbox_access_token,
@@ -25,6 +24,8 @@ from . import (
     countries_dict_filter,
     countries_iso3_dict,
     gender_indicators,
+    geo_json_countries,
+    df_sources,
 )
 from ..app import app, cache
 from ..components import fa
@@ -296,6 +297,25 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 1},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 1,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                            # "color": "#1cabe2",
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 1},
                                         inline=True,
@@ -349,6 +369,24 @@ def get_base_layout(**kwargs):
                                         ],
                                         className="pretty_container",
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 2,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 2},
                                         inline=True,
@@ -402,6 +440,24 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 3},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 3,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 3},
                                         inline=True,
@@ -450,6 +506,24 @@ def get_base_layout(**kwargs):
                                     dcc.Graph(
                                         id={"type": "area", "index": 4},
                                     ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 4,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
                                     dbc.RadioItems(
                                         id={"type": "area_breakdowns", "index": 4},
                                         inline=True,
@@ -653,6 +727,21 @@ def indicator_card(
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
+
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     # select last value for each country
     indicator_values = (
@@ -663,11 +752,11 @@ def indicator_card(
                 "TIME_PERIOD",
             ]
         )
-        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+        .agg({"OBS_VALUE": "sum", "CODE": "count"})
     ).reset_index()
 
     numerator_pairs = (
-        indicator_values[indicator_values.DATA_SOURCE == len(numors)]
+        indicator_values[indicator_values.CODE == len(numors)]
         .groupby("Geographic area", as_index=False)
         .last()
         .set_index(["Geographic area", "TIME_PERIOD"])
@@ -716,6 +805,7 @@ def indicator_card(
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
         elif absolute:
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
@@ -782,7 +872,7 @@ def indicator_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(f"Sources: {indicator}"),
+                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
@@ -1118,19 +1208,6 @@ def set_default_compare(
         )
 
 
-@lru_cache
-def get_geo_json_countries():
-    # countries_filename = os.path.join(app.server.root_path, "assets", "countries.geo.json")
-    countries_filename = os.path.join(server.config["APP_ASSETS"], "countries.geo.json")
-    if os.path.isfile(countries_filename):
-        # Reading the countries from the geo json file
-        geo_json_countries = json.load(open(countries_filename))
-    return geo_json_countries
-
-
-geo_json_countries = get_geo_json_countries()
-
-
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
@@ -1160,16 +1237,18 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
         else ""
     )
 
     df = (
         data.query(query)
         .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
-        .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .agg({"OBS_VALUE": "last"})
         .sort_values(
             by=["TIME_PERIOD"]
         )  # Add sorting by Year to display the years in proper order
@@ -1206,6 +1285,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
+    options["geojson"] = geo_json_countries
 
     main_figure = px.choropleth_mapbox(df, **options)
     main_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
@@ -1236,6 +1316,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         Input({"type": "area_options", "index": MATCH}, "value"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
     ],
     [
         State("indicators", "data"),
@@ -1247,6 +1328,7 @@ def area_figure(
     indicator,
     compare,
     selected_type,
+    exclude_outliers,
     indicators_dict,
     id,
 ):
@@ -1274,17 +1356,23 @@ def area_figure(
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
-
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
+    indicator_name = (
+        data[data["CODE"] == indicator]["Indicator"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Indicator"].unique()) > 0
+        else ""
+    )
     name = (
         data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
         else ""
     )
 
@@ -1298,6 +1386,14 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
+
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        df["z_scores"] = np.abs(zscore(df["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        df = df[df["z_scores"] < 3]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
@@ -1318,14 +1414,46 @@ def area_figure(
         }, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
+
+    # set the chart title, wrap the text when the indicator name is too long
+    chart_title = textwrap.wrap(
+        indicator_name,
+        width=74,
+    )
+    chart_title = "<br>".join(chart_title)
+
+    # set the layout to center the chart title and change its font size and color
+    layout = go.Layout(
+        title=chart_title,
+        title_x=0.5,
+        font=dict(family="Arial", size=12),
+        legend=dict(x=0.9, y=0.5),
+        xaxis={"categoryorder": "total descending"},
+    )
+
     if compare:
         options["color"] = compare
+        if compare == "Wealth Quintile":
+            wealth_dict = {
+                "Lowest": 0,
+                "Second": 1,
+                "Middle": 2,
+                "Fourth": 3,
+                "Highest": 4,
+            }
+            df.sort_values(by=[compare], key=lambda x: x.map(wealth_dict), inplace=True)
+        else:
+            # sort by the compare value to have the legend in the right ascending order
+            df.sort_values(by=[compare], inplace=True)
 
     fig = getattr(px, fig_type)(df, **options)
+
     if traces:
         fig.update_traces(**traces)
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
-    fig.update_xaxes(categoryorder="total descending")
+
+    # fig.update_xaxes(categoryorder="total descending")
+    fig.update_layout(layout)
     return fig, source
