@@ -40,7 +40,7 @@ def get_layout(**kwargs):
                                 style={"padding": 20},
                                 children=[
                                     html.H1(
-                                        "Data Query",
+                                        "Query Data",
                                         id="main_title",
                                         className="heading-title",
                                     ),
