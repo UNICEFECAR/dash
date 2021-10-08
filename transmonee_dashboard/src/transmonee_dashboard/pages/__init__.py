@@ -1052,7 +1052,7 @@ age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
 age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
 age_indicators = age_indicators.drop_duplicates()
 age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
-age_indicators.to_csv("age_indicators.csv", index=False)
+# age_indicators.to_csv("age_indicators.csv", index=False)
 
 
 def page_not_found(pathname):
