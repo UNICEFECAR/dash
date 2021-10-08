@@ -10,22 +10,22 @@ indicators_dict = {
         "NAME": "Education",
         "CARDS": [
             {
-                "name": "Population living below the national poverty line",
-                "indicator": "PV_SDG_SI_POV_NAHC",
-                "suffix": "Percentage range among countries",
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
                 # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "People at risk of poverty or social exclusion",
-                "indicator": "PV_AROPE",
-                "suffix": "Percentage range among countries",
-                # "absolute": True,
-                "min_max": True,
-            },
+            # {
+            #     "name": "People at risk of poverty or social exclusion",
+            #     "indicator": "PV_AROPE",
+            #     "suffix": "Percentage range among countries",
+            #     # "absolute": True,
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Poverty and Deprivation",
+            "name": "Education",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
@@ -69,7 +69,7 @@ indicators_dict = {
                 "WS_PPL_S-B",
                 "PV_SEV_MAT_DPRT",
             ],
-            "default": "PV_SDG_SI_POV_NAHC",
+            "default": "PV_SEV_MAT_DPRT",
         },
         "AREA_1": {
             "name": "Participation",
@@ -256,32 +256,33 @@ indicators_dict = {
         "NAME": "Family Environment and Protection",
         "CARDS": [
             {
-                "name": "Population subjected to physical violence in the previous 12 months",
-                "indicator": "PT_VC_VOV_PHYL",
-                "suffix": "Percentage range among countries",
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
+                # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "Adults who think that physical punishment is necessary to raise/educate children",
-                "indicator": "PT_ADLT_PS_NEC",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
-            {
-                "name": "Women age 20-24 years married or in union before age 18",
-                "indicator": "PT_F_20-24_MRD_U18",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
-            {
-                "name": "Men age 20-24 years married or in union before age 18",
-                "indicator": "PT_M_20-24_MRD_U18",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
+            # {
+            #     "name": "Adults who think that physical punishment is necessary to raise/educate children",
+            #     "indicator": "PT_ADLT_PS_NEC",
+            #     "suffix": "Percentage range among countries",
+            #     "min_max": True,
+            # },
+            # {
+            #     "name": "Women age 20-24 years married or in union before age 18",
+            #     "indicator": "PT_F_20-24_MRD_U18",
+            #     "suffix": "Percentage range among countries",
+            #     "min_max": True,
+            # },
+            # {
+            #     "name": "Men age 20-24 years married or in union before age 18",
+            #     "indicator": "PT_M_20-24_MRD_U18",
+            #     "suffix": "Percentage range among countries",
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Social Protection Transfers",
+            "name": "Family Environment and Protection",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
@@ -506,22 +507,22 @@ indicators_dict = {
         "NAME": "Health and Nutrition",
         "CARDS": [
             {
-                "name": "Population covered by at least one social protection benefit",
-                "indicator": "PV_SI_COV_BENFTS",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
+                # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "Children/households receiving child/family cash benefits",
-                "indicator": "PV_SI_COV_CHLD",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
-                "min_max": True,
-            },
+            # {
+            #     "name": "Children/households receiving child/family cash benefits",
+            #     "indicator": "PV_SI_COV_CHLD",
+            #     "suffix": "Percentage range among countries",
+            #     "abosolute": True,
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Social Protection Transfers",
+            "name": "Health and Nutrition",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
@@ -792,22 +793,22 @@ indicators_dict = {
         "NAME": "Poverty",
         "CARDS": [
             {
-                "name": "Population covered by at least one social protection benefit",
-                "indicator": "PV_SI_COV_BENFTS",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
+                # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "Children/households receiving child/family cash benefits",
-                "indicator": "PV_SI_COV_CHLD",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
-                "min_max": True,
-            },
+            # {
+            #     "name": "Children/households receiving child/family cash benefits",
+            #     "indicator": "PV_SI_COV_CHLD",
+            #     "suffix": "Percentage range among countries",
+            #     "abosolute": True,
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Social Protection Transfers",
+            "name": "Poverty",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
@@ -944,21 +945,22 @@ indicators_dict = {
         "NAME": "Child Rights Landscape",
         "CARDS": [
             {
-                "name": "Children (0-17) living with two parents",
-                "indicator": "DM_CHLD_TWO_PRNT",
-                "suffix": "Percentage range among countries",
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
+                # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "Children/households receiving child/family cash benefits",
-                "indicator": "PV_SI_COV_CHLD",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
-                "min_max": True,
-            },
+            # {
+            #     "name": "Children/households receiving child/family cash benefits",
+            #     "indicator": "PV_SI_COV_CHLD",
+            #     "suffix": "Percentage range among countries",
+            #     "abosolute": True,
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Social Protection Transfers",
+            "name": "Child Rights Landscape",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
@@ -1181,22 +1183,22 @@ indicators_dict = {
         "NAME": "Participation",
         "CARDS": [
             {
-                "name": "Population covered by at least one social protection benefit",
-                "indicator": "PV_SI_COV_BENFTS",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
+                "name": "Card Unit",
+                "indicator": "",
+                "suffix": "Card Name",
+                # "absolute": True,
                 "min_max": True,
             },
-            {
-                "name": "Children/households receiving child/family cash benefits",
-                "indicator": "PV_SI_COV_CHLD",
-                "suffix": "Percentage range among countries",
-                "abosolute": True,
-                "min_max": True,
-            },
+            # {
+            #     "name": "Children/households receiving child/family cash benefits",
+            #     "indicator": "PV_SI_COV_CHLD",
+            #     "suffix": "Percentage range among countries",
+            #     "abosolute": True,
+            #     "min_max": True,
+            # },
         ],
         "MAIN": {
-            "name": "Social Protection Transfers",
+            "name": "Participation",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,

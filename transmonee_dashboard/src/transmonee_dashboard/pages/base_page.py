@@ -52,7 +52,7 @@ colours = [
     "success",
     "danger",
 ]
-AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
+AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
 DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
@@ -549,6 +549,143 @@ def get_base_layout(**kwargs):
                         ],
                         id={"type": "area_parent", "index": 4},
                         # id="area_4_parent",
+                    ),
+                ],
+            ),
+            html.Br(),
+            dbc.CardDeck(
+                [
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                id={"type": "area_title", "index": 5},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id={"type": "area_options", "index": 5},
+                                        className="dcc_control",
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 5},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 5},
+                                    ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 5,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 5},
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_5_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 5},
+                                            ),
+                                        ],
+                                        id="hover",
+                                        target="area_5_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
+                        id={"type": "area_parent", "index": 5},
+                    ),
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                id={"type": "area_title", "index": 6},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id={"type": "area_options", "index": 6},
+                                        className="dcc_control",
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 6},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 6},
+                                    ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 6,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 6},
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_6_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 6},
+                                            ),
+                                        ],
+                                        id="hover",
+                                        target="area_6_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
+                        id={"type": "area_parent", "index": 6},
                     ),
                 ],
             ),
