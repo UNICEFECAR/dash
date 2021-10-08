@@ -715,86 +715,97 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
     if changed_id == "generate":
         # filter data by selected country
         df_country_data = data[data["REF_AREA"] == country]
-        if sub_topics != ["All"]:
-            filtered_subtopics_groups = df_topics_subtopics[
-                df_topics_subtopics.Issue.isin(sub_topics)
-            ]
-        else:
-            filtered_subtopics_groups = df_topics_subtopics
-
-        # Filter country data to keep only selected sectors and sub-topics
-        df_country_data = df_country_data[
-            df_country_data.CODE.isin(filtered_subtopics_groups["Code"])
-        ]
-
-        # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
-        df_dimensions_count = df_country_data.groupby("CODE").apply(
-            lambda ind: pd.Series(
-                {
-                    "Sex_Count": ind["SEX"].nunique(),
-                    "Age_Count": ind["AGE"].nunique(),
-                    "Residence_Count": ind["RESIDENCE"].nunique(),
-                    "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
-                }
-            )
+        # Inner join in order to filter country data to keep only selected sectors and sub-topics
+        df_country_data = pd.merge(
+            df_country_data,
+            df_sources,
+            how="inner",
+            left_on=["CODE"],
+            right_on=["Code"],
         )
-        df_country_data = pd.merge(df_country_data, df_dimensions_count, on=["CODE"])
-        # Filter the data to keep the total or the other dimension when there is only one disaggregation
+        # keep only needed columns in the dataframe
         df_country_data = df_country_data[
-            ((df_country_data["SEX"] == "_T") | (df_country_data["Sex_Count"] == 1))
-            & ((df_country_data["AGE"] == "_T") | (df_country_data["Age_Count"] == 1))
-            & (
-                (df_country_data["RESIDENCE"] == "_T")
-                | (df_country_data["Residence_Count"] == 1)
-            )
-            & (
-                (df_country_data["WEALTH_QUINTILE"] == "_T")
-                | (df_country_data["Wealth_Count"] == 1)
-            )
+            [
+                "Geographic area",
+                "TIME_PERIOD",
+                "OBS_VALUE",
+                "Indicator_x",
+                "CODE",
+                "SEX",
+                "AGE",
+                "RESIDENCE",
+                "WEALTH_QUINTILE",
+                "Sector",
+                "Subtopic",
+            ]
         ]
-
         df_country_data.rename(
             columns={
                 "Geographic area": "Country",
                 "TIME_PERIOD": "Year",
                 "OBS_VALUE": "Value",
+                "Indicator_x": "Indicator",
                 "CODE": "Code",
             },
             inplace=True,
         )
 
-        df_country_data = pd.merge(df_country_data, df_topics_subtopics, on=["Code"])
-        df_country_data.rename(
-            columns={
-                "Theme": "Sector",
-                "Issue": "Subtopic",
-            },
-            inplace=True,
-        )
-        df_country_data = df_country_data[
-            [
-                "Country",
-                "Sector",
-                "Subtopic",
-                "Indicator",
-                "Year",
-                "Value",
-            ]
-        ]
+        if sectors != ["All"]:
+            df_country_data = df_country_data[df_country_data.Sector.isin(sectors)]
+        if sub_topics != ["All"]:
+            df_country_data = df_country_data[df_country_data.Subtopic.isin(sub_topics)]
 
-        # check if the toggle of the latest data is checked to filter only latest data points
-        if latest_data:
-            # keep only the latest value of every country
-            df_country_data = df_country_data.sort_values(
-                ["Indicator", "Year"]
-            ).drop_duplicates("Indicator", keep="last")
-        # check if no data is available for the current user's selection
-        if len(df_country_data) == 0:
-            return html.Div(
-                ["No data available..."],
-                className="alert alert-danger fade show w-100",
+        # check if data is available for the current user's selection
+        if len(df_country_data) > 0:
+            # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
+            df_dimensions_count = df_country_data.groupby("Code").apply(
+                lambda ind: pd.Series(
+                    {
+                        "Sex_Count": ind["SEX"].nunique(),
+                        "Age_Count": ind["AGE"].nunique(),
+                        "Residence_Count": ind["RESIDENCE"].nunique(),
+                        "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
+                    }
+                )
             )
-        else:
+            df_country_data = pd.merge(
+                df_country_data, df_dimensions_count, on=["Code"]
+            )
+            # Filter the data to keep the total or the other dimension when there is only one disaggregation
+            df_country_data = df_country_data[
+                ((df_country_data["SEX"] == "_T") | (df_country_data["Sex_Count"] == 1))
+                & (
+                    (df_country_data["AGE"] == "_T")
+                    | (df_country_data["Age_Count"] == 1)
+                )
+                & (
+                    (df_country_data["RESIDENCE"] == "_T")
+                    | (df_country_data["Residence_Count"] == 1)
+                )
+                & (
+                    (df_country_data["WEALTH_QUINTILE"] == "_T")
+                    | (df_country_data["Wealth_Count"] == 1)
+                )
+            ]
+
+            df_country_data = df_country_data[
+                [
+                    "Country",
+                    "Sector",
+                    "Subtopic",
+                    "Indicator",
+                    "Year",
+                    "Value",
+                ]
+            ]
+
+            # check if the toggle of the latest data is checked to filter only latest data points
+            if latest_data:
+                # keep only the latest value of every country
+                df_country_data = df_country_data.sort_values(
+                    ["Indicator", "Year"]
+                ).drop_duplicates("Indicator", keep="last")
+
             # round the value to 2 decimal places
             df_country_data = df_country_data.round({"Value": 2})
             return dash_table.DataTable(
@@ -835,4 +846,10 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
                 export_columns="all",
                 hidden_columns=["Country"],
                 css=[{"selector": ".show-hide", "rule": "display: none"}],
+            )
+        else:
+            # check if no data is available for the current user's selection
+            return html.Div(
+                ["No data available..."],
+                className="alert alert-danger fade show w-100",
             )
