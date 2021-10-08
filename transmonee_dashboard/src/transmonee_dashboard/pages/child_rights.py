@@ -638,7 +638,7 @@ indicators_dict = {
             "default": "EC_TOT_PUB_EXP_TOT",
         },
         "AREA_2": {
-            "name": "Availalbity of Data on Children",
+            "name": "Availability of Data on Children",
             "graphs": {
                 "bar": {
                     "options": dict(

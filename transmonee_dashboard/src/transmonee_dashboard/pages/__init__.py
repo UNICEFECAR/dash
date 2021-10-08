@@ -1043,6 +1043,17 @@ df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 
+# extract the indicators that have gender/sex disaggregation
+age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
+age_indicators = age_indicators.drop_duplicates()
+age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+age_indicators.to_csv("age_indicators.csv", index=False)
+
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))

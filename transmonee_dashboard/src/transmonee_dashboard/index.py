@@ -82,7 +82,7 @@ nav_items = (
         ],
     ),
     ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
-    ("data_query", html.Div([fa("fas fa-table"), "Data Query"]), []),
+    ("data_query", html.Div([fa("fas fa-table"), "Query Data"]), []),
     ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
 )
 

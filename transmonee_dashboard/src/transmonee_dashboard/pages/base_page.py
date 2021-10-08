@@ -1087,7 +1087,9 @@ def show_header_titles(theme, indicators_dict):
 )
 def show_themes(selections, current_themes, indicators_dict):
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-
+    # hide the buttons when only one options is available
+    if len(indicators_dict.items()) == 1:
+        return []
     buttons = [
         dbc.Button(
             value["NAME"],
