@@ -1,6 +1,7 @@
 from enum import unique
 import dash
 from dash_bootstrap_components._components.Row import Row
+from dash_bootstrap_components._components.Tooltip import Tooltip
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -39,7 +40,7 @@ def get_layout(**kwargs):
                                 style={"padding": 20},
                                 children=[
                                     html.H1(
-                                        "Data Query",
+                                        "Query Data",
                                         id="main_title",
                                         className="heading-title",
                                     ),
@@ -326,15 +327,34 @@ def get_layout(**kwargs):
                                                 ),
                                                 dbc.Row(
                                                     [
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Show latest data points",
+                                                                    "value": 1,
+                                                                }
+                                                            ],
+                                                            id="latest_data_toggle",
+                                                            switch=True,
+                                                            style={
+                                                                "paddingRight": 20,
+                                                            },
+                                                        ),
+                                                        dbc.Tooltip(
+                                                            "This toggle is used to show only the latest data points of the selected country",
+                                                            target="latest_data_toggle",
+                                                            placement="bottom",
+                                                        ),
                                                         html.Button(
                                                             "Generate Country Fact Sheet",
                                                             id="generate",
                                                             n_clicks=0,
                                                             className="btn btn-primary",
-                                                        )
+                                                        ),
                                                     ],
                                                     className="my-2",
                                                     justify="center",
+                                                    style={"verticalAlign": "center"},
                                                 ),
                                             ],
                                         ),
@@ -684,11 +704,12 @@ def get_subsectors(selected_sectors):
     Input("generate", "n_clicks"),
     [
         State("countries", "value"),
+        State("latest_data_toggle", "value"),
         State({"type": "sectors", "index": 2}, "value"),
         State({"type": "sub_topics", "index": 2}, "value"),
     ],
 )
-def generate_country_profile(n_clicks, country, sectors, sub_topics):
+def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "generate":
@@ -761,6 +782,12 @@ def generate_country_profile(n_clicks, country, sectors, sub_topics):
             ]
         ]
 
+        # check if the toggle of the latest data is checked to filter only latest data points
+        if latest_data:
+            # keep only the latest value of every country
+            df_country_data = df_country_data.sort_values(
+                ["Indicator", "Year"]
+            ).drop_duplicates("Indicator", keep="last")
         # check if no data is available for the current user's selection
         if len(df_country_data) == 0:
             return html.Div(
