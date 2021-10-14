@@ -409,12 +409,6 @@ indicators_dict = {
                 "suffix": "Rate range among countries",
                 "min_max": True,
             },
-            {
-                "name": "Population with primary reliance on clean fuels and technology",
-                "indicator": "CR_EG_EGY_CLEAN",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
         ],
         "MAIN": {
             "name": "Risks and humanitarian situation",
@@ -446,16 +440,12 @@ indicators_dict = {
             "indicators": [
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
                 "CR_SG_DSR_LGRGSR",
             ],
             "default": "CR_VC_DSR_MTMP",
         },
         "AREA_1": {
-            "name": "Risks and Humanitarian Situation",
+            "name": "Humanitarian Situation",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -484,14 +474,11 @@ indicators_dict = {
             "indicators": [
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_SG_DSR_LGRGSR",
             ],
             "default": "CR_VC_DSR_MTMP",
         },
         "AREA_2": {
-            "name": "Clean Environment",
+            "name": "Disaster Risk Reduction",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -517,22 +504,15 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
+                "CR_SG_DSR_LGRGSR",
             ],
-            "default": "CR_EG_EGY_CLEAN",
+            "default": "CR_SG_DSR_LGRGSR",
             "default_graph": "line",
         },
     },
     "CLIMATE": {
         "NAME": "Impact of climate change",
         "CARDS": [
-            {
-                "name": "Deaths and missing persons attributed to disasters (per 100,000 population)",
-                "indicator": "CR_VC_DSR_MTMP",
-                "suffix": "Rate range among countries",
-                "min_max": True,
-            },
             {
                 "name": "Population with primary reliance on clean fuels and technology",
                 "indicator": "CR_EG_EGY_CLEAN",
@@ -568,18 +548,15 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
                 "CR_SH_STA_AIRP",
                 "CR_SH_STA_ASAIRP",
                 "CR_EG_EGY_CLEAN",
                 "CR_EG_ACS_ELEC",
-                "CR_SG_DSR_LGRGSR",
             ],
-            "default": "CR_VC_DSR_MTMP",
+            "default": "CR_SH_STA_AIRP",
         },
         "AREA_1": {
-            "name": "Risks and Humanitarian Situation",
+            "name": "Air Pollution",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -606,16 +583,13 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
                 "CR_SH_STA_AIRP",
                 "CR_SH_STA_ASAIRP",
-                "CR_SG_DSR_LGRGSR",
             ],
-            "default": "CR_VC_DSR_MTMP",
+            "default": "CR_SH_STA_AIRP",
         },
         "AREA_2": {
-            "name": "Clean Environment",
+            "name": "Clean Fuels and Technology",
             "graphs": {
                 "bar": {
                     "options": dict(

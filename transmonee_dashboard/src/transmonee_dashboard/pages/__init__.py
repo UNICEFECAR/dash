@@ -859,7 +859,7 @@ topics_subtopics = {
         {"Demography": "Demography about Children"},
         {"Economy": "Political Economy"},
         {"Migration": "Migration and Displacement"},
-        {"Risks": "Risks, humanitarian situation"},
+        {"Risks": "Risks and humanitarian situation"},
         {"Climate": "Impact of climate change"},
         {"Data": "Data on Children"},
         {"Spending": "Public spending on Children"},
