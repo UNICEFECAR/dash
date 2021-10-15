@@ -494,6 +494,7 @@ def search_indicators(
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
+        df_indicators_data = []
         if type == "IND":
             df_indicators_data = df_sources[
                 (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
@@ -505,11 +506,12 @@ def search_indicators(
             ]
             df_indicators_data = df_indicators_data[
                 [
+                    "Source_Full",
                     "Sector",
                     "Subtopic",
                     "Indicator",
                 ]
-            ]
+            ].rename(columns={"Source_Full": "Source"})
         elif type == "DAT":
             # Filter the data to keep only selected indicators
             df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
@@ -578,15 +580,19 @@ def search_indicators(
         else:
             # filter data by selected sector/source
             filtered_subtopics_groups = df_sources
-            if sources != ["All"]:
+            if (sources is not None) & (len(sources) > 0) & (sources != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Source.isin(sources)
                 ]
-            if topics != ["All"]:
+            if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Sector.isin(topics)
                 ]
-            if sub_topics != ["All"]:
+            if (
+                (sub_topics is not None)
+                & (len(sub_topics) > 0)
+                & (sub_topics != ["All"])
+            ):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Subtopic.isin(sub_topics)
                 ]
@@ -595,11 +601,12 @@ def search_indicators(
             ]
             df_indicators_data = df_indicators_data[
                 [
+                    "Source_Full",
                     "Sector",
                     "Subtopic",
                     "Indicator",
                 ]
-            ]
+            ].rename(columns={"Source_Full": "Source"})
 
         # check if no data is available for the current user's selection
         if len(df_indicators_data) == 0:

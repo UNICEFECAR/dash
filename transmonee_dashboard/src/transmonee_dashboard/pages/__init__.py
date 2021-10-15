@@ -859,8 +859,10 @@ topics_subtopics = {
         {"Demography": "Demography about Children"},
         {"Economy": "Political Economy"},
         {"Migration": "Migration and Displacement"},
-        {"Risks": "Risks, humanitarian situation and impact of climate change"},
-        {"Data": "Data and Public spending on Children"},
+        {"Risks": "Risks and humanitarian situation"},
+        {"Climate": "Impact of climate change"},
+        {"Data": "Data on Children"},
+        {"Spending": "Public spending on Children"},
     ],
     "Participation": [
         {"Registration": "Birth registration and documentation"},
@@ -896,8 +898,10 @@ dict_topics_subtopics = {
         "Demography about Children",
         "Political Economy",
         "Migration and Displacement",
-        "Risks, humanitarian situation and impact of climate change",
-        "Data and Public spending on Children",
+        "Risks and humanitarian situation",
+        "Impact of climate change",
+        "Data on Children",
+        "Public spending on Children",
     ],
     "Participation": [
         "Birth registration and documentation",
@@ -1035,6 +1039,7 @@ df_sources["Subtopic"] = df_sources["Subtopic"].str.strip()
 df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
 df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
+indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 
