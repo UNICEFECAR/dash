@@ -39,6 +39,40 @@ def get_layout(**kwargs):
             html.Div(
                 children=[
                     html.Div(
+                        children=[html.H3("Data Availability")],
+                        className="panel-header",
+                    ),
+                    html.Div(
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.P(
+                                        "This is a dashboard developed using Tableau to reflect the indicators' data availability in UNICEF TransMonEE Data Warehourse. For more info about this dashboard, please click on the button below."
+                                    ),
+                                ],
+                                className="panel-content",
+                            ),
+                        ],
+                        className="panel-body",
+                    ),
+                    html.Div(
+                        children=[
+                            html.A(
+                                "Click to access the dashboard",
+                                href="https://public.tableau.com/app/profile/alina.cherkas/viz/sdmx-dashboard-overview/Dashboard1",
+                                target="_blank",
+                                className="btn btn-primary",
+                            ),
+                        ],
+                        className="panel-footer",
+                    ),
+                ],
+                className="panel",
+            ),
+            html.Br(),
+            html.Div(
+                children=[
+                    html.Div(
                         children=[html.H3("SDMX")],
                         className="panel-header",
                     ),
