@@ -654,11 +654,12 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
             ]
             df_indicators_data = df_indicators_data[
                 [
+                    "Source_Full",
                     "Sector",
                     "Subtopic",
                     "Indicator",
                 ]
-            ]
+            ].rename(columns={"Source_Full": "Source"})
         # elif type == "DAT":
         #     # Filter the data to keep only selected indicators
         #     df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
@@ -727,15 +728,19 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
         else:
             # filter data by selected sector/source
             filtered_subtopics_groups = df_sources
-            if sources != ["All"]:
+            if (sources is not None) & (len(sources) > 0) & (sources != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Source.isin(sources)
                 ]
-            if topics != ["All"]:
+            if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Sector.isin(topics)
                 ]
-            if sub_topics != ["All"]:
+            if (
+                (sub_topics is not None)
+                & (len(sub_topics) > 0)
+                & (sub_topics != ["All"])
+            ):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Subtopic.isin(sub_topics)
                 ]
@@ -744,11 +749,12 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
             ]
             df_indicators_data = df_indicators_data[
                 [
+                    "Source_Full",
                     "Sector",
                     "Subtopic",
                     "Indicator",
                 ]
-            ]
+            ].rename(columns={"Source_Full": "Source"})
 
         # check if no data is available for the current user's selection
         if len(df_indicators_data) == 0:
@@ -844,7 +850,9 @@ def generate_country_profile(
         # need to include the last selected year as it was exluded in the previous method
         selected_years = years[years_slider[0] : years_slider[1] + 1]
         # filter data based on the selected years
-        df_country_data = df_country_data[df_country_data["TIME_PERIOD"].isin(selected_years)]
+        df_country_data = df_country_data[
+            df_country_data["TIME_PERIOD"].isin(selected_years)
+        ]
         # Inner join in order to filter country data to keep only selected sectors and sub-topics
         df_country_data = pd.merge(
             df_country_data,
@@ -973,7 +981,10 @@ def generate_country_profile(
                 # keep only the latest value of every country
                 df_country_data = df_country_data.sort_values(
                     ["Indicator", "Year"]
-                ).drop_duplicates("Indicator", keep="last")
+                ).drop_duplicates(
+                    ["Indicator", "Sex", "Age", "Residence", "Wealth Quintile"],
+                    keep="last",
+                )
 
             # round the value to 2 decimal places
             df_country_data = df_country_data.round({"Value": 2})
