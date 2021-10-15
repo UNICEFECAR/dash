@@ -260,15 +260,7 @@ def get_layout(**kwargs):
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                             },
-                                                            options=[
-                                                                {
-                                                                    "label": key,
-                                                                    "value": countries_iso3_dict[
-                                                                        key
-                                                                    ],
-                                                                }
-                                                                for key in countries_iso3_dict.keys()
-                                                            ],
+                                                            options=get_search_countries(),
                                                             multi=True,
                                                             placeholder="Select one or more country...",
                                                             className="m-2",
@@ -503,6 +495,19 @@ def get_layout(**kwargs):
             ),
         ],
     )
+
+
+def get_search_countries():
+    all_countries = {"label": "All", "value": "All"}
+    countries_list = [
+        {
+            "label": key,
+            "value": countries_iso3_dict[key],
+        }
+        for key in countries_iso3_dict.keys()
+    ]
+    countries_list.insert(0, all_countries)
+    return countries_list
 
 
 def get_sources():
@@ -845,8 +850,11 @@ def generate_country_profile(
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search-data":
-        # filter data by selected country
-        df_country_data = data[data["REF_AREA"].isin(countries)]
+        # filter data by selected countries
+        if (countries is not None) & (len(countries) > 0) & (countries != ["All"]):
+            df_country_data = data[data["REF_AREA"].isin(countries)]
+        else:
+            df_country_data = data
         # need to include the last selected year as it was exluded in the previous method
         selected_years = years[years_slider[0] : years_slider[1] + 1]
         # filter data based on the selected years
@@ -980,9 +988,16 @@ def generate_country_profile(
             if latest_data:
                 # keep only the latest value of every country
                 df_country_data = df_country_data.sort_values(
-                    ["Indicator", "Year"]
+                    ["Country", "Indicator", "Year"]
                 ).drop_duplicates(
-                    ["Indicator", "Sex", "Age", "Residence", "Wealth Quintile"],
+                    [
+                        "Country",
+                        "Indicator",
+                        "Sex",
+                        "Age",
+                        "Residence",
+                        "Wealth Quintile",
+                    ],
                     keep="last",
                 )
 
