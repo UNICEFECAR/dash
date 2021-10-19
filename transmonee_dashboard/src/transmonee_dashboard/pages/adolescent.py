@@ -145,7 +145,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -207,7 +207,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -231,6 +231,17 @@ indicators_dict = {
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "PT_F_GE15_SX_V_PTNR_12MNTH",
+                "PT_ADLT_PS_NEC",
+                "PT_CHLD_5-17_LBR_ECON",
+                "PT_CHLD_5-17_LBR_ECON-HC",
+                "PT_CHLD_ADOPTION",
+                "PT_CHLD_ADOPTION_AVAILABLE",
+                "PT_CHLD_CARED_BY_FOSTER",
+                "PT_CHLD_DISAB_PUBLIC",
+                "PT_CHLD_ENTEREDFOSTER",
+                "PT_CHLD_GUARDIAN",
+                "PT_F_15-49_W-BTNG",
+                "PT_M_15-49_W-BTNG",
             ],
             "default_graph": "line",
             "default": "PT_ST_13-15_BUL_30-DYS",
@@ -247,7 +258,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -279,6 +290,12 @@ indicators_dict = {
                 "HT_ADOL_VGRS_EXCS",
                 "HT_ADOL_HIGH_SATS",
                 "HT_ADOL_LOW_SATS",
+                "HT_CDRT_SELF_HARM",
+                "HT_SH_HIV_INCD",
+                "HVA_EPI_LHIV_0-19",
+                "HVA_EPI_LHIV_15-24",
+                "MNCH_CSEC",
+                "MNCH_PNCMOM",
             ],
             "default_graph": "bar",
             "default": "HT_ADOL_MT",
@@ -295,7 +312,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -309,9 +326,15 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "indicators": [],
+            "indicators": [
+                "PV_AROPE",
+                "PV_AROPRT",
+                "PV_SD_MDP_MUHC",
+                "PV_SEV_MAT_DPRT",
+                "PV_SI_POV_EMP1",
+            ],
             "default_graph": "bar",
-            "default": "",
+            "default": "PV_AROPE",
         },
         "AREA_5": {
             "name": "Child Rights Landscape",
@@ -325,7 +348,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -341,6 +364,8 @@ indicators_dict = {
             },
             "indicators": [
                 "DM_ADOL_POP",
+                "DM_ASYL_FRST",
+                "DM_ASYL_UASC",
             ],
             "default_graph": "bar",
             "default": "DM_ADOL_POP",
@@ -357,7 +382,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -377,6 +402,9 @@ indicators_dict = {
                 "PP_ADOL_ITXT",
                 "PP_ADOL_WORK_PAID",
                 "PP_ADOL_WORK_HOME",
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_POLICE",
+                "JJ_PRISIONERS_RT",
             ],
             "default_graph": "bar",
             "default": "PP_ADOL_TVGM",
@@ -390,7 +418,7 @@ main_title = "Adolescent"
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
     kwargs["main_title"] = main_title
-    kwargs["only_gender"] = True
+    kwargs["is_adolescent"] = True
     return get_base_layout(**kwargs)
 
 

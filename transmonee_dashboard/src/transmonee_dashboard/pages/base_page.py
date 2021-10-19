@@ -24,6 +24,8 @@ from . import (
     countries_dict_filter,
     countries_iso3_dict,
     gender_indicators,
+    adolescent_age_groups,
+    adolescent_codes,
     geo_json_countries,
     df_sources,
 )
@@ -60,7 +62,8 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 def get_base_layout(**kwargs):
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
-    only_gender = kwargs.get("only_gender")
+    is_gender = kwargs.get("is_gender")
+    is_adolescent = kwargs.get("is_adolescent")
 
     # I changed this to correctly read the hash as you were reading the name which is different
     url_hash = (
@@ -97,7 +100,8 @@ def get_base_layout(**kwargs):
                 ],
             ),
             dcc.Store(id="indicators", data=indicators_dict),
-            dcc.Store(id="only_gender", data=only_gender),
+            dcc.Store(id="is_gender", data=is_gender),
+            dcc.Store(id="is_adolescent", data=is_adolescent),
             dcc.Location(id="theme"),
             dbc.Row(
                 children=[
@@ -742,7 +746,9 @@ def display_areas(theme, indicators_dict, id):
 
 
 @cache.memoize()  # will cache based on years and countries combo
-def get_filtered_dataset(theme, indicators_dict, years, countries, only_gender):
+def get_filtered_dataset(
+    theme, indicators_dict, years, countries, is_gender, is_adolescent
+):
     print("CACHE BREAK!!!")
     indicators = []
     for area in AREA_KEYS:
@@ -754,8 +760,24 @@ def get_filtered_dataset(theme, indicators_dict, years, countries, only_gender):
         indicators.extend(card["indicator"].split(","))
 
     # keep only the indicators that have gender/sex disaggregation
-    if only_gender:
+    if is_gender:
         indicators = [x for x in indicators if x in list(gender_indicators["CODE"])]
+
+    # keep only the indicators that have gender/sex disaggregation
+    if is_adolescent:
+        # indicators = [x for x in indicators if x in list(gender_indicators["CODE"])]
+        return data[
+            (data["TIME_PERIOD"].isin(years))
+            & (data["REF_AREA"].isin(countries))
+            & (
+                (
+                    data["CODE"].isin(indicators)
+                    & data["CODE"].isin(adolescent_codes)
+                    & data["AGE"].isin(adolescent_age_groups)
+                )
+                | (data["CODE"].isin(indicators) & ~data["CODE"].isin(adolescent_codes))
+            )
+        ]
 
     # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
     return data[
@@ -779,13 +801,19 @@ def get_filtered_dataset(theme, indicators_dict, years, countries, only_gender):
     ],
     [
         State("indicators", "data"),
-        State("only_gender", "data"),
+        State("is_gender", "data"),
+        State("is_adolescent", "data"),
     ],
 )
 def apply_filters(
-    theme, years_slider, country_selector, programme_toggle, indicators, only_gender
+    theme,
+    years_slider,
+    country_selector,
+    programme_toggle,
+    indicators,
+    is_gender,
+    is_adolescent,
 ):
-
     ctx = dash.callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
@@ -820,7 +848,8 @@ def apply_filters(
         indicators_dict=indicators,
         years=selected_years,
         countries=list(countries_selected.values()),
-        only_gender=only_gender,
+        is_gender=is_gender,
+        is_adolescent=is_adolescent,
     )
 
     get_filtered_dataset(**selections)
@@ -1110,15 +1139,15 @@ def show_themes(selections, current_themes, indicators_dict):
     [
         State("indicators", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
-        State("only_gender", "data"),
+        State("is_gender", "data"),
     ],
 )
-def set_options(theme, indicators_dict, id, only_gender):
+def set_options(theme, indicators_dict, id, is_gender):
     area = f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
 
     if area in indicators_dict[theme["theme"]]:
         area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
-        if only_gender:
+        if is_gender:
             area_indicators = [
                 x for x in area_indicators if x in list(gender_indicators["CODE"])
             ]
@@ -1290,10 +1319,10 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
     Input({"type": "area_options", "index": MATCH}, "value"),
     [
         State({"type": "area_breakdowns", "index": MATCH}, "id"),
-        State("only_gender", "data"),
+        State("is_gender", "data"),
     ],
 )
-def breakdown_options(indicator, id, only_gender):
+def breakdown_options(indicator, id, is_gender):
 
     options = [{"label": "Total", "value": "Total"}]
     # define the breakdowns to only keep Sex for the gender page
@@ -1304,7 +1333,7 @@ def breakdown_options(indicator, id, only_gender):
             {"label": "Residence", "value": "Residence"},
             {"label": "Wealth Quintile", "value": "Wealth Quintile"},
         ]
-        if not only_gender
+        if not is_gender
         else [
             {"label": "Sex", "value": "Sex"},
         ]

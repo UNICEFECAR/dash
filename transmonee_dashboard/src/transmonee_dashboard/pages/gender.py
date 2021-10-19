@@ -1400,5 +1400,5 @@ main_title = "Gender"
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
     kwargs["main_title"] = main_title
-    kwargs["only_gender"] = True
+    kwargs["is_gender"] = True
     return get_base_layout(**kwargs)
