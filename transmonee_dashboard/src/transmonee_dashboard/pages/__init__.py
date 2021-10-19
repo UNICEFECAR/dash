@@ -5,6 +5,7 @@ from io import BytesIO
 import urllib
 
 import dash_html_components as html
+import numpy as np
 import pandas as pd
 import requests
 
@@ -1009,8 +1010,12 @@ data = data.round({"OBS_VALUE": 2})
 # print(data.columns)
 
 # TODO: calculations for children age population
-
 indicators = data["Indicator"].unique()
+
+# extract the indicators that have gender/sex disaggregation
+gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
 
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
@@ -1042,6 +1047,17 @@ df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x]
 indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
+
+# extract the indicators that have gender/sex disaggregation
+age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
+age_indicators = age_indicators.drop_duplicates()
+age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+# age_indicators.to_csv("age_indicators.csv", index=False)
 
 
 def page_not_found(pathname):
