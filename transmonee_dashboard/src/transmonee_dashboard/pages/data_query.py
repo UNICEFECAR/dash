@@ -24,6 +24,7 @@ from . import (
     topics_subtopics,
     data_sources,
     df_sources,
+    indicators_disagg_details,
 )
 
 
@@ -74,17 +75,13 @@ def get_layout(**kwargs):
                                                         dbc.RadioItems(
                                                             options=[
                                                                 {
-                                                                    "label": "Search Indicators by Source and Sector",
+                                                                    "label": "Search Indicators by Source, Domain, Sub-Domain",
                                                                     "value": "SEC",
                                                                 },
                                                                 {
                                                                     "label": "Search Indicators by Keyword",
                                                                     "value": "IND",
                                                                 },
-                                                                # {
-                                                                #     "label": "Search Data by Indicator",
-                                                                #     "value": "DAT",
-                                                                # },
                                                             ],
                                                             value="SEC",
                                                             inline=True,
@@ -147,7 +144,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -162,13 +159,62 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
                                                     className="my-2 mx-4",
                                                     justify="center",
                                                     id="row_search_indicators",
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        html.P(
+                                                            "Include disaggregation dimensions:",
+                                                            className="fix_label",
+                                                            style={
+                                                                "color": "rgba(0, 0, 0, 0.65)",
+                                                                "margin-top": "6px",
+                                                                "margin-right": "6px",
+                                                                "fontWeight": "bold",
+                                                            },
+                                                        ),
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Sex",
+                                                                    "value": 0,
+                                                                },
+                                                                {
+                                                                    "label": "Age",
+                                                                    "value": 1,
+                                                                },
+                                                                {
+                                                                    "label": "Residence",
+                                                                    "value": 2,
+                                                                },
+                                                                {
+                                                                    "label": "Wealth Quintile",
+                                                                    "value": 3,
+                                                                },
+                                                            ],
+                                                            id="add_disaggregation_toggle",
+                                                            switch=True,
+                                                            inline=True,
+                                                            style={
+                                                                "paddingRight": 20,
+                                                                "paddingTop": 6,
+                                                            },
+                                                        ),
+                                                        dbc.Tooltip(
+                                                            "This toggle is used to select the dimensions for which you want to show the detailed related disaggregation where applicable",
+                                                            target="add_disaggregation_toggle",
+                                                            placement="bottom",
+                                                        ),
+                                                    ],
+                                                    className="my-2",
+                                                    justify="center",
+                                                    style={"borderWidth": 2},
                                                 ),
                                                 dbc.Row(
                                                     [
@@ -316,7 +362,7 @@ def get_layout(**kwargs):
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -330,7 +376,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 600,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
@@ -584,11 +630,11 @@ def get_subsectors(selected_sectors):
 )
 def get_indicators(sectors, sub_sectors):
     if (sectors is not None) & (len(sectors) > 0) & (sectors != ["All"]):
-        df_indicators = df_sources[df_sources["Sector"].isin(sectors)]
+        df_indicators = df_sources[df_sources["Domain"].isin(sectors)]
     else:
         df_indicators = df_sources
     if (sub_sectors is not None) & (len(sub_sectors) > 0) & (sub_sectors != ["All"]):
-        df_indicators = df_indicators[df_indicators["Subtopic"].isin(sub_sectors)]
+        df_indicators = df_indicators[df_indicators["Subdomain"].isin(sub_sectors)]
     return [
         {
             "label": indicator["Indicator"],
@@ -609,6 +655,7 @@ def get_indicators(sectors, sub_sectors):
         Output("txtIndicator", "value"),
         Output("drpIndicators", "value"),
         Output("disaggregation_toggle", "value"),
+        Output("add_disaggregation_toggle", "value"),
     ],
     [
         Input("clear", "n_clicks"),
@@ -616,7 +663,7 @@ def get_indicators(sectors, sub_sectors):
     ],
 )
 def reset_search_controls(clear_click, clear_data_click):
-    return ["", "", "", "", "", "", "", "", []]
+    return ["", "", "", "", "", "", "", "", [], []]
 
 
 @app.callback(
@@ -641,15 +688,18 @@ def show_hide_search_type(type):
         State({"type": "sectors", "index": 1}, "value"),
         State({"type": "sub_topics", "index": 1}, "value"),
         State("txtIndicator", "value"),
+        State("add_disaggregation_toggle", "value"),
         State("search_type", "value"),
     ],
 )
-def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
+def search_indicators(
+    n_clicks, sources, topics, sub_topics, keywords, add_dis_toggles, search_type
+):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
         df_indicators_data = []
-        if type == "IND":
+        if search_type == "IND":
             df_indicators_data = df_sources[
                 (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
                 | (
@@ -661,76 +711,11 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
             df_indicators_data = df_indicators_data[
                 [
                     "Source_Full",
-                    "Sector",
-                    "Subtopic",
+                    "Domain",
+                    "Subdomain",
                     "Indicator",
                 ]
             ].rename(columns={"Source_Full": "Source"})
-        # elif type == "DAT":
-        #     # Filter the data to keep only selected indicators
-        #     df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
-        #     if len(df_filtered_indicators_data) > 0:
-        #         # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
-        #         df_dimensions_count = df_filtered_indicators_data.groupby("CODE").apply(
-        #             lambda ind: pd.Series(
-        #                 {
-        #                     "Sex_Count": ind["SEX"].nunique(),
-        #                     "Age_Count": ind["AGE"].nunique(),
-        #                     "Residence_Count": ind["RESIDENCE"].nunique(),
-        #                     "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
-        #                 }
-        #             )
-        #         )
-        #         df_indicators_data = pd.merge(
-        #             df_filtered_indicators_data, df_dimensions_count, on=["CODE"]
-        #         )
-        #         # Filter the data to keep the total or the other dimension when there is only one disaggregation
-        #         df_indicators_data = df_indicators_data[
-        #             (
-        #                 (df_indicators_data["SEX"] == "_T")
-        #                 | (df_indicators_data["Sex_Count"] == 1)
-        #             )
-        #             & (
-        #                 (df_indicators_data["AGE"] == "_T")
-        #                 | (df_indicators_data["Age_Count"] == 1)
-        #             )
-        #             & (
-        #                 (df_indicators_data["RESIDENCE"] == "_T")
-        #                 | (df_indicators_data["Residence_Count"] == 1)
-        #             )
-        #             & (
-        #                 (df_indicators_data["WEALTH_QUINTILE"] == "_T")
-        #                 | (df_indicators_data["Wealth_Count"] == 1)
-        #             )
-        #         ]
-        #         # merge to get the sector and sub-topic
-        #         df_indicators_data = pd.merge(
-        #             df_indicators_data,
-        #             df_topics_subtopics,
-        #             left_on=["CODE"],
-        #             right_on=["Code"],
-        #         )
-        #         df_indicators_data.rename(
-        #             columns={
-        #                 "TIME_PERIOD": "Year",
-        #                 "Theme": "Sector",
-        #                 "Issue": "Subtopic",
-        #                 "OBS_VALUE": "Value",
-        #                 "Geographic area": "Country",
-        #             },
-        #             inplace=True,
-        #         )
-        #         # keep only selected columns
-        #         df_indicators_data = df_indicators_data[
-        #             [
-        #                 "Sector",
-        #                 "Subtopic",
-        #                 "Indicator",
-        #                 "Country",
-        #                 "Year",
-        #                 "Value",
-        #             ]
-        #         ]
         else:
             # filter data by selected sector/source
             filtered_subtopics_groups = df_sources
@@ -740,7 +725,7 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
                 ]
             if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
-                    filtered_subtopics_groups.Sector.isin(topics)
+                    filtered_subtopics_groups.Domain.isin(topics)
                 ]
             if (
                 (sub_topics is not None)
@@ -748,20 +733,37 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
                 & (sub_topics != ["All"])
             ):
                 filtered_subtopics_groups = filtered_subtopics_groups[
-                    filtered_subtopics_groups.Subtopic.isin(sub_topics)
+                    filtered_subtopics_groups.Subdomain.isin(sub_topics)
                 ]
             df_indicators_data = filtered_subtopics_groups[
                 filtered_subtopics_groups.Code.isin(filtered_subtopics_groups["Code"])
             ]
+
+            # define the hidden columns based on the selected disaggregations
+            all_disag_columns = ["Sex", "Age", "Residence", "Wealth Quintile"]
+            selected_disag_columns = [all_disag_columns[i] for i in add_dis_toggles]
+            hidden_columns = list(
+                set(all_disag_columns).symmetric_difference(set(selected_disag_columns))
+            )
+
+            df_indicators_data = pd.merge(
+                df_indicators_data,
+                indicators_disagg_details,
+                how="inner",
+                left_on=["Code"],
+                right_on=["CODE"],
+            )
             df_indicators_data = df_indicators_data[
                 [
                     "Source_Full",
-                    "Sector",
-                    "Subtopic",
+                    "Domain",
+                    "Subdomain",
                     "Indicator",
                 ]
+                + selected_disag_columns
             ].rename(columns={"Source_Full": "Source"})
-
+            # drop duplicate entries
+            df_indicators_data = df_indicators_data.drop_duplicates()
         # check if no data is available for the current user's selection
         if len(df_indicators_data) == 0:
             return html.Div(
@@ -796,6 +798,7 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
                 page_size=20,
                 export_format="csv",
                 export_columns="all",
+                hidden_columns=hidden_columns,
                 css=[{"selector": ".show-hide", "rule": "display: none"}],
             )
 
@@ -886,8 +889,8 @@ def generate_country_profile(
                 "Residence",
                 "WEALTH_QUINTILE",
                 "Wealth Quintile",
-                "Sector",
-                "Subtopic",
+                "Domain",
+                "Subdomain",
             ]
         ]
         df_country_data.rename(
@@ -902,10 +905,12 @@ def generate_country_profile(
         )
         # filter selected sectors
         if (sectors is not None) & (len(sectors) > 0) & (sectors != ["All"]):
-            df_country_data = df_country_data[df_country_data.Sector.isin(sectors)]
+            df_country_data = df_country_data[df_country_data.Domain.isin(sectors)]
         # filter selected sub-sectors
         if (sub_topics is not None) & (len(sub_topics) > 0) & (sub_topics != ["All"]):
-            df_country_data = df_country_data[df_country_data.Subtopic.isin(sub_topics)]
+            df_country_data = df_country_data[
+                df_country_data.Subdomain.isin(sub_topics)
+            ]
         # filter selected indicators
         if (indicators is not None) & (len(indicators) > 0) & (indicators != ["All"]):
             df_country_data = df_country_data[df_country_data.Code.isin(indicators)]
@@ -973,8 +978,8 @@ def generate_country_profile(
             df_country_data = df_country_data[
                 [
                     "Country",
-                    "Sector",
-                    "Subtopic",
+                    "Domain",
+                    "Subdomain",
                     "Indicator",
                     "Sex",
                     "Age",

@@ -1224,18 +1224,42 @@ sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
-        "Issue": "Subtopic",
+        "Issue": "Subdomain",
     },
     inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
-df_sources["Subtopic"] = df_sources["Subtopic"].str.strip()
-df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
-df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
+df_sources["Subdomain"] = df_sources["Subdomain"].str.strip()
+df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
+df_sources["Domain"] = df_sources["Subdomain"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
 indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
+# extract the indicators' disaggregation
+indicators_disagg = (
+    data.groupby("CODE")
+    .agg(
+        {
+            "AGE": "nunique",
+            "SEX": "nunique",
+            "RESIDENCE": "nunique",
+            "WEALTH_QUINTILE": "nunique",
+        }
+    )
+    .reset_index()
+)
+indicators_disagg = indicators_disagg[
+    (indicators_disagg["AGE"] > 1)
+    | (indicators_disagg["SEX"] > 1)
+    | (indicators_disagg["RESIDENCE"] > 1)
+    | (indicators_disagg["WEALTH_QUINTILE"] > 1)
+]
+indicators_disagg_details = data[data["CODE"].isin(indicators_disagg["CODE"])]
+indicators_disagg_details = indicators_disagg_details[
+    ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
+]
+indicators_disagg_details = indicators_disagg_details.drop_duplicates()
 
 
 def page_not_found(pathname):
