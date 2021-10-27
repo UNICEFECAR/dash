@@ -62,7 +62,7 @@ def get_layout(**kwargs):
                     id="search-tabs",
                     children=[
                         dcc.Tab(
-                            label="Search Indicators' Metadata",
+                            label="Search Indicators",
                             children=[
                                 html.Br(),
                                 html.Div(
@@ -648,6 +648,7 @@ def search_indicators(n_clicks, sources, topics, sub_topics, keywords, type):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
+        df_indicators_data = []
         if type == "IND":
             df_indicators_data = df_sources[
                 (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))

@@ -220,6 +220,7 @@ indicators_dict = {
             ),
             "indicators": [
                 "CME_MRY0T4",
+                "CME_MRY0",
                 "CME_MRM0",
                 "MNCH_MMR",
                 "MNCH_SAB",
@@ -244,11 +245,13 @@ indicators_dict = {
                 "HT_U5DEATH_INJU",
                 "MNCH_CSEC",
                 "MNCH_PNCMOM",
+                "MNCH_ANC4",
+                "MNCH_PNEUCARE",
             ],
             "default": "CME_MRY0T4",
         },
         "AREA_1": {
-            "name": "Mortality rates - NMR, U5M, MMR",
+            "name": "Mortality rates - NMR, IMR, U5M, MMR",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -277,6 +280,7 @@ indicators_dict = {
             "default": "CME_MRY0T4",
             "indicators": [
                 "CME_MRY0T4",
+                "CME_MRY0",
                 "CME_MRM0",
                 "MNCH_MMR",
                 "CME_TMY0T4",
@@ -330,6 +334,8 @@ indicators_dict = {
                 "HT_U5DEATH_INJU",
                 "MNCH_CSEC",
                 "MNCH_PNCMOM",
+                "MNCH_ANC4",
+                "MNCH_PNEUCARE",
             ],
             "default_graph": "line",
             "default": "MNCH_SAB",

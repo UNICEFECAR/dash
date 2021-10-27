@@ -55,6 +55,7 @@ indicators_dict = {
                 "DM_CHLD_POP_PT",
                 "DM_CHLD_TWO_PRNT",
                 "DM_FRATE_TOT",
+                "DM_POP_URBN",
             ],
             "default": "DM_FRATE_TOT",
         },
@@ -90,6 +91,7 @@ indicators_dict = {
                 "DM_CHLD_POP",
                 "DM_ADOL_POP",
                 "DM_CHLD_POP_PT",
+                "DM_POP_URBN",
             ],
             "default": "DM_CHLD_TWO_PRNT",
         },
@@ -328,6 +330,7 @@ indicators_dict = {
                 "DM_ASYL_FRST",
                 "DM_ASYL_UASC",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
+                "MG_INTNL_MG_CNTRY_DEST_RT",
             ],
             "default": "DM_POP_NETM",
         },
@@ -361,6 +364,7 @@ indicators_dict = {
             "indicators": [
                 "DM_SM_POP_REFG",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
+                "MG_INTNL_MG_CNTRY_DEST_RT",
             ],
             "default": "DM_SM_POP_REFG",
         },
@@ -401,7 +405,7 @@ indicators_dict = {
         },
     },
     "RISKS": {
-        "NAME": "Risks, humanitarian situation and impact of climate change",
+        "NAME": "Risks and humanitarian situation",
         "CARDS": [
             {
                 "name": "Deaths and missing persons attributed to disasters (per 100,000 population)",
@@ -409,15 +413,9 @@ indicators_dict = {
                 "suffix": "Rate range among countries",
                 "min_max": True,
             },
-            {
-                "name": "Population with primary reliance on clean fuels and technology",
-                "indicator": "CR_EG_EGY_CLEAN",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
         ],
         "MAIN": {
-            "name": "Risks, humanitarian situation and impact of climate change",
+            "name": "Risks and humanitarian situation",
             "geo": "Geographic area",
             "options": dict(
                 locations="REF_AREA",
@@ -446,16 +444,12 @@ indicators_dict = {
             "indicators": [
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
                 "CR_SG_DSR_LGRGSR",
             ],
             "default": "CR_VC_DSR_MTMP",
         },
         "AREA_1": {
-            "name": "Risks and Humanitarian Situation",
+            "name": "Humanitarian Situation",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -484,14 +478,122 @@ indicators_dict = {
             "indicators": [
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_SG_DSR_LGRGSR",
             ],
             "default": "CR_VC_DSR_MTMP",
         },
         "AREA_2": {
-            "name": "Clean Environment",
+            "name": "Disaster Risk Reduction",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "CR_SG_DSR_LGRGSR",
+            ],
+            "default": "CR_SG_DSR_LGRGSR",
+            "default_graph": "line",
+        },
+    },
+    "CLIMATE": {
+        "NAME": "Impact of climate change",
+        "CARDS": [
+            {
+                "name": "Population with primary reliance on clean fuels and technology",
+                "indicator": "CR_EG_EGY_CLEAN",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
+            },
+        ],
+        "MAIN": {
+            "name": "Impact of climate change",
+            "geo": "Geographic area",
+            "options": dict(
+                locations="REF_AREA",
+                featureidkey="id",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                mapbox_style="carto-positron",
+                zoom=2,
+                center={"lat": 62.995158, "lon": 88.048713},
+                opacity=0.5,
+                labels={
+                    "OBS_VALUE": "Value",
+                    "Geographic area": "Country",
+                    "TIME_PERIOD": "Year",
+                    "REF_AREA": "ISO3 Code",
+                },
+                hover_data={
+                    "OBS_VALUE": True,
+                    "REF_AREA": False,
+                    "Geographic area": True,
+                    "TIME_PERIOD": True,
+                },
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "CR_SH_STA_AIRP",
+                "CR_SH_STA_ASAIRP",
+                "CR_EG_EGY_CLEAN",
+                "CR_EG_ACS_ELEC",
+            ],
+            "default": "CR_SH_STA_AIRP",
+        },
+        "AREA_1": {
+            "name": "Air Pollution",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": [
+                "CR_SH_STA_AIRP",
+                "CR_SH_STA_ASAIRP",
+            ],
+            "default": "CR_SH_STA_AIRP",
+        },
+        "AREA_2": {
+            "name": "Clean Fuels and Technology",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -524,21 +626,9 @@ indicators_dict = {
             "default_graph": "line",
         },
     },
-    "DATASPENDING": {
-        "NAME": "Data and Public spending on Children",
+    "DATA": {
+        "NAME": "Data on Children",
         "CARDS": [
-            {
-                "name": "Government expenditure on education as a % of GDP",
-                "indicator": "EDU_FIN_EXP_PT_GDP",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
-            {
-                "name": "Total public social expenditure as of % of GDP",
-                "indicator": "EC_TOT_PUB_EXP_GDP",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
             {
                 "name": "with national statistical legislation exists that complies with the Fundamental Principles of Official Statistics",
                 "indicator": "CR_SG_STT_FPOS",
@@ -553,7 +643,135 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Availability of data and Public Expendiure on Children",
+            "name": "Availability of data on Children",
+            "geo": "Geographic area",
+            "options": dict(
+                locations="REF_AREA",
+                featureidkey="id",
+                color="OBS_VALUE",
+                color_continuous_scale=px.colors.sequential.GnBu,
+                mapbox_style="carto-positron",
+                zoom=2,
+                center={"lat": 62.995158, "lon": 88.048713},
+                opacity=0.5,
+                labels={
+                    "OBS_VALUE": "Value",
+                    "Geographic area": "Country",
+                    "TIME_PERIOD": "Year",
+                    "REF_AREA": "ISO3 Code",
+                },
+                hover_data={
+                    "OBS_VALUE": True,
+                    "REF_AREA": False,
+                    "Geographic area": True,
+                    "TIME_PERIOD": True,
+                },
+                animation_frame="TIME_PERIOD",
+                height=750,
+            ),
+            "indicators": [
+                "CR_IQ_SCI_OVRL",
+                "CR_SG_STT_FPOS",
+                "CR_SG_STT_NSDSFND",
+                "CR_SG_STT_NSDSIMPL",
+                "CR_SG_STT_NSDSFDGVT",
+                "CR_SG_STT_NSDSFDDNR",
+                "CR_SG_STT_NSDSFDOTHR",
+                "CR_SG_STT_CAPTY",
+                "CR_SG_REG_CENSUSN",
+            ],
+            "default": "CR_IQ_SCI_OVRL",
+        },
+        "AREA_1": {
+            "name": "National statistical legislation and official statistics",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "default_graph": "bar",
+            "indicators": [
+                "CR_IQ_SCI_OVRL",
+                "CR_SG_STT_FPOS",
+                "CR_SG_REG_CENSUSN",
+            ],
+            "default": "CR_IQ_SCI_OVRL",
+        },
+        "AREA_2": {
+            "name": "Statistical plans with funding",
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Geographic area",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        # text="TIME_PERIOD",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                    ),
+                    "compare": "Sex",
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Geographic area",
+                        hover_name="Geographic area",
+                        line_shape="spline",
+                        render_mode="svg",
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+            },
+            "indicators": [
+                "CR_SG_STT_NSDSFND",
+                "CR_SG_STT_NSDSIMPL",
+                "CR_SG_STT_NSDSFDGVT",
+                "CR_SG_STT_NSDSFDDNR",
+                "CR_SG_STT_NSDSFDOTHR",
+                "CR_SG_STT_CAPTY",
+            ],
+            "default": "CR_SG_STT_CAPTY",
+            "default_graph": "line",
+        },
+    },
+    "SPENDING": {
+        "NAME": "Public spending on Children",
+        "CARDS": [
+            {
+                "name": "Government expenditure on education as a % of GDP",
+                "indicator": "EDU_FIN_EXP_PT_GDP",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "Total public social expenditure as of % of GDP",
+                "indicator": "EC_TOT_PUB_EXP_GDP",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
+            },
+        ],
+        "MAIN": {
+            "name": "Public Expendiure on Children",
             "geo": "Geographic area",
             "options": dict(
                 locations="REF_AREA",
@@ -587,20 +805,11 @@ indicators_dict = {
                 "EC_TOT_PUB_EXP_TOT",
                 "EC_FAM_PUB_EXP_GDP",
                 "EC_FAM_PUB_EXP_TOT",
-                "CR_IQ_SCI_OVRL",
-                "CR_SG_STT_FPOS",
-                "CR_SG_STT_NSDSFND",
-                "CR_SG_STT_NSDSIMPL",
-                "CR_SG_STT_NSDSFDGVT",
-                "CR_SG_STT_NSDSFDDNR",
-                "CR_SG_STT_NSDSFDOTHR",
-                "CR_SG_STT_CAPTY",
-                "CR_SG_REG_CENSUSN",
             ],
             "default": "EC_TOT_PUB_EXP_TOT",
         },
         "AREA_1": {
-            "name": "Government Spending on Children",
+            "name": "Government spending on Health and Education",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -629,16 +838,11 @@ indicators_dict = {
             "indicators": [
                 "EDU_FIN_EXP_PT_GDP",
                 "HT_SH_XPD_GHED_GD_ZS",
-                "EC_SP_GOV_EXP_GDP",
-                "EC_TOT_PUB_EXP_GDP",
-                "EC_TOT_PUB_EXP_TOT",
-                "EC_FAM_PUB_EXP_GDP",
-                "EC_FAM_PUB_EXP_TOT",
             ],
-            "default": "EC_TOT_PUB_EXP_TOT",
+            "default": "EDU_FIN_EXP_PT_GDP",
         },
         "AREA_2": {
-            "name": "Availalbity of Data on Children",
+            "name": "Government spending on Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -664,17 +868,13 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "CR_IQ_SCI_OVRL",
-                "CR_SG_STT_FPOS",
-                "CR_SG_STT_NSDSFND",
-                "CR_SG_STT_NSDSIMPL",
-                "CR_SG_STT_NSDSFDGVT",
-                "CR_SG_STT_NSDSFDDNR",
-                "CR_SG_STT_NSDSFDOTHR",
-                "CR_SG_STT_CAPTY",
-                "CR_SG_REG_CENSUSN",
+                "EC_SP_GOV_EXP_GDP",
+                "EC_TOT_PUB_EXP_GDP",
+                "EC_TOT_PUB_EXP_TOT",
+                "EC_FAM_PUB_EXP_GDP",
+                "EC_FAM_PUB_EXP_TOT",
             ],
-            "default": "CR_IQ_SCI_OVRL",
+            "default": "EC_SP_GOV_EXP_GDP",
             "default_graph": "line",
         },
     },
