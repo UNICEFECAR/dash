@@ -94,6 +94,25 @@ def make_header(**kwargs):
                                                     )
                                                 ],
                                             ),
+                                            html.Button(
+                                                id="btnInfo",
+                                                title="How to use",
+                                                className="btn btn-info",
+                                                children=[
+                                                    fa("fas fa-question"),
+                                                ],
+                                                style={
+                                                    "border-radius": 50,
+                                                    "right": 20,
+                                                    "top": 80,
+                                                    "z-index": 1101,
+                                                    "width": 28,
+                                                    "height": 28,
+                                                    "padding": 4,
+                                                    "font-size": 12,
+                                                    "border": 0,
+                                                },
+                                            ),
                                             # html.Div(
                                             #     className="header__cta",
                                             #     children=[

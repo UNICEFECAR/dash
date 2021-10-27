@@ -43,11 +43,14 @@ EXTERNAL_STYLESHEETS = [
         "rel": "preconnect",
     },
     "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap",
+    "https://unpkg.com/intro.js/minified/introjs.min.css",
 ]
 
 # Externally hosted Javascript files go in here.
-EXTERNAL_SCRIPTS = ["https://code.jquery.com/jquery-3.6.0.min.js"]
-
+EXTERNAL_SCRIPTS = [
+    "https://code.jquery.com/jquery-3.6.0.min.js",
+    "https://unpkg.com/intro.js/minified/intro.min.js",
+]
 
 #
 # Layout config
