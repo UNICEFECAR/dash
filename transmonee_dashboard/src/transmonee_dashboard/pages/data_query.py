@@ -72,7 +72,7 @@ def get_layout(**kwargs):
                                                         dbc.RadioItems(
                                                             options=[
                                                                 {
-                                                                    "label": "Search Indicators by Source and Sector",
+                                                                    "label": "Search Indicators by Source and Domain",
                                                                     "value": "SEC",
                                                                 },
                                                                 {
@@ -163,7 +163,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -178,7 +178,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
@@ -303,7 +303,7 @@ def get_layout(**kwargs):
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -318,7 +318,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 600,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
