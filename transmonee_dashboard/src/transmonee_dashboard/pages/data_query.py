@@ -557,13 +557,20 @@ def get_search_countries():
 
 
 def get_sources():
-    return [
+    all_sources = [
         {
-            "label": data_sources[key],
-            "value": key,
+            "label": "All",
+            "value": "All",
         }
-        for key in data_sources
     ]
+    for key in data_sources:
+        all_sources += [
+            {
+                "label": data_sources[key],
+                "value": key,
+            }
+        ]
+    return all_sources
 
 
 def get_sectors():

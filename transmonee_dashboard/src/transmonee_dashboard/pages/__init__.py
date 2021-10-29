@@ -1197,15 +1197,6 @@ data = data.round({"OBS_VALUE": 2})
 
 indicators = data["Indicator"].unique()
 
-# extract the indicators that have gender/sex disaggregation
-age_indicators = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
-# Keep only indicators with gender/sex disaggregation
-age_indicators = age_indicators[age_indicators["AGE"] > 1]
-age_indicators_details = data[data["CODE"].isin(age_indicators["CODE"])]
-age_indicators_details = age_indicators_details[["Indicator", "CODE", "AGE", "Age"]]
-age_indicators_details = age_indicators_details.drop_duplicates()
-# age_indicators_details.to_csv("age_indicators.csv", index=False)
-
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
