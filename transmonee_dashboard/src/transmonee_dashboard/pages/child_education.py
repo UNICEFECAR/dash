@@ -60,6 +60,9 @@ indicators_dict = {
                 "EDUNF_OFST_L1",
                 "EDUNF_OFST_L2",
                 "EDUNF_OFST_L3",
+                "EDU_SDG_PRYA",
+                "EDUNF_ROFST_L1_UNDER1",
+                "EDUNF_ROFST_L1T3",
             ],
             "default": "EDUNF_ROFST_L1",
         },
@@ -94,6 +97,8 @@ indicators_dict = {
                 "EDUNF_ROFST_L1",
                 "EDUNF_ROFST_L2",
                 "EDUNF_ROFST_L3",
+                "EDUNF_ROFST_L1_UNDER1",
+                "EDUNF_ROFST_L1T3",
                 "EDUNF_STU_L1_TOT",
                 "EDUNF_STU_L2_TOT",
                 "EDUNF_STU_L3_TOT",
@@ -182,11 +187,12 @@ indicators_dict = {
                 "EDU_CHLD_DISAB",
                 "EDU_CHLD_DISAB_GENERAL",
                 "EDU_CHLD_DISAB_SPECIAL",
+                "EDU_SDG_PRYA",
             ],
             "default": "EDU_CHLD_DISAB",
         },
         "AREA_4": {
-            "name": "Education completion (see other issue raised on moving a few of these indicators)",
+            "name": "Education completion",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -480,6 +486,7 @@ indicators_dict = {
                 "EDU_FIN_EXP_PT_TOT",
                 "EDU_SDG_FREE_EDU_L02",
                 "EDU_SDG_COMP_EDU_L02",
+                "EDU_FIN_EXP_CONST_PPP",
             ],
             "default": "EDU_FIN_EXP_PT_GDP",
         },
@@ -607,6 +614,7 @@ indicators_dict = {
                 "EDU_FIN_EXP_L3",
                 "EDU_FIN_EXP_L4",
                 "EDU_FIN_EXP_L5T8",
+                "EDU_FIN_EXP_CONST_PPP",
             ],
             "default": "EDU_FIN_EXP_L2",
         },

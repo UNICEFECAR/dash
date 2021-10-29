@@ -3,6 +3,7 @@ import pathlib
 import collections
 from io import BytesIO
 import urllib
+import time
 
 import dash_html_components as html
 import pandas as pd
@@ -431,6 +432,180 @@ codes = [
     "EDUNF_FEP_L3_GEN",
     "EDUNF_FEP_L3_VOC",
     "DM_POP_NETM",
+    "DM_POP_URBN",
+    "CME_MRY0",
+    "MNCH_ANC4",
+    "MNCH_PNEUCARE",
+    "EDU_SDG_PRYA",
+    "EDU_FIN_EXP_CONST_PPP",
+    "EDUNF_ROFST_L1_UNDER1",
+    "EDUNF_ROFST_L1T3",
+    "PV_SD_MDP_ANDI",
+    "PV_SD_MDP_ANDIHH",
+    "MG_INTNL_MG_CNTRY_DEST_RT",
+]
+
+# Add all indicators found in the data dictionary to get their data to the query data page
+data_query_codes = [
+    "DM_BRTS",
+    "DM_POP_TOT_AGE",
+    "FT_WHS_PBR",
+    "MT_SP_DYN_CDRT_IN",
+    "DM_LIFE_EXP",
+    "HT_SH_HAP_HBSAG",
+    "HT_SH_TBS_INCD",
+    "HT_SH_SUD_ALCOL",
+    "HT_DIST79DTP3_P",
+    "IM_MCV2",
+    "HT_DIST79MCV2_P",
+    "HT_SDG_PM25",
+    "ECD_CHLD_36-59M_ADLT_SRC",
+    "HT_SH_SUD_TREAT",
+    "EDUNF_STU_L01_TOT",
+    "EDU_SDG_GER_L01",
+    "EDUNF_STU_L02_TOT",
+    "EDUNF_GER_L02",
+    "EDUNF_FEP_L02",
+    "EDUNF_NARA_L1_UNDER1",
+    "EDUNF_FEP_L1",
+    "EDUNF_FEP_L2",
+    "EDUNF_FEP_L3",
+    "EDUNF_STU_L3_GEN",
+    "EDUNF_STU_L3_VOC",
+    "EDUNF_STU_L3_GEN_PUB",
+    "EDUNF_STU_L3_GEN_PRV",
+    "EDUNF_STU_L3_VOC_PUB",
+    "EDUNF_STU_L3_VOC_PRV",
+    "EDUNF_GER_L1AND2",
+    "EDU_TIMSS_MAT4",
+    "EDU_TIMSS_SCI4",
+    "EDU_TIMSS_MAT8",
+    "EDU_TIMSS_SCI8",
+    "EDU_PIRLS_REA",
+    "EDUNF_REPP_L1",
+    "EDUNF_REPP_L2",
+    "EDUNF_FRP_L1",
+    "EDUNF_SR_L1",
+    "EDUNF_SR_L2",
+    "EDU_SDG_YOUTH_NEET",
+    "EDUNF_STU_L4_TOT",
+    "EDUNF_STU_L4_PUB",
+    "EDUNF_STU_L4_PRV",
+    "EDUNF_PRP_L4",
+    "EDUNF_FEP_L4",
+    "EDUNF_STU_L5T8_TOT",
+    "EDUNF_STU_L5T8_PUB",
+    "EDUNF_STU_L5T8_PRV",
+    "EDUNF_PRP_L5T8",
+    "EDUNF_FEP_L5T8",
+    "EDUNF_GER_GPI_L02",
+    "EDUNF_GER_GPI_L1",
+    "EDUNF_GER_GPI_L2",
+    "EDUNF_GER_GPI_L3",
+    "EDUNF_GER_GPI_L2AND3",
+    "EDUNF_PTR_L1",
+    "EDUNF_PTR_L2",
+    "EDUNF_PTR_L2AND3",
+    "EDUNF_PTR_L3",
+    "EDU_SDG_PTTR_L02",
+    "EDU_SDG_PTTR_L1",
+    "EDU_SDG_PTTR_L2",
+    "EDU_SDG_PTTR_L3",
+    "EDU_SDG_PQTR_L02",
+    "EDU_SDG_PQTR_L1",
+    "EDU_SDG_PQTR_L2",
+    "EDU_SDG_PQTR_L3",
+    "ECD_CHLD_U5_BKS-HM",
+    "ECD_CHLD_U5_PLYTH-HM",
+    "EDUNF_EA_L2T8",
+    "EDU_PISA_MAT2",
+    "EDU_PISA_MAT3",
+    "EDU_PISA_MAT4",
+    "EDU_PISA_MAT5",
+    "EDU_PISA_MAT6",
+    "EDU_PISA_REA2",
+    "EDU_PISA_REA3",
+    "EDU_PISA_REA4",
+    "EDU_PISA_REA5",
+    "EDU_PISA_REA6",
+    "EDU_PISA_SCI2",
+    "EDU_PISA_SCI3",
+    "EDU_PISA_SCI4",
+    "EDU_PISA_SCI5",
+    "EDU_PISA_SCI6",
+    "EDUNF_FRP_L2AND3",
+    "EDUNF_GER_GPI_L01",
+    "EDUNF_OFST_L1T3",
+    "EDUNF_PRP_L2AND3",
+    "EDUNF_STU_L2AND3_PRV",
+    "EDUNF_COMP_YR",
+    "EDUNF_COMP_YR_L02T3",
+    "EDUNF_PTR_L02",
+    "EDUNF_GECER_L01",
+    "EDUNF_GECER_L02",
+    "EDU_ECEC_PART",
+    "ED_ANAR_L1",
+    "ED_ANAR_L2",
+    "ED_ANAR_L3",
+    "EDU_SE_ACS_INTNT_L1",
+    "EDU_SE_ACS_INTNT_L2",
+    "EDU_SE_ACS_INTNT_L3",
+    "EDU_SE_ACS_CMPTR_L1",
+    "EDU_SE_ACS_CMPTR_L2",
+    "EDU_SE_ACS_CMPTR_L3",
+    "EDU_SE_ACS_ELECT_L1",
+    "EDU_SE_ACS_ELECT_L2",
+    "EDU_SE_ACS_ELECT_L3",
+    "EDU_SE_TOT_GPI_L1_REA",
+    "EDU_SE_TOT_GPI_L2_REA",
+    "EDU_SE_TOT_GPI_L1_MAT",
+    "EDU_SE_TOT_GPI_L2_MAT",
+    "EDU_SE_TOT_GPI_FS_LIT",
+    "EDU_SE_TOT_GPI_FS_NUM",
+    "EDU_SE_AGP_CPRA_L1",
+    "EDU_SE_AGP_CPRA_L2",
+    "EDU_SE_AGP_CPRA_L3",
+    "EDU_SE_GPI_PART",
+    "EDU_SE_GPI_PTNPRE",
+    "EDU_SE_GPI_TCAQ_L02",
+    "EDU_SE_GPI_TCAQ_L1",
+    "EDU_SE_GPI_TCAQ_L2",
+    "EDU_SE_GPI_TCAQ_L3",
+    "EDU_SE_NAP_ACHI_L1_REA",
+    "EDU_SE_NAP_ACHI_L2_REA",
+    "EDU_SE_NAP_ACHI_L1_MAT",
+    "EDU_SE_NAP_ACHI_L2_MAT",
+    "EDU_SE_IMP_FPOF_LIT",
+    "EDU_SE_IMP_FPOF_NUM",
+    "EDU_SE_LGP_ACHI_L1_REA",
+    "EDU_SE_LGP_ACHI_L2_REA",
+    "EDU_SE_LGP_ACHI_L1_MAT",
+    "EDU_SE_LGP_ACHI_L2_MAT",
+    "EDU_SE_ALP_CPLR_L1",
+    "EDU_SE_ALP_CPLR_L2",
+    "EDU_SE_ALP_CPLR_L3",
+    "EDU_SE_TOT_SESPI_L1_REA",
+    "EDU_SE_TOT_SESPI_L2_REA",
+    "EDU_SE_TOT_SESPI_L1_MAT",
+    "EDU_SE_TOT_SESPI_L2_MAT",
+    "EDU_SE_TOT_SESPI_FS_LIT",
+    "EDU_SE_TOT_SESPI_FS_NUM",
+    "EDU_SE_TOT_RUPI_L1_REA",
+    "EDU_SE_TOT_RUPI_L2_REA",
+    "EDU_SE_TOT_RUPI_L1_MAT",
+    "EDU_SE_TOT_RUPI_L2_MAT",
+    "EDU_SE_AWP_CPRA_L1",
+    "EDU_SE_AWP_CPRA_L2",
+    "EDU_SE_AWP_CPRA_L3",
+    "EDU_SE_GPI_ICTS_ATCH",
+    "EDU_SE_GPI_ICTS_CPT",
+    "EDU_SE_GPI_ICTS_CDV",
+    "EDU_SE_GPI_ICTS_SSHT",
+    "EDU_SE_GPI_ICTS_PRGM",
+    "EDU_SE_GPI_ICTS_PST",
+    "EDU_SE_GPI_ICTS_SFWR",
+    "EDU_SE_GPI_ICTS_TRFF",
+    "EDU_SE_GPI_ICTS_CMFL",
 ]
 
 years = list(range(2010, 2021))
@@ -964,6 +1139,7 @@ programme_country_indexes = [
 
 data = pd.DataFrame()
 inds = set(codes)
+data_query_inds = set(data_query_codes)
 
 # column data types coerced
 col_types = {
@@ -977,7 +1153,7 @@ col_types = {
     "TIME_PERIOD": int,
 }
 
-
+start_time = time.time()
 # avoid a loop to query SDMX
 try:
     sdmx = pd.read_csv(
@@ -986,15 +1162,24 @@ try:
         storage_options={"Accept-Encoding": "gzip"},
         low_memory=False,
     )
+    data_query_sdmx = pd.read_csv(
+        sdmx_url.format("+".join(data_query_inds), years[0], years[-1]),
+        dtype=col_types,
+        storage_options={"Accept-Encoding": "gzip"},
+        low_memory=False,
+    )
 except urllib.error.HTTPError as e:
     raise e
 
-# no need to create column CODE, just rename indicator
-sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
+data = data.append(data_query_sdmx)
+# no need to create column CODE, just rename indicator
+data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 
 # replace Yes by 1 and No by 0
 data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+# print the time needed to read the data
+print("--- %s seconds ---" % (time.time() - start_time))
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
@@ -1006,7 +1191,7 @@ if filter_non_num.any():
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 data = data.round({"OBS_VALUE": 2})
-# print(data.columns)
+# print(data.shape)
 
 # TODO: calculations for children age population
 
@@ -1030,18 +1215,47 @@ sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 df_sources.rename(
     columns={
         "Name_y": "Indicator",
-        "Issue": "Subtopic",
+        "Issue": "Subdomain",
     },
     inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
-df_sources["Subtopic"] = df_sources["Subtopic"].str.strip()
-df_sources = df_sources[df_sources["Subtopic"].isin(sitan_subtopics)]
-df_sources["Sector"] = df_sources["Subtopic"].apply(lambda x: get_sector(x))
+df_sources["Subdomain"] = df_sources["Subdomain"].str.strip()
+df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
+df_sources["Domain"] = df_sources["Subdomain"].apply(lambda x: get_sector(x))
 df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
 indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
+# Extract the indicators' potential unique disaggregations.
+# Group by indicator code and keep only unique aggregations for the 4 possible dimensions:
+# Sex, Age, Residence and Wealth.
+indicators_disagg = (
+    data.groupby("CODE")
+    .agg(
+        {
+            "AGE": "nunique",
+            "SEX": "nunique",
+            "RESIDENCE": "nunique",
+            "WEALTH_QUINTILE": "nunique",
+        }
+    )
+    .reset_index()
+)
+# Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
+indicators_disagg = indicators_disagg[
+    (indicators_disagg["AGE"] > 1)
+    | (indicators_disagg["SEX"] > 1)
+    | (indicators_disagg["RESIDENCE"] > 1)
+    | (indicators_disagg["WEALTH_QUINTILE"] > 1)
+]
+# Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
+indicators_disagg_details = data[data["CODE"].isin(indicators_disagg["CODE"])]
+# Filter the dataframe to be used in the data query to keep indicators code and the possible disaggregations.
+indicators_disagg_details = indicators_disagg_details[
+    ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
+]
+indicators_disagg_details = indicators_disagg_details.drop_duplicates()
 
 
 def page_not_found(pathname):

@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 from dash_html_components.Br import Br
 import dash_table
 from dash.dependencies import ALL, MATCH, Input, State, Output
+from numpy import isin
 import pandas as pd
 from pandas.io.formats import style
 import re
@@ -18,10 +19,12 @@ from ..app import app
 from . import (
     countries_iso3_dict,
     data,
+    years,
     df_topics_subtopics,
     topics_subtopics,
     data_sources,
     df_sources,
+    indicators_disagg_details,
 )
 
 
@@ -60,7 +63,7 @@ def get_layout(**kwargs):
                     id="search-tabs",
                     children=[
                         dcc.Tab(
-                            label="Search Indicators and Indicators' Data",
+                            label="Search Indicators",
                             children=[
                                 html.Br(),
                                 html.Div(
@@ -72,16 +75,12 @@ def get_layout(**kwargs):
                                                         dbc.RadioItems(
                                                             options=[
                                                                 {
-                                                                    "label": "Search Indicators by Source and Sector",
+                                                                    "label": "Search Indicators by Source, Domain, Sub-Domain",
                                                                     "value": "SEC",
                                                                 },
                                                                 {
                                                                     "label": "Search Indicators by Keyword",
                                                                     "value": "IND",
-                                                                },
-                                                                {
-                                                                    "label": "Search Data by Indicator",
-                                                                    "value": "DAT",
                                                                 },
                                                             ],
                                                             value="SEC",
@@ -124,24 +123,6 @@ def get_layout(**kwargs):
                                                 dbc.Row(
                                                     [
                                                         dcc.Dropdown(
-                                                            id="drpIndicators",
-                                                            style={
-                                                                "zIndex": "11",
-                                                                "minWidth": 800,
-                                                                "maxWidth": 1000,
-                                                            },
-                                                            placeholder="Select one or multiple indicators...",
-                                                            options=get_indicators(),
-                                                            multi=True,
-                                                        ),
-                                                    ],
-                                                    className="my-2",
-                                                    justify="center",
-                                                    id="row_search_data",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dcc.Dropdown(
                                                             id="sources",
                                                             style={
                                                                 "zIndex": "11",
@@ -163,7 +144,7 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -178,13 +159,62 @@ def get_layout(**kwargs):
                                                                 "maxWidth": 500,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
                                                     className="my-2 mx-4",
                                                     justify="center",
                                                     id="row_search_indicators",
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        html.P(
+                                                            "Include disaggregation dimensions:",
+                                                            className="fix_label",
+                                                            style={
+                                                                "color": "rgba(0, 0, 0, 0.65)",
+                                                                "margin-top": "6px",
+                                                                "margin-right": "6px",
+                                                                "fontWeight": "bold",
+                                                            },
+                                                        ),
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Sex",
+                                                                    "value": 0,
+                                                                },
+                                                                {
+                                                                    "label": "Age",
+                                                                    "value": 1,
+                                                                },
+                                                                {
+                                                                    "label": "Residence",
+                                                                    "value": 2,
+                                                                },
+                                                                {
+                                                                    "label": "Wealth Quintile",
+                                                                    "value": 3,
+                                                                },
+                                                            ],
+                                                            id="add_disaggregation_toggle",
+                                                            switch=True,
+                                                            inline=True,
+                                                            style={
+                                                                "paddingRight": 20,
+                                                                "paddingTop": 6,
+                                                            },
+                                                        ),
+                                                        dbc.Tooltip(
+                                                            "This toggle is used to select the dimensions for which you want to show the detailed related disaggregation where applicable",
+                                                            target="add_disaggregation_toggle",
+                                                            placement="bottom",
+                                                        ),
+                                                    ],
+                                                    className="my-2",
+                                                    justify="center",
+                                                    style={"borderWidth": 2},
                                                 ),
                                                 dbc.Row(
                                                     [
@@ -251,7 +281,7 @@ def get_layout(**kwargs):
                             id="indicator-search",
                         ),
                         dcc.Tab(
-                            label="Search Country Data",
+                            label="Search Data by Country and Indicator",
                             children=[
                                 html.Br(),
                                 html.Div(
@@ -261,12 +291,11 @@ def get_layout(**kwargs):
                                                 dbc.Row(
                                                     [
                                                         html.P(
-                                                            "Select Country:",
+                                                            "Select one or more Country:",
                                                             className="fix_label",
                                                             style={
-                                                                "color": "black",
-                                                                "margin-top": "6px",
-                                                                "margin-right": "6px",
+                                                                "color": "rgba(0, 0, 0, 0.65)",
+                                                                "margin-top": "13px",
                                                                 "fontWeight": "bold",
                                                             },
                                                         ),
@@ -274,18 +303,49 @@ def get_layout(**kwargs):
                                                             id="countries",
                                                             style={
                                                                 "zIndex": "999",
-                                                                "width": 300,
+                                                                "minWidth": 400,
+                                                                "maxWidth": 600,
                                                             },
-                                                            options=[
-                                                                {
-                                                                    "label": key,
-                                                                    "value": countries_iso3_dict[
-                                                                        key
-                                                                    ],
-                                                                }
-                                                                for key in countries_iso3_dict.keys()
+                                                            options=get_search_countries(),
+                                                            multi=True,
+                                                            placeholder="Select one or more country...",
+                                                            className="m-2",
+                                                        ),
+                                                        dbc.DropdownMenu(
+                                                            label=f"Years: {years[0]} - {years[-1]}",
+                                                            id="collapse-years-search",
+                                                            className="m-2",
+                                                            color="info",
+                                                            children=[
+                                                                dbc.Card(
+                                                                    dcc.RangeSlider(
+                                                                        id="year_slider_search",
+                                                                        min=0,
+                                                                        max=len(years)
+                                                                        - 1,
+                                                                        step=None,
+                                                                        marks={
+                                                                            index: str(
+                                                                                year
+                                                                            )
+                                                                            for index, year in enumerate(
+                                                                                years
+                                                                            )
+                                                                        },
+                                                                        value=[
+                                                                            0,
+                                                                            len(years)
+                                                                            - 1,
+                                                                        ],
+                                                                    ),
+                                                                    style={
+                                                                        "maxHeight": "250px",
+                                                                        "minWidth": "500px",
+                                                                    },
+                                                                    className="overflow-auto",
+                                                                    body=True,
+                                                                ),
                                                             ],
-                                                            placeholder="Select a country...",
                                                         ),
                                                     ],
                                                     className="my-2",
@@ -299,11 +359,10 @@ def get_layout(**kwargs):
                                                                 "index": 2,
                                                             },
                                                             style={
-                                                                "zIndex": "11",
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                             },
-                                                            placeholder="Select one or multiple sectors",
+                                                            placeholder="Select one or multiple domains",
                                                             options=get_sectors(),
                                                             multi=True,
                                                         ),
@@ -313,17 +372,81 @@ def get_layout(**kwargs):
                                                                 "index": 2,
                                                             },
                                                             style={
-                                                                "zIndex": "11",
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                                 "paddingLeft": 4,
                                                             },
-                                                            placeholder="Select one or multiple sub-topics",
+                                                            placeholder="Select one or multiple sub-domains",
                                                             multi=True,
                                                         ),
                                                     ],
                                                     className="my-2 mx-4",
                                                     justify="center",
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        dcc.Dropdown(
+                                                            id="drpIndicators",
+                                                            style={
+                                                                "minWidth": 800,
+                                                                "maxWidth": 1000,
+                                                            },
+                                                            placeholder="Select one or multiple indicators...",
+                                                            multi=True,
+                                                        ),
+                                                    ],
+                                                    className="my-2",
+                                                    justify="center",
+                                                    style={"borderWidth": 2},
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        html.P(
+                                                            "Select disaggregation dimensions:",
+                                                            className="fix_label",
+                                                            style={
+                                                                "color": "rgba(0, 0, 0, 0.65)",
+                                                                "margin-top": "6px",
+                                                                "margin-right": "6px",
+                                                                "fontWeight": "bold",
+                                                            },
+                                                        ),
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Sex",
+                                                                    "value": 0,
+                                                                },
+                                                                {
+                                                                    "label": "Age",
+                                                                    "value": 1,
+                                                                },
+                                                                {
+                                                                    "label": "Residence",
+                                                                    "value": 2,
+                                                                },
+                                                                {
+                                                                    "label": "Wealth Quintile",
+                                                                    "value": 3,
+                                                                },
+                                                            ],
+                                                            id="disaggregation_toggle",
+                                                            switch=True,
+                                                            inline=True,
+                                                            style={
+                                                                "paddingRight": 20,
+                                                                "paddingTop": 6,
+                                                            },
+                                                        ),
+                                                        dbc.Tooltip(
+                                                            "This toggle is used to select the dimensions that you want to show the detailed related disaggregation where applicable",
+                                                            target="disaggregation_toggle",
+                                                            placement="bottom",
+                                                        ),
+                                                    ],
+                                                    className="my-2",
+                                                    justify="center",
+                                                    style={"borderWidth": 2},
                                                 ),
                                                 dbc.Row(
                                                     [
@@ -345,11 +468,30 @@ def get_layout(**kwargs):
                                                             target="latest_data_toggle",
                                                             placement="bottom",
                                                         ),
-                                                        html.Button(
-                                                            "Generate Country Fact Sheet",
-                                                            id="generate",
-                                                            n_clicks=0,
-                                                            className="btn btn-primary",
+                                                        dbc.Button(
+                                                            html.Span(
+                                                                [
+                                                                    "Search",
+                                                                    html.I(
+                                                                        className="fas fa-search ml-2"
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            color="primary",
+                                                            id="search-data",
+                                                        ),
+                                                        dbc.Button(
+                                                            html.Span(
+                                                                [
+                                                                    "Clear",
+                                                                    html.I(
+                                                                        className="fas fa-eraser ml-2"
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            color="warning",
+                                                            id="clear-data",
+                                                            style={"marginLeft": 12},
                                                         ),
                                                     ],
                                                     className="my-2",
@@ -369,24 +511,12 @@ def get_layout(**kwargs):
                                     [
                                         dbc.Row(
                                             [
-                                                html.H6(
-                                                    id="table_title",
-                                                    style={
-                                                        "borderLeft": "5px solid #1cabe2",
-                                                        "background": "#fff",
-                                                        "padding": 10,
-                                                        "marginTop": 10,
-                                                        "marginBottom": 15,
-                                                        "height": 40,
-                                                    },
-                                                ),
-                                            ],
-                                        ),
-                                        dbc.Row(
-                                            [
                                                 html.Div(
                                                     id="tbl_country_profile",
-                                                    style={"width": "100%"},
+                                                    style={
+                                                        "width": "100%",
+                                                        "paddingTop": 10,
+                                                    },
                                                 ),
                                             ],
                                         ),
@@ -413,14 +543,34 @@ def get_layout(**kwargs):
     )
 
 
-def get_sources():
-    return [
+def get_search_countries():
+    all_countries = {"label": "All", "value": "All"}
+    countries_list = [
         {
-            "label": data_sources[key],
-            "value": key,
+            "label": key,
+            "value": countries_iso3_dict[key],
         }
-        for key in data_sources
+        for key in countries_iso3_dict.keys()
     ]
+    countries_list.insert(0, all_countries)
+    return countries_list
+
+
+def get_sources():
+    all_sources = [
+        {
+            "label": "All",
+            "value": "All",
+        }
+    ]
+    for key in data_sources:
+        all_sources += [
+            {
+                "label": data_sources[key],
+                "value": key,
+            }
+        ]
+    return all_sources
 
 
 def get_sectors():
@@ -431,234 +581,6 @@ def get_sectors():
         }
         for key in topics_subtopics
     ]
-
-
-def get_indicators():
-    return [
-        {
-            "label": source["Indicator"],
-            "value": source["Code"],
-        }
-        for index, source in df_sources.iterrows()
-    ]
-
-
-@app.callback(
-    [
-        Output("sources", "value"),
-        Output({"type": "sectors", "index": 1}, "value"),
-        Output({"type": "sub_topics", "index": 1}, "value"),
-        Output({"type": "sectors", "index": 2}, "value"),
-        Output({"type": "sub_topics", "index": 2}, "value"),
-        Output("txtIndicator", "value"),
-        Output("drpIndicators", "value"),
-    ],
-    Input("clear", "n_clicks"),
-)
-def reset_search_controls(n_clicks):
-    return ["", "", "", "", "", "", ""]
-
-
-@app.callback(
-    [
-        Output("row_search_sources", "hidden"),
-        Output("row_search_indicators", "hidden"),
-        Output("row_search_data", "hidden"),
-    ],
-    Input("search_type", "value"),
-)
-def show_hide_search_type(type):
-    if type == "IND":
-        return [False, True, True]
-    elif type == "DAT":
-        return [True, True, False]
-    else:
-        return [True, False, True]
-
-
-@app.callback(
-    Output("tbl_indicators", "children"),
-    Input("search", "n_clicks"),
-    [
-        State("sources", "value"),
-        State({"type": "sectors", "index": 1}, "value"),
-        State({"type": "sub_topics", "index": 1}, "value"),
-        State("drpIndicators", "value"),
-        State("txtIndicator", "value"),
-        State("search_type", "value"),
-    ],
-)
-def search_indicators(
-    n_clicks, sources, topics, sub_topics, indicators, keywords, type
-):
-    ctx = dash.callback_context
-    changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if changed_id == "search":
-        df_indicators_data = []
-        if type == "IND":
-            df_indicators_data = df_sources[
-                (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
-                | (
-                    df_sources["Indicator"]
-                    .str.replace("-", " ")
-                    .str.contains(keywords, case=False, regex=True)
-                )
-            ]
-            df_indicators_data = df_indicators_data[
-                [
-                    "Source_Full",
-                    "Sector",
-                    "Subtopic",
-                    "Indicator",
-                ]
-            ].rename(columns={"Source_Full": "Source"})
-        elif type == "DAT":
-            # Filter the data to keep only selected indicators
-            df_filtered_indicators_data = data[data["CODE"].isin(indicators)]
-            if len(df_filtered_indicators_data) > 0:
-                # group by indicator code and count the distinct count of disaggregation for the 4 dimensions
-                df_dimensions_count = df_filtered_indicators_data.groupby("CODE").apply(
-                    lambda ind: pd.Series(
-                        {
-                            "Sex_Count": ind["SEX"].nunique(),
-                            "Age_Count": ind["AGE"].nunique(),
-                            "Residence_Count": ind["RESIDENCE"].nunique(),
-                            "Wealth_Count": ind["WEALTH_QUINTILE"].nunique(),
-                        }
-                    )
-                )
-                df_indicators_data = pd.merge(
-                    df_filtered_indicators_data, df_dimensions_count, on=["CODE"]
-                )
-                # Filter the data to keep the total or the other dimension when there is only one disaggregation
-                df_indicators_data = df_indicators_data[
-                    (
-                        (df_indicators_data["SEX"] == "_T")
-                        | (df_indicators_data["Sex_Count"] == 1)
-                    )
-                    & (
-                        (df_indicators_data["AGE"] == "_T")
-                        | (df_indicators_data["Age_Count"] == 1)
-                    )
-                    & (
-                        (df_indicators_data["RESIDENCE"] == "_T")
-                        | (df_indicators_data["Residence_Count"] == 1)
-                    )
-                    & (
-                        (df_indicators_data["WEALTH_QUINTILE"] == "_T")
-                        | (df_indicators_data["Wealth_Count"] == 1)
-                    )
-                ]
-                # merge to get the sector and sub-topic
-                df_indicators_data = pd.merge(
-                    df_indicators_data,
-                    df_topics_subtopics,
-                    left_on=["CODE"],
-                    right_on=["Code"],
-                )
-                df_indicators_data.rename(
-                    columns={
-                        "TIME_PERIOD": "Year",
-                        "Theme": "Sector",
-                        "Issue": "Subtopic",
-                        "OBS_VALUE": "Value",
-                        "Geographic area": "Country",
-                    },
-                    inplace=True,
-                )
-                # keep only selected columns
-                df_indicators_data = df_indicators_data[
-                    [
-                        "Sector",
-                        "Subtopic",
-                        "Indicator",
-                        "Country",
-                        "Year",
-                        "Value",
-                    ]
-                ]
-        else:
-            # filter data by selected sector/source
-            filtered_subtopics_groups = df_sources
-            if (sources is not None) & (len(sources) > 0) & (sources != ["All"]):
-                filtered_subtopics_groups = filtered_subtopics_groups[
-                    filtered_subtopics_groups.Source.isin(sources)
-                ]
-            if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
-                filtered_subtopics_groups = filtered_subtopics_groups[
-                    filtered_subtopics_groups.Sector.isin(topics)
-                ]
-            if (
-                (sub_topics is not None)
-                & (len(sub_topics) > 0)
-                & (sub_topics != ["All"])
-            ):
-                filtered_subtopics_groups = filtered_subtopics_groups[
-                    filtered_subtopics_groups.Subtopic.isin(sub_topics)
-                ]
-            df_indicators_data = filtered_subtopics_groups[
-                filtered_subtopics_groups.Code.isin(filtered_subtopics_groups["Code"])
-            ]
-            df_indicators_data = df_indicators_data[
-                [
-                    "Source_Full",
-                    "Sector",
-                    "Subtopic",
-                    "Indicator",
-                ]
-            ].rename(columns={"Source_Full": "Source"})
-
-        # check if no data is available for the current user's selection
-        if len(df_indicators_data) == 0:
-            return html.Div(
-                ["No data available..."],
-                className="alert alert-danger fade show w-100",
-            )
-        else:
-            # round the value to 2 decimal places
-            return dash_table.DataTable(
-                columns=[{"name": i, "id": i} for i in df_indicators_data.columns],
-                data=df_indicators_data.to_dict("records"),
-                style_cell={
-                    "textAlign": "center",
-                    "paddingLeft": 2,
-                    "fontWeight": "bold",
-                },
-                style_data={
-                    "whiteSpace": "normal",
-                    "height": "auto",
-                    "textAlign": "left",
-                    "fontWeight": "regular",
-                },
-                style_data_conditional=[
-                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
-                ],
-                sort_action="native",
-                filter_action="native",
-                sort_mode="multi",
-                column_selectable="single",
-                page_action="native",
-                page_current=0,
-                page_size=20,
-                export_format="csv",
-                export_columns="all",
-                css=[{"selector": ".show-hide", "rule": "display: none"}],
-            )
-
-
-@app.callback(
-    Output("table_title", "children"),
-    Input("countries", "value"),
-)
-def get_selected_country(iso_code):
-    key_list = list(countries_iso3_dict.keys())
-    val_list = list(countries_iso3_dict.values())
-    if iso_code is not None:
-        position = val_list.index(iso_code)
-        country_name = key_list[position]
-        return f"{country_name} Fact Sheet"
-    else:
-        return ""
 
 
 @app.callback(
@@ -707,21 +629,249 @@ def get_subsectors(selected_sectors):
 
 
 @app.callback(
+    Output("drpIndicators", "options"),
+    [
+        Input({"type": "sectors", "index": 2}, "value"),
+        Input({"type": "sub_topics", "index": 2}, "value"),
+    ],
+)
+def get_indicators(sectors, sub_sectors):
+    if (sectors is not None) & (len(sectors) > 0) & (sectors != ["All"]):
+        df_indicators = df_sources[df_sources["Domain"].isin(sectors)]
+    else:
+        df_indicators = df_sources
+    if (sub_sectors is not None) & (len(sub_sectors) > 0) & (sub_sectors != ["All"]):
+        df_indicators = df_indicators[df_indicators["Subdomain"].isin(sub_sectors)]
+    return [
+        {
+            "label": indicator["Indicator"],
+            "value": indicator["Code"],
+        }
+        for index, indicator in df_indicators.iterrows()
+    ]
+
+
+@app.callback(
+    [
+        Output("sources", "value"),
+        Output("countries", "value"),
+        Output({"type": "sectors", "index": 1}, "value"),
+        Output({"type": "sub_topics", "index": 1}, "value"),
+        Output({"type": "sectors", "index": 2}, "value"),
+        Output({"type": "sub_topics", "index": 2}, "value"),
+        Output("txtIndicator", "value"),
+        Output("drpIndicators", "value"),
+        Output("disaggregation_toggle", "value"),
+        Output("add_disaggregation_toggle", "value"),
+    ],
+    [
+        Input("clear", "n_clicks"),
+        Input("clear-data", "n_clicks"),
+    ],
+)
+def reset_search_controls(clear_click, clear_data_click):
+    return ["", "", "", "", "", "", "", "", [], []]
+
+
+@app.callback(
+    [
+        Output("row_search_sources", "hidden"),
+        Output("row_search_indicators", "hidden"),
+    ],
+    Input("search_type", "value"),
+)
+def show_hide_search_type(type):
+    if type == "IND":
+        return [False, True]
+    else:
+        return [True, False]
+
+
+@app.callback(
+    Output("tbl_indicators", "children"),
+    Input("search", "n_clicks"),
+    [
+        State("sources", "value"),
+        State({"type": "sectors", "index": 1}, "value"),
+        State({"type": "sub_topics", "index": 1}, "value"),
+        State("txtIndicator", "value"),
+        State("add_disaggregation_toggle", "value"),
+        State("search_type", "value"),
+    ],
+)
+def search_indicators(
+    n_clicks, sources, topics, sub_topics, keywords, add_dis_toggles, search_type
+):
+    ctx = dash.callback_context
+    changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if changed_id == "search":
+        df_indicators_data = []
+        if search_type == "IND":
+            df_indicators_data = df_sources[
+                (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
+                | (
+                    df_sources["Indicator"]
+                    .str.replace("-", " ")
+                    .str.contains(keywords, case=False, regex=True)
+                )
+            ]
+            df_indicators_data = df_indicators_data[
+                [
+                    "Source_Full",
+                    "Domain",
+                    "Subdomain",
+                    "Indicator",
+                ]
+            ].rename(columns={"Source_Full": "Source"})
+        else:
+            # filter data by selected sector/source
+            filtered_subtopics_groups = df_sources
+            if (sources is not None) & (len(sources) > 0) & (sources != ["All"]):
+                filtered_subtopics_groups = filtered_subtopics_groups[
+                    filtered_subtopics_groups.Source.isin(sources)
+                ]
+            if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
+                filtered_subtopics_groups = filtered_subtopics_groups[
+                    filtered_subtopics_groups.Domain.isin(topics)
+                ]
+            if (
+                (sub_topics is not None)
+                & (len(sub_topics) > 0)
+                & (sub_topics != ["All"])
+            ):
+                filtered_subtopics_groups = filtered_subtopics_groups[
+                    filtered_subtopics_groups.Subdomain.isin(sub_topics)
+                ]
+            df_indicators_data = filtered_subtopics_groups[
+                filtered_subtopics_groups.Code.isin(filtered_subtopics_groups["Code"])
+            ]
+
+            # define the hidden columns based on the selected disaggregations
+            all_disag_columns = ["Sex", "Age", "Residence", "Wealth Quintile"]
+            selected_disag_columns = [all_disag_columns[i] for i in add_dis_toggles]
+            hidden_columns = list(
+                set(all_disag_columns).symmetric_difference(set(selected_disag_columns))
+            )
+
+            df_indicators_data = pd.merge(
+                df_indicators_data,
+                indicators_disagg_details,
+                how="inner",
+                left_on=["Code"],
+                right_on=["CODE"],
+            )
+            df_indicators_data = df_indicators_data[
+                [
+                    "Source_Full",
+                    "Domain",
+                    "Subdomain",
+                    "Indicator",
+                ]
+                + selected_disag_columns
+            ].rename(columns={"Source_Full": "Source"})
+            # drop duplicate entries
+            df_indicators_data = df_indicators_data.drop_duplicates()
+        # check if no data is available for the current user's selection
+        if len(df_indicators_data) == 0:
+            return html.Div(
+                ["No data available..."],
+                className="alert alert-danger fade show w-100",
+            )
+        else:
+            # round the value to 2 decimal places
+            return dash_table.DataTable(
+                columns=[{"name": i, "id": i} for i in df_indicators_data.columns],
+                data=df_indicators_data.to_dict("records"),
+                style_cell={
+                    "textAlign": "center",
+                    "paddingLeft": 2,
+                    "fontWeight": "bold",
+                },
+                style_data={
+                    "whiteSpace": "normal",
+                    "height": "auto",
+                    "textAlign": "left",
+                    "fontWeight": "regular",
+                },
+                style_data_conditional=[
+                    {"if": {"row_index": "odd"}, "backgroundColor": "#c5effc"},
+                ],
+                sort_action="native",
+                filter_action="native",
+                sort_mode="multi",
+                column_selectable="single",
+                page_action="native",
+                page_current=0,
+                page_size=20,
+                export_format="csv",
+                export_columns="all",
+                hidden_columns=hidden_columns,
+                css=[{"selector": ".show-hide", "rule": "display: none"}],
+            )
+
+
+# @app.callback(
+#     Output("table_title", "children"),
+#     Input("countries", "value"),
+# )
+def get_selected_country(iso_code):
+    key_list = list(countries_iso3_dict.keys())
+    val_list = list(countries_iso3_dict.values())
+    if iso_code is not None:
+        position = val_list.index(iso_code)
+        country_name = key_list[position]
+        return f"{country_name} Fact Sheet"
+    else:
+        return ""
+
+
+@app.callback(
+    Output("collapse-years-search", "label"),
+    Input("year_slider_search", "value"),
+)
+def get_selected_years(years_slider):
+    # need to include the last selected year as it was exluded in the previous method
+    selected_years = years[years_slider[0] : years_slider[1] + 1]
+    return f"Years: {selected_years[0]} - {selected_years[-1]}"
+
+
+@app.callback(
     Output("tbl_country_profile", "children"),
-    Input("generate", "n_clicks"),
+    Input("search-data", "n_clicks"),
     [
         State("countries", "value"),
+        State("year_slider_search", "value"),
         State("latest_data_toggle", "value"),
         State({"type": "sectors", "index": 2}, "value"),
         State({"type": "sub_topics", "index": 2}, "value"),
+        State("drpIndicators", "value"),
+        State("disaggregation_toggle", "value"),
     ],
 )
-def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics):
+def generate_country_profile(
+    n_clicks,
+    countries,
+    years_slider,
+    latest_data,
+    sectors,
+    sub_topics,
+    indicators,
+    dis_toggles,
+):
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if changed_id == "generate":
-        # filter data by selected country
-        df_country_data = data[data["REF_AREA"] == country]
+    if changed_id == "search-data":
+        # filter data by selected countries
+        if (countries is not None) & (len(countries) > 0) & (countries != ["All"]):
+            df_country_data = data[data["REF_AREA"].isin(countries)]
+        else:
+            df_country_data = data
+        # need to include the last selected year as it was exluded in the previous method
+        selected_years = years[years_slider[0] : years_slider[1] + 1]
+        # filter data based on the selected years
+        df_country_data = df_country_data[
+            df_country_data["TIME_PERIOD"].isin(selected_years)
+        ]
         # Inner join in order to filter country data to keep only selected sectors and sub-topics
         df_country_data = pd.merge(
             df_country_data,
@@ -738,12 +888,16 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
                 "OBS_VALUE",
                 "Indicator_x",
                 "CODE",
+                "Sex",
                 "SEX",
                 "AGE",
+                "Age",
                 "RESIDENCE",
+                "Residence",
                 "WEALTH_QUINTILE",
-                "Sector",
-                "Subtopic",
+                "Wealth Quintile",
+                "Domain",
+                "Subdomain",
             ]
         ]
         df_country_data.rename(
@@ -756,11 +910,17 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
             },
             inplace=True,
         )
-
-        if sectors != ["All"]:
-            df_country_data = df_country_data[df_country_data.Sector.isin(sectors)]
-        if sub_topics != ["All"]:
-            df_country_data = df_country_data[df_country_data.Subtopic.isin(sub_topics)]
+        # filter selected sectors
+        if (sectors is not None) & (len(sectors) > 0) & (sectors != ["All"]):
+            df_country_data = df_country_data[df_country_data.Domain.isin(sectors)]
+        # filter selected sub-sectors
+        if (sub_topics is not None) & (len(sub_topics) > 0) & (sub_topics != ["All"]):
+            df_country_data = df_country_data[
+                df_country_data.Subdomain.isin(sub_topics)
+            ]
+        # filter selected indicators
+        if (indicators is not None) & (len(indicators) > 0) & (indicators != ["All"]):
+            df_country_data = df_country_data[df_country_data.Code.isin(indicators)]
 
         # check if data is available for the current user's selection
         if len(df_country_data) > 0:
@@ -778,29 +938,60 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
             df_country_data = pd.merge(
                 df_country_data, df_dimensions_count, on=["Code"]
             )
+
+            # define the hidden columns based on the selected disaggregations
+            all_disag_columns = ["Sex", "Age", "Residence", "Wealth Quintile"]
+            selected_disag_columns = [all_disag_columns[i] for i in dis_toggles]
+            hidden_columns = list(
+                set(all_disag_columns).symmetric_difference(set(selected_disag_columns))
+            )
+
             # Filter the data to keep the total or the other dimension when there is only one disaggregation
             df_country_data = df_country_data[
-                ((df_country_data["SEX"] == "_T") | (df_country_data["Sex_Count"] == 1))
+                (
+                    (
+                        (df_country_data["SEX"] == "_T")
+                        & ("Sex" not in selected_disag_columns)
+                    )
+                    | (df_country_data["Sex_Count"] == 1)
+                    | ("Sex" in selected_disag_columns)
+                )
                 & (
-                    (df_country_data["AGE"] == "_T")
+                    (
+                        (df_country_data["AGE"] == "_T")
+                        & ("Age" not in selected_disag_columns)
+                    )
                     | (df_country_data["Age_Count"] == 1)
+                    | ("Age" in selected_disag_columns)
                 )
                 & (
-                    (df_country_data["RESIDENCE"] == "_T")
+                    (
+                        (df_country_data["RESIDENCE"] == "_T")
+                        & ("Residence" not in selected_disag_columns)
+                    )
                     | (df_country_data["Residence_Count"] == 1)
+                    | ("Residence" in selected_disag_columns)
                 )
                 & (
-                    (df_country_data["WEALTH_QUINTILE"] == "_T")
+                    (
+                        (df_country_data["WEALTH_QUINTILE"] == "_T")
+                        & ("Wealth Quintile" not in selected_disag_columns)
+                    )
                     | (df_country_data["Wealth_Count"] == 1)
+                    | ("Wealth Quintile" in selected_disag_columns)
                 )
             ]
 
             df_country_data = df_country_data[
                 [
                     "Country",
-                    "Sector",
-                    "Subtopic",
+                    "Domain",
+                    "Subdomain",
                     "Indicator",
+                    "Sex",
+                    "Age",
+                    "Residence",
+                    "Wealth Quintile",
                     "Year",
                     "Value",
                 ]
@@ -810,8 +1001,18 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
             if latest_data:
                 # keep only the latest value of every country
                 df_country_data = df_country_data.sort_values(
-                    ["Indicator", "Year"]
-                ).drop_duplicates("Indicator", keep="last")
+                    ["Country", "Indicator", "Year"]
+                ).drop_duplicates(
+                    [
+                        "Country",
+                        "Indicator",
+                        "Sex",
+                        "Age",
+                        "Residence",
+                        "Wealth Quintile",
+                    ],
+                    keep="last",
+                )
 
             # round the value to 2 decimal places
             df_country_data = df_country_data.round({"Value": 2})
@@ -851,7 +1052,7 @@ def generate_country_profile(n_clicks, country, latest_data, sectors, sub_topics
                 page_size=20,
                 export_format="csv",
                 export_columns="all",
-                hidden_columns=["Country"],
+                hidden_columns=hidden_columns,
                 css=[{"selector": ".show-hide", "rule": "display: none"}],
             )
         else:
