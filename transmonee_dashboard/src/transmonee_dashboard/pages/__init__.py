@@ -1227,7 +1227,9 @@ df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x]
 indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
-# extract the indicators' disaggregation
+# Extract the indicators' potential unique disaggregations.
+# Group by indicator code and keep only unique aggregations for the 4 possible dimensions:
+# Sex, Age, Residence and Wealth.
 indicators_disagg = (
     data.groupby("CODE")
     .agg(
@@ -1240,13 +1242,16 @@ indicators_disagg = (
     )
     .reset_index()
 )
+# Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
 indicators_disagg = indicators_disagg[
     (indicators_disagg["AGE"] > 1)
     | (indicators_disagg["SEX"] > 1)
     | (indicators_disagg["RESIDENCE"] > 1)
     | (indicators_disagg["WEALTH_QUINTILE"] > 1)
 ]
+# Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
 indicators_disagg_details = data[data["CODE"].isin(indicators_disagg["CODE"])]
+# Filter the dataframe to be used in the data query to keep indicators code and the possible disaggregations.
 indicators_disagg_details = indicators_disagg_details[
     ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
 ]
