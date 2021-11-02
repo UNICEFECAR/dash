@@ -706,6 +706,12 @@ def search_indicators(
     changed_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if changed_id == "search":
         df_indicators_data = []
+        # define the hidden columns based on the selected disaggregations
+        all_disag_columns = ["Sex", "Age", "Residence", "Wealth Quintile"]
+        selected_disag_columns = [all_disag_columns[i] for i in add_dis_toggles]
+        hidden_columns = list(
+            set(all_disag_columns).symmetric_difference(set(selected_disag_columns))
+        )
         if search_type == "IND":
             df_indicators_data = df_sources[
                 (df_sources["Indicator"].str.contains(keywords, case=False, regex=True))
@@ -715,14 +721,6 @@ def search_indicators(
                     .str.contains(keywords, case=False, regex=True)
                 )
             ]
-            df_indicators_data = df_indicators_data[
-                [
-                    "Source_Full",
-                    "Domain",
-                    "Subdomain",
-                    "Indicator",
-                ]
-            ].rename(columns={"Source_Full": "Source"})
         else:
             # filter data by selected sector/source
             filtered_subtopics_groups = df_sources
@@ -742,39 +740,32 @@ def search_indicators(
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Subdomain.isin(sub_topics)
                 ]
+
             df_indicators_data = filtered_subtopics_groups[
                 filtered_subtopics_groups.Code.isin(filtered_subtopics_groups["Code"])
             ]
-
-            # define the hidden columns based on the selected disaggregations
-            all_disag_columns = ["Sex", "Age", "Residence", "Wealth Quintile"]
-            selected_disag_columns = [all_disag_columns[i] for i in add_dis_toggles]
-            hidden_columns = list(
-                set(all_disag_columns).symmetric_difference(set(selected_disag_columns))
-            )
-
-            df_indicators_data = pd.merge(
-                df_indicators_data,
-                indicators_disagg_details,
-                how="inner",
-                left_on=["Code"],
-                right_on=["CODE"],
-            )
-            df_indicators_data = df_indicators_data[
-                [
-                    "Source_Full",
-                    "Domain",
-                    "Subdomain",
-                    "Indicator",
-                ]
-                + selected_disag_columns
-            ].rename(columns={"Source_Full": "Source"})
-            # drop duplicate entries
-            df_indicators_data = df_indicators_data.drop_duplicates()
+        df_indicators_data = pd.merge(
+            df_indicators_data,
+            indicators_disagg_details,
+            how="inner",
+            left_on=["Code"],
+            right_on=["CODE"],
+        )
+        df_indicators_data = df_indicators_data[
+            [
+                "Source_Full",
+                "Domain",
+                "Subdomain",
+                "Indicator",
+            ]
+            + selected_disag_columns
+        ].rename(columns={"Source_Full": "Source"})
+        # drop duplicate entries
+        df_indicators_data = df_indicators_data.drop_duplicates()
         # check if no data is available for the current user's selection
         if len(df_indicators_data) == 0:
             return html.Div(
-                ["No data available..."],
+                ["No indicator available..."],
                 className="alert alert-danger fade show w-100",
             )
         else:
@@ -1051,7 +1042,7 @@ def generate_country_profile(
                 page_current=0,
                 page_size=20,
                 export_format="csv",
-                export_columns="all",
+                export_columns="visible",
                 hidden_columns=hidden_columns,
                 css=[{"selector": ".show-hide", "rule": "display: none"}],
             )
