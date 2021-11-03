@@ -453,7 +453,7 @@ def get_layout(**kwargs):
                                                         dbc.Checklist(
                                                             options=[
                                                                 {
-                                                                    "label": "Show latest data points",
+                                                                    "label": "Show latest year",
                                                                     "value": 1,
                                                                 }
                                                             ],

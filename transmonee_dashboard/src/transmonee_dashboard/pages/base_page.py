@@ -235,7 +235,7 @@ def get_base_layout(**kwargs):
                                                     className="custom-control-input",
                                                 ),
                                                 dbc.Label(
-                                                    "Show latest data points",
+                                                    "Show latest year",
                                                     html_for="latest-data-toggle",
                                                     className="custom-control-label",
                                                     color="primary",
