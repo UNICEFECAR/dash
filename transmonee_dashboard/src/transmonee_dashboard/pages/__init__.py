@@ -1061,6 +1061,7 @@ data_sources = {
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
+    "TMEE": "Transformative Monitoring for Enhanced Equity",
 }
 
 topics_subtopics = {
@@ -1268,6 +1269,8 @@ snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[
 df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(df_topics_subtopics, snapshot_df, how="outer", on=["Code"])
+# assign source = TMEE to all indicators without a source since they all come from excel data collection files
+df_sources.fillna("TMEE", inplace=True)
 # Concatenate sectors/subtopics dictionary value lists
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 
