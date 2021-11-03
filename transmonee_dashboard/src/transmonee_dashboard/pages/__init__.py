@@ -432,6 +432,11 @@ codes = [
     "EDUNF_FEP_L3_GEN",
     "EDUNF_FEP_L3_VOC",
     "DM_POP_NETM",
+    "EDU_SDG_YOUTH_NEET",
+    "EDUNF_GER_L02",
+    "EDU_ECEC_PART",
+    "EC_GII",
+    "EC_HDI",
 ]
 
 adolescent_codes = [
