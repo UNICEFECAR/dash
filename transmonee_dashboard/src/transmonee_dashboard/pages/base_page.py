@@ -765,7 +765,6 @@ def get_filtered_dataset(
 
     # keep only the indicators that have gender/sex disaggregation
     if is_adolescent:
-        # indicators = [x for x in indicators if x in list(gender_indicators["CODE"])]
         return data[
             (data["TIME_PERIOD"].isin(years))
             & (data["REF_AREA"].isin(countries))

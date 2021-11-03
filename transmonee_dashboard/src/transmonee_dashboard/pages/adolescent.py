@@ -10,31 +10,15 @@ indicators_dict = {
         "NAME": "Adolescent",
         "CARDS": [
             {
-                "name": "Card Unit",
-                "indicator": "",
-                "suffix": "Card Name",
-                # "absolute": True,
-                "min_max": True,
+                "name": "age 10-19 years",
+                "indicator": "DM_ADOL_POP",
+                "suffix": "Total adolescent population (expressed in thousands)",
             },
             {
-                "name": "Card Unit",
-                "indicator": "",
-                "suffix": "Card Name",
-                # "absolute": True,
-                "min_max": True,
-            },
-            {
-                "name": "Card Unit",
-                "indicator": "",
-                "suffix": "Card Name",
-                # "absolute": True,
-                "min_max": True,
-            },
-            {
-                "name": "Card Unit",
-                "indicator": "",
-                "suffix": "Card Name",
-                # "absolute": True,
+                "name": "Adolescent birth rate (ages 15-19) per 1,000 women",
+                "indicator": "FT_SP_DYN_ADKL",
+                "suffix": "Range among countries",
+                "sex": "Female",
                 "min_max": True,
             },
         ],
@@ -108,7 +92,7 @@ indicators_dict = {
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "PT_F_GE15_SX_V_PTNR_12MNTH",
                 "HT_ADOL_MT",
-                "SP_DYN_ADKL",
+                "FT_SP_DYN_ADKL",
                 "HT_ADOL_UNMETMED_NOUNMET",
                 "HT_ADOL_UNMETMED_TOOEXP",
                 "HT_ADOL_UNMETMED_TOOFAR",
@@ -274,7 +258,7 @@ indicators_dict = {
             },
             "indicators": [
                 "HT_ADOL_MT",
-                "SP_DYN_ADKL",
+                "FT_SP_DYN_ADKL",
                 "HT_ADOL_UNMETMED_NOUNMET",
                 "HT_ADOL_UNMETMED_TOOEXP",
                 "HT_ADOL_UNMETMED_TOOFAR",
@@ -420,39 +404,3 @@ def get_layout(**kwargs):
     kwargs["main_title"] = main_title
     kwargs["is_adolescent"] = True
     return get_base_layout(**kwargs)
-
-
-def get_layout2(**kwargs):
-    return html.Div(
-        children=[
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
-                    html.Div(
-                        className="heading-content",
-                        children=[
-                            html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
-                                children=[
-                                    html.H1(
-                                        "Adolescent",
-                                        id="main_title",
-                                        className="heading-title",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            html.Br(),
-            html.Div(
-                "Work in Progress - will be available soon",
-                className="alert alert-info fade show",
-                style={"textAlign": "center", "fontSize": 20},
-            ),
-            html.Br(),
-        ],
-    )
