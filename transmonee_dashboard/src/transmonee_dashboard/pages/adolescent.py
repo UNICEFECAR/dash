@@ -3,8 +3,6 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, State, Output
 
-from ..app import app
-
 
 def get_layout(**kwargs):
     return html.Div(
