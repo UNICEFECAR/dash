@@ -39,6 +39,40 @@ def get_layout(**kwargs):
             html.Div(
                 children=[
                     html.Div(
+                        children=[html.H3("Data Availability")],
+                        className="panel-header",
+                    ),
+                    html.Div(
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.P(
+                                        "This is a dashboard developed using Tableau to reflect the indicators' data availability in UNICEF TransMonEE Data Warehourse. For more info about this dashboard, please click on the button below."
+                                    ),
+                                ],
+                                className="panel-content",
+                            ),
+                        ],
+                        className="panel-body",
+                    ),
+                    html.Div(
+                        children=[
+                            html.A(
+                                "Click to access the dashboard",
+                                href="https://public.tableau.com/app/profile/alina.cherkas/viz/sdmx-dashboard-overview/Dashboard1",
+                                target="_blank",
+                                className="btn btn-primary",
+                            ),
+                        ],
+                        className="panel-footer",
+                    ),
+                ],
+                className="panel",
+            ),
+            html.Br(),
+            html.Div(
+                children=[
+                    html.Div(
                         children=[html.H3("SDMX")],
                         className="panel-header",
                     ),
@@ -102,25 +136,26 @@ def get_layout(**kwargs):
 
 
 def get_data_sources():
-    df_summary = pd.DataFrame(columns=["Source", "Sector", "Count"])
+    df_summary = pd.DataFrame(columns=["Source", "Domain", "Count"])
 
     for num, [source, group] in enumerate(df_sources_summary_groups):
-        df_summary_sectors = group.groupby("Sector")
+        df_summary_sectors = group.groupby("Domain")
         for num, [sector, sector_group] in enumerate(df_summary_sectors):
             df_summary = df_summary.append(
-                {"Source": source, "Sector": sector, "Count": len(sector_group)},
+                {"Source": source, "Domain": sector, "Count": len(sector_group)},
                 ignore_index=True,
             )
         # Add the total count
         df_summary = df_summary.append(
-            {"Source": "Subtotal", "Sector": "", "Count": len(group)},
+            {"Source": "Subtotal", "Domain": "", "Count": len(group)},
             ignore_index=True,
         )
     # Add the total count
     df_summary = df_summary.append(
-        {"Source": "Total", "Sector": "", "Count": len(df_sources)},
+        {"Source": "Total", "Domain": "", "Count": len(df_sources)},
         ignore_index=True,
     )
+
     summary_tab = dcc.Tab(
         label="Summary (" + str(len(df_sources)) + ")",
         children=[
@@ -143,7 +178,7 @@ def get_data_sources():
                     {"name": i, "id": i}
                     for i in [
                         "Source",
-                        "Sector",
+                        "Domain",
                         "Count",
                     ]
                 ],
@@ -220,8 +255,8 @@ def get_data_sources():
                     columns=[
                         {"name": i, "id": i}
                         for i in [
-                            "Sector",
-                            "Subtopic",
+                            "Domain",
+                            "Subdomain",
                             "Indicator",
                             "Source_Full",
                         ]
