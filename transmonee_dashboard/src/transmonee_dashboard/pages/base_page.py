@@ -51,7 +51,7 @@ colours = [
     "success",
     "danger",
 ]
-AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
+AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
 DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
@@ -235,7 +235,7 @@ def get_base_layout(**kwargs):
                                                     className="custom-control-input",
                                                 ),
                                                 dbc.Label(
-                                                    "Show latest data points",
+                                                    "Show latest year",
                                                     html_for="latest-data-toggle",
                                                     className="custom-control-label",
                                                     color="primary",
@@ -550,6 +550,143 @@ def get_base_layout(**kwargs):
                 ],
             ),
             html.Br(),
+            dbc.CardDeck(
+                [
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                id={"type": "area_title", "index": 5},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id={"type": "area_options", "index": 5},
+                                        className="dcc_control",
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 5},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 5},
+                                    ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 5,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 5},
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_5_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 5},
+                                            ),
+                                        ],
+                                        id="hover",
+                                        target="area_5_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
+                        id={"type": "area_parent", "index": 5},
+                    ),
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                id={"type": "area_title", "index": 6},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dcc.Dropdown(
+                                        id={"type": "area_options", "index": 6},
+                                        className="dcc_control",
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_types", "index": 6},
+                                        options=[
+                                            {"label": "Line", "value": "line"},
+                                            {"label": "Bar", "value": "bar"},
+                                        ],
+                                        inline=True,
+                                    ),
+                                    dcc.Graph(
+                                        id={"type": "area", "index": 6},
+                                    ),
+                                    dbc.Checklist(
+                                        options=[
+                                            {
+                                                "label": "Exclude outliers ",
+                                                "value": 1,
+                                            }
+                                        ],
+                                        value=[1],
+                                        id={
+                                            "type": "exclude_outliers_toggle",
+                                            "index": 6,
+                                        },
+                                        switch=True,
+                                        style={
+                                            "paddingLeft": 20,
+                                        },
+                                    ),
+                                    html.Br(),
+                                    dbc.RadioItems(
+                                        id={"type": "area_breakdowns", "index": 6},
+                                        inline=True,
+                                    ),
+                                    html.Div(
+                                        fa("fas fa-info-circle"),
+                                        id="area_6_info",
+                                        className="float-right",
+                                    ),
+                                    dbc.Popover(
+                                        [
+                                            dbc.PopoverHeader("Sources"),
+                                            dbc.PopoverBody(
+                                                id={"type": "area_sources", "index": 6},
+                                            ),
+                                        ],
+                                        id="hover",
+                                        target="area_6_info",
+                                        trigger="hover",
+                                    ),
+                                ]
+                            ),
+                        ],
+                        id={"type": "area_parent", "index": 6},
+                    ),
+                ],
+            ),
+            html.Br(),
         ],
     )
 
@@ -603,12 +740,12 @@ def display_areas(theme, indicators_dict, id):
 
 @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, indicators_dict, years, countries):
-
     print("CACHE BREAK!!!")
     indicators = []
     for area in AREA_KEYS:
         if area in indicators_dict[theme]:
             indicators.extend(indicators_dict[theme][area]["indicators"])
+
     # add card indicators
     for card in indicators_dict[theme]["CARDS"]:
         indicators.extend(card["indicator"].split(","))
@@ -939,7 +1076,9 @@ def show_header_titles(theme, indicators_dict):
 )
 def show_themes(selections, current_themes, indicators_dict):
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-
+    # hide the buttons when only one options is available
+    if len(indicators_dict.items()) == 1:
+        return []
     buttons = [
         dbc.Button(
             value["NAME"],
@@ -964,21 +1103,20 @@ def show_themes(selections, current_themes, indicators_dict):
 )
 def set_options(theme, indicators_dict, id):
     area = f"AREA_{id['index']}" if id["index"] > 0 else "MAIN"
-    return (
-        [
+
+    if area in indicators_dict[theme["theme"]]:
+        area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
+        area_options = [
             {
                 "label": item["Indicator"],
                 "value": item["CODE"],
             }
-            for item in data[
-                data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
-            ][["CODE", "Indicator"]]
+            for item in data[data["CODE"].isin(area_indicators)][["CODE", "Indicator"]]
             .drop_duplicates()
             .to_dict("records")
         ]
-        if area in indicators_dict[theme["theme"]]
-        else []
-    )
+        return area_options
+    return []
 
 
 @app.callback(
@@ -1141,13 +1279,13 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
 def breakdown_options(indicator, id):
 
     options = [{"label": "Total", "value": "Total"}]
-
-    for item in [
+    all_breakdowns = [
         {"label": "Sex", "value": "Sex"},
         {"label": "Age", "value": "Age"},
         {"label": "Residence", "value": "Residence"},
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
-    ]:
+    ]
+    for item in all_breakdowns:
         if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
             options.append(item)
     return options
@@ -1174,9 +1312,10 @@ def set_default_compare(
         fig_type = selected_type if selected_type else default
         config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
         default_compare = config.get("compare")
+
         return (
             "Total"
-            if fig_type == "line"
+            if fig_type == "line" or default_compare is None
             else default_compare
             if default_compare in compare_options
             else compare_options[1]["value"]

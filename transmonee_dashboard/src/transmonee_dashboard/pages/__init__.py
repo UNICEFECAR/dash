@@ -6,6 +6,7 @@ import urllib
 import time
 
 import dash_html_components as html
+import numpy as np
 import pandas as pd
 import requests
 
@@ -443,11 +444,38 @@ codes = [
     "PV_SD_MDP_ANDI",
     "PV_SD_MDP_ANDIHH",
     "MG_INTNL_MG_CNTRY_DEST_RT",
+    "EDU_SDG_YOUTH_NEET",
+    "EDUNF_GER_L02",
+    "EDU_ECEC_PART",
+    "EC_GII",
+    "PP_SE_GPI_ICTS_ATCH",
+    "PP_SE_GPI_ICTS_CPT",
+    "PP_SE_GPI_ICTS_CDV",
+    "PP_SE_GPI_ICTS_SSHT",
+    "PP_SE_GPI_ICTS_PRGM",
+    "PP_SE_GPI_ICTS_PST",
+    "PP_SE_GPI_ICTS_SFWR",
+    "PP_SE_GPI_ICTS_TRFF",
+    "PP_SE_GPI_ICTS_CMFL",
 ]
 
 # Add all indicators found in the data dictionary to get their data to the query data page
 data_query_codes = [
     "DM_BRTS",
+    "DM_POP_TOT",
+    "DM_AVG_POP_TOT",
+    "DM_POP_PROP",
+    "DM_DPR_AGE",
+    "DM_DPR_CHD",
+    "DM_DPR_OLD",
+    "DM_IMG",
+    "DM_EMG",
+    "DM_NEXTRT_MG",
+    "DM_MRG_AGE",
+    "DM_DIV",
+    "DM_CRDIVRT",
+    "DM_CHLD_DIV",
+    "DM_CHLDRT_DIV",
     "DM_POP_TOT_AGE",
     "FT_WHS_PBR",
     "MT_SP_DYN_CDRT_IN",
@@ -464,7 +492,6 @@ data_query_codes = [
     "EDUNF_STU_L01_TOT",
     "EDU_SDG_GER_L01",
     "EDUNF_STU_L02_TOT",
-    "EDUNF_GER_L02",
     "EDUNF_FEP_L02",
     "EDUNF_NARA_L1_UNDER1",
     "EDUNF_FEP_L1",
@@ -487,7 +514,6 @@ data_query_codes = [
     "EDUNF_FRP_L1",
     "EDUNF_SR_L1",
     "EDUNF_SR_L2",
-    "EDU_SDG_YOUTH_NEET",
     "EDUNF_STU_L4_TOT",
     "EDUNF_STU_L4_PUB",
     "EDUNF_STU_L4_PRV",
@@ -533,6 +559,15 @@ data_query_codes = [
     "EDU_PISA_SCI4",
     "EDU_PISA_SCI5",
     "EDU_PISA_SCI6",
+    "EDU_CHLD_DISAB_L02",
+    "EDU_CHLD_DISAB_L1",
+    "EDU_CHLD_DISAB_L2",
+    "EDU_CHLD_DISAB_L3",
+    "EDUNF_SAP_L02",
+    "EDUNF_SAP_L1",
+    "EDUNF_SAP_L2",
+    "EDUNF_SAP_L3",
+    "EDUNF_SAP_L2_GLAST",
     "EDUNF_FRP_L2AND3",
     "EDUNF_GER_GPI_L01",
     "EDUNF_OFST_L1T3",
@@ -543,7 +578,6 @@ data_query_codes = [
     "EDUNF_PTR_L02",
     "EDUNF_GECER_L01",
     "EDUNF_GECER_L02",
-    "EDU_ECEC_PART",
     "ED_ANAR_L1",
     "ED_ANAR_L2",
     "ED_ANAR_L3",
@@ -606,6 +640,32 @@ data_query_codes = [
     "EDU_SE_GPI_ICTS_SFWR",
     "EDU_SE_GPI_ICTS_TRFF",
     "EDU_SE_GPI_ICTS_CMFL",
+    "EDUNF_STEM_GRAD_RT",
+    "DM_TOT_POP_PROSP",
+    "DM_SP_POP_BRTH_MF",
+    "DM_ADOL_YOUTH_POP",
+    "DM_REPD_AGE_POP",
+    "GN_MTNTY_LV_BNFTS",
+    "GN_PTNTY_LV_BNFTS",
+    "EC_GDI",
+    "EC_IQ_CPA_GNDR_XQ",
+    "EC_SIGI",
+    "EC_YOUTH_UNE_RT",
+    "EC_EAP_RT",
+    "EC_GNI_PCAP_PPP",
+    "EC_FB_BNK_ACCSS",
+    "SL_DOM_TSPD",
+    "SG_GEN_PARL",
+    "CR_VC_VOV_GDSD",
+    "PT_ADLS_10-14_LBR_HC",
+    "ECD_CHLD_U5_LFT-ALN",
+    "MNCH_MATERNAL_DEATHS",
+    "MNCH_SH_MMR_RISK",
+    "MNCH_SH_MMR_RISK_ZS",
+    "MNCH_INSTDEL",
+    "MNCH_BIRTH18",
+    "HT_NCD_BMI_18A",
+    "HVA_EPI_INF_ANN_15-24",
 ]
 
 years = list(range(2010, 2021))
@@ -1001,6 +1061,7 @@ data_sources = {
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
+    "TMEE": "Transformative Monitoring for Enhanced Equity",
 }
 
 topics_subtopics = {
@@ -1194,8 +1255,12 @@ data = data.round({"OBS_VALUE": 2})
 # print(data.shape)
 
 # TODO: calculations for children age population
-
 indicators = data["Indicator"].unique()
+
+# extract the indicators that have gender/sex disaggregation
+gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
 
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
@@ -1207,24 +1272,29 @@ snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[
 # read indicators table from excel data-dictionary
 df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
-df_sources = pd.merge(snapshot_df, df_topics_subtopics, on=["Code"])
-
+df_sources = pd.merge(df_topics_subtopics, snapshot_df, how="outer", on=["Code"])
+# assign source = TMEE to all indicators without a source since they all come from excel data collection files
+df_sources.fillna("TMEE", inplace=True)
 # Concatenate sectors/subtopics dictionary value lists
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
 
 df_sources.rename(
     columns={
-        "Name_y": "Indicator",
+        "Name_x": "Indicator",
         "Issue": "Subdomain",
     },
     inplace=True,
 )
 # filter the sources to keep only sitan related sectors and sub-topics
 df_sources["Subdomain"] = df_sources["Subdomain"].str.strip()
+df_sources["Domain"] = df_sources["Subdomain"].apply(
+    lambda x: get_sector(x) if not pd.isna(x) else ""
+)
+df_sources["Source_Full"] = df_sources["Source"].apply(
+    lambda x: data_sources[x] if not pd.isna(x) else ""
+)
+indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes + data_query_codes)]
 df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
-df_sources["Domain"] = df_sources["Subdomain"].apply(lambda x: get_sector(x))
-df_sources["Source_Full"] = df_sources["Source"].apply(lambda x: data_sources[x])
-indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.
@@ -1243,19 +1313,41 @@ indicators_disagg = (
     .reset_index()
 )
 # Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
-indicators_disagg = indicators_disagg[
+indicators_disagg_no_total = indicators_disagg[
     (indicators_disagg["AGE"] > 1)
     | (indicators_disagg["SEX"] > 1)
     | (indicators_disagg["RESIDENCE"] > 1)
     | (indicators_disagg["WEALTH_QUINTILE"] > 1)
 ]
+
+# include the indicators with Total only to show in the data query
+indicators_disagg_with_total = indicators_disagg[
+    (indicators_disagg["AGE"] >= 1)
+    | (indicators_disagg["SEX"] >= 1)
+    | (indicators_disagg["RESIDENCE"] >= 1)
+    | (indicators_disagg["WEALTH_QUINTILE"] >= 1)
+]
 # Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
-indicators_disagg_details = data[data["CODE"].isin(indicators_disagg["CODE"])]
+indicators_disagg_details = data[
+    data["CODE"].isin(indicators_disagg_with_total["CODE"])
+]
+
 # Filter the dataframe to be used in the data query to keep indicators code and the possible disaggregations.
 indicators_disagg_details = indicators_disagg_details[
     ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
 ]
 indicators_disagg_details = indicators_disagg_details.drop_duplicates()
+
+# extract the indicators that have gender/sex disaggregation
+age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
+age_indicators = age_indicators.drop_duplicates()
+age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+# age_indicators.to_csv("age_indicators.csv", index=False)
 
 
 def page_not_found(pathname):
