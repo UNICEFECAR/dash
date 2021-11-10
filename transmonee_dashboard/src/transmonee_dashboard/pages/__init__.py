@@ -1,28 +1,25 @@
+import json
+import pathlib
 import collections
+from io import BytesIO
 import urllib
+import time
 
 import dash_html_components as html
+import numpy as np
 import pandas as pd
-from mapbox import Geocoder
 import requests
-from io import BytesIO
+
+# TODO: Move all of these to env/setting vars from production
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
-
-geocoder = Geocoder(access_token=mapbox_access_token)
-
-
-def geocode_address(address):
-    """Geocode iso3 country code into lat/long."""
-    # Set the type of address to country in order to return the lat/long of the country Georgia and not the US State!
-    # Had to change the ISO3 of Kosovo ==> need to check Kosovo ISO3 code returned by SDMX
-    response = geocoder.forward(
-        "KOS" if address == "XKX" else address, types=["country"]
-    )
-    coords = response.json()["features"][0]["center"]
-    return dict(longitude=coords[0], latitude=coords[1])
+geo_json_file = (
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+)
+with open(geo_json_file) as shapes_file:
+    geo_json_countries = json.load(shapes_file)
 
 
 codes = [
@@ -76,6 +73,9 @@ codes = [
     "EDU_PISA_REA",
     "EDU_PISA_SCI",
     "ECD_CHLD_36-59M_LMPSL",
+    "ECD_CHLD_36-59M_FHR-SPT-LNG",
+    "ECD_CHLD_36-59M_EDU-PGM",
+    "EDU_FIN_INIT_GOV_L02_GDP",
     "EDU_SDG_STU_L2_GLAST_MAT",
     "EDU_SDG_STU_L2_GLAST_REA",
     "EDU_SDG_STU_L1_GLAST_MAT",
@@ -430,6 +430,265 @@ codes = [
     "CR_SG_STT_NSDSFDOTHR",
     "CR_SG_STT_CAPTY",
     "CR_SG_REG_CENSUSN",
+    "DM_CHLD_POP",
+    "DM_ADOL_POP",
+    "DM_CHLD_POP_PT",
+    "EDUNF_FEP_L3_GEN",
+    "EDUNF_FEP_L3_VOC",
+    "DM_POP_NETM",
+    "DM_POP_URBN",
+    "CME_MRY0",
+    "MNCH_ANC4",
+    "MNCH_PNEUCARE",
+    "EDU_SDG_PRYA",
+    "EDU_FIN_EXP_CONST_PPP",
+    "EDUNF_ROFST_L1_UNDER1",
+    "EDUNF_ROFST_L1T3",
+    "PV_SD_MDP_ANDI",
+    "PV_SD_MDP_ANDIHH",
+    "MG_INTNL_MG_CNTRY_DEST_RT",
+    "EDU_SDG_YOUTH_NEET",
+    "EDUNF_GER_L02",
+    "EDU_ECEC_PART",
+    "EC_GII",
+    "PP_SE_GPI_ICTS_ATCH",
+    "PP_SE_GPI_ICTS_CPT",
+    "PP_SE_GPI_ICTS_CDV",
+    "PP_SE_GPI_ICTS_SSHT",
+    "PP_SE_GPI_ICTS_PRGM",
+    "PP_SE_GPI_ICTS_PST",
+    "PP_SE_GPI_ICTS_SFWR",
+    "PP_SE_GPI_ICTS_TRFF",
+    "PP_SE_GPI_ICTS_CMFL",
+]
+
+# Add all indicators found in the data dictionary to get their data to the query data page
+data_query_codes = [
+    "DM_BRTS",
+    "DM_POP_TOT",
+    "DM_AVG_POP_TOT",
+    "DM_POP_PROP",
+    "DM_DPR_AGE",
+    "DM_DPR_CHD",
+    "DM_DPR_OLD",
+    "DM_IMG",
+    "DM_EMG",
+    "DM_NEXTRT_MG",
+    "DM_MRG_AGE",
+    "DM_DIV",
+    "DM_CRDIVRT",
+    "DM_CHLD_DIV",
+    "DM_CHLDRT_DIV",
+    "DM_POP_TOT_AGE",
+    "FT_WHS_PBR",
+    "MT_SP_DYN_CDRT_IN",
+    "DM_LIFE_EXP",
+    "HT_SH_HAP_HBSAG",
+    "HT_SH_TBS_INCD",
+    "HT_SH_SUD_ALCOL",
+    "HT_DIST79DTP3_P",
+    "IM_MCV2",
+    "HT_DIST79MCV2_P",
+    "HT_SDG_PM25",
+    "ECD_CHLD_36-59M_ADLT_SRC",
+    "HT_SH_SUD_TREAT",
+    "EDUNF_STU_L01_TOT",
+    "EDU_SDG_GER_L01",
+    "EDUNF_STU_L02_TOT",
+    "EDUNF_FEP_L02",
+    "EDUNF_NARA_L1_UNDER1",
+    "EDUNF_FEP_L1",
+    "EDUNF_FEP_L2",
+    "EDUNF_FEP_L3",
+    "EDUNF_STU_L3_GEN",
+    "EDUNF_STU_L3_VOC",
+    "EDUNF_STU_L3_GEN_PUB",
+    "EDUNF_STU_L3_GEN_PRV",
+    "EDUNF_STU_L3_VOC_PUB",
+    "EDUNF_STU_L3_VOC_PRV",
+    "EDUNF_GER_L1AND2",
+    "EDU_TIMSS_MAT4",
+    "EDU_TIMSS_SCI4",
+    "EDU_TIMSS_MAT8",
+    "EDU_TIMSS_SCI8",
+    "EDU_PIRLS_REA",
+    "EDUNF_REPP_L1",
+    "EDUNF_REPP_L2",
+    "EDUNF_FRP_L1",
+    "EDUNF_SR_L1",
+    "EDUNF_SR_L2",
+    "EDUNF_STU_L4_TOT",
+    "EDUNF_STU_L4_PUB",
+    "EDUNF_STU_L4_PRV",
+    "EDUNF_PRP_L4",
+    "EDUNF_FEP_L4",
+    "EDUNF_STU_L5T8_TOT",
+    "EDUNF_STU_L5T8_PUB",
+    "EDUNF_STU_L5T8_PRV",
+    "EDUNF_PRP_L5T8",
+    "EDUNF_FEP_L5T8",
+    "EDUNF_GER_GPI_L02",
+    "EDUNF_GER_GPI_L1",
+    "EDUNF_GER_GPI_L2",
+    "EDUNF_GER_GPI_L3",
+    "EDUNF_GER_GPI_L2AND3",
+    "EDUNF_PTR_L1",
+    "EDUNF_PTR_L2",
+    "EDUNF_PTR_L2AND3",
+    "EDUNF_PTR_L3",
+    "EDU_SDG_PTTR_L02",
+    "EDU_SDG_PTTR_L1",
+    "EDU_SDG_PTTR_L2",
+    "EDU_SDG_PTTR_L3",
+    "EDU_SDG_PQTR_L02",
+    "EDU_SDG_PQTR_L1",
+    "EDU_SDG_PQTR_L2",
+    "EDU_SDG_PQTR_L3",
+    "ECD_CHLD_U5_BKS-HM",
+    "ECD_CHLD_U5_PLYTH-HM",
+    "EDUNF_EA_L2T8",
+    "EDU_PISA_MAT2",
+    "EDU_PISA_MAT3",
+    "EDU_PISA_MAT4",
+    "EDU_PISA_MAT5",
+    "EDU_PISA_MAT6",
+    "EDU_PISA_REA2",
+    "EDU_PISA_REA3",
+    "EDU_PISA_REA4",
+    "EDU_PISA_REA5",
+    "EDU_PISA_REA6",
+    "EDU_PISA_SCI2",
+    "EDU_PISA_SCI3",
+    "EDU_PISA_SCI4",
+    "EDU_PISA_SCI5",
+    "EDU_PISA_SCI6",
+    "EDU_CHLD_DISAB_L02",
+    "EDU_CHLD_DISAB_L1",
+    "EDU_CHLD_DISAB_L2",
+    "EDU_CHLD_DISAB_L3",
+    "EDUNF_SAP_L02",
+    "EDUNF_SAP_L1",
+    "EDUNF_SAP_L2",
+    "EDUNF_SAP_L3",
+    "EDUNF_SAP_L2_GLAST",
+    "EDUNF_FRP_L2AND3",
+    "EDUNF_GER_GPI_L01",
+    "EDUNF_OFST_L1T3",
+    "EDUNF_PRP_L2AND3",
+    "EDUNF_STU_L2AND3_PRV",
+    "EDUNF_COMP_YR",
+    "EDUNF_COMP_YR_L02T3",
+    "EDUNF_PTR_L02",
+    "EDUNF_GECER_L01",
+    "EDUNF_GECER_L02",
+    "ED_ANAR_L1",
+    "ED_ANAR_L2",
+    "ED_ANAR_L3",
+    "EDU_SE_ACS_INTNT_L1",
+    "EDU_SE_ACS_INTNT_L2",
+    "EDU_SE_ACS_INTNT_L3",
+    "EDU_SE_ACS_CMPTR_L1",
+    "EDU_SE_ACS_CMPTR_L2",
+    "EDU_SE_ACS_CMPTR_L3",
+    "EDU_SE_ACS_ELECT_L1",
+    "EDU_SE_ACS_ELECT_L2",
+    "EDU_SE_ACS_ELECT_L3",
+    "EDU_SE_TOT_GPI_L1_REA",
+    "EDU_SE_TOT_GPI_L2_REA",
+    "EDU_SE_TOT_GPI_L1_MAT",
+    "EDU_SE_TOT_GPI_L2_MAT",
+    "EDU_SE_TOT_GPI_FS_LIT",
+    "EDU_SE_TOT_GPI_FS_NUM",
+    "EDU_SE_AGP_CPRA_L1",
+    "EDU_SE_AGP_CPRA_L2",
+    "EDU_SE_AGP_CPRA_L3",
+    "EDU_SE_GPI_PART",
+    "EDU_SE_GPI_PTNPRE",
+    "EDU_SE_GPI_TCAQ_L02",
+    "EDU_SE_GPI_TCAQ_L1",
+    "EDU_SE_GPI_TCAQ_L2",
+    "EDU_SE_GPI_TCAQ_L3",
+    "EDU_SE_NAP_ACHI_L1_REA",
+    "EDU_SE_NAP_ACHI_L2_REA",
+    "EDU_SE_NAP_ACHI_L1_MAT",
+    "EDU_SE_NAP_ACHI_L2_MAT",
+    "EDU_SE_IMP_FPOF_LIT",
+    "EDU_SE_IMP_FPOF_NUM",
+    "EDU_SE_LGP_ACHI_L1_REA",
+    "EDU_SE_LGP_ACHI_L2_REA",
+    "EDU_SE_LGP_ACHI_L1_MAT",
+    "EDU_SE_LGP_ACHI_L2_MAT",
+    "EDU_SE_ALP_CPLR_L1",
+    "EDU_SE_ALP_CPLR_L2",
+    "EDU_SE_ALP_CPLR_L3",
+    "EDU_SE_TOT_SESPI_L1_REA",
+    "EDU_SE_TOT_SESPI_L2_REA",
+    "EDU_SE_TOT_SESPI_L1_MAT",
+    "EDU_SE_TOT_SESPI_L2_MAT",
+    "EDU_SE_TOT_SESPI_FS_LIT",
+    "EDU_SE_TOT_SESPI_FS_NUM",
+    "EDU_SE_TOT_RUPI_L1_REA",
+    "EDU_SE_TOT_RUPI_L2_REA",
+    "EDU_SE_TOT_RUPI_L1_MAT",
+    "EDU_SE_TOT_RUPI_L2_MAT",
+    "EDU_SE_AWP_CPRA_L1",
+    "EDU_SE_AWP_CPRA_L2",
+    "EDU_SE_AWP_CPRA_L3",
+    "EDU_SE_GPI_ICTS_ATCH",
+    "EDU_SE_GPI_ICTS_CPT",
+    "EDU_SE_GPI_ICTS_CDV",
+    "EDU_SE_GPI_ICTS_SSHT",
+    "EDU_SE_GPI_ICTS_PRGM",
+    "EDU_SE_GPI_ICTS_PST",
+    "EDU_SE_GPI_ICTS_SFWR",
+    "EDU_SE_GPI_ICTS_TRFF",
+    "EDU_SE_GPI_ICTS_CMFL",
+    "EDUNF_STEM_GRAD_RT",
+    "DM_TOT_POP_PROSP",
+    "DM_SP_POP_BRTH_MF",
+    "DM_ADOL_YOUTH_POP",
+    "DM_REPD_AGE_POP",
+    "GN_MTNTY_LV_BNFTS",
+    "GN_PTNTY_LV_BNFTS",
+    "EC_GDI",
+    "EC_HCI_OVRL",
+    "EC_MIN_WAGE",
+    "EC_IQ_CPA_GNDR_XQ",
+    "EC_SIGI",
+    "EC_YOUTH_UNE_RT",
+    "EC_EAP_RT",
+    "EC_GNI_PCAP_PPP",
+    "EC_FB_BNK_ACCSS",
+    "SL_DOM_TSPD",
+    "SG_GEN_PARL",
+    "CR_VC_VOV_GDSD",
+    "PT_ADLS_10-14_LBR_HC",
+    "ECD_CHLD_U5_LFT-ALN",
+    "MNCH_MATERNAL_DEATHS",
+    "MNCH_SH_MMR_RISK",
+    "MNCH_SH_MMR_RISK_ZS",
+    "MNCH_INSTDEL",
+    "MNCH_BIRTH18",
+    "HT_NCD_BMI_18A",
+    "HVA_EPI_INF_ANN_15-24",
+    "CR_CCRI_VUL_HT",
+    "CR_CCRI_VUL_EDU",
+    "CR_CCRI_VUL_WASH",
+    "CR_CCRI_VUL_SP",
+    "CR_CCRI_VUL_ES",
+    "CR_CCRI",
+    "CR_CCRI_EXP_WS",
+    "CR_CCRI_EXP_RF",
+    "CR_CCRI_EXP_CF",
+    "CR_CCRI_EXP_TC",
+    "CR_CCRI_EXP_VBD",
+    "CR_CCRI_EXP_HEAT",
+    "CR_CCRI_EXP_AP",
+    "CR_CCRI_EXP_SWP",
+    "CR_CCRI_EXP_CESS",
+    "CR_UN_CHLD_RIGHTS",
+    "CR_UN_CHLD_SALE",
+    "CR_UN_RIGHTS_DISAB",
 ]
 
 years = list(range(2010, 2021))
@@ -813,6 +1072,114 @@ country_selections = [
     },
 ]
 
+data_sources = {
+    "CDDEM": "CountDown 2030",
+    "CCRI": "Children's Climate Risk Index",
+    "UN Treaties": "UN Treaties",
+    "ESTAT": "Euro Stat",
+    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+    "ILO": "International Labour Organization",
+    "WHO": "World Health Organization",
+    "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
+    "WB": "World Bank",
+    "OECD": "Organisation for Economic Co-operation and Development",
+    "SDG": "Sustainable Development Goals",
+    "UIS": "UNESCO Institute for Statistics",
+    "UNDP": "United Nations Development Programme",
+    "TMEE": "Transformative Monitoring for Enhanced Equity",
+}
+
+topics_subtopics = {
+    "All": ["All"],
+    "Education": [
+        {"Participation": "Participation"},
+        {"Quality": "Learning Quality"},
+        {"Governance": "Governance"},
+    ],
+    "Family Environment and Protection": [
+        {"Violence": "Violence against Children and Women"},
+        {"Care": "Children without parental care"},
+        {"Justice": "Juvenile Justice"},
+        {"Marriage": "Child marriage and other harmful practices"},
+        {"Labour": "Child Labour"},
+    ],
+    "Health and Nutrition": [
+        {"HS": "Health System"},
+        {"MNCH": "Maternal, newborn and child health"},
+        {"Immunization": "Immunization"},
+        {"Nutrition": "Nutrition"},
+        {"Adolescent": "Adolescent health"},
+        {"HIVAIDS": "HIV and AIDS"},
+        {"Wash": "Water, sanitation and hygiene"},
+    ],
+    "Poverty": [
+        {"Poverty": "Poverty and multi-dimensional deprivation"},
+        {"Protection": "Social protection system"},
+    ],
+    "Child Rights Landscape": [
+        {"Demography": "Demography about Children"},
+        {"Economy": "Political Economy"},
+        {"Migration": "Migration and Displacement"},
+        {"Risks": "Risks and humanitarian situation"},
+        {"Climate": "Impact of climate change"},
+        {"Data": "Data on Children"},
+        {"Spending": "Public spending on Children"},
+    ],
+    "Participation": [
+        {"Registration": "Birth registration and documentation"},
+        {"Access": "Access to Justice"},
+        {"Information": "Information, Internet and Right to privacy"},
+        {"Leisure": "Leisure and Culture"},
+    ],
+}
+
+dict_topics_subtopics = {
+    "Education": ["Participation", "Learning Quality", "Governance"],
+    "Family Environment and Protection": [
+        "Violence against Children and Women",
+        "Children without parental care",
+        "Juvenile Justice",
+        "Child marriage and other harmful practices",
+        "Child Labour",
+    ],
+    "Health and Nutrition": [
+        "Health System",
+        "Maternal, newborn and child health",
+        "Immunization",
+        "Nutrition",
+        "Adolescent health",
+        "HIV and AIDS",
+        "Water, sanitation and hygiene",
+    ],
+    "Poverty": [
+        "Poverty and multi-dimensional deprivation",
+        "Social protection system",
+    ],
+    "Child Rights Landscape": [
+        "Demography about Children",
+        "Political Economy",
+        "Migration and Displacement",
+        "Risks and humanitarian situation",
+        "Impact of climate change",
+        "Data on Children",
+        "Public spending on Children",
+    ],
+    "Participation": [
+        "Birth registration and documentation",
+        "Access to Justice",
+        "Information, Internet and Right to privacy",
+        "Leisure and Culture",
+    ],
+}
+
+
+def get_sector(subtopic):
+    for key in dict_topics_subtopics.keys():
+        if subtopic.strip() in dict_topics_subtopics.get(key):
+            return key
+    return ""
+
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -858,6 +1225,7 @@ programme_country_indexes = [
 
 data = pd.DataFrame()
 inds = set(codes)
+data_query_inds = set(data_query_codes)
 
 # column data types coerced
 col_types = {
@@ -866,38 +1234,38 @@ col_types = {
     "OBS_VALUE": str,
     "Frequency": str,
     "Unit multiplier": str,
-    # "OBS_VALUE": str,
+    "OBS_STATUS": str,
+    "Observation Status": str,
     "TIME_PERIOD": int,
 }
 
-
+start_time = time.time()
 # avoid a loop to query SDMX
 try:
     sdmx = pd.read_csv(
         sdmx_url.format("+".join(inds), years[0], years[-1]),
         dtype=col_types,
         storage_options={"Accept-Encoding": "gzip"},
+        low_memory=False,
+    )
+    data_query_sdmx = pd.read_csv(
+        sdmx_url.format("+".join(data_query_inds), years[0], years[-1]),
+        dtype=col_types,
+        storage_options={"Accept-Encoding": "gzip"},
+        low_memory=False,
     )
 except urllib.error.HTTPError as e:
     raise e
 
-
-# no need to create column CODE, just rename indicator
-sdmx.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 data = data.append(sdmx)
+data = data.append(data_query_sdmx)
+# no need to create column CODE, just rename indicator
+data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 
-# Replace the list of countries by the list of dictionary countries values
-# TODO: Replace to static list
-data = data.merge(
-    right=pd.DataFrame(
-        [
-            dict(country=country, **geocode_address(country))
-            for country in countries_iso3_dict.values()
-        ]
-    ),
-    left_on="REF_AREA",  # was: Geographic area
-    right_on="country",
-)
+# replace Yes by 1 and No by 0
+data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+# print the time needed to read the data
+print("--- %s seconds ---" % (time.time() - start_time))
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
@@ -909,20 +1277,102 @@ if filter_non_num.any():
 # convert to numeric
 data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 data = data.round({"OBS_VALUE": 2})
-# print(data.columns)
+# print(data.shape)
 
 # TODO: calculations for children age population
-
 indicators = data["Indicator"].unique()
 
+# extract the indicators that have gender/sex disaggregation
+gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
+
 # path to excel data dictionary in repo
-github_url = "https://github.com/UNICEFECAR/data-etl/blob/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx?raw=true"
+github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
 # Reading the downloaded content and turning it into a pandas dataframe and read Snapshot sheet from excel data-dictionary
 snapshot_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Snapshot")
 snapshot_df.dropna(subset=["Source_name"], inplace=True)
 snapshot_df["Source"] = snapshot_df["Source_name"].apply(lambda x: x.split(":")[0])
-df_sources = snapshot_df.groupby("Source")
+# read indicators table from excel data-dictionary
+df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indicator")
+df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
+df_sources = pd.merge(df_topics_subtopics, snapshot_df, how="outer", on=["Code"])
+# assign source = TMEE to all indicators without a source since they all come from excel data collection files
+df_sources.fillna("TMEE", inplace=True)
+# Concatenate sectors/subtopics dictionary value lists
+sitan_subtopics = sum(dict_topics_subtopics.values(), [])
+
+df_sources.rename(
+    columns={
+        "Name_x": "Indicator",
+        "Issue": "Subdomain",
+    },
+    inplace=True,
+)
+# filter the sources to keep only sitan related sectors and sub-topics
+df_sources["Subdomain"] = df_sources["Subdomain"].str.strip()
+df_sources["Domain"] = df_sources["Subdomain"].apply(
+    lambda x: get_sector(x) if not pd.isna(x) else ""
+)
+df_sources["Source_Full"] = df_sources["Source"].apply(
+    lambda x: data_sources[x] if not pd.isna(x) else ""
+)
+indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes + data_query_codes)]
+df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
+df_sources_groups = df_sources.groupby("Source")
+df_sources_summary_groups = df_sources.groupby("Source_Full")
+# Extract the indicators' potential unique disaggregations.
+# Group by indicator code and keep only unique aggregations for the 4 possible dimensions:
+# Sex, Age, Residence and Wealth.
+indicators_disagg = (
+    data.groupby("CODE")
+    .agg(
+        {
+            "AGE": "nunique",
+            "SEX": "nunique",
+            "RESIDENCE": "nunique",
+            "WEALTH_QUINTILE": "nunique",
+        }
+    )
+    .reset_index()
+)
+# Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
+indicators_disagg_no_total = indicators_disagg[
+    (indicators_disagg["AGE"] > 1)
+    | (indicators_disagg["SEX"] > 1)
+    | (indicators_disagg["RESIDENCE"] > 1)
+    | (indicators_disagg["WEALTH_QUINTILE"] > 1)
+]
+
+# include the indicators with Total only to show in the data query
+indicators_disagg_with_total = indicators_disagg[
+    (indicators_disagg["AGE"] >= 1)
+    | (indicators_disagg["SEX"] >= 1)
+    | (indicators_disagg["RESIDENCE"] >= 1)
+    | (indicators_disagg["WEALTH_QUINTILE"] >= 1)
+]
+# Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
+indicators_disagg_details = data[
+    data["CODE"].isin(indicators_disagg_with_total["CODE"])
+]
+
+# Filter the dataframe to be used in the data query to keep indicators code and the possible disaggregations.
+indicators_disagg_details = indicators_disagg_details[
+    ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
+]
+indicators_disagg_details = indicators_disagg_details.drop_duplicates()
+
+# extract the indicators that have gender/sex disaggregation
+age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
+age_indicators = age_indicators.drop_duplicates()
+age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+# age_indicators.to_csv("age_indicators.csv", index=False)
 
 
 def page_not_found(pathname):

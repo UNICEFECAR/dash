@@ -13,6 +13,11 @@ from .pages import (
     overview,
     resources,
     country_profiles,
+    data_query,
+    adolescent,
+    disability,
+    gender,
+    ecd,
 )
 from .components import fa
 
@@ -30,7 +35,12 @@ urls = (
     ("child-rights", child_rights.get_layout),
     ("child-participation", child_participation.get_layout),
     ("profiles", country_profiles.get_layout),
+    ("data_query", data_query.get_layout),
     ("resources", resources.get_layout),
+    ("adolescent", adolescent.get_layout),
+    ("disability", disability.get_layout),
+    ("gender", gender.get_layout),
+    ("ecd", ecd.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -42,7 +52,7 @@ nav_items = (
     ("overview", html.Div([fa("fas fa-info-circle"), "Overview"]), []),
     (
         "sectors",
-        "Sectors",
+        "Domains",
         [
             ("child-education", html.Div([fa("fas fa-book"), "Education"])),
             (
@@ -63,7 +73,7 @@ nav_items = (
     ),
     (
         "cross-sectors",
-        "Cross-Sectors",
+        "Cross-Sectoral Issues",
         [
             ("adolescent", html.Div([fa("fas fa-user-friends"), "Adolescent"])),
             ("disability", html.Div([fa("fas fa-blind"), "Disability"])),
@@ -72,6 +82,7 @@ nav_items = (
         ],
     ),
     ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
+    ("data_query", html.Div([fa("fas fa-table"), "Query Data"]), []),
     ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
 )
 

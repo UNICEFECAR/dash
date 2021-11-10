@@ -1,15 +1,9 @@
-import dash
-from dash_bootstrap_components._components.Row import Row
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash_html_components.Br import Br
-import dash_table
 from dash.dependencies import Input, State, Output
-import pandas as pd
 
 from ..app import app
-from . import countries_iso3_dict, data, df_topics_subtopics, topics_subtopics
 
 
 def get_layout(**kwargs):
@@ -27,14 +21,9 @@ def get_layout(**kwargs):
                                 style={"padding": 20},
                                 children=[
                                     html.H1(
-                                        "Country Profiles",
+                                        "Disability",
                                         id="main_title",
                                         className="heading-title",
-                                    ),
-                                    html.P(
-                                        "Country Name",
-                                        id="country_name",
-                                        className="heading-subtitle",
                                     ),
                                 ],
                             ),

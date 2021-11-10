@@ -1,12 +1,16 @@
+import textwrap
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_treeview_antd
+import numpy as np
+from scipy.stats import zscore
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
+import textwrap
 
 from . import (
     mapbox_access_token,
@@ -19,6 +23,8 @@ from . import (
     data,
     countries_dict_filter,
     countries_iso3_dict,
+    geo_json_countries,
+    df_sources,
 )
 from ..app import app, cache
 from ..components import fa
@@ -45,13 +51,12 @@ colours = [
     "success",
     "danger",
 ]
-AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4"]
+AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
 DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def make_area(area_name):
-
     area = dbc.Card(
         [
             dbc.CardHeader(
@@ -76,6 +81,24 @@ def make_area(area_name):
                     dcc.Graph(
                         id={"type": "area", "index": area_name},
                     ),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Exclude outliers ",
+                                "value": 1,
+                            }
+                        ],
+                        value=[1],
+                        id={
+                            "type": "exclude_outliers_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
+                        style={
+                            "paddingLeft": 20,
+                        },
+                    ),
+                    html.Br(),
                     dbc.RadioItems(
                         id={"type": "area_breakdowns", "index": area_name},
                         inline=True,
@@ -101,10 +124,10 @@ def make_area(area_name):
         ],
         id={"type": "area_parent", "index": area_name},
     )
+    return area
 
 
 def get_base_layout(**kwargs):
-
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
 
@@ -276,6 +299,23 @@ def get_base_layout(**kwargs):
                                                 "zIndex": "11",
                                             },
                                         ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Checkbox(
+                                                    id="latest-data-toggle",
+                                                    className="custom-control-input",
+                                                ),
+                                                dbc.Label(
+                                                    "Show latest year",
+                                                    html_for="latest-data-toggle",
+                                                    className="custom-control-label",
+                                                    color="primary",
+                                                ),
+                                            ],
+                                            className="custom-control custom-switch m-2",
+                                            check=True,
+                                            inline=True,
+                                        ),
                                         dcc.Graph(id="main_area"),
                                         html.Div(
                                             fa("fas fa-info-circle"),
@@ -306,6 +346,10 @@ def get_base_layout(**kwargs):
             html.Br(),
             dbc.CardDeck(
                 [make_area(area) for area in ["AREA_3", "AREA_4"]],
+            ),
+            html.Br(),
+            dbc.CardDeck(
+                [make_area(area) for area in ["AREA_5", "AREA_6"]],
             ),
             html.Br(),
         ],
@@ -361,12 +405,12 @@ def display_areas(theme, indicators_dict, id):
 
 @cache.memoize()  # will cache based on years and countries combo
 def get_filtered_dataset(theme, indicators_dict, years, countries):
-
     print("CACHE BREAK!!!")
     indicators = []
     for area in AREA_KEYS:
         if area in indicators_dict[theme]:
             indicators.extend(indicators_dict[theme][area]["indicators"])
+
     # add card indicators
     for card in indicators_dict[theme]["CARDS"]:
         indicators.extend(card["indicator"].split(","))
@@ -474,6 +518,21 @@ def indicator_card(
     query = query + " & " + target_and_total_query
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
+
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    indicator_sources = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     # select last value for each country
     indicator_values = (
@@ -484,11 +543,11 @@ def indicator_card(
                 "TIME_PERIOD",
             ]
         )
-        .agg({"OBS_VALUE": "sum", "DATA_SOURCE": "count"})
+        .agg({"OBS_VALUE": "sum", "CODE": "count"})
     ).reset_index()
 
     numerator_pairs = (
-        indicator_values[indicator_values.DATA_SOURCE == len(numors)]
+        indicator_values[indicator_values.CODE == len(numors)]
         .groupby("Geographic area", as_index=False)
         .last()
         .set_index(["Geographic area", "TIME_PERIOD"])
@@ -537,6 +596,7 @@ def indicator_card(
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
         elif absolute:
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
@@ -603,7 +663,7 @@ def indicator_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(f"Sources: {indicator}"),
+                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),  # replace the tooltip with the desired bullet list layout),
@@ -682,7 +742,9 @@ def show_header_titles(theme, indicators_dict):
 def show_themes(selections, current_themes, indicators_dict):
 
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-
+    # hide the buttons when only one options is available
+    if len(indicators_dict.items()) == 1:
+        return []
     buttons = [
         dbc.Button(
             value["NAME"],
@@ -706,23 +768,20 @@ def show_themes(selections, current_themes, indicators_dict):
     ],
 )
 def set_options(theme, indicators_dict, id):
-
     area = id["index"]
-    return (
-        [
+    if area in indicators_dict[theme["theme"]]:
+        area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
+        area_options = [
             {
                 "label": item["Indicator"],
                 "value": item["CODE"],
             }
-            for item in data[
-                data["CODE"].isin(indicators_dict[theme["theme"]][area]["indicators"])
-            ][["CODE", "Indicator"]]
+            for item in data[data["CODE"].isin(area_indicators)][["CODE", "Indicator"]]
             .drop_duplicates()
             .to_dict("records")
         ]
-        if area in indicators_dict[theme["theme"]]
-        else []
-    )
+        return area_options
+    return []
 
 
 # TODO: the three fuctions below are similar and can be combined into one
@@ -887,13 +946,13 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
 def breakdown_options(indicator, id):
 
     options = [{"label": "Total", "value": "Total"}]
-
-    for item in [
+    all_breakdowns = [
         {"label": "Sex", "value": "Sex"},
         {"label": "Age", "value": "Age"},
         {"label": "Residence", "value": "Residence"},
         {"label": "Wealth Quintile", "value": "Wealth Quintile"},
-    ]:
+    ]
+    for item in all_breakdowns:
         if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
             options.append(item)
     return options
@@ -920,9 +979,10 @@ def set_default_compare(
         fig_type = selected_type if selected_type else default
         config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
         default_compare = config.get("compare")
+
         return (
             "Total"
-            if fig_type == "line"
+            if fig_type == "line" or default_compare is None
             else default_compare
             if default_compare in compare_options
             else compare_options[1]["value"]
@@ -936,13 +996,14 @@ def set_default_compare(
     Output("main_area_sources", "children"),
     [
         Input({"type": "area_options", "index": "MAIN"}, "value"),
+        Input("latest-data-toggle", "checked"),
         Input("store", "data"),
     ],
     [
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, selections, indicators_dict):
+def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
     # compare = "Sex"
@@ -959,16 +1020,18 @@ def main_figure(indicator, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
         else ""
     )
 
     df = (
         data.query(query)
-        .groupby(["CODE", "Indicator", "Geographic area", "TIME_PERIOD"])
-        .agg({"OBS_VALUE": "last", "longitude": "last", "latitude": "last"})
+        .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
+        .agg({"OBS_VALUE": "last"})
         .sort_values(
             by=["TIME_PERIOD"]
         )  # Add sorting by Year to display the years in proper order
@@ -993,9 +1056,28 @@ def main_figure(indicator, selections, indicators_dict):
             }
         }, ""
 
+    if latest_data:
+        # remove the animation frame to be able to show more than one year in the map
+        options.pop("animation_frame")
+        # add the year to show on hover
+        options["hover_name"] = "TIME_PERIOD"
+        # keep only the latest value of every country
+        df = df.sort_values(["Geographic area", "TIME_PERIOD"]).drop_duplicates(
+            "Geographic area", keep="last"
+        )
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
-    main_figure = px.scatter_mapbox(df, **options)
+    options["geojson"] = geo_json_countries
+
+    main_figure = px.choropleth_mapbox(df, **options)
+    main_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    if latest_data:
+        # hide the year range slider and the animation buttons
+        main_figure["layout"].pop("sliders")
+        main_figure["layout"].pop("updatemenus")
+
     # check if this area's config has an animation frame and hence a slider
     if len(main_figure.layout["sliders"]) > 0:
         # set last frame as the active one; i.e. select the max year as the default displayed year
@@ -1017,6 +1099,7 @@ def main_figure(indicator, selections, indicators_dict):
         Input({"type": "area_options", "index": MATCH}, "value"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
     ],
     [
         State("indicators", "data"),
@@ -1028,10 +1111,11 @@ def area_figure(
     indicator,
     compare,
     selected_type,
+    exclude_outliers,
     indicators_dict,
     id,
 ):
-    # print(id)
+    # print(id["index"])
     # only run if indicator not empty
     if not indicator:
         return {}, {}
@@ -1055,17 +1139,23 @@ def area_figure(
         total_if_disag_query = get_total_query(data, indicator, True, compare)
     else:
         total_if_disag_query = get_total_query(data, indicator)
-
     query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
+    indicator_name = (
+        data[data["CODE"] == indicator]["Indicator"].unique()[0]
+        if len(data[data["CODE"] == indicator]["Indicator"].unique()) > 0
+        else ""
+    )
     name = (
         data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
         if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
         else ""
     )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
-        data[data["CODE"] == indicator]["DATA_SOURCE"].unique()[0]
-        if len(data[data["CODE"] == indicator]["DATA_SOURCE"].unique()) > 0
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
         else ""
     )
 
@@ -1079,6 +1169,14 @@ def area_figure(
     else:
         # line plot: uses query directly keeping time series
         df = data_cached
+
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        df["z_scores"] = np.abs(zscore(df["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        df = df[df["z_scores"] < 3]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
@@ -1099,8 +1197,37 @@ def area_figure(
         }, ""
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
+
+    # set the chart title, wrap the text when the indicator name is too long
+    chart_title = textwrap.wrap(
+        indicator_name,
+        width=74,
+    )
+    chart_title = "<br>".join(chart_title)
+
+    # set the layout to center the chart title and change its font size and color
+    layout = go.Layout(
+        title=chart_title,
+        title_x=0.5,
+        font=dict(family="Arial", size=12),
+        legend=dict(x=0.9, y=0.5),
+        xaxis={"categoryorder": "total descending"},
+    )
+
     if compare:
         options["color"] = compare
+        if compare == "Wealth Quintile":
+            wealth_dict = {
+                "Lowest": 0,
+                "Second": 1,
+                "Middle": 2,
+                "Fourth": 3,
+                "Highest": 4,
+            }
+            df.sort_values(by=[compare], key=lambda x: x.map(wealth_dict), inplace=True)
+        else:
+            # sort by the compare value to have the legend in the right ascending order
+            df.sort_values(by=[compare], inplace=True)
 
     fig = getattr(px, fig_type)(df, **options)
     if traces:
@@ -1110,5 +1237,9 @@ def area_figure(
         fig.update_layout(
             xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
         )
-    fig.update_xaxes(categoryorder="total descending")
+
+        # fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
+
+    # fig.update_xaxes(categoryorder="total descending")
+    fig.update_layout(layout)
     return fig, source
