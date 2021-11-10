@@ -11,12 +11,12 @@ indicators_dict = {
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
-            {
-                "name": "of the gross enrolment ratio, early childhood educational development programmes, Gender Parity Index (GPI)",
-                "indicator": "EDUNF_GER_GPI_L01",
-                "suffix": "Range among countries",
-                "min_max": True,
-            },
+            # {
+            #     "name": "of the gross enrolment ratio, early childhood educational development programmes, Gender Parity Index (GPI)",
+            #     "indicator": "EDUNF_GER_GPI_L01",
+            #     "suffix": "Range among countries",
+            #     "min_max": True,
+            # },
             {
                 "name": "Government expenditure on education (% of GDP)",
                 "indicator": "EDU_FIN_EXP_PT_GDP",
@@ -37,7 +37,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "ECD",
+            "name": "Nurturing Care for Early Childhood Development",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
