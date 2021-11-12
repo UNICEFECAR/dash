@@ -601,7 +601,7 @@ indicators_dict = {
     },
 }
 
-main_title = "Participation"
+main_title = "Participation and Civil Rights"
 
 
 def get_layout(**kwargs):

@@ -1,8 +1,4 @@
-import pandas as pd
-
 import plotly.express as px
-
-from . import data, years
 from .base_page import get_base_layout, geo_json_countries
 
 indicators_dict = {
