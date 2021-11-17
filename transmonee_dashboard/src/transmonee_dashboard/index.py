@@ -52,7 +52,7 @@ nav_items = (
     ("overview", html.Div([fa("fas fa-info-circle"), "Overview"]), []),
     (
         "sectors",
-        "Sectors",
+        "Domains",
         [
             ("child-education", html.Div([fa("fas fa-book"), "Education"])),
             (
@@ -73,7 +73,7 @@ nav_items = (
     ),
     (
         "cross-sectors",
-        "Cross-Sectors",
+        "Cross-Sectoral Issues",
         [
             ("adolescent", html.Div([fa("fas fa-user-friends"), "Adolescent"])),
             ("disability", html.Div([fa("fas fa-blind"), "Disability"])),

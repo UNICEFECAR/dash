@@ -1,13 +1,9 @@
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_bootstrap_components as dbc
-from dash.dependencies import Input, State, Output
 from .base_page import get_base_layout, geo_json_countries
 import plotly.express as px
 
 indicators_dict = {
     "ADOLESCENT": {
-        "NAME": "Adolescent",
+        "NAME": "Cross-Cutting Issues",
         "CARDS": [
             {
                 "name": "age 10-19 years",
@@ -15,8 +11,8 @@ indicators_dict = {
                 "suffix": "Total adolescent population (expressed in thousands)",
             },
             {
-                "name": "Unemployment (% of total labour force)",
-                "indicator": "EC_SL_UEM_TOTL_NE_ZS",
+                "name": "of adolescents (15-year-olds) who do paid work, before or after school",
+                "indicator": "PP_ADOL_WORK_PAID",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
@@ -297,7 +293,7 @@ indicators_dict = {
                 "JJ_PRISIONERS_RT",
             ],
             "default_graph": "line",
-            "default": "PT_ST_13-15_BUL_30-DYS",
+            "default": "PT_CHLD_ADOPTION_AVAILABLE",
         },
         "AREA_3": {
             "name": "Health and Nutrition",
