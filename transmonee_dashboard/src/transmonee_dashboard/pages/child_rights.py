@@ -842,7 +842,7 @@ indicators_dict = {
             "default": "EDU_FIN_EXP_PT_GDP",
         },
         "AREA_2": {
-            "name": "Government spending on Social Protection",
+            "name": "Availability of Data on Children",
             "graphs": {
                 "bar": {
                     "options": dict(

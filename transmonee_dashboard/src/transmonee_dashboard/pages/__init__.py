@@ -119,9 +119,21 @@ codes = [
     "EDUNF_PRP_L1",
     "EDUNF_PRP_L2",
     "EDUNF_PRP_L3",
-    # "EDU_PISA_MAT2",
-    # "EDU_PISA_REA2",
-    # "EDU_PISA_SCI2",
+    "EDU_PISA_MAT2",
+    "EDU_PISA_MAT3",
+    "EDU_PISA_MAT4",
+    "EDU_PISA_MAT5",
+    "EDU_PISA_MAT6",
+    "EDU_PISA_REA2",
+    "EDU_PISA_REA3",
+    "EDU_PISA_REA4",
+    "EDU_PISA_REA5",
+    "EDU_PISA_REA6",
+    "EDU_PISA_SCI2",
+    "EDU_PISA_SCI3",
+    "EDU_PISA_SCI4",
+    "EDU_PISA_SCI5",
+    "EDU_PISA_SCI6",
     # "EDU_SDG_GER_L01",
     # "EDUNF_SAP_L02",
     "EDUNF_SAP_L1T3",
@@ -451,6 +463,7 @@ codes = [
     "EDUNF_GER_L02",
     "EDU_ECEC_PART",
     "EC_GII",
+    "EC_HDI",
     "PP_SE_GPI_ICTS_ATCH",
     "PP_SE_GPI_ICTS_CPT",
     "PP_SE_GPI_ICTS_CDV",
@@ -460,6 +473,90 @@ codes = [
     "PP_SE_GPI_ICTS_SFWR",
     "PP_SE_GPI_ICTS_TRFF",
     "PP_SE_GPI_ICTS_CMFL",
+]
+
+adolescent_codes = [
+    "DM_ASYL_FRST",
+    "DM_ASYL_UASC",
+    "HT_ADOL_UNMETMED_FEAR",
+    "HT_ADOL_UNMETMED_HOPING",
+    "HT_ADOL_UNMETMED_NOKNOW",
+    "HT_ADOL_UNMETMED_NOTIME",
+    "HT_ADOL_UNMETMED_NOUNMET",
+    "HT_ADOL_UNMETMED_TOOEFW",
+    "HT_ADOL_UNMETMED_TOOEXP",
+    "HT_ADOL_UNMETMED_TOOFAR",
+    "HT_ADOL_UNMETMED_WAITING",
+    "HT_ADOL_UNMETMED_OTH",
+    "HT_CDRT_SELF_HARM",
+    "HT_SH_HIV_INCD",
+    "HVA_EPI_LHIV_0-19",
+    "HVA_EPI_LHIV_15-24",
+    "JJ_CHLD_CRIME",
+    "JJ_CHLD_POLICE",
+    "JJ_PRISIONERS_RT",
+    "MNCH_CSEC",
+    "MNCH_PNCMOM",
+    "PT_ADLT_PS_NEC",
+    "PT_CHLD_1-14_PS-PSY-V_CGVR",
+    "PT_CHLD_5-17_LBR_ECON",
+    "PT_CHLD_5-17_LBR_ECON-HC",
+    "PT_CHLD_ADOPTION",
+    "PT_CHLD_ADOPTION_AVAILABLE",
+    "PT_CHLD_CARED_BY_FOSTER",
+    "PT_CHLD_DISAB_PUBLIC",
+    "PT_CHLD_ENTEREDFOSTER",
+    "PT_CHLD_GUARDIAN",
+    "PT_CHLD_INRESIDENTIAL",
+    "PT_F_15-49_W-BTNG",
+    "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
+    "PT_M_15-49_W-BTNG",
+    "PT_ST_13-15_BUL_30-DYS",
+    "PV_AROPE",
+    "PV_AROPRT",
+    "PV_SD_MDP_MUHC",
+    "PV_SEV_MAT_DPRT",
+    "PV_SI_POV_EMP1",
+]
+
+adolescent_age_groups = [
+    "_T",
+    "Y14T17",
+    "Y0T13",
+    "Y1T4",
+    "Y0",
+    "Y0T14",
+    "Y14T15",
+    "Y16T17",
+    "Y16T19",
+    "Y16T24",
+    "Y10T14",
+    "Y15T19",
+    "Y15T24",
+    "Y10T19",
+    "Y0T17",
+    "Y15T49",
+    "Y20T24",
+    "Y18T49",
+    "Y18T29",
+    "Y0T24",
+    "Y25T39",
+    "Y40T59",
+    "Y_GE50",
+    "Y_GE15",
+    "Y1T14",
+    "Y2T14",
+    "Y5T14",
+    "Y5T17",
+    "Y7T17",
+    "Y10T17",
+    "Y13T15",
+    "Y15",
+    "Y11T15",
+    "Y12T17",
+    "Y0T15",
+    "Y0T4",
+    "M0",
 ]
 
 # Add all indicators found in the data dictionary to get their data to the query data page
@@ -1362,6 +1459,17 @@ indicators_disagg_details = indicators_disagg_details[
     ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
 ]
 indicators_disagg_details = indicators_disagg_details.drop_duplicates()
+
+# extract the indicators that have gender/sex disaggregation
+age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+# Keep only indicators with gender/sex disaggregation
+age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
+age_indicators = age_indicators.drop_duplicates()
+age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+# age_indicators.to_csv("age_indicators.csv", index=False)
 
 # extract the indicators that have gender/sex disaggregation
 age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()

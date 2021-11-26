@@ -445,7 +445,6 @@ indicators_dict = {
     },
 }
 
-
 main_title = "Gender"
 
 

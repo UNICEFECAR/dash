@@ -37,7 +37,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Nurturing Care for Early Childhood Development",
+            "name": "Nurturing care for early childhood development",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
