@@ -299,7 +299,8 @@ def get_data_sources():
                     trigger="hover",
                 ),
             ],
-            style={"fontWeight": "bold"},
+            style={"fontWeight": "bold", "padding": 7},
+            selected_style={"padding": 7},
             id=f"source-{num}",
         )
         for num, [source, group] in enumerate(df_sources_groups)

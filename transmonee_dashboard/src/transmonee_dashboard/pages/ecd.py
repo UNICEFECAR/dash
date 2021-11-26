@@ -1,5 +1,5 @@
-from .base_page import get_base_layout, geo_json_countries
 import plotly.express as px
+from .base_page import get_base_layout, geo_json_countries
 
 indicators_dict = {
     "ECD": {
@@ -37,7 +37,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Nurturing Care for Early Childhood Development",
+            "name": "Nurturing care for early childhood development",
             "geo": "Geographic area",
             "options": dict(
                 geojson=geo_json_countries,
