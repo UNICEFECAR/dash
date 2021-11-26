@@ -184,7 +184,6 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -253,7 +252,6 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -374,7 +372,6 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -410,7 +407,6 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -448,7 +444,6 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
