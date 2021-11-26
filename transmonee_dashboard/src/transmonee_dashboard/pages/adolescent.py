@@ -184,7 +184,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -253,7 +253,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -292,7 +292,7 @@ indicators_dict = {
                 "JJ_CHLD_POLICE",
                 "JJ_PRISIONERS_RT",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "PT_CHLD_ADOPTION_AVAILABLE",
         },
         "AREA_3": {
@@ -307,7 +307,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -374,7 +374,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -410,7 +410,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -448,7 +448,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -496,5 +496,4 @@ main_title = "Adolescent"
 def get_layout(**kwargs):
     kwargs["indicators"] = indicators_dict
     kwargs["main_title"] = main_title
-    kwargs["is_adolescent"] = True
     return get_base_layout(**kwargs)
