@@ -544,9 +544,7 @@ def indicator_card(
     target_and_total_query = get_target_query(
         filtered_data, numors[0], dimension, target_code
     )
-    print(target_and_total_query)
     query = query + " & " + target_and_total_query
-    print(query)
 
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
@@ -942,8 +940,6 @@ def get_total_query(data, indicator, neq=False, dimension=None):
 # targets one dimension to a code and the remaining total
 # assumes previous knowledge ON the EXISTANCE of the target_code for the dimension
 def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
-    print(dimension)
-    print(target_code)
     dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
     disag = [
         item
@@ -953,7 +949,6 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
             & (item != dimension)
         )
     ]
-    print(disag)
     query_dim = f"`{dimension}` == '{target_code}'"
 
     if not disag:
