@@ -6,20 +6,14 @@ indicators_dict = {
         "NAME": "Cross-Cutting Issues",
         "CARDS": [
             {
-                "name": "of children as a share of total population",
-                "indicator": "DM_CHLD_POP_PT",
+                "name": "Children (aged 36-59 months) developmentally on track in at least 3 of the 4 following domains: literacy-numeracy, physical, social-emotional and learning",
+                "indicator": "ECD_CHLD_36-59M_LMPSL",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
-            # {
-            #     "name": "of the gross enrolment ratio, early childhood educational development programmes, Gender Parity Index (GPI)",
-            #     "indicator": "EDUNF_GER_GPI_L01",
-            #     "suffix": "Range among countries",
-            #     "min_max": True,
-            # },
             {
-                "name": "Government expenditure on education (% of GDP)",
-                "indicator": "EDU_FIN_EXP_PT_GDP",
+                "name": "Participation in organized learning - adjusted net enrolment rate, one year before official primary entry age",
+                "indicator": "EDUNF_NERA_L1_UNDER1",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
@@ -460,7 +454,7 @@ indicators_dict = {
     },
 }
 
-main_title = "ECD"
+main_title = "Early Childhood Development (ECD)"
 
 
 def get_layout(**kwargs):

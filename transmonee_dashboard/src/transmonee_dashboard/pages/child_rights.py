@@ -10,16 +10,36 @@ indicators_dict = {
         "NAME": "Demography about Children",
         "CARDS": [
             {
+                "name": "Age 0-4 years",
+                "indicator": "DM_CHLD_POP",
+                "suffix": "Total child population (expressed in thousands)",
+                "absolute": True,
+                "age": "Under 5 years old",  # Y0T4
+            },
+            {
+                "name": "Age 10-19 years",
+                "indicator": "DM_ADOL_POP",
+                "suffix": "Total adolescent population (expressed in thousands)",
+                "min_max": True,
+            },
+            {
                 "name": "age 0-17 years",
                 "indicator": "DM_CHLD_POP",
                 "suffix": "Total child population (expressed in thousands)",
                 "absolute": True,
             },
             {
-                "name": "Children (0-17) living with two parents",
-                "indicator": "DM_CHLD_TWO_PRNT",
+                "name": "Children as a share of the total population",
+                "indicator": "DM_CHLD_POP_PT",
                 "suffix": "Percentage range among countries",
-                "min_max": True,
+                "absolute": True,
+            },
+            {
+                "name": "Age 15-24 years",
+                "indicator": "DM_ADOL_YOUTH_POP",
+                "suffix": "Total young population (expressed in thousands)",
+                "absolute": True,
+                "age": "15 to 24 years old",  # Y15T24
             },
         ],
         "MAIN": {
