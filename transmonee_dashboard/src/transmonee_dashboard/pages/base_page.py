@@ -523,6 +523,7 @@ def indicator_card(
     sex_code="Total",
     average=False,
     min_max=False,
+    age_group=None,
 ):
 
     # indicator could be a list --> great use of " in " instead of " == " !!!
@@ -538,8 +539,15 @@ def indicator_card(
     sex_code = sex_code if sex_code else "Total"
     # use one of the numerators if more than one --> assume all have the same disaggregation
     # other possibility could be to generalize more get_target_query function ...
-    target_and_total_query = get_target_query(filtered_data, numors[0], "Sex", sex_code)
+    dimension = "Age" if age_group else "Sex"
+    target_code = age_group if age_group else sex_code
+    target_and_total_query = get_target_query(
+        filtered_data, numors[0], dimension, target_code
+    )
+    print(target_and_total_query)
     query = query + " & " + target_and_total_query
+    print(query)
+
     # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
     indicator = numors
     df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
@@ -578,7 +586,6 @@ def indicator_card(
     )
     # check for denominator
     if denominator:
-
         # select the available denominators for countries in selected years
         indicator = [denominator]
         # reset the query for denominator
@@ -734,6 +741,7 @@ def show_cards(selections, current_cards, indicators_dict):
             card.get("sex"),
             card.get("average"),
             card.get("min_max"),
+            card.get("age"),
         )
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]
@@ -934,7 +942,8 @@ def get_total_query(data, indicator, neq=False, dimension=None):
 # targets one dimension to a code and the remaining total
 # assumes previous knowledge ON the EXISTANCE of the target_code for the dimension
 def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
-
+    print(dimension)
+    print(target_code)
     dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
     disag = [
         item
@@ -944,7 +953,7 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
             & (item != dimension)
         )
     ]
-
+    print(disag)
     query_dim = f"`{dimension}` == '{target_code}'"
 
     if not disag:

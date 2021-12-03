@@ -6,13 +6,14 @@ indicators_dict = {
         "NAME": "Cross-Cutting Issues",
         "CARDS": [
             {
-                "name": "age 10-19 years",
-                "indicator": "DM_ADOL_POP",
-                "suffix": "Total adolescent population (expressed in thousands)",
+                "name": "Children at the end of lower secondary education reaching minimum proficiency in reading",
+                "indicator": "EDU_SDG_STU_L2_GLAST_REA",
+                "suffix": "Percentage range among countries",
+                "min_max": True,
             },
             {
-                "name": "of adolescents (15-year-olds) who do paid work, before or after school",
-                "indicator": "PP_ADOL_WORK_PAID",
+                "name": "Children at the end of lower secondary education reaching minimum proficiency in math",
+                "indicator": "EDU_SDG_STU_L2_GLAST_MAT",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
