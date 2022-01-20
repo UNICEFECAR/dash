@@ -7,7 +7,7 @@ from .base_page import get_base_layout
 
 indicators_dict = {
     "PARTICIPATION": {
-        "NAME": "Participation",
+        "NAME": "Education access and participation",
         "CARDS": [
             {
                 "name": "Who are Out-of-School",
@@ -78,7 +78,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -122,7 +122,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -162,7 +162,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -203,7 +203,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -230,7 +230,7 @@ indicators_dict = {
         },
     },
     "QUALITY": {
-        "NAME": "Learning Quality",
+        "NAME": "Learning quality and skills",
         "CARDS": [
             {
                 "name": "(enrolled in the same grade for a second or further year) in primary and lower secondary education",
@@ -296,7 +296,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -336,7 +336,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -376,7 +376,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -411,7 +411,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -435,8 +435,8 @@ indicators_dict = {
             "default": "EDU_SDG_QUTP_L2",
         },
     },
-    "GOVERNANCE": {
-        "NAME": "Governance",
+    "SYSTEM": {
+        "NAME": "Education System",
         "CARDS": [
             {
                 "name": "Guaranteeing at least one year of free pre-primary education in their legal frameworks",
@@ -502,7 +502,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -547,7 +547,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -592,7 +592,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -658,7 +658,7 @@ indicators_dict = {
 }
 
 
-main_title = "Education"
+main_title = "Education, Leisure, and Culture"
 
 
 def get_layout(**kwargs):

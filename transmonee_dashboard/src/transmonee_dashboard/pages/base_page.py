@@ -1204,7 +1204,7 @@ def area_figure(
         # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
         df["z_scores"] = np.abs(zscore(df["OBS_VALUE"]))  # calculate z-scores of df
         # filter the data entries to remove the outliers
-        df = df[df["z_scores"] < 3]
+        df = df[(df["z_scores"] < 3) | (df["z_scores"].isnull())]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:

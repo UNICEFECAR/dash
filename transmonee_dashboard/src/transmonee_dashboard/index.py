@@ -18,6 +18,8 @@ from .pages import (
     disability,
     gender,
     ecd,
+    risks,
+    climate,
 )
 from .components import fa
 
@@ -41,6 +43,8 @@ urls = (
     ("disability", disability.get_layout),
     ("gender", gender.get_layout),
     ("ecd", ecd.get_layout),
+    ("risks", risks.get_layout),
+    ("climate", climate.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -63,12 +67,23 @@ nav_items = (
                 "child-health",
                 html.Div([fa("fas fa-heartbeat"), "Health and Nutrition"]),
             ),
-            ("child-poverty", html.Div([fa("fas fa-hand-holding-usd"), "Poverty"])),
+            (
+                "child-poverty",
+                html.Div([fa("fas fa-hand-holding-usd"), "Poverty"]),
+            ),
             (
                 "child-rights",
-                html.Div([fa("fas fa-balance-scale"), "Child Rights Landscape"]),
+                html.Div(
+                    [
+                        fa("fas fa-balance-scale"),
+                        "Child Rights Landscape",
+                    ]
+                ),
             ),
-            ("child-participation", html.Div([fa("fas fa-users"), "Participation"])),
+            (
+                "child-participation",
+                html.Div([fa("fas fa-users"), "Participation"]),
+            ),
         ],
     ),
     (
@@ -79,6 +94,11 @@ nav_items = (
             ("disability", html.Div([fa("fas fa-blind"), "Disability"])),
             ("gender", html.Div([fa("fas fa-venus-mars"), "Gender"])),
             ("ecd", html.Div([fa("fas fa-baby"), "ECD"])),
+            (
+                "risks",
+                html.Div([fa("fas fa-exclamation-triangle"), "Risks and Humanitarian"]),
+            ),
+            ("climate", html.Div([fa("fas fa-sun"), "Climate Change"])),
         ],
     ),
     ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
@@ -90,7 +110,7 @@ nav_items_full_names = {
     "education": "Education",
     "child-protection": "Family environment and protection from violence and harmful practices",
     "child-health": "Health and Nutrition",
-    "child-poverty": "Poverty and adequate standards of living",
+    "child-poverty": "Poverty and Social Protection",
     "child-rights": "Child Rights Landscape",
     "participation": "Participation",
 }

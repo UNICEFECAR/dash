@@ -176,7 +176,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -226,7 +226,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -268,7 +268,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -322,7 +322,7 @@ indicators_dict = {
             "default": "HT_SH_XPD_CHEX_GD_ZS",
         },
         "AREA_4": {
-            "name": "Poverty",
+            "name": "Poverty and Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -333,7 +333,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
@@ -363,7 +363,7 @@ indicators_dict = {
             "default": "PV_SI_POV_UMIC",
         },
         "AREA_5": {
-            "name": "Child Rights Landscape",
+            "name": "Child Rights Landscape and Governance",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -374,7 +374,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(

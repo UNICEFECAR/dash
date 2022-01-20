@@ -7,11 +7,11 @@ from .base_page import get_base_layout
 
 indicators_dict = {
     "REGISTRATION": {
-        "NAME": "Birth registration and documentation",
+        "NAME": "Birth registration and identity",
         "CARDS": [
             {
                 "name": "Children whose births have been registered with a civil authority",
-                "indicator": "PT_CHLD_Y0T4_REG",
+                "indicator": "PT_CHLD_Y0T4_REG",  # wealth quintile has to Total
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
@@ -62,7 +62,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -81,7 +81,7 @@ indicators_dict = {
                 "PT_CHLD_Y0T4_REG",
                 "PP_SG_REG_BRTH90N",
             ],
-            "default": "PT_CHLD_Y0T4_REG",
+            "default": "PP_SG_REG_BRTH90N",
         },
         "AREA_2": {
             "name": "Death Registration",
@@ -95,7 +95,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -113,127 +113,7 @@ indicators_dict = {
                 "PP_SG_REG_DETH75N",
             ],
             "default": "PP_SG_REG_DETH75N",
-            "default_graph": "line",
-        },
-    },
-    "ACCESS": {
-        "NAME": "Access to Justice",
-        "CARDS": [
-            {
-                "name": "who brought or on whose behalf a complaint was brought to independent human rights mechanisms during the year",
-                "indicator": "",  # Missing
-                "suffix": "Children",
-            },
-            {
-                "name": "of registered crimes committed against children (during the year)",
-                "indicator": "JJ_CHLD_CRIME",
-                "suffix": "Total number",
-            },
-        ],
-        "MAIN": {
-            "name": "Access to Justice",
-            "geo": "Geographic area",
-            "options": dict(
-                locations="REF_AREA",
-                featureidkey="id",
-                color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.GnBu,
-                mapbox_style="carto-positron",
-                zoom=2,
-                center={"lat": 62.995158, "lon": 88.048713},
-                opacity=0.5,
-                labels={
-                    "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
-                    "TIME_PERIOD": "Year",
-                    "REF_AREA": "ISO3 Code",
-                },
-                hover_data={
-                    "OBS_VALUE": True,
-                    "REF_AREA": False,
-                    "Geographic area": True,
-                    "TIME_PERIOD": True,
-                },
-                animation_frame="TIME_PERIOD",
-                height=750,
-            ),
-            "indicators": [
-                "PP_SG_NHR_IMPLN",
-                "PP_SG_NHR_INTEXSTN",
-                "PP_SG_NHR_NOSTUSN",
-                "PP_SG_NHR_NOAPPLN",
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-            ],
-            "default": "PP_SG_NHR_IMPLN",
-        },
-        "AREA_1": {
-            "name": "Countries with National Human Rights Institutions",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
             "default_graph": "bar",
-            "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-            ],
-            "default": "JJ_CHLD_CRIME",
-        },
-        "AREA_2": {
-            "name": "Crime and Justice",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [
-                "PP_SG_NHR_IMPLN",
-                "PP_SG_NHR_INTEXSTN",
-                "PP_SG_NHR_NOSTUSN",
-                "PP_SG_NHR_NOAPPLN",
-            ],
-            "default": "PP_SG_NHR_IMPLN",
-            "default_graph": "line",
         },
     },
     # "ENGAGEMENT": {
@@ -345,7 +225,7 @@ indicators_dict = {
     #     },
     # },
     "INFORMATION": {
-        "NAME": "Information, Internet and Right to privacy",
+        "NAME": "Information, Internet and Protection of privacy",
         "CARDS": [
             {
                 "name": "Internet users per 100 inhabitants",
@@ -362,7 +242,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Information, Internet and Right to privacy",
+            "name": "Information, Internet and Protection of privacy",
             "geo": "Geographic area",
             "options": dict(
                 locations="REF_AREA",
@@ -415,7 +295,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -449,7 +329,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -479,7 +359,7 @@ indicators_dict = {
         },
     },
     "LEISURE": {
-        "NAME": "Leisure and Culture",
+        "NAME": "Education, Leisure, and Culture",
         "CARDS": [
             {
                 "name": "Adolescents (15-year-olds) who use the internet and social networks, before or after school",
@@ -495,7 +375,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Leisure and Culture",
+            "name": "Education, Leisure, and Culture",
             "geo": "Geographic area",
             "options": dict(
                 locations="REF_AREA",
@@ -542,7 +422,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -577,7 +457,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(

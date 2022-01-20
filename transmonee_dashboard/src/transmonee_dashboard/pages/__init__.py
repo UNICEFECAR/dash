@@ -442,6 +442,14 @@ codes = [
     "CR_SG_STT_NSDSFDOTHR",
     "CR_SG_STT_CAPTY",
     "CR_SG_REG_CENSUSN",
+    "CR_HAP_DEATH",
+    "CR_AAP_DEATH",
+    "CR_SH_AAP_MORT",
+    "CR_SH_HAP_MORT",
+    "CR_SH_STA_AIRP",
+    "CR_SH_AAP_ASMORT",
+    "CR_SH_HAP_ASMORT",
+    "CR_SH_STA_ASAIRP",
     "DM_CHLD_POP",
     "DM_ADOL_POP",
     "DM_CHLD_POP_PT",
@@ -562,15 +570,15 @@ adolescent_age_groups = [
 # Add all indicators found in the data dictionary to get their data to the query data page
 data_query_codes = [
     "DM_BRTS",
-    "DM_POP_TOT",
-    "DM_AVG_POP_TOT",
-    "DM_POP_PROP",
+    # "DM_POP_TOT",
+    # "DM_AVG_POP_TOT",
+    # "DM_POP_PROP",
     "DM_DPR_AGE",
     "DM_DPR_CHD",
     "DM_DPR_OLD",
-    "DM_IMG",
-    "DM_EMG",
-    "DM_NEXTRT_MG",
+    # "DM_IMG",
+    # "DM_EMG",
+    # "DM_NEXTRT_MG",
     "DM_MRG_AGE",
     "DM_DIV",
     "DM_CRDIVRT",
@@ -1188,84 +1196,84 @@ data_sources = {
 
 topics_subtopics = {
     "All": ["All"],
-    "Education": [
-        {"Participation": "Participation"},
-        {"Quality": "Learning Quality"},
-        {"Governance": "Governance"},
+    "Education, Leisure, and Culture": [
+        {"Participation": "Education access and participation"},
+        {"Quality": "Learning quality and skills"},
+        {"System": "Education system"},
     ],
     "Family Environment and Protection": [
         {"Violence": "Violence against Children and Women"},
         {"Care": "Children without parental care"},
-        {"Justice": "Juvenile Justice"},
+        {"Justice": "Justice for Children"},
         {"Marriage": "Child marriage and other harmful practices"},
-        {"Labour": "Child Labour"},
+        {"Labour": "Child labour and other forms of exploitation"},
     ],
     "Health and Nutrition": [
         {"HS": "Health System"},
         {"MNCH": "Maternal, newborn and child health"},
         {"Immunization": "Immunization"},
         {"Nutrition": "Nutrition"},
-        {"Adolescent": "Adolescent health"},
-        {"HIVAIDS": "HIV and AIDS"},
+        {"Adolescent": "Adolescent physical, mental, and reproductive health"},
+        {"HIVAIDS": "HIV/AIDS"},
         {"Wash": "Water, sanitation and hygiene"},
     ],
-    "Poverty": [
-        {"Poverty": "Poverty and multi-dimensional deprivation"},
+    "Poverty and Social Protection": [
+        {"Poverty": "Child Poverty and Material Deprivation"},
         {"Protection": "Social protection system"},
     ],
-    "Child Rights Landscape": [
-        {"Demography": "Demography about Children"},
+    "Child Rights Landscape and Governance": [
+        {"Demography": "Demographics"},
         {"Economy": "Political Economy"},
         {"Migration": "Migration and Displacement"},
-        {"Risks": "Risks and humanitarian situation"},
-        {"Climate": "Impact of climate change"},
+        {"Access": "Access to Justice"},
         {"Data": "Data on Children"},
         {"Spending": "Public spending on Children"},
     ],
-    "Participation": [
-        {"Registration": "Birth registration and documentation"},
-        {"Access": "Access to Justice"},
-        {"Information": "Information, Internet and Right to privacy"},
-        {"Leisure": "Leisure and Culture"},
+    "Participation and Civil Rights": [
+        {"Registration": "Birth registration and identity"},
+        {"Information": "Information, Internet and Protection of privacy"},
+        {"Leisure": "Education, Leisure, and Culture"},
     ],
 }
 
 dict_topics_subtopics = {
-    "Education": ["Participation", "Learning Quality", "Governance"],
+    "Education, Leisure, and Culture": [
+        "Education access and participation",
+        "Learning quality and skills",
+        "Education System",
+    ],
     "Family Environment and Protection": [
         "Violence against Children and Women",
         "Children without parental care",
-        "Juvenile Justice",
+        "Justice for Children",
         "Child marriage and other harmful practices",
-        "Child Labour",
+        "Child labour and other forms of exploitation",
     ],
     "Health and Nutrition": [
         "Health System",
         "Maternal, newborn and child health",
         "Immunization",
         "Nutrition",
-        "Adolescent health",
-        "HIV and AIDS",
+        "Adolescent physical, mental, and reproductive health",
+        "HIV/AIDS",
         "Water, sanitation and hygiene",
     ],
-    "Poverty": [
-        "Poverty and multi-dimensional deprivation",
+    "Poverty and Social Protection": [
+        "Child Poverty and Material Deprivation",
         "Social protection system",
     ],
-    "Child Rights Landscape": [
-        "Demography about Children",
+    "Child Rights Landscape and Governance": [
+        "Demographics",
         "Political Economy",
         "Migration and Displacement",
-        "Risks and humanitarian situation",
-        "Impact of climate change",
+        "Access to Justice",
         "Data on Children",
         "Public spending on Children",
     ],
-    "Participation": [
-        "Birth registration and documentation",
-        "Access to Justice",
-        "Information, Internet and Right to privacy",
-        "Leisure and Culture",
+    "Participation and Civil Rights": [
+        "Birth registration and identity",
+        "Information, Internet and Protection of privacy",
+        "Education, Leisure, and Culture",
     ],
 }
 
