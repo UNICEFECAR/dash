@@ -32,7 +32,14 @@ indicators_dict = {
                 "name": "Children as a share of the total population",
                 "indicator": "DM_CHLD_POP_PT",
                 "suffix": "Percentage range among countries",
-                "min_max": True,
+                "absolute": True,
+            },
+            {
+                "name": "Age 15-24 years",
+                "indicator": "DM_ADOL_YOUTH_POP",
+                "suffix": "Total young population (expressed in thousands)",
+                "absolute": True,
+                "age": "15 to 24 years old",  # Y15T24
             },
             {
                 "name": "Age 15-24 years",
