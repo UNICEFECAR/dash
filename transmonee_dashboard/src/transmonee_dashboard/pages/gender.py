@@ -309,7 +309,7 @@ indicators_dict = {
             "default": "FT_SP_DYN_ADKL",
         },
         "AREA_4": {
-            "name": "Poverty",
+            "name": "Poverty and Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -354,7 +354,7 @@ indicators_dict = {
             "default": "PV_SI_POV_EMP1",
         },
         "AREA_5": {
-            "name": "Child Rights Landscape",
+            "name": "Child Rights Landscape and Governance",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -397,12 +397,14 @@ indicators_dict = {
                 "DM_LIFE_EXP",
                 "GN_MTNTY_LV_BNFTS",
                 "GN_PTNTY_LV_BNFTS",
+                "CR_AAP_DEATH",
+                "CR_HAP_DEATH",
             ],
             "default_graph": "bar",
             "default": "DM_CHLD_POP_PT",
         },
         "AREA_6": {
-            "name": "Participation",
+            "name": "Participation and Civil Rights",
             "graphs": {
                 "bar": {
                     "options": dict(

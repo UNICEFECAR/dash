@@ -92,7 +92,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -134,7 +134,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -247,6 +247,7 @@ indicators_dict = {
                 "MNCH_PNCMOM",
                 "MNCH_ANC4",
                 "MNCH_PNEUCARE",
+                # "MT_SDG_SUICIDE",
             ],
             "default": "CME_MRY0T4",
         },
@@ -262,7 +263,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -299,7 +300,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -336,6 +337,7 @@ indicators_dict = {
                 "MNCH_PNCMOM",
                 "MNCH_ANC4",
                 "MNCH_PNEUCARE",
+                # "MT_SDG_SUICIDE",
             ],
             "default_graph": "line",
             "default": "MNCH_SAB",
@@ -408,7 +410,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -444,7 +446,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -543,7 +545,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -582,7 +584,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -606,19 +608,13 @@ indicators_dict = {
         },
     },
     "ADOLESCENTS": {
-        "NAME": "Adolescent health",
+        "NAME": "Adolescent physical, mental, and reproductive health",
         "CARDS": [
             {
                 "name": "Adolescent birth rate for age 15-19 years (per 1,000 women)",
                 "indicator": "FT_SP_DYN_ADKL",
                 "suffix": "Range among countries",
                 "sex": "Female",
-                "min_max": True,
-            },
-            {
-                "name": "Suicide mortality rate (deaths per 100,000 population)",
-                "indicator": "MT_SDG_SUICIDE",
-                "suffix": "Range among countries",
                 "min_max": True,
             },
         ],
@@ -651,7 +647,6 @@ indicators_dict = {
             ),
             "indicators": [
                 "FT_SP_DYN_ADKL",
-                "MT_SDG_SUICIDE",
                 "HT_SH_FPL_MTMM",
                 "HT_ADOL_MT",
                 "HT_SH_PRV_SMOK",
@@ -680,7 +675,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -697,7 +692,6 @@ indicators_dict = {
             "default_graph": "bar",
             "indicators": [
                 "FT_SP_DYN_ADKL",
-                "MT_SDG_SUICIDE",
                 "HT_ADOL_MT",
                 "HT_ADOL_HIGH_SATS",
                 "HT_ADOL_LOW_SATS",
@@ -716,7 +710,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -747,7 +741,7 @@ indicators_dict = {
         },
     },
     "HIVAIDS": {
-        "NAME": "HIV and AIDS",
+        "NAME": "HIV/AIDS",
         "CARDS": [
             {
                 "name": "per 1,000 uninfected population",
@@ -770,7 +764,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "HIV and AIDS",
+            "name": "HIV/AIDS",
             "geo": "Geographic area",
             "options": dict(
                 locations="REF_AREA",
@@ -821,7 +815,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -858,7 +852,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -941,7 +935,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -977,7 +971,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(

@@ -138,7 +138,7 @@ indicators_dict = {
                 "MNCH_CSEC",
                 "MNCH_SAB",
                 "MNCH_PNCMOM",
-                "MT_SDG_SUICIDE",
+                # "MT_SDG_SUICIDE",
                 "HT_CHLD_DRNK",
                 "HT_SH_PRV_SMOK",
                 "PP_ADOL_TVGM",
@@ -351,7 +351,7 @@ indicators_dict = {
                 "MNCH_CSEC",
                 "MNCH_SAB",
                 "MNCH_PNCMOM",
-                "MT_SDG_SUICIDE",
+                # "MT_SDG_SUICIDE",
                 "NT_BF_EIBF",
                 "NT_BF_EXBF",
                 "NT_CF_MAD",
@@ -362,7 +362,7 @@ indicators_dict = {
             "default": "HT_ADOL_MT",
         },
         "AREA_4": {
-            "name": "Poverty",
+            "name": "Poverty and Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -397,7 +397,7 @@ indicators_dict = {
             "default": "PV_AROPE",
         },
         "AREA_5": {
-            "name": "Child Rights Landscape",
+            "name": "Child Rights Landscape and Governance",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -434,7 +434,7 @@ indicators_dict = {
             "default": "DM_ADOL_POP",
         },
         "AREA_6": {
-            "name": "Participation",
+            "name": "Participation and Civil Rights",
             "graphs": {
                 "bar": {
                     "options": dict(

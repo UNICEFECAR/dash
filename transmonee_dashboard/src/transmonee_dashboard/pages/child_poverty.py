@@ -7,7 +7,7 @@ from .base_page import get_base_layout
 
 indicators_dict = {
     "POVERTYDEPRIVATION": {
-        "NAME": "Poverty and multi-dimensional deprivation",
+        "NAME": "Child Poverty and Material Deprivation",
         "CARDS": [
             {
                 "name": "Population living below the national poverty line",
@@ -84,7 +84,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -123,7 +123,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -225,7 +225,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -263,7 +263,7 @@ indicators_dict = {
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -291,7 +291,7 @@ indicators_dict = {
 }
 
 
-main_title = "Poverty and adequate standards of living"
+main_title = "Poverty and Social Protection"
 
 
 def get_layout(**kwargs):
