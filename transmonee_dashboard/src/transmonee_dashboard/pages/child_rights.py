@@ -32,7 +32,7 @@ indicators_dict = {
                 "name": "Children as a share of the total population",
                 "indicator": "DM_CHLD_POP_PT",
                 "suffix": "Percentage range among countries",
-                "absolute": True,
+                "min_max": True,
             },
             {
                 "name": "Age 15-24 years",
