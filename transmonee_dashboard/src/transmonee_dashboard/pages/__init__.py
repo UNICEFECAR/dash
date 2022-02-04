@@ -1200,6 +1200,7 @@ topics_subtopics = {
         {"Participation": "Education access and participation"},
         {"Quality": "Learning quality and skills"},
         {"System": "Education system"},
+        {"Leisure": "Leisure and Culture"},
     ],
     "Family Environment and Protection": [
         {"Violence": "Violence against Children and Women"},
@@ -1232,7 +1233,6 @@ topics_subtopics = {
     "Participation and Civil Rights": [
         {"Registration": "Birth registration and identity"},
         {"Information": "Information, Internet and Protection of privacy"},
-        {"Leisure": "Education, Leisure, and Culture"},
     ],
 }
 
@@ -1240,7 +1240,8 @@ dict_topics_subtopics = {
     "Education, Leisure, and Culture": [
         "Education access and participation",
         "Learning quality and skills",
-        "Education System",
+        "Education system",
+        "Leisure and Culture",
     ],
     "Family Environment and Protection": [
         "Violence against Children and Women",
@@ -1273,7 +1274,6 @@ dict_topics_subtopics = {
     "Participation and Civil Rights": [
         "Birth registration and identity",
         "Information, Internet and Protection of privacy",
-        "Education, Leisure, and Culture",
     ],
 }
 
@@ -1404,10 +1404,9 @@ df_topics_subtopics = pd.read_excel(BytesIO(data_dict_content), sheet_name="Indi
 df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(df_topics_subtopics, snapshot_df, how="outer", on=["Code"])
 # assign source = TMEE to all indicators without a source since they all come from excel data collection files
-df_sources.fillna("TMEE", inplace=True)
+df_sources["Source"].fillna("TMEE", inplace=True)
 # Concatenate sectors/subtopics dictionary value lists
 sitan_subtopics = sum(dict_topics_subtopics.values(), [])
-
 df_sources.rename(
     columns={
         "Name_x": "Indicator",
