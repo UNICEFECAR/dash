@@ -41,13 +41,6 @@ indicators_dict = {
                 "absolute": True,
                 "age": "15 to 24 years old",  # Y15T24
             },
-            {
-                "name": "Age 15-24 years",
-                "indicator": "DM_ADOL_YOUTH_POP",
-                "suffix": "Total young population (expressed in thousands)",
-                "absolute": True,
-                "age": "15 to 24 years old",  # Y15T24
-            },
         ],
         "MAIN": {
             "name": "Demography",
