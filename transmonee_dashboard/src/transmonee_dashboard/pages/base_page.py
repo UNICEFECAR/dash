@@ -33,7 +33,7 @@ from . import (
     adolescent_codes,
     geo_json_countries,
     df_sources,
-    DEFAULT_DIMENSIONS
+    DEFAULT_DIMENSIONS,
 )
 from ..app import app
 from ..components import fa
@@ -134,14 +134,10 @@ def get_base_layout(**kwargs):
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
 
-    # I changed this to correctly read the hash as you were reading the name which is different
-    url_hash = (
-        kwargs.get("hash")
-        if kwargs.get("hash")
-        else "#{}".format((next(iter(indicators_dict.items())))[0].lower())
-    )
     return html.Div(
         [
+            dcc.Store(id="indicators", data=indicators_dict),
+            dcc.Location(id="theme"),
             html.Div(
                 className="heading",
                 style={"padding": 36},
@@ -168,8 +164,6 @@ def get_base_layout(**kwargs):
                     )
                 ],
             ),
-            dcc.Store(id="indicators", data=indicators_dict),
-            dcc.Location(id="theme"),
             dbc.Row(
                 children=[
                     dbc.Col(
@@ -421,9 +415,9 @@ def get_filtered_dataset(
     }
     keys.update(dimentions)
     # replace empty dimentions with default breakdowns or set to total
-    for key,value in DEFAULT_DIMENSIONS.items():
-        keys[key] = value if key in keys and not keys[key] else ['_T']
-    
+    for key, value in DEFAULT_DIMENSIONS.items():
+        keys[key] = value if key in keys and not keys[key] else ["_T"]
+
     try:
         data = unicef.data(
             "TRANSMONEE",
@@ -437,9 +431,10 @@ def get_filtered_dataset(
             dsd=dsd,
         )
         print(data.response.url)
+        print(data.response.from_cache)
     except HTTPError as e:
         return pd.DataFrame()
-        
+
     data = data.to_pandas(attributes="o", rtype="rows").reset_index()
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     return data
@@ -496,8 +491,9 @@ def apply_filters(
     # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
-    countries_selected_codes = [countries_iso3_dict[country] for country in countries_selected]
-    # cache the data based on selected years and countries
+    countries_selected_codes = [
+        countries_iso3_dict[country] for country in countries_selected
+    ]
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         indicators_dict=indicators,
@@ -509,7 +505,6 @@ def apply_filters(
     return (
         selections,
         country_selector,
-        # Fix the condition after using the dict of name/iso for countries
         countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
@@ -555,7 +550,11 @@ def indicator_card(
     # query = query + " & " + target_and_total_query
 
     filtered_data = get_filtered_dataset(
-        indicators, selections["years"], selections["countries"], dimension, latest_data=True
+        indicators,
+        selections["years"],
+        selections["countries"],
+        dimension,
+        latest_data=True,
     )
 
     df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
@@ -1019,7 +1018,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         selections["countries"],
         latest_data=latest_data,
     )
-    
+
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return {
@@ -1059,8 +1058,6 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
     #     )  # Add sorting by Year to display the years in proper order
     #     .reset_index()
     # )
-
-    
 
     if latest_data:
         # remove the animation frame to be able to show more than one year in the map
@@ -1181,7 +1178,7 @@ def area_figure(
         data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
         # filter the data entries to remove the outliers
         data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
-    
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
@@ -1211,7 +1208,9 @@ def area_figure(
                 "Fourth": 3,
                 "Highest": 4,
             }
-            data.sort_values(by=[dimention], key=lambda x: x.map(wealth_dict), inplace=True)
+            data.sort_values(
+                by=[dimention], key=lambda x: x.map(wealth_dict), inplace=True
+            )
         else:
             # sort by the compare value to have the legend in the right ascending order
             data.sort_values(by=[dimention], inplace=True)
@@ -1219,7 +1218,7 @@ def area_figure(
     fig = getattr(px, fig_type)(data, **options)
     if traces:
         fig.update_traces(**traces)
-        
+
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         fig.update_layout(

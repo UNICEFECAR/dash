@@ -62,7 +62,7 @@ wcwidth==0.2.5
 Werkzeug==1.0.1
 openpyxl==3.0.7
 pandasdmx
-requests-cache
+pandasdmx[cache]
 scipy
 openpyxl
 

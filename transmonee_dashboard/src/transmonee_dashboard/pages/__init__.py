@@ -13,11 +13,11 @@ import requests
 
 import pandasdmx as sdmx
 
-#TODO: may not live here forever or we take from DSD
+# TODO: may not live here forever or we take from DSD
 DEFAULT_DIMENSIONS = {
-    "SEX": ["M", "F"], 
+    "SEX": ["M", "F"],
     "RESIDENCE": ["U", "R"],
-    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"]
+    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
 }
 
 # TODO: Move all of these to env/setting vars from production
