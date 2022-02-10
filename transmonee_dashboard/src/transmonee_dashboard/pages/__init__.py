@@ -23,8 +23,10 @@ geo_json_file = (
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
-    
-with open("indicators_config.json") as config_file:
+
+with open(
+    "/workspaces/Dash/transmonee_dashboard/src/transmonee_dashboard/pages/indicator_config.json"
+) as config_file:
     indicators_config = json.load(config_file)
 
 unicef = sdmx.Request("UNICEF")
@@ -768,7 +770,7 @@ def get_filtered_dataset(
     indicators: list,
     years: list,
     country_codes: list,
-    dimensions: dict = {"TOTAL": []},
+    dimensions: dict = {},
     latest_data: bool = True,
     dtype: str = None,
 ) -> pd.DataFrame:
@@ -778,13 +780,16 @@ def get_filtered_dataset(
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
     }
-    # replace empty dimensions with default breakdowns or set to total
     for indicator in indicators:
         indicator_config = indicators_config.get(indicator, {})
-        for dim in DEFAULT_DIMENSIONS:
-            if dim in keys and dim in indicator_config:
-                keys.update(indicator_config.get(dim))      
-
+        print(indicator_config)
+        for dim in dimensions.keys():
+            # if the dimension is in the config and has not overridden here
+            if (dim in keys and dim in indicator_config) and not keys[dim]:
+                # replace the empty with the config value
+                keys.pop(dim)
+                keys.update(indicator_config[dim])
+    print(keys)
     try:
         data = unicef.data(
             "TRANSMONEE",
@@ -800,7 +805,7 @@ def get_filtered_dataset(
         logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
     except HTTPError as e:
         logging.exception(f"URL: {e.response}", e)
-        #TODO: Maybe do something better here
+        # TODO: Maybe do something better here
         return pd.DataFrame()
 
     # lbassil: add sorting by Year to display the years in proper order on the x-axis
@@ -825,19 +830,19 @@ def get_filtered_dataset(
 
     # lbassil: add the code to fill the country names
     countries_val_list = list(countries_iso3_dict.values())
-    
+
     def create_lables(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
-        row["Unit_name"] =  str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-        
+
         return row
-    
-    data = data.apply(create_lables, axis='columns')
-    
+
+    data = data.apply(create_lables, axis="columns")
+
     return data
 
 

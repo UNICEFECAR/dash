@@ -9,16 +9,26 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from dash.dependencies import (MATCH, ClientsideFunction, Input, Output,
-                               State)
+from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from scipy.stats import zscore
 
 from ..app import app
 from ..components import fa
-from . import (countries, countries_iso3_dict, df_sources, dimension_names,
-               geo_json_countries, get_filtered_dataset, indicator_names,
-               programme_country_indexes, selection_index, selection_tree,
-               unicef_country_prog, years)
+from . import (
+    countries,
+    countries_iso3_dict,
+    df_sources,
+    dimension_names,
+    geo_json_countries,
+    get_filtered_dataset,
+    indicator_names,
+    indicators_config,
+    programme_country_indexes,
+    selection_index,
+    selection_tree,
+    unicef_country_prog,
+    years,
+)
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -64,7 +74,7 @@ EMPTY_CHART = {
 
 
 def make_area(area_name):
-    if area_name == "MAIN": #TODO: Improve this so we dont need a massive if statement
+    if area_name == "MAIN":  # TODO: Improve this so we dont need a massive if statement
         area = dbc.Card(
             [
                 dbc.CardHeader(
@@ -96,6 +106,15 @@ def make_area(area_name):
                             ],
                             className="custom-control custom-switch m-2",
                             check=True,
+                            inline=True,
+                        ),
+                        dbc.RadioItems(
+                            id={"type": "area_types", "index": area_name},
+                            # TODO: read chart types from config when we add more types
+                            options=[
+                                {"label": "Line", "value": "line"},
+                                {"label": "Bar", "value": "bar"},
+                            ],
                             inline=True,
                         ),
                         dcc.Loading([dcc.Graph(id="main_area")]),
@@ -354,9 +373,10 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
-    
+
+
 def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's 
+    """This function is used to generate the list of countries that are part of the card's
         displayed result; it displays the countries as a list, each on a separate line
 
     Args:
@@ -374,8 +394,11 @@ def get_card_popover_body(sources):
         return card_countries
     else:
         return "NA"
-    
-def make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs):
+
+
+def make_card(
+    card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+):
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -559,7 +582,7 @@ def indicator_card(
 ):
     indicators = numerator.split(",")
 
-    #TODO: Change to use albertos config
+    # TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
     dimension = {
         "AGE": [age_group] if age_group else ["_T"],
@@ -586,7 +609,9 @@ def indicator_card(
         indicator_header = "No data"
         indicator_sources = "NA"
         numerator_pairs = []
-        return make_card(card_id, name, indicator_header, indicator_sources, numerator_pairs)
+        return make_card(
+            card_id, name, indicator_header, indicator_sources, numerator_pairs
+        )
 
     # select last value for each country
     indicator_values = (
@@ -621,9 +646,7 @@ def indicator_card(
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
-            numerator_pairs.drop(
-                numerator_pairs[max_time_filter].index, inplace=True
-            )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
             numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
@@ -649,7 +672,9 @@ def indicator_card(
     else:
         indicator_header = "{:,.0f}".format(indicator_sum)
 
-    return make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs)
+    return make_card(
+        card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+    )
 
 
 @app.callback(
@@ -679,30 +704,17 @@ def show_cards(selections, current_cards, indicators_dict):
     return cards
 
 
-# Added this function to add the button group and set the correct active button
 @app.callback(
-    # Output("main_title", "children"),
     Output("subtitle", "children"),
+    Output("themes", "children"),
     [
         Input("store", "data"),
     ],
     [State("indicators", "data")],
 )
-def show_header_titles(theme, indicators_dict):
-    subtitle = indicators_dict[theme["theme"]].get("NAME")
-    return subtitle
+def show_themes(selections, indicators_dict):
 
-
-# Added this function to add the button group and set the correct active button,
-# TODO: This can be replaced by a generic callback to set the active button on click
-@app.callback(
-    Output("themes", "children"),
-    [
-        Input("store", "data"),
-    ],
-    [State("themes", "children"), State("indicators", "data")],
-)
-def show_themes(selections, current_themes, indicators_dict):
+    subtitle = indicators_dict[selections["theme"]].get("NAME")
 
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one options is available
@@ -719,11 +731,15 @@ def show_themes(selections, current_themes, indicators_dict):
         )
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
-    return buttons
+    return subtitle, buttons
 
 
 @app.callback(
+    Output({"type": "area_title", "index": MATCH}, "children"),
     Output({"type": "area_options", "index": MATCH}, "options"),
+    Output({"type": "area_types", "index": MATCH}, "options"),
+    Output({"type": "area_options", "index": MATCH}, "value"),
+    Output({"type": "area_types", "index": MATCH}, "value"),
     Input("store", "data"),
     [
         State("indicators", "data"),
@@ -731,7 +747,10 @@ def show_themes(selections, current_themes, indicators_dict):
     ],
 )
 def set_options(theme, indicators_dict, id):
+
     area = id["index"]
+
+    area_options = []
     if area in indicators_dict[theme["theme"]]:
         indicators = indicators_dict[theme["theme"]][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
@@ -742,63 +761,31 @@ def set_options(theme, indicators_dict, id):
             }
             for code in area_indicators
         ]
-        return area_options
-    return []
 
-
-# TODO: the three fuctions below are similar and can be combined into one
-@app.callback(
-    Output({"type": "area_title", "index": MATCH}, "children"),
-    Input("store", "data"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_title", "index": MATCH}, "id"),
-    ],
-)
-def set_areas_titles(theme, indicators_dict, id):
-
-    area = id["index"]
-    return (
+    name = (
         indicators_dict[theme["theme"]][area].get("name")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
 
+    area_types = (
+        indicators_dict[theme["theme"]][area].get("graphs", [])
+        if area in indicators_dict[theme["theme"]]
+        else []
+    )
 
-@app.callback(
-    Output({"type": "area_options", "index": MATCH}, "value"),
-    Input("store", "data"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_options", "index": MATCH}, "id"),
-    ],
-)
-def set_default_values(theme, indicators_dict, id):
-
-    area = id["index"]
-    return (
+    default_option = (
         indicators_dict[theme["theme"]][area].get("default")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
-
-
-@app.callback(
-    Output({"type": "area_types", "index": MATCH}, "value"),
-    Input("store", "data"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_types", "index": MATCH}, "id"),
-    ],
-)
-def set_default_chart_types(theme, indicators_dict, id):
-
-    area = id["index"]
-    return (
+    default_graph = (
         indicators_dict[theme["theme"]][area].get("default_graph")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
+
+    return name, area_options, area_types, default_option, default_graph
 
 
 @app.callback(
@@ -810,16 +797,20 @@ def set_default_chart_types(theme, indicators_dict, id):
 )
 def breakdown_options(indicator, id):
 
-    options = [{"label": "Total", "value": "Total"}]
+    options = []
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
     all_breakdowns = [
+        {"label": "Total", "value": "Total"},
         {"label": "Sex", "value": "SEX"},
         {"label": "Age", "value": "AGE"},
         {"label": "Residence", "value": "RESIDENCE"},
         {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
     ]
-    for item in all_breakdowns:
-        options.append(item)  # TODO: need to make this dynamic
+    dimensions = indicators_config.get(indicator, {}).keys()
+    if dimensions:
+        for breakdown in all_breakdowns:
+            if breakdown["value"] in dimensions:
+                options.append(breakdown)
     return options
 
 
@@ -846,7 +837,7 @@ def set_default_compare(
         default_compare = config.get("compare")
 
         return (
-            "Total"
+            "TOTAL"
             if fig_type == "line" or default_compare is None
             else default_compare
             if default_compare in compare_options
@@ -961,7 +952,7 @@ def area_figure(
     fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
-    dimension = False if fig_type == "line" or compare == "Total" else compare
+    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
     indicator_settings = (
