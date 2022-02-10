@@ -35,13 +35,7 @@ from ..components import fa
 # set defaults
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
-px.defaults.color_discrete_sequence = [
-    "#1cabe2",
-    "#80bd41",
-    "#dda63a",
-    "#e34e09",
-    "#c5effc",
-]
+px.defaults.color_discrete_sequence = px.colors.sequential.BuGn
 px.set_mapbox_access_token(mapbox_access_token)
 
 colours = [
