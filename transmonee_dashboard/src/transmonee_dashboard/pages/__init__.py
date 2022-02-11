@@ -1,5 +1,4 @@
 import json
-from msvcrt import LK_LOCK
 import pathlib
 import collections
 from io import BytesIO
@@ -12,6 +11,15 @@ import numpy as np
 import pandas as pd
 import requests
 
+import pandasdmx as sdmx
+
+#TODO: may not live here forever or we take from DSD
+DEFAULT_DIMENSIONS = {
+    "SEX": ["M", "F"], 
+    "RESIDENCE": ["U", "R"],
+    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"]
+}
+
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
@@ -23,6 +31,15 @@ geo_json_file = (
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
+unicef = sdmx.Request("UNICEF")
+
+metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
+dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
+
+indicator_names = {
+    code.id: code.name.en
+    for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
+}
 
 adolescent_codes = [
     "DM_ASYL_FRST",
@@ -339,69 +356,6 @@ data_query_codes = [
 
 years = list(range(2010, 2021))
 
-# define the function that will return the values of the selected countries from the dictionary
-countries_dict_filter = lambda x, y: dict([(i, x[i]) for i in x if i in set(y)])
-
-# a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
-# tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
-countries_dict = {
-    "Albania": "Albania",
-    "Andorra": "Andorra",
-    "Armenia": "Armenia",
-    "Austria": "Austria",
-    "Azerbaijan": "Azerbaijan",
-    "Belarus": "Belarus",
-    "Belgium": "Belgium",
-    "Bosnia and Herzegovina": "Bosnia and Herzegovina",
-    "Bulgaria": "Bulgaria",
-    "Croatia": "Croatia",
-    "Cyprus": "Cyprus",
-    "Czech Republic": "Czechia",  # we have this one is different
-    "Denmark": "Denmark",
-    "Estonia": "Estonia",
-    "Finland": "Finland",
-    "France": "France",
-    "Georgia": "Georgia",
-    "Germany": "Germany",
-    "Greece": "Greece",
-    "Holy See": "Holy See",
-    "Hungary": "Hungary",
-    "Iceland": "Iceland",
-    "Ireland": "Ireland",
-    "Italy": "Italy",
-    "Kazakhstan": "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)": "Kosovo",  # we have this one is different
-    "Kyrgyzstan": "Kyrgyzstan",
-    "Latvia": "Latvia",
-    "Liechtenstein": "Liechtenstein",
-    "Lithuania": "Lithuania",
-    "Luxembourg": "Luxembourg",
-    "Malta": "Malta",
-    "Monaco": "Monaco",
-    "Montenegro": "Montenegro",
-    "Netherlands": "Netherlands",
-    "North Macedonia": "North Macedonia",
-    "Norway": "Norway",
-    "Poland": "Poland",
-    "Portugal": "Portugal",
-    "Romania": "Romania",
-    "Republic of Moldova": "Republic of Moldova",
-    "Russian Federation": "Russian Federation",
-    "San Marino": "San Marino",
-    "Serbia": "Serbia",
-    "Slovakia": "Slovakia",
-    "Slovenia": "Slovenia",
-    "Spain": "Spain",
-    "Sweden": "Sweden",
-    "Switzerland": "Switzerland",
-    "Tajikistan": "Tajikistan",
-    "Turkey": "Turkey",
-    "Turkmenistan": "Turkmenistan",
-    "Ukraine": "Ukraine",
-    "United Kingdom": "United Kingdom",
-    "Uzbekistan": "Uzbekistan",
-}
-
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
 countries_iso3_dict = {
@@ -462,63 +416,7 @@ countries_iso3_dict = {
     "Uzbekistan": "UZB",
 }
 
-countries = [
-    "Albania",
-    "Andorra",
-    "Armenia",
-    "Austria",
-    "Azerbaijan",
-    "Belarus",
-    "Belgium",
-    "Bosnia and Herzegovina",
-    "Bulgaria",
-    "Croatia",
-    "Cyprus",
-    "Czech Republic",  # Czechia
-    "Denmark",
-    "Estonia",
-    "Finland",
-    "France",
-    "Georgia",
-    "Germany",
-    "Greece",
-    "Holy See",
-    "Hungary",
-    "Iceland",
-    "Ireland",
-    "Italy",
-    "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)",  # Kosovo
-    "Kyrgyzstan",
-    "Latvia",
-    "Liechtenstein",
-    "Lithuania",
-    "Luxembourg",
-    "Malta",
-    "Monaco",
-    "Montenegro",
-    "Netherlands",
-    "North Macedonia",
-    "Norway",
-    "Poland",
-    "Portugal",
-    "Republic of Moldova",
-    "Romania",
-    "Russian Federation",
-    "San Marino",
-    "Serbia",
-    "Slovakia",
-    "Slovenia",
-    "Spain",
-    "Sweden",
-    "Switzerland",
-    "Tajikistan",
-    "Turkey",
-    "Turkmenistan",
-    "Ukraine",
-    "United Kingdom",
-    "Uzbekistan",
-]
+countries = list(countries_iso3_dict.keys())
 
 unicef_country_prog = [
     "Albania",
@@ -870,7 +768,6 @@ programme_country_indexes = [
 ]
 
 data = pd.DataFrame()
-inds = set(codes)
 data_query_inds = set(data_query_codes)
 
 # column data types coerced
@@ -957,7 +854,7 @@ df_sources["Domain"] = df_sources["Subdomain"].apply(
 df_sources["Source_Full"] = df_sources["Source"].apply(
     lambda x: data_sources[x] if not pd.isna(x) else ""
 )
-indicators_not_in_dash = df_sources[~df_sources.Code.isin(codes + data_query_codes)]
+
 df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import textwrap
 import dash
 import dash_bootstrap_components as dbc
@@ -11,6 +13,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 import textwrap
+import pandas as pd
+from requests.exceptions import HTTPError
 
 from . import (
     mapbox_access_token,
@@ -20,22 +24,24 @@ from . import (
     selection_tree,
     countries,
     years,
-    data,
-    countries_dict_filter,
+    unicef,
+    dsd,
+    indicator_names,
     countries_iso3_dict,
     gender_indicators,
     adolescent_age_groups,
     adolescent_codes,
     geo_json_countries,
     df_sources,
+    DEFAULT_DIMENSIONS
 )
-from ..app import app, cache
+from ..app import app
 from ..components import fa
 
 # set defaults
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
-px.defaults.color_discrete_sequence = px.colors.sequential.BuGn
+px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 px.set_mapbox_access_token(mapbox_access_token)
 
 colours = [
@@ -49,7 +55,7 @@ colours = [
     "danger",
 ]
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
-DEFAULT_LABELS = {"Geographic area": "Country", "TIME_PERIOD": "Year"}
+DEFAULT_LABELS = {"REF_AREA": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
@@ -400,39 +406,43 @@ def display_areas(theme, indicators_dict, id):
     return area not in indicators_dict[theme]
 
 
-@cache.memoize()  # will cache based on years and countries combo
-def get_filtered_dataset(theme, indicators_dict, years, countries, is_adolescent):
-    print("CACHE BREAK!!!")
-    indicators = []
-    for area in AREA_KEYS:
-        if area in indicators_dict[theme]:
-            indicators.extend(indicators_dict[theme][area]["indicators"])
+def get_filtered_dataset(
+    indicators: list,
+    years: list,
+    countries: list,
+    dimentions: dict = {},
+    latest_data: bool = True,
+) -> pd.DataFrame:
 
-    # add card indicators
-    for card in indicators_dict[theme]["CARDS"]:
-        indicators.extend(card["indicator"].split(","))
-
-    # keep only the indicators that have gender/sex disaggregation
-    if is_adolescent:
-        return data[
-            (data["TIME_PERIOD"].isin(years))
-            & (data["REF_AREA"].isin(countries))
-            & (
-                (
-                    data["CODE"].isin(indicators)
-                    & data["CODE"].isin(adolescent_codes)
-                    & data["AGE"].isin(adolescent_age_groups)
-                )
-                | (data["CODE"].isin(indicators) & ~data["CODE"].isin(adolescent_codes))
-            )
-        ]
-
-    # Use the ref area that contains the countries ISO3 codes to filter the selected countries data
-    return data[
-        (data["TIME_PERIOD"].isin(years))
-        & (data["REF_AREA"].isin(countries))
-        & (data["CODE"].isin(indicators))
-    ]
+    # TODO: This is temporary, need to move to config
+    keys = {
+        "REF_AREA": countries,
+        "INDICATOR": indicators,
+    }
+    keys.update(dimentions)
+    # replace empty dimentions with default breakdowns or set to total
+    for key,value in DEFAULT_DIMENSIONS.items():
+        keys[key] = value if key in keys and not keys[key] else ['_T']
+    
+    try:
+        data = unicef.data(
+            "TRANSMONEE",
+            provider="ECARO",
+            key=keys,
+            params=dict(
+                startPeriod=years[0],
+                endPeriod=years[-1],
+                lastNObservations=1 if latest_data else 0,
+            ),
+            dsd=dsd,
+        )
+        print(data.response.url)
+    except HTTPError as e:
+        return pd.DataFrame()
+        
+    data = data.to_pandas(attributes="o", rtype="rows").reset_index()
+    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+    return data
 
 
 @app.callback(
@@ -479,28 +489,28 @@ def apply_filters(
                 # if all countries are all selected then stop
                 break
 
-    country_text = f"{len(list(countries_selected))} Selected"
+    countries_selected = list(countries_selected)
+    country_text = f"{len(countries_selected)} Selected"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
     # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
-    countries_selected = countries_dict_filter(countries_iso3_dict, countries_selected)
+    countries_selected_codes = [countries_iso3_dict[country] for country in countries_selected]
     # cache the data based on selected years and countries
     selections = dict(
         theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
         indicators_dict=indicators,
         years=selected_years,
-        countries=list(countries_selected.values()),
+        countries=countries_selected_codes,
         is_adolescent=("ADOLESCENT" in indicators),
     )
 
-    get_filtered_dataset(**selections)
     return (
         selections,
         country_selector,
         # Fix the condition after using the dict of name/iso for countries
-        list(countries_selected.keys()) == unicef_country_prog,
+        countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -514,35 +524,41 @@ def indicator_card(
     suffix,
     denominator=None,
     absolute=False,
-    sex_code="Total",
+    sex_code=None,
     average=False,
     min_max=False,
     age_group=None,
 ):
 
     # indicator could be a list --> great use of " in " instead of " == " !!!
-    query = "CODE in @indicator"
+    # query = "CODE in @indicator"
 
-    numors = numerator.split(",")
+    indicators = numerator.split(",")
 
     # use filtered chached dataset
-    filtered_data = get_filtered_dataset(**selections)
+    # filtered_data = get_filtered_dataset(**selections)
 
     # build the (target + rest total) query
     # target code is Total unless is not None
-    sex_code = sex_code if sex_code else "Total"
+    # sex_code = sex_code if sex_code else "Total"
     # use one of the numerators if more than one --> assume all have the same disaggregation
     # other possibility could be to generalize more get_target_query function ...
-    dimension = "Age" if age_group else "Sex"
-    target_code = age_group if age_group else sex_code
-    target_and_total_query = get_target_query(
-        filtered_data, numors[0], dimension, target_code
-    )
-    query = query + " & " + target_and_total_query
 
-    # query = "CODE in @indicator & SEX in @sex_code & RESIDENCE in @total_code & WEALTH_QUINTILE in @total_code"
-    indicator = numors
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    dimension = (
+        {"AGE": [age_group]} if age_group else {"SEX": [sex_code]} if sex_code else {}
+    )
+
+    # target_code = age_group if age_group else sex_code
+    # target_and_total_query = get_target_query(
+    #     filtered_data, numors[0], dimension, target_code
+    # )
+    # query = query + " & " + target_and_total_query
+
+    filtered_data = get_filtered_dataset(
+        indicators, selections["years"], selections["countries"], dimension, latest_data=True
+    )
+
+    df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
     unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     indicator_sources = (
         "; ".join(list(unique_indicator_sources))
@@ -550,70 +566,33 @@ def indicator_card(
         else ""
     )
 
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    indicator_sources = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # TODO: Is this code completly duplicated from above?
+    # df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # indicator_sources = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
 
     # select last value for each country
     indicator_values = (
-        filtered_data.query(query)
-        .groupby(
+        filtered_data.groupby(
             [
-                "Geographic area",
+                "REF_AREA",
                 "TIME_PERIOD",
             ]
-        )
-        .agg({"OBS_VALUE": "sum", "CODE": "count"})
+        ).agg({"OBS_VALUE": "sum", "CODE": "count"})
     ).reset_index()
 
     numerator_pairs = (
-        indicator_values[indicator_values.CODE == len(numors)]
-        .groupby("Geographic area", as_index=False)
+        indicator_values[indicator_values.CODE == len(indicators)]
+        .groupby("REF_AREA", as_index=False)
         .last()
-        .set_index(["Geographic area", "TIME_PERIOD"])
+        .set_index(["REF_AREA", "TIME_PERIOD"])
     )
-    # check for denominator
-    if denominator:
-        # select the available denominators for countries in selected years
-        indicator = [denominator]
-        # reset the query for denominator
-        query = "CODE in @indicator"
 
-        # so far denominator is thought to be a single one right?
-        # possibly --> generalize to more than one --> as numerator
-        # build the query for denominator, naturally --> uses same sex_code
-        target_and_total_query = get_target_query(data, denominator, "Sex", sex_code)
-        query = query + " & " + target_and_total_query
-
-        denominator_values = filtered_data.query(query).set_index(
-            ["Geographic area", "TIME_PERIOD"]
-        )
-        # select only those denominators that match available indicators
-        index_intersect = numerator_pairs.index.intersection(denominator_values.index)
-
-        denominators = denominator_values.loc[index_intersect]["OBS_VALUE"]
-
-        indicator_sum = (
-            numerator_pairs.loc[index_intersect]["OBS_VALUE"].to_numpy().sum()
-            / denominators.to_numpy().sum()
-            * 100
-            if absolute
-            else (
-                numerator_pairs["OBS_VALUE"]
-                * denominators
-                / denominators.to_numpy().sum()
-            )
-            .dropna()  # will drop missing countries
-            .to_numpy()
-            .sum()
-        )
-        sources = index_intersect.tolist()
-
-    elif suffix.lower() == "countries":
+    if suffix.lower() == "countries":
         # this is a hack to accomodate small cases (to discuss with James)
         if "FREE" in numerator:
             # trick to filter number of years of free education
@@ -624,19 +603,21 @@ def indicator_card(
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
             numerator_pairs = indicator_values.groupby(
-                "Geographic area", as_index=False
+                "REF_AREA", as_index=False
             ).last()
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
             numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["Geographic area", "TIME_PERIOD"], inplace=True)
+            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
         else:
             # trick to accomodate cards for admin exams (AND for boolean indicators)
             # filter exams according to number of indicators
-            indicator_sum = (numerator_pairs.OBS_VALUE == len(numors)).to_numpy().sum()
+            indicator_sum = (
+                (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
+            )
             sources = numerator_pairs.index.tolist()
 
     else:
@@ -797,12 +778,10 @@ def set_options(theme, indicators_dict, id):
         area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
         area_options = [
             {
-                "label": item["Indicator"],
-                "value": item["CODE"],
+                "label": indicator_names[code],
+                "value": code,
             }
-            for item in data[data["CODE"].isin(area_indicators)][["CODE", "Indicator"]]
-            .drop_duplicates()
-            .to_dict("records")
+            for code in area_indicators
         ]
         return area_options
     return []
@@ -969,14 +948,13 @@ def breakdown_options(indicator, id):
 
     options = [{"label": "Total", "value": "Total"}]
     all_breakdowns = [
-        {"label": "Sex", "value": "Sex"},
-        {"label": "Age", "value": "Age"},
-        {"label": "Residence", "value": "Residence"},
-        {"label": "Wealth Quintile", "value": "Wealth Quintile"},
+        {"label": "Sex", "value": "SEX"},
+        {"label": "Age", "value": "AGE"},
+        {"label": "Residence", "value": "RESIDENCE"},
+        {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
     ]
     for item in all_breakdowns:
-        if len(data[data["CODE"] == indicator][item["value"]].unique()) > 1:
-            options.append(item)
+        options.append(item)  # TODO: need to make this dynamic
     return options
 
 
@@ -1030,38 +1008,20 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
     # compare = "Sex"
 
-    data = get_filtered_dataset(**selections)
-
     # total = "Total"  # potentially move to this config
-    query = "CODE == @indicator"
-    total_if_disag_query = get_total_query(data, indicator)
-    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
+    # query = "CODE == @indicator"
+    # total_if_disag_query = get_total_query(data, indicator)
+    # query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
-    name = (
-        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
-        else ""
+    data = get_filtered_dataset(
+        [indicator],
+        selections["years"],
+        selections["countries"],
+        latest_data=latest_data,
     )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-
-    df = (
-        data.query(query)
-        .groupby(["CODE", "Indicator", "REF_AREA", "Geographic area", "TIME_PERIOD"])
-        .agg({"OBS_VALUE": "last"})
-        .sort_values(
-            by=["TIME_PERIOD"]
-        )  # Add sorting by Year to display the years in proper order
-        .reset_index()
-    )
-
+    
     # check if the dataframe is empty meaning no data to display as per the user's selection
-    if df.empty:
+    if data.empty:
         return {
             "layout": {
                 "xaxis": {"visible": False},
@@ -1078,22 +1038,46 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
             }
         }, ""
 
+    name = (
+        data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
+        if len(data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()) > 0
+        else ""
+    )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    source = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
+
+    # df = (
+    #     data.groupby(["CODE", "REF_AREA", "TIME_PERIOD"])
+    #     .agg({"OBS_VALUE": "last"})
+    #     .sort_values(
+    #         by=["TIME_PERIOD"]
+    #     )  # Add sorting by Year to display the years in proper order
+    #     .reset_index()
+    # )
+
+    
+
     if latest_data:
         # remove the animation frame to be able to show more than one year in the map
         options.pop("animation_frame")
         # add the year to show on hover
         options["hover_name"] = "TIME_PERIOD"
         # keep only the latest value of every country
-        df = df.sort_values(["Geographic area", "TIME_PERIOD"]).drop_duplicates(
-            "Geographic area", keep="last"
+        data = data.sort_values(["REF_AREA", "TIME_PERIOD"]).drop_duplicates(
+            "REF_AREA", keep="last"
         )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
     options["geojson"] = geo_json_countries
 
-    main_figure = px.choropleth_mapbox(df, **options)
-    main_figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    main_figure = px.choropleth_mapbox(data, **options)
+    main_figure.update_layout(margin={"r": 1, "t": 1, "l": 1, "b": 1})
 
     if latest_data:
         # hide the year range slider and the animation buttons
@@ -1148,60 +1132,19 @@ def area_figure(
     config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = config.get("options")
     traces = config.get("trace_options")
-    compare = False if compare == "Total" else compare
+    dimention = False if fig_type == "line" or compare == "Total" else compare
 
-    columns = ["CODE", "Indicator", "Geographic area"]
-    aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-    query = "CODE == @indicator"
-
-    data = get_filtered_dataset(**selections)
-
-    if compare:
-        columns.append(compare)
-        total_if_disag_query = get_total_query(data, indicator, True, compare)
-    else:
-        total_if_disag_query = get_total_query(data, indicator)
-    query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
-
-    indicator_name = (
-        data[data["CODE"] == indicator]["Indicator"].unique()[0]
-        if len(data[data["CODE"] == indicator]["Indicator"].unique()) > 0
-        else ""
+    indicator_name = str(indicator_names.get(indicator, ""))
+    data = get_filtered_dataset(
+        [indicator],
+        selections["years"],
+        selections["countries"],
+        dimentions={dimention: []} if dimention else {},
+        latest_data=False if fig_type == "line" else True,
     )
-    name = (
-        data[data["CODE"] == indicator]["Unit of measure"].unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit of measure"].unique()) > 0
-        else ""
-    )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-
-    data_cached = data.query(query)
-
-    # toggle time-series selection based on figure type
-    if fig_type == "bar":
-        # get rid of time-series for bar plot
-        aggregates = {"TIME_PERIOD": "last", "OBS_VALUE": "last"}
-        df = data_cached.groupby(columns).agg(aggregates).reset_index()
-    else:
-        # line plot: uses query directly keeping time series
-        df = data_cached
-
-    # check if the exclude outliers checkbox is checked
-    if exclude_outliers:
-        # filter the data to the remove the outliers
-        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-        df["z_scores"] = np.abs(zscore(df["OBS_VALUE"]))  # calculate z-scores of df
-        # filter the data entries to remove the outliers
-        df = df[(df["z_scores"] < 3) | (df["z_scores"].isnull())]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
-    if df.empty:
+    if data.empty:
         return {
             "layout": {
                 "xaxis": {"visible": False},
@@ -1217,6 +1160,28 @@ def area_figure(
                 ],
             }
         }, ""
+
+    name = (
+        data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
+        if len(data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()) > 0
+        else ""
+    )
+    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    source = (
+        "; ".join(list(unique_indicator_sources))
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
+
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
+    
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
 
@@ -1236,9 +1201,9 @@ def area_figure(
         xaxis={"categoryorder": "total descending"},
     )
 
-    if compare:
-        options["color"] = compare
-        if compare == "Wealth Quintile":
+    if dimention:
+        options["color"] = dimention
+        if compare == "WEALTH_QUINTILE":
             wealth_dict = {
                 "Lowest": 0,
                 "Second": 1,
@@ -1246,21 +1211,20 @@ def area_figure(
                 "Fourth": 3,
                 "Highest": 4,
             }
-            df.sort_values(by=[compare], key=lambda x: x.map(wealth_dict), inplace=True)
+            data.sort_values(by=[dimention], key=lambda x: x.map(wealth_dict), inplace=True)
         else:
             # sort by the compare value to have the legend in the right ascending order
-            df.sort_values(by=[compare], inplace=True)
+            data.sort_values(by=[dimention], inplace=True)
 
-    fig = getattr(px, fig_type)(df, **options)
+    fig = getattr(px, fig_type)(data, **options)
     if traces:
         fig.update_traces(**traces)
+        
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         fig.update_layout(
             xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
         )
-
-        # fig.update_layout(xaxis=dict(tickmode="linear", tick0=2010, dtick=1))
 
     # fig.update_xaxes(categoryorder="total descending")
     fig.update_layout(layout)
