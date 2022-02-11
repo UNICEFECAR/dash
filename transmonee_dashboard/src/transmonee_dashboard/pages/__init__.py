@@ -68,12 +68,12 @@ wealth_names = {
 gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
 # TODO: may not live here forever or we take from DSD
-DEFAULT_DIMENSIONS = [
-    "SEX",
-    "AGE",
-    "RESIDENCE",
-    "WEALTH_QUINTILE",
-]
+DEFAULT_DIMENSIONS = {
+    "SEX": {"SEX": ["_T"]},
+    "AGE": {"AGE": ["_T"]},
+    "RESIDENCE": {"RESIDENCE": ["_T"]},
+    "WEALTH_QUINTILE": {"WEALTH_QUINTILE": ["_T"]},
+}
 
 dimension_names = {
     "SEX": "Sex_name",
@@ -781,9 +781,9 @@ def get_filtered_dataset(
         "INDICATOR": indicators,
     }
     for indicator in indicators:
-        indicator_config = indicators_config.get(indicator, {})
+        indicator_config = indicators_config.get(indicator, DEFAULT_DIMENSIONS)
         for dim in dimensions.keys():
-            # if the dimension is in the config and has not overridden here
+            # if the dimension is in the config and has not been overridden
             if (dim in keys and dim in indicator_config) and not keys[dim]:
                 # replace the empty with the config value
                 keys.pop(dim)
