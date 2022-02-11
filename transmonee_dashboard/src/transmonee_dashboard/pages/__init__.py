@@ -263,6 +263,7 @@ codes = [
     "HT_INS_COV",
     # indicators for sub-topic-2
     "CME_MRY0T4",
+    "CME_TMY0T4",
     "CME_MRM0",
     "MNCH_MMR",
     "MNCH_SAB",

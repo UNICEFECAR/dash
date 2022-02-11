@@ -34,7 +34,9 @@ from ..components import fa
 
 # set defaults
 pio.templates.default = "plotly_white"
-px.defaults.color_continuous_scale = px.colors.sequential.BuGn
+px.defaults.color_continuous_scale = px.colors.sequential.Viridis
+# this predefined series contains 10 different colors.
+# px.defaults.color_discrete_sequence = px.colors.qualitative.G10
 px.defaults.color_discrete_sequence = [
     "#1cabe2",
     "#80bd41",
@@ -60,73 +62,131 @@ CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def make_area(area_name):
-    area = dbc.Card(
-        [
-            dbc.CardHeader(
-                id={"type": "area_title", "index": area_name},
-            ),
-            dbc.CardBody(
-                [
-                    dcc.Dropdown(
-                        id={"type": "area_options", "index": area_name},
-                        className="dcc_control",
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_types", "index": area_name},
-                        # TODO: read chart types from config when we add more types
-                        options=[
-                            {"label": "Line", "value": "line"},
-                            {"label": "Bar", "value": "bar"},
-                        ],
-                        inline=True,
-                    ),
-                    dcc.Graph(
-                        id={"type": "area", "index": area_name},
-                    ),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Exclude outliers ",
-                                "value": 1,
-                            }
-                        ],
-                        value=[1],
-                        id={
-                            "type": "exclude_outliers_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style={
-                            "paddingLeft": 20,
-                        },
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_breakdowns", "index": area_name},
-                        inline=True,
-                    ),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{area_name.lower()}_info",
-                        className="float-right",
-                    ),
-                    dbc.Popover(
-                        [
-                            dbc.PopoverHeader("Sources"),
-                            dbc.PopoverBody(
-                                id={"type": "area_sources", "index": area_name},
-                            ),
-                        ],
-                        id="hover",
-                        target=f"{area_name.lower()}_info",
-                        trigger="hover",
-                    ),
-                ]
-            ),
-        ],
-        id={"type": "area_parent", "index": area_name},
-    )
+    if area_name == "MAIN":
+        area = dbc.Card(
+            [
+                dbc.CardHeader(
+                    id={"type": "area_title", "index": area_name},
+                ),
+                dbc.CardBody(
+                    [
+                        dcc.Dropdown(
+                            id={
+                                "type": "area_options",
+                                "index": area_name,
+                            },
+                            style={
+                                "zIndex": "11",
+                            },
+                        ),
+                        dbc.FormGroup(
+                            [
+                                dbc.Checkbox(
+                                    id="latest-data-toggle",
+                                    className="custom-control-input",
+                                ),
+                                dbc.Label(
+                                    "Show latest year",
+                                    html_for="latest-data-toggle",
+                                    className="custom-control-label",
+                                    color="primary",
+                                ),
+                            ],
+                            className="custom-control custom-switch m-2",
+                            check=True,
+                            inline=True,
+                        ),
+                        # dcc.Graph(id={"type": "area", "index": area_name}),
+                        dcc.Graph(id="main_area"),
+                        html.Div(
+                            fa("fas fa-info-circle"),
+                            id="main_area_info",
+                            className="float-right",
+                        ),
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader("Sources"),
+                                dbc.PopoverBody(
+                                    # id={"type": "area_sources", "index": area_name},
+                                    id="main_area_sources"
+                                ),
+                            ],
+                            id="hover",
+                            target=f"{area_name.lower()}_area_info",
+                            trigger="hover",
+                        ),
+                    ]
+                ),
+            ],
+        )
+    else:
+        area = dbc.Card(
+            [
+                dbc.CardHeader(
+                    id={"type": "area_title", "index": area_name},
+                ),
+                dbc.CardBody(
+                    [
+                        dcc.Dropdown(
+                            id={"type": "area_options", "index": area_name},
+                            className="dcc_control",
+                        ),
+                        html.Br(),
+                        dbc.RadioItems(
+                            id={"type": "area_types", "index": area_name},
+                            # TODO: read chart types from config when we add more types
+                            options=[
+                                {"label": "Line", "value": "line"},
+                                {"label": "Bar", "value": "bar"},
+                            ],
+                            inline=True,
+                        ),
+                        dcc.Graph(
+                            id={"type": "area", "index": area_name},
+                        ),
+                        dbc.Checklist(
+                            options=[
+                                {
+                                    "label": "Exclude outliers ",
+                                    "value": 1,
+                                }
+                            ],
+                            value=[1],
+                            id={
+                                "type": "exclude_outliers_toggle",
+                                "index": area_name,
+                            },
+                            switch=True,
+                            style={
+                                "paddingLeft": 20,
+                            },
+                        ),
+                        html.Br(),
+                        dbc.RadioItems(
+                            id={"type": "area_breakdowns", "index": area_name},
+                            inline=True,
+                        ),
+                        html.Div(
+                            fa("fas fa-info-circle"),
+                            id=f"{area_name.lower()}_info",
+                            className="float-right",
+                        ),
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader("Sources"),
+                                dbc.PopoverBody(
+                                    id={"type": "area_sources", "index": area_name},
+                                ),
+                            ],
+                            id="hover",
+                            target=f"{area_name.lower()}_info",
+                            trigger="hover",
+                        ),
+                    ]
+                ),
+            ],
+            id={"type": "area_parent", "index": area_name},
+        )
     return area
 
 
@@ -282,66 +342,9 @@ def get_base_layout(**kwargs):
                 justify="center",
             ),
             html.Br(),
-            # start filter controls row
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                dbc.CardHeader(
-                                    id={"type": "area_title", "index": "MAIN"},
-                                ),
-                                dbc.CardBody(
-                                    [
-                                        dcc.Dropdown(
-                                            id={
-                                                "type": "area_options",
-                                                "index": "MAIN",
-                                            },
-                                            style={
-                                                "zIndex": "11",
-                                            },
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Checkbox(
-                                                    id="latest-data-toggle",
-                                                    className="custom-control-input",
-                                                ),
-                                                dbc.Label(
-                                                    "Show latest year",
-                                                    html_for="latest-data-toggle",
-                                                    className="custom-control-label",
-                                                    color="primary",
-                                                ),
-                                            ],
-                                            className="custom-control custom-switch m-2",
-                                            check=True,
-                                            inline=True,
-                                        ),
-                                        dcc.Graph(id="main_area"),
-                                        html.Div(
-                                            fa("fas fa-info-circle"),
-                                            id="main_area_info",
-                                            className="float-right",
-                                        ),
-                                        dbc.Popover(
-                                            [
-                                                dbc.PopoverHeader("Sources"),
-                                                dbc.PopoverBody(id="main_area_sources"),
-                                            ],
-                                            id="hover",
-                                            target="main_area_info",
-                                            trigger="hover",
-                                        ),
-                                    ]
-                                ),
-                            ],
-                        ),
-                    ),
-                ],
+            dbc.CardDeck(
+                [make_area(area) for area in ["MAIN"]],
             ),
-            # end filter controls row
             html.Br(),
             dbc.CardDeck(
                 [make_area(area) for area in ["AREA_1", "AREA_2"]],
@@ -1027,9 +1030,7 @@ def set_default_compare(
         Input("latest-data-toggle", "checked"),
         Input("store", "data"),
     ],
-    [
-        State("indicators", "data"),
-    ],
+    State("indicators", "data"),
 )
 def main_figure(indicator, latest_data, selections, indicators_dict):
 

@@ -655,7 +655,6 @@ indicators_dict = {
             "default": "EDUNF_ADMIN_L2_MAT",
         },
     },
-    
     "LEISURE": {
         "NAME": "Leisure and Culture",
         "CARDS": [

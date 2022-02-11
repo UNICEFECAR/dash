@@ -11,7 +11,7 @@ indicators_dict = {
         "CARDS": [
             {
                 "name": "Children whose births have been registered with a civil authority",
-                "indicator": "PT_CHLD_Y0T4_REG",  # wealth quintile has to Total
+                "indicator": "PT_CHLD_Y0T4_REG",  # wealth quintile has no Total
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },

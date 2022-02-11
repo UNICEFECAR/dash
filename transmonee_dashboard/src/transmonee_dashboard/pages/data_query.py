@@ -723,21 +723,15 @@ def search_indicators(
             ]
         else:
             # filter data by selected sector/source
-            print(sources)
-            print(topics)
-            print(sub_topics)
             filtered_subtopics_groups = df_sources
             if (sources is not None) & (len(sources) > 0) & (sources != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Source.isin(sources)
                 ]
-            print(filtered_subtopics_groups)
             if (topics is not None) & (len(topics) > 0) & (topics != ["All"]):
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Domain.isin(topics)
                 ]
-            print(filtered_subtopics_groups)
-
             if (
                 (sub_topics is not None)
                 & (len(sub_topics) > 0)
@@ -746,8 +740,6 @@ def search_indicators(
                 filtered_subtopics_groups = filtered_subtopics_groups[
                     filtered_subtopics_groups.Subdomain.isin(sub_topics)
                 ]
-
-            print(filtered_subtopics_groups)
 
             df_indicators_data = filtered_subtopics_groups[
                 filtered_subtopics_groups.Code.isin(filtered_subtopics_groups["Code"])
