@@ -42,7 +42,7 @@ from ..components import fa
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
-px.set_mapbox_access_token(mapbox_access_token)
+# px.set_mapbox_access_token(mapbox_access_token)
 
 colours = [
     "primary",
@@ -81,9 +81,9 @@ def make_area(area_name):
                         ],
                         inline=True,
                     ),
-                    dcc.Graph(
-                        id={"type": "area", "index": area_name},
-                    ),
+                    dcc.Loading([
+                        dcc.Graph(id={"type": "area", "index": area_name}),
+                    ]),
                     dbc.Checklist(
                         options=[
                             {
@@ -313,7 +313,7 @@ def get_base_layout(**kwargs):
                                             check=True,
                                             inline=True,
                                         ),
-                                        dcc.Graph(id="main_area"),
+                                        dcc.Loading([dcc.Graph(id="main_area")]),
                                         html.Div(
                                             fa("fas fa-info-circle"),
                                             id="main_area_info",
@@ -1005,12 +1005,6 @@ def set_default_compare(
 def main_figure(indicator, latest_data, selections, indicators_dict):
 
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
-    # compare = "Sex"
-
-    # total = "Total"  # potentially move to this config
-    # query = "CODE == @indicator"
-    # total_if_disag_query = get_total_query(data, indicator)
-    # query = (query + " & " + total_if_disag_query) if total_if_disag_query else query
 
     data = get_filtered_dataset(
         [indicator],
@@ -1050,15 +1044,6 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         else ""
     )
 
-    # df = (
-    #     data.groupby(["CODE", "REF_AREA", "TIME_PERIOD"])
-    #     .agg({"OBS_VALUE": "last"})
-    #     .sort_values(
-    #         by=["TIME_PERIOD"]
-    #     )  # Add sorting by Year to display the years in proper order
-    #     .reset_index()
-    # )
-
     if latest_data:
         # remove the animation frame to be able to show more than one year in the map
         options.pop("animation_frame")
@@ -1074,7 +1059,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
     options["geojson"] = geo_json_countries
 
     main_figure = px.choropleth_mapbox(data, **options)
-    main_figure.update_layout(margin={"r": 1, "t": 1, "l": 1, "b": 1})
+    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
     if latest_data:
         # hide the year range slider and the animation buttons

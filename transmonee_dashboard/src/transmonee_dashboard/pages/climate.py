@@ -20,7 +20,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Environment and Climate Change",
-            "geo": "Geographic area",
+            "geo": "REF_AREA",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -32,14 +32,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "REF_AREA": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "REF_AREA": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -73,7 +73,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="REF_AREA",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -86,8 +86,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="REF_AREA",
+                        hover_name="REF_AREA",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -121,7 +121,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="REF_AREA",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -134,8 +134,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="REF_AREA",
+                        hover_name="REF_AREA",
                         line_shape="spline",
                         render_mode="svg",
                     ),
