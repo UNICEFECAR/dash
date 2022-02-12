@@ -404,7 +404,7 @@ def get_filtered_dataset(
     indicators: list,
     years: list,
     countries: list,
-    dimentions: dict = {},
+    dimensions: dict = {},
     latest_data: bool = True,
 ) -> pd.DataFrame:
 
@@ -413,8 +413,8 @@ def get_filtered_dataset(
         "REF_AREA": countries,
         "INDICATOR": indicators,
     }
-    keys.update(dimentions)
-    # replace empty dimentions with default breakdowns or set to total
+    keys.update(dimensions)
+    # replace empty dimensions with default breakdowns or set to total
     for key, value in DEFAULT_DIMENSIONS.items():
         keys[key] = value if key in keys and not keys[key] else ["_T"]
 
@@ -1114,14 +1114,14 @@ def area_figure(
     config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = config.get("options")
     traces = config.get("trace_options")
-    dimention = False if fig_type == "line" or compare == "Total" else compare
+    dimension = False if fig_type == "line" or compare == "Total" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
-        dimentions={dimention: []} if dimention else {},
+        dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
     )
 
@@ -1183,8 +1183,8 @@ def area_figure(
         xaxis={"categoryorder": "total descending"},
     )
 
-    if dimention:
-        options["color"] = dimention
+    if dimension:
+        options["color"] = dimension
         if compare == "WEALTH_QUINTILE":
             wealth_dict = {
                 "Lowest": 0,
@@ -1194,11 +1194,11 @@ def area_figure(
                 "Highest": 4,
             }
             data.sort_values(
-                by=[dimention], key=lambda x: x.map(wealth_dict), inplace=True
+                by=[dimension], key=lambda x: x.map(wealth_dict), inplace=True
             )
         else:
             # sort by the compare value to have the legend in the right ascending order
-            data.sort_values(by=[dimention], inplace=True)
+            data.sort_values(by=[dimension], inplace=True)
 
     fig = getattr(px, fig_type)(data, **options)
     if traces:
