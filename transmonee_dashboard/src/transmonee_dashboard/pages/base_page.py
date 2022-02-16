@@ -746,7 +746,8 @@ def show_themes(selections, current_themes, indicators_dict):
 def set_options(theme, indicators_dict, id):
     area = id["index"]
     if area in indicators_dict[theme["theme"]]:
-        area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
+        indicators = indicators_dict[theme["theme"]][area].get("indicators")
+        area_indicators = indicators.keys() if indicators is dict else indicators
         area_options = [
             {
                 "label": indicator_names[code],
@@ -1061,20 +1062,23 @@ def area_figure(
         return {}, {}
 
     area = id["index"]
-    default = indicators_dict[selections["theme"]][area]["default_graph"]
-    fig_type = selected_type if selected_type else default
-    config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-    options = config.get("options")
-    traces = config.get("trace_options")
+    indicators = indicators_dict[selections["theme"]][area]["indicators"]
+    default_graph = indicators_dict[selections["theme"]][area].get("default_graph", "line")
+    fig_type = selected_type if selected_type else default_graph
+    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+    options = fig_config.get("options")
+    traces = fig_config.get("trace_options")
     dimension = False if fig_type == "line" or compare == "Total" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
+    indicator_settings = indicators.get(indicator, {}) if type(indicators) is dict else {}
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
         dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
+        dtype=indicator_settings.get("dtype"),
     )
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:

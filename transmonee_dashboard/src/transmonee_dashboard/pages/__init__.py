@@ -729,6 +729,7 @@ def get_filtered_dataset(
     countries: list,
     dimensions: dict = {},
     latest_data: bool = True,
+    dtype: str = None,
 ) -> pd.DataFrame:
 
     # TODO: This is temporary, need to move to config
@@ -758,7 +759,7 @@ def get_filtered_dataset(
     except HTTPError as e:
         return pd.DataFrame()
 
-    data = data.to_pandas(attributes="o", rtype="rows").reset_index()
+    data = data.to_pandas(attributes="o", rtype="rows", dtype=dtype or np.float64).reset_index()
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)

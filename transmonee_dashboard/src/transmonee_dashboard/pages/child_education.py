@@ -1,5 +1,4 @@
-import pandas as pd
-
+from collections import defaultdict
 import plotly.express as px
 
 from . import data, years
@@ -644,14 +643,14 @@ indicators_dict = {
                 },
             },
             "default_graph": "bar",
-            "indicators": [
-                "EDUNF_ADMIN_L1_GLAST_REA",
-                "EDUNF_ADMIN_L1_GLAST_MAT",
-                "EDUNF_ADMIN_L2_REA",
-                "EDUNF_ADMIN_L2_MAT",
-                "EDUNF_ADMIN_L1_G2OR3_REA",
-                "EDUNF_ADMIN_L1_G2OR3_MAT",
-            ],
+            "indicators": {
+                "EDUNF_ADMIN_L1_GLAST_REA": {},
+                "EDUNF_ADMIN_L1_GLAST_MAT": {},
+                "EDUNF_ADMIN_L2_REA": {},
+                "EDUNF_ADMIN_L2_MAT": {"dtype": "str"},
+                "EDUNF_ADMIN_L1_G2OR3_REA": {},
+                "EDUNF_ADMIN_L1_G2OR3_MAT": {},
+            },
             "default": "EDUNF_ADMIN_L2_MAT",
         },
     },
