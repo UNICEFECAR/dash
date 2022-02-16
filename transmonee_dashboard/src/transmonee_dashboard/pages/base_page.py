@@ -27,6 +27,12 @@ from . import (
     unicef,
     dsd,
     indicator_names,
+    units_names,
+    age_groups_names,
+    residence_names,
+    wealth_names,
+    gender_names,
+    dimension_names,
     countries_iso3_dict,
     gender_indicators,
     adolescent_age_groups,
@@ -55,78 +61,141 @@ colours = [
     "danger",
 ]
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
-DEFAULT_LABELS = {"REF_AREA": "Country", "TIME_PERIOD": "Year"}
+DEFAULT_LABELS = {
+    "Country_name": "Country",
+    "TIME_PERIOD": "Year",
+    "Sex_name": "Sex",
+    "Residence_name": "Residence",
+    "Age_name": "Age",
+    "Wealth_name": "Wealth Quintile",
+}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 
 def make_area(area_name):
-    area = dbc.Card(
-        [
-            dbc.CardHeader(
-                id={"type": "area_title", "index": area_name},
-            ),
-            dbc.CardBody(
-                [
-                    dcc.Dropdown(
-                        id={"type": "area_options", "index": area_name},
-                        className="dcc_control",
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_types", "index": area_name},
-                        # TODO: read chart types from config when we add more types
-                        options=[
-                            {"label": "Line", "value": "line"},
-                            {"label": "Bar", "value": "bar"},
-                        ],
-                        inline=True,
-                    ),
-                    dcc.Loading([
-                        dcc.Graph(id={"type": "area", "index": area_name}),
-                    ]),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Exclude outliers ",
-                                "value": 1,
-                            }
-                        ],
-                        value=[1],
-                        id={
-                            "type": "exclude_outliers_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style={
-                            "paddingLeft": 20,
-                        },
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_breakdowns", "index": area_name},
-                        inline=True,
-                    ),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{area_name.lower()}_info",
-                        className="float-right",
-                    ),
-                    dbc.Popover(
-                        [
-                            dbc.PopoverHeader("Sources"),
-                            dbc.PopoverBody(
-                                id={"type": "area_sources", "index": area_name},
-                            ),
-                        ],
-                        id="hover",
-                        target=f"{area_name.lower()}_info",
-                        trigger="hover",
-                    ),
-                ]
-            ),
-        ],
-        id={"type": "area_parent", "index": area_name},
-    )
+    if area_name == "MAIN":
+        area = dbc.Card(
+            [
+                dbc.CardHeader(
+                    id={"type": "area_title", "index": "MAIN"},
+                ),
+                dbc.CardBody(
+                    [
+                        dcc.Dropdown(
+                            id={
+                                "type": "area_options",
+                                "index": "MAIN",
+                            },
+                            style={
+                                "zIndex": "11",
+                            },
+                        ),
+                        dbc.FormGroup(
+                            [
+                                dbc.Checkbox(
+                                    id="latest-data-toggle",
+                                    className="custom-control-input",
+                                ),
+                                dbc.Label(
+                                    "Show latest year",
+                                    html_for="latest-data-toggle",
+                                    className="custom-control-label",
+                                    color="primary",
+                                ),
+                            ],
+                            className="custom-control custom-switch m-2",
+                            check=True,
+                            inline=True,
+                        ),
+                        dcc.Loading([dcc.Graph(id="main_area")]),
+                        html.Div(
+                            fa("fas fa-info-circle"),
+                            id="main_area_info",
+                            className="float-right",
+                        ),
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader("Sources"),
+                                dbc.PopoverBody(id="main_area_sources"),
+                            ],
+                            id="hover",
+                            target="main_area_info",
+                            trigger="hover",
+                        ),
+                    ]
+                ),
+            ],
+        )
+    else:
+        area = dbc.Card(
+            [
+                dbc.CardHeader(
+                    id={"type": "area_title", "index": area_name},
+                ),
+                dbc.CardBody(
+                    [
+                        dcc.Dropdown(
+                            id={"type": "area_options", "index": area_name},
+                            className="dcc_control",
+                        ),
+                        html.Br(),
+                        dbc.RadioItems(
+                            id={"type": "area_types", "index": area_name},
+                            # TODO: read chart types from config when we add more types
+                            options=[
+                                {"label": "Line", "value": "line"},
+                                {"label": "Bar", "value": "bar"},
+                            ],
+                            inline=True,
+                        ),
+                        dcc.Loading(
+                            [
+                                dcc.Graph(id={"type": "area", "index": area_name}),
+                            ]
+                        ),
+                        dbc.Checklist(
+                            options=[
+                                {
+                                    "label": "Exclude outliers ",
+                                    "value": 1,
+                                }
+                            ],
+                            value=[1],
+                            id={
+                                "type": "exclude_outliers_toggle",
+                                "index": area_name,
+                            },
+                            switch=True,
+                            style={
+                                "paddingLeft": 20,
+                            },
+                        ),
+                        html.Br(),
+                        dbc.RadioItems(
+                            id={"type": "area_breakdowns", "index": area_name},
+                            inline=True,
+                        ),
+                        html.Div(
+                            fa("fas fa-info-circle"),
+                            id=f"{area_name.lower()}_info",
+                            className="float-right",
+                        ),
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader("Sources"),
+                                dbc.PopoverBody(
+                                    id={"type": "area_sources", "index": area_name},
+                                ),
+                            ],
+                            id="hover",
+                            target=f"{area_name.lower()}_info",
+                            trigger="hover",
+                        ),
+                    ]
+                ),
+            ],
+            id={"type": "area_parent", "index": area_name},
+        )
     return area
 
 
@@ -276,66 +345,9 @@ def get_base_layout(**kwargs):
                 justify="center",
             ),
             html.Br(),
-            # start filter controls row
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                dbc.CardHeader(
-                                    id={"type": "area_title", "index": "MAIN"},
-                                ),
-                                dbc.CardBody(
-                                    [
-                                        dcc.Dropdown(
-                                            id={
-                                                "type": "area_options",
-                                                "index": "MAIN",
-                                            },
-                                            style={
-                                                "zIndex": "11",
-                                            },
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Checkbox(
-                                                    id="latest-data-toggle",
-                                                    className="custom-control-input",
-                                                ),
-                                                dbc.Label(
-                                                    "Show latest year",
-                                                    html_for="latest-data-toggle",
-                                                    className="custom-control-label",
-                                                    color="primary",
-                                                ),
-                                            ],
-                                            className="custom-control custom-switch m-2",
-                                            check=True,
-                                            inline=True,
-                                        ),
-                                        dcc.Loading([dcc.Graph(id="main_area")]),
-                                        html.Div(
-                                            fa("fas fa-info-circle"),
-                                            id="main_area_info",
-                                            className="float-right",
-                                        ),
-                                        dbc.Popover(
-                                            [
-                                                dbc.PopoverHeader("Sources"),
-                                                dbc.PopoverBody(id="main_area_sources"),
-                                            ],
-                                            id="hover",
-                                            target="main_area_info",
-                                            trigger="hover",
-                                        ),
-                                    ]
-                                ),
-                            ],
-                        ),
-                    ),
-                ],
+            dbc.CardDeck(
+                [make_area(area) for area in ["MAIN"]],
             ),
-            # end filter controls row
             html.Br(),
             dbc.CardDeck(
                 [make_area(area) for area in ["AREA_1", "AREA_2"]],
@@ -417,7 +429,8 @@ def get_filtered_dataset(
     # replace empty dimensions with default breakdowns or set to total
     for key, value in DEFAULT_DIMENSIONS.items():
         keys[key] = value if key in keys and not keys[key] else ["_T"]
-
+    # column data types coerced
+    col_types = {"value": str}
     try:
         data = unicef.data(
             "TRANSMONEE",
@@ -430,13 +443,54 @@ def get_filtered_dataset(
             ),
             dsd=dsd,
         )
-        print(data.response.url)
-        print(data.response.from_cache)
+        # print(data.response.url)
+        # print(data.response.from_cache)
     except HTTPError as e:
         return pd.DataFrame()
 
-    data = data.to_pandas(attributes="o", rtype="rows").reset_index()
+    # lbassil: add sorting by Year to display the years in proper order on the x-axis
+    data = (
+        data.to_pandas(attributes="o", rtype="rows", dtype=col_types)  # dsgo
+        .sort_values(by=["TIME_PERIOD"])
+        .reset_index()
+    )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+    # lbassil: replace Yes by 1 and No by 0
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+    # lbassil: check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
+    filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+    if filter_non_num.any():
+        not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+        f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+        data.drop(data[filter_non_num].index, inplace=True)
+
+    # lbassil: convert to numeric
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+    data = data.round({"OBS_VALUE": 2})
+    # lbassil: add the code to fill the country names
+    countries_key_list = list(countries_iso3_dict.keys())
+    countries_val_list = list(countries_iso3_dict.values())
+    data["Country_name"] = data["REF_AREA"].apply(
+        lambda x: countries_key_list[countries_val_list.index(x)]
+    )
+    # lbassil: add the code to fill the indicators' unit names
+    data["Unit_name"] = data["UNIT_MEASURE"].apply(
+        lambda x: str(units_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' gender names
+    data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
+    # lbassil: add the code to fill the indicators' residence names
+    data["Residence_name"] = data["RESIDENCE"].apply(
+        lambda x: str(residence_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' wealth quintiles names
+    data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
+        lambda x: str(wealth_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' wealth quintiles names
+    data["Age_name"] = data["AGE"].apply(
+        lambda x: str(age_groups_names.get(str(x), ""))
+    )
     return data
 
 
@@ -564,74 +618,72 @@ def indicator_card(
         if len(unique_indicator_sources) > 0
         else ""
     )
+    # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
+    if filtered_data.empty:
+        indicator_header = "No data"
+        indicator_sources = "NA"
+        numerator_pairs = []
+    else:
+        # select last value for each country
+        indicator_values = (
+            filtered_data.groupby(
+                [
+                    "REF_AREA",
+                    "TIME_PERIOD",
+                ]
+            ).agg({"OBS_VALUE": "sum", "CODE": "count"})
+        ).reset_index()
 
-    # TODO: Is this code completly duplicated from above?
-    # df_indicator_sources = df_sources[df_sources["Code"].isin(indicator)]
-    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    # indicator_sources = (
-    #     "; ".join(list(unique_indicator_sources))
-    #     if len(unique_indicator_sources) > 0
-    #     else ""
-    # )
+        numerator_pairs = (
+            indicator_values[indicator_values.CODE == len(indicators)]
+            .groupby("REF_AREA", as_index=False)
+            .last()
+            .set_index(["REF_AREA", "TIME_PERIOD"])
+        )
 
-    # select last value for each country
-    indicator_values = (
-        filtered_data.groupby(
-            [
-                "REF_AREA",
-                "TIME_PERIOD",
-            ]
-        ).agg({"OBS_VALUE": "sum", "CODE": "count"})
-    ).reset_index()
+        if suffix.lower() == "countries":
+            # this is a hack to accomodate small cases (to discuss with James)
+            if "FREE" in numerator:
+                # trick to filter number of years of free education
+                indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
+                sources = numerator_pairs.index.tolist()
+                numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
+            elif absolute:
+                # trick cards data availability among group of indicators and latest time_period
+                # doesn't require filtering by count == len(numors)
+                numerator_pairs = indicator_values.groupby(
+                    "REF_AREA", as_index=False
+                ).last()
+                max_time_filter = (
+                    numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
+                )
+                numerator_pairs.drop(
+                    numerator_pairs[max_time_filter].index, inplace=True
+                )
+                numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+                sources = numerator_pairs.index.tolist()
+                indicator_sum = len(sources)
+            else:
+                # trick to accomodate cards for admin exams (AND for boolean indicators)
+                # filter exams according to number of indicators
+                indicator_sum = (
+                    (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
+                )
+                sources = numerator_pairs.index.tolist()
 
-    numerator_pairs = (
-        indicator_values[indicator_values.CODE == len(indicators)]
-        .groupby("REF_AREA", as_index=False)
-        .last()
-        .set_index(["REF_AREA", "TIME_PERIOD"])
-    )
-
-    if suffix.lower() == "countries":
-        # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator:
-            # trick to filter number of years of free education
-            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
-            sources = numerator_pairs.index.tolist()
-            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
-        elif absolute:
-            # trick cards data availability among group of indicators and latest time_period
-            # doesn't require filtering by count == len(numors)
-            numerator_pairs = indicator_values.groupby(
-                "REF_AREA", as_index=False
-            ).last()
-            max_time_filter = (
-                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
-            )
-            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
-            sources = numerator_pairs.index.tolist()
-            indicator_sum = len(sources)
         else:
-            # trick to accomodate cards for admin exams (AND for boolean indicators)
-            # filter exams according to number of indicators
-            indicator_sum = (
-                (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
-            )
+            indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
             sources = numerator_pairs.index.tolist()
+            if average and len(sources) > 1:
+                indicator_sum = indicator_sum / len(sources)
 
-    else:
-        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
-        sources = numerator_pairs.index.tolist()
-        if average and len(sources) > 1:
-            indicator_sum = indicator_sum / len(sources)
-
-    # define indicator header text: the resultant number except for the min-max range
-    if min_max and len(sources) > 1:
-        indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
-        indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
-        indicator_header = f"[{indicator_min} - {indicator_max}]"
-    else:
-        indicator_header = "{:,.0f}".format(indicator_sum)
+        # define indicator header text: the resultant number except for the min-max range
+        if min_max and len(sources) > 1:
+            indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
+            indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
+            indicator_header = f"[{indicator_min} - {indicator_max}]"
+        else:
+            indicator_header = "{:,.0f}".format(indicator_sum)
 
     card = dbc.Card(
         [
@@ -687,10 +739,14 @@ def indicator_card(
 # it displays the countries as a list, each on a separate line...
 def get_card_popover_body(sources):
     countries = []
-    for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-        countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-    card_countries = "\n".join(countries)
-    return card_countries
+    # lbassil: added this condition to stop the exception when sources is empty
+    if not sources.empty:
+        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+        card_countries = "\n".join(countries)
+        return card_countries
+    else:
+        return "NA"
 
 
 @app.callback(
@@ -946,6 +1002,7 @@ def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
 def breakdown_options(indicator, id):
 
     options = [{"label": "Total", "value": "Total"}]
+    # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
     all_breakdowns = [
         {"label": "Sex", "value": "SEX"},
         {"label": "Age", "value": "AGE"},
@@ -1030,10 +1087,10 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
                 ],
             }
         }, ""
-
+    # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
     name = (
-        data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()) > 0
+        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
     df_indicator_sources = df_sources[df_sources["Code"] == indicator]
@@ -1124,7 +1181,6 @@ def area_figure(
         dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
     )
-
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return {
@@ -1142,10 +1198,10 @@ def area_figure(
                 ],
             }
         }, ""
-
+    # lbassil: was UNIT_MEASURE
     name = (
-        data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()) > 0
+        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
+        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
     df_indicator_sources = df_sources[df_sources["Code"] == indicator]
@@ -1180,11 +1236,12 @@ def area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
-        xaxis={"categoryorder": "total descending"},
+        # xaxis={"categoryorder": "total descending"},
     )
-
     if dimension:
-        options["color"] = dimension
+        # lbassil: use the dimension name instead of the code
+        dimension_name = str(dimension_names.get(dimension, ""))
+        options["color"] = dimension_name
         if compare == "WEALTH_QUINTILE":
             wealth_dict = {
                 "Lowest": 0,
@@ -1200,6 +1257,20 @@ def area_figure(
             # sort by the compare value to have the legend in the right ascending order
             data.sort_values(by=[dimension], inplace=True)
 
+    # print(
+    #     data[
+    #         [
+    #             "CODE",
+    #             "Country_name",
+    #             "TIME_PERIOD",
+    #             "OBS_VALUE",
+    #             "Unit_name",
+    #             "Sex_name",
+    #             "Residence_name",
+    #             "Wealth_name",
+    #         ]
+    #     ].head(100)
+    # )
     fig = getattr(px, fig_type)(data, **options)
     if traces:
         fig.update_traces(**traces)
@@ -1209,7 +1280,8 @@ def area_figure(
         fig.update_layout(
             xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
         )
-
-    # fig.update_xaxes(categoryorder="total descending")
+    # lbassil: add this else here in order for the trend year axis to be sorted and the bar chart too
+    else:
+        fig.update_xaxes(categoryorder="total descending")
     fig.update_layout(layout)
     return fig, source

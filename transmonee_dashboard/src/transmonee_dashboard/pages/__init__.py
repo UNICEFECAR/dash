@@ -13,13 +13,6 @@ import requests
 
 import pandasdmx as sdmx
 
-# TODO: may not live here forever or we take from DSD
-DEFAULT_DIMENSIONS = {
-    "SEX": ["M", "F"],
-    "RESIDENCE": ["U", "R"],
-    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
-}
-
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
@@ -35,10 +28,53 @@ unicef = sdmx.Request("UNICEF")
 
 metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
 dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
+# lbassil: get the age groups code list as it is not in the DSD
+cl_age = unicef.codelist("CL_AGE", version="1.0")
+age_groups = sdmx.to_pandas(cl_age)
+dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
 
 indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
+}
+# lbassil: get the list of age group names to use them instead of the codes
+age_groups_names = {
+    age["CL_AGE"]: age["name"] for index, age in dict_age_groups.iterrows()
+}
+
+# lbassil: I did not use unit.name.en because not all have en language; i.e. BIRTHSPER1000WOMEN
+units_names = {
+    unit.id: str(unit.name)
+    for unit in dsd.attributes.get("UNIT_MEASURE").local_representation.enumerated
+}
+
+# lbassil: get the names of the residence dimensions
+residence_names = {
+    residence.id: str(residence.name)
+    for residence in dsd.dimensions.get("RESIDENCE").local_representation.enumerated
+}
+
+# lbassil: get the names of the wealth quintiles dimensions
+wealth_names = {
+    wealth.id: str(wealth.name)
+    for wealth in dsd.dimensions.get("WEALTH_QUINTILE").local_representation.enumerated
+}
+
+gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
+
+# TODO: may not live here forever or we take from DSD
+DEFAULT_DIMENSIONS = {
+    "SEX": ["M", "F"],
+    "AGE": list(age_groups_names.keys()),
+    "RESIDENCE": ["U", "R"],
+    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+}
+
+dimension_names = {
+    "SEX": "Sex_name",
+    "AGE": "Age_name",
+    "RESIDENCE": "Residence_name",
+    "WEALTH_QUINTILE": "Wealth_name",
 }
 
 adolescent_codes = [

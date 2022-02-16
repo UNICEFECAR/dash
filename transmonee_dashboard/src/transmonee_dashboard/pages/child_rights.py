@@ -44,7 +44,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Demography",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -56,14 +56,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -84,7 +84,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -97,8 +97,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -120,7 +120,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -133,8 +133,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -166,7 +166,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Political Economy",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -178,14 +178,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -220,7 +220,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -233,8 +233,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -268,7 +268,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -281,8 +281,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -318,7 +318,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Migration and Displacement",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -330,14 +330,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -359,7 +359,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -372,8 +372,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -393,7 +393,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -406,8 +406,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -440,7 +440,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Access to Justice",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -452,14 +452,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -480,7 +480,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -493,8 +493,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -513,7 +513,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -526,8 +526,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -556,7 +556,7 @@ indicators_dict = {
     #     ],
     #     "MAIN": {
     #         "name": "Risks and humanitarian situation",
-    #         "geo": "REF_AREA",
+    #         "geo": "Country_name",
     #         "options": dict(
     #             locations="REF_AREA",
     #             featureidkey="id",
@@ -568,14 +568,14 @@ indicators_dict = {
     #             opacity=0.5,
     #             labels={
     #                 "OBS_VALUE": "Value",
-    #                 "REF_AREA": "Country",
+    #                 "Country_name": "Country",
     #                 "TIME_PERIOD": "Year",
     #                 "REF_AREA": "ISO3 Code",
     #             },
     #             hover_data={
     #                 "OBS_VALUE": True,
     #                 "REF_AREA": False,
-    #                 "REF_AREA": True,
+    #                 "Country_name": True,
     #                 "TIME_PERIOD": True,
     #             },
     #             animation_frame="TIME_PERIOD",
@@ -595,7 +595,7 @@ indicators_dict = {
     #         "graphs": {
     #             "bar": {
     #                 "options": dict(
-    #                     x="REF_AREA",
+    #                     x="Country_name",
     #                     y="OBS_VALUE",
     #                     barmode="group",
     #                     # text="TIME_PERIOD",
@@ -608,8 +608,8 @@ indicators_dict = {
     #                 "options": dict(
     #                     x="TIME_PERIOD",
     #                     y="OBS_VALUE",
-    #                     color="REF_AREA",
-    #                     hover_name="REF_AREA",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
     #                     line_shape="spline",
     #                     render_mode="svg",
     #                 ),
@@ -630,7 +630,7 @@ indicators_dict = {
     #         "graphs": {
     #             "bar": {
     #                 "options": dict(
-    #                     x="REF_AREA",
+    #                     x="Country_name",
     #                     y="OBS_VALUE",
     #                     barmode="group",
     #                     # text="TIME_PERIOD",
@@ -643,8 +643,8 @@ indicators_dict = {
     #                 "options": dict(
     #                     x="TIME_PERIOD",
     #                     y="OBS_VALUE",
-    #                     color="REF_AREA",
-    #                     hover_name="REF_AREA",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
     #                     line_shape="spline",
     #                     render_mode="svg",
     #                 ),
@@ -670,7 +670,7 @@ indicators_dict = {
     #     ],
     #     "MAIN": {
     #         "name": "Environment and Climate Change",
-    #         "geo": "REF_AREA",
+    #         "geo": "Country_name",
     #         "options": dict(
     #             locations="REF_AREA",
     #             featureidkey="id",
@@ -682,14 +682,14 @@ indicators_dict = {
     #             opacity=0.5,
     #             labels={
     #                 "OBS_VALUE": "Value",
-    #                 "REF_AREA": "Country",
+    #                 "Country_name": "Country",
     #                 "TIME_PERIOD": "Year",
     #                 "REF_AREA": "ISO3 Code",
     #             },
     #             hover_data={
     #                 "OBS_VALUE": True,
     #                 "REF_AREA": False,
-    #                 "REF_AREA": True,
+    #                 "Country_name": True,
     #                 "TIME_PERIOD": True,
     #             },
     #             animation_frame="TIME_PERIOD",
@@ -709,7 +709,7 @@ indicators_dict = {
     #         "graphs": {
     #             "bar": {
     #                 "options": dict(
-    #                     x="REF_AREA",
+    #                     x="Country_name",
     #                     y="OBS_VALUE",
     #                     barmode="group",
     #                     # text="TIME_PERIOD",
@@ -722,8 +722,8 @@ indicators_dict = {
     #                 "options": dict(
     #                     x="TIME_PERIOD",
     #                     y="OBS_VALUE",
-    #                     color="REF_AREA",
-    #                     hover_name="REF_AREA",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
     #                     line_shape="spline",
     #                     render_mode="svg",
     #                 ),
@@ -743,7 +743,7 @@ indicators_dict = {
     #         "graphs": {
     #             "bar": {
     #                 "options": dict(
-    #                     x="REF_AREA",
+    #                     x="Country_name",
     #                     y="OBS_VALUE",
     #                     barmode="group",
     #                     # text="TIME_PERIOD",
@@ -756,8 +756,8 @@ indicators_dict = {
     #                 "options": dict(
     #                     x="TIME_PERIOD",
     #                     y="OBS_VALUE",
-    #                     color="REF_AREA",
-    #                     hover_name="REF_AREA",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
     #                     line_shape="spline",
     #                     render_mode="svg",
     #                 ),
@@ -790,7 +790,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Availability of data on Children",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -802,14 +802,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -833,7 +833,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -846,8 +846,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -867,7 +867,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -880,8 +880,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -918,7 +918,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Public Expendiure on Children",
-            "geo": "REF_AREA",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -930,14 +930,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "REF_AREA": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "REF_AREA": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -965,7 +965,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -978,8 +978,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -1004,7 +1004,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="REF_AREA",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -1017,8 +1017,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="REF_AREA",
-                        hover_name="REF_AREA",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
