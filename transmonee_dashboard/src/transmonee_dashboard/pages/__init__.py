@@ -10,6 +10,7 @@ import dash_html_components as html
 import numpy as np
 import pandas as pd
 import requests
+from requests.exceptions import HTTPError
 
 import pandasdmx as sdmx
 
@@ -22,8 +23,6 @@ DEFAULT_DIMENSIONS = {
 
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
-
-mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
 geo_json_file = (
     pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
@@ -724,6 +723,58 @@ def get_sector(subtopic):
     return ""
 
 
+def get_filtered_dataset(
+    indicators: list,
+    years: list,
+    countries: list,
+    dimensions: dict = {},
+    latest_data: bool = True,
+) -> pd.DataFrame:
+
+    # TODO: This is temporary, need to move to config
+    keys = {
+        "REF_AREA": countries,
+        "INDICATOR": indicators,
+    }
+    keys.update(dimensions)
+    # replace empty dimensions with default breakdowns or set to total
+    for key, value in DEFAULT_DIMENSIONS.items():
+        keys[key] = value if key in keys and not keys[key] else ["_T"]
+
+    try:
+        data = unicef.data(
+            "TRANSMONEE",
+            provider="ECARO",
+            key=keys,
+            params=dict(
+                startPeriod=years[0],
+                endPeriod=years[-1],
+                lastNObservations=1 if latest_data else 0,
+            ),
+            dsd=dsd,
+        )
+        print(data.response.url)
+        print(data.response.from_cache)
+    except HTTPError as e:
+        return pd.DataFrame()
+
+    data = data.to_pandas(attributes="o", rtype="rows").reset_index()
+    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+    # replace Yes by 1 and No by 0
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+    # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
+    filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+    if filter_non_num.any():
+        not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+        f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+        data.drop(data[filter_non_num].index, inplace=True)
+
+    # convert to numeric and round
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+    data = data.round({"OBS_VALUE": 2})
+    return data
+
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -782,7 +833,6 @@ col_types = {
     "TIME_PERIOD": int,
 }
 
-start_time = time.time()
 # avoid a loop to query SDMX
 try:
     data_query_sdmx = pd.read_csv(
@@ -800,8 +850,7 @@ data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 
 # replace Yes by 1 and No by 0
 data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-# print the time needed to read the data
-print("--- %s seconds ---" % (time.time() - start_time))
+
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()

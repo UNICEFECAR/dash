@@ -14,10 +14,8 @@ import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 import textwrap
 import pandas as pd
-from requests.exceptions import HTTPError
 
 from . import (
-    mapbox_access_token,
     unicef_country_prog,
     programme_country_indexes,
     selection_index,
@@ -33,7 +31,7 @@ from . import (
     adolescent_codes,
     geo_json_countries,
     df_sources,
-    DEFAULT_DIMENSIONS,
+    get_filtered_dataset
 )
 from ..app import app
 from ..components import fa
@@ -42,7 +40,6 @@ from ..components import fa
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
-# px.set_mapbox_access_token(mapbox_access_token)
 
 colours = [
     "primary",
@@ -58,6 +55,21 @@ AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
 DEFAULT_LABELS = {"REF_AREA": "Country", "TIME_PERIOD": "Year"}
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
+EMPTY_CHART = {
+    "layout": {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "annotations": [
+            {
+                "text": "No data is available for the selected filters",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 28},
+            }
+        ],
+    }
+}
 
 def make_area(area_name):
     area = dbc.Card(
@@ -303,7 +315,7 @@ def get_base_layout(**kwargs):
                                                     className="custom-control-input",
                                                 ),
                                                 dbc.Label(
-                                                    "Show latest year",
+                                                    "Show historical data",
                                                     html_for="latest-data-toggle",
                                                     className="custom-control-label",
                                                     color="primary",
@@ -398,46 +410,6 @@ def display_areas(theme, indicators_dict, id):
     area = id["index"]
     theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
     return area not in indicators_dict[theme]
-
-
-def get_filtered_dataset(
-    indicators: list,
-    years: list,
-    countries: list,
-    dimensions: dict = {},
-    latest_data: bool = True,
-) -> pd.DataFrame:
-
-    # TODO: This is temporary, need to move to config
-    keys = {
-        "REF_AREA": countries,
-        "INDICATOR": indicators,
-    }
-    keys.update(dimensions)
-    # replace empty dimensions with default breakdowns or set to total
-    for key, value in DEFAULT_DIMENSIONS.items():
-        keys[key] = value if key in keys and not keys[key] else ["_T"]
-
-    try:
-        data = unicef.data(
-            "TRANSMONEE",
-            provider="ECARO",
-            key=keys,
-            params=dict(
-                startPeriod=years[0],
-                endPeriod=years[-1],
-                lastNObservations=1 if latest_data else 0,
-            ),
-            dsd=dsd,
-        )
-        print(data.response.url)
-        print(data.response.from_cache)
-    except HTTPError as e:
-        return pd.DataFrame()
-
-    data = data.to_pandas(attributes="o", rtype="rows").reset_index()
-    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
-    return data
 
 
 @app.callback(
@@ -1004,6 +976,9 @@ def set_default_compare(
 )
 def main_figure(indicator, latest_data, selections, indicators_dict):
 
+    #TODO: Change the name of variable becuase we have inverted the logic
+    latest_data = not latest_data
+    
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
     data = get_filtered_dataset(
@@ -1015,21 +990,7 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return {
-            "layout": {
-                "xaxis": {"visible": False},
-                "yaxis": {"visible": False},
-                "annotations": [
-                    {
-                        "text": "No data is available for selected filters",
-                        "xref": "paper",
-                        "yref": "paper",
-                        "showarrow": False,
-                        "font": {"size": 28},
-                    }
-                ],
-            }
-        }, ""
+        return EMPTY_CHART, ""
 
     name = (
         data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
@@ -1044,27 +1005,18 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         else ""
     )
 
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+    options["labels"]["text"] = "OBS_VALUE"
+    options["geojson"] = geo_json_countries
     if latest_data:
-        # remove the animation frame to be able to show more than one year in the map
+        # remove the animation frame and show all countries at once
         options.pop("animation_frame")
         # add the year to show on hover
         options["hover_name"] = "TIME_PERIOD"
-        # keep only the latest value of every country
-        data = data.sort_values(["REF_AREA", "TIME_PERIOD"]).drop_duplicates(
-            "REF_AREA", keep="last"
-        )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    options["geojson"] = geo_json_countries
 
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    if latest_data:
-        # hide the year range slider and the animation buttons
-        main_figure["layout"].pop("sliders")
-        main_figure["layout"].pop("updatemenus")
 
     # check if this area's config has an animation frame and hence a slider
     if len(main_figure.layout["sliders"]) > 0:
@@ -1124,24 +1076,17 @@ def area_figure(
         dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
     )
-
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return {
-            "layout": {
-                "xaxis": {"visible": False},
-                "yaxis": {"visible": False},
-                "annotations": [
-                    {
-                        "text": "No data is available for the selected filters",
-                        "xref": "paper",
-                        "yref": "paper",
-                        "showarrow": False,
-                        "font": {"size": 28},
-                    }
-                ],
-            }
-        }, ""
+        return EMPTY_CHART, ""
+    
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
 
     name = (
         data[data["CODE"] == indicator]["UNIT_MEASURE"].astype(str).unique()[0]
@@ -1155,14 +1100,6 @@ def area_figure(
         if len(unique_indicator_sources) > 0
         else ""
     )
-
-    # check if the exclude outliers checkbox is checked
-    if exclude_outliers:
-        # filter the data to the remove the outliers
-        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
-        # filter the data entries to remove the outliers
-        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1182,7 +1119,12 @@ def area_figure(
         legend=dict(x=0.9, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
-
+    
+    # Add this code to avoid having decimal year on the x-axis for time series charts
+    if fig_type == "line":
+        data.sort_values(by=["TIME_PERIOD"], inplace=True)
+        layout["xaxis"]=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
+        
     if dimension:
         options["color"] = dimension
         if compare == "WEALTH_QUINTILE":
@@ -1201,15 +1143,8 @@ def area_figure(
             data.sort_values(by=[dimension], inplace=True)
 
     fig = getattr(px, fig_type)(data, **options)
+    fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
 
-    # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line":
-        fig.update_layout(
-            xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
-        )
-
-    # fig.update_xaxes(categoryorder="total descending")
-    fig.update_layout(layout)
     return fig, source
