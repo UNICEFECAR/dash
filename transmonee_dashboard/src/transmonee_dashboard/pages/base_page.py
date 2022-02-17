@@ -106,12 +106,12 @@ def make_area(area_name):
                         dbc.FormGroup(
                             [
                                 dbc.Checkbox(
-                                    id="latest-data-toggle",
+                                    id="historical-data-toggle",
                                     className="custom-control-input",
                                 ),
                                 dbc.Label(
-                                    "Show latest year",
-                                    html_for="latest-data-toggle",
+                                    "Show historical data",
+                                    html_for="historical-data-toggle",
                                     className="custom-control-label",
                                     color="primary",
                                 ),
@@ -1070,18 +1070,16 @@ def set_default_compare(
     Output("main_area_sources", "children"),
     [
         Input({"type": "area_options", "index": "MAIN"}, "value"),
-        Input("latest-data-toggle", "checked"),
+        Input("historical-data-toggle", "checked"),
         Input("store", "data"),
     ],
     [
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, latest_data, selections, indicators_dict):
+def main_figure(indicator, historical_data, selections, indicators_dict):
 
-    # TODO: Change the name of variable becuase we have inverted the logic
-    latest_data = not latest_data
-
+    latest_data = not historical_data
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
     data = get_filtered_dataset(
