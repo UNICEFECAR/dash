@@ -750,7 +750,7 @@ def set_options(theme, indicators_dict, id):
 
     area = id["index"]
 
-    area_options = []
+    area_options = area_types = []
     if area in indicators_dict[theme["theme"]]:
         indicators = indicators_dict[theme["theme"]][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
@@ -761,19 +761,20 @@ def set_options(theme, indicators_dict, id):
             }
             for code in area_indicators
         ]
+        
+        area_types = [
+            {
+                "label": name,
+                "value": name,
+            }
+            for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
+        ]
 
     name = (
         indicators_dict[theme["theme"]][area].get("name")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
-
-    area_types = (
-        indicators_dict[theme["theme"]][area].get("graphs", [])
-        if area in indicators_dict[theme["theme"]]
-        else []
-    )
-
     default_option = (
         indicators_dict[theme["theme"]][area].get("default")
         if area in indicators_dict[theme["theme"]]
@@ -797,10 +798,9 @@ def set_options(theme, indicators_dict, id):
 )
 def breakdown_options(indicator, id):
 
-    options = []
+    options = [{"label": "Total", "value": "TOTAL"}]
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
     all_breakdowns = [
-        {"label": "Total", "value": "Total"},
         {"label": "Sex", "value": "SEX"},
         {"label": "Age", "value": "AGE"},
         {"label": "Residence", "value": "RESIDENCE"},

@@ -25,7 +25,7 @@ with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
 with open(
-    "/workspaces/Dash/transmonee_dashboard/src/transmonee_dashboard/pages/indicator_config.json"
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
 ) as config_file:
     indicators_config = json.load(config_file)
 
@@ -782,14 +782,12 @@ def get_filtered_dataset(
     }
     for indicator in indicators:
         indicator_config = indicators_config.get(indicator, {})
-        print(indicator_config)
         for dim in dimensions.keys():
             # if the dimension is in the config and has not overridden here
             if (dim in keys and dim in indicator_config) and not keys[dim]:
                 # replace the empty with the config value
                 keys.pop(dim)
                 keys.update(indicator_config[dim])
-    print(keys)
     try:
         data = unicef.data(
             "TRANSMONEE",
