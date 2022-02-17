@@ -10,13 +10,12 @@ import dash_html_components as html
 import numpy as np
 import pandas as pd
 import requests
+from requests.exceptions import HTTPError
 
 import pandasdmx as sdmx
 
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
-
-mapbox_access_token = "pk.eyJ1IjoiamNyYW53ZWxsd2FyZCIsImEiOiJja2NkMW02aXcwYTl5MnFwbjdtdDB0M3oyIn0.zkIzPc4NSjLZvrY-DWrlZg"
 
 geo_json_file = (
     pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
@@ -39,7 +38,9 @@ indicator_names = {
 }
 # lbassil: get the list of age group names to use them instead of the codes
 age_groups_names = {
-    age["CL_AGE"]: age["name"] for index, age in dict_age_groups.iterrows()
+    age["CL_AGE"]: age["name"]
+    for index, age in dict_age_groups.iterrows()
+    if age["CL_AGE"] != "_T"
 }
 
 # lbassil: I did not use unit.name.en because not all have en language; i.e. BIRTHSPER1000WOMEN
@@ -760,6 +761,93 @@ def get_sector(subtopic):
     return ""
 
 
+def get_filtered_dataset(
+    indicators: list,
+    years: list,
+    countries: list,
+    dimensions: dict = {},
+    latest_data: bool = True,
+    dtype: str = "str",  # lbassil: was always returning None and the it was giving an exception
+) -> pd.DataFrame:
+
+    # TODO: This is temporary, need to move to config
+    keys = {
+        "REF_AREA": countries,
+        "INDICATOR": indicators,
+    }
+    keys.update(dimensions)
+    # replace empty dimensions with default breakdowns or set to total
+    for key, value in DEFAULT_DIMENSIONS.items():
+        # keys[key] = value if key in keys and not keys[key] else ["_T"]
+        # lbassil: the above line was not working when a dimension value was sent like age or gender, was always setting it to _T
+        keys[key] = (
+            ["_T"] if key not in keys else value if len(keys[key]) == 0 else keys[key]
+        )
+
+    try:
+        data = unicef.data(
+            "TRANSMONEE",
+            provider="ECARO",
+            key=keys,
+            params=dict(
+                startPeriod=years[0],
+                endPeriod=years[-1],
+                lastNObservations=1 if latest_data else 0,
+            ),
+            dsd=dsd,
+        )
+        # print(data.response.url)
+        # print(data.response.from_cache)
+    except HTTPError as e:
+        return pd.DataFrame()
+
+    # lbassil: add sorting by Year to display the years in proper order on the x-axis
+    data = (
+        data.to_pandas(attributes="o", rtype="rows", dtype=dtype or np.float64)
+        .sort_values(by=["TIME_PERIOD"])
+        .reset_index()
+    )
+    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+    # replace Yes by 1 and No by 0
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+    # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
+    filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+    if filter_non_num.any():
+        not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+        f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+        data.drop(data[filter_non_num].index, inplace=True)
+
+    # convert to numeric and round
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+    data = data.round({"OBS_VALUE": 2})
+
+    # lbassil: add the code to fill the country names
+    countries_key_list = list(countries_iso3_dict.keys())
+    countries_val_list = list(countries_iso3_dict.values())
+    data["Country_name"] = data["REF_AREA"].apply(
+        lambda x: countries_key_list[countries_val_list.index(x)]
+    )
+    # lbassil: add the code to fill the indicators' unit names
+    data["Unit_name"] = data["UNIT_MEASURE"].apply(
+        lambda x: str(units_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' gender names
+    data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
+    # lbassil: add the code to fill the indicators' residence names
+    data["Residence_name"] = data["RESIDENCE"].apply(
+        lambda x: str(residence_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' wealth quintiles names
+    data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
+        lambda x: str(wealth_names.get(str(x), ""))
+    )
+    # lbassil: add the code to fill the indicators' wealth quintiles names
+    data["Age_name"] = data["AGE"].apply(
+        lambda x: str(age_groups_names.get(str(x), ""))
+    )
+    return data
+
+
 # create two dicts, one for display tree and one with the index of all possible selections
 selection_index = collections.OrderedDict({"0": countries})
 selection_tree = dict(title="Select All", key="0", children=[])
@@ -818,7 +906,6 @@ col_types = {
     "TIME_PERIOD": int,
 }
 
-start_time = time.time()
 # avoid a loop to query SDMX
 try:
     data_query_sdmx = pd.read_csv(
@@ -836,8 +923,7 @@ data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 
 # replace Yes by 1 and No by 0
 data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-# print the time needed to read the data
-print("--- %s seconds ---" % (time.time() - start_time))
+
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()

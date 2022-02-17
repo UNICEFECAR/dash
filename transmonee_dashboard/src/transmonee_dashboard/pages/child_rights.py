@@ -14,32 +14,35 @@ indicators_dict = {
                 "indicator": "DM_CHLD_POP",
                 "suffix": "Total child population (expressed in thousands)",
                 "absolute": True,
-                "age": "Under 5 years old",  # Y0T4
+                "age": "Y0T4",  # Under 5 years old
             },
             {
                 "name": "Age 10-19 years",
                 "indicator": "DM_ADOL_POP",
                 "suffix": "Total adolescent population (expressed in thousands)",
                 "absolute": True,
+                "age": "Y10T19",
             },
             {
                 "name": "age 0-17 years",
                 "indicator": "DM_CHLD_POP",
                 "suffix": "Total child population (expressed in thousands)",
                 "absolute": True,
+                "age": "Y0T17",
             },
             {
                 "name": "Children as a share of the total population",
                 "indicator": "DM_CHLD_POP_PT",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
+                "age": "Y0T17",
             },
             {
                 "name": "Age 15-24 years",
                 "indicator": "DM_ADOL_YOUTH_POP",
                 "suffix": "Total young population (expressed in thousands)",
                 "absolute": True,
-                "age": "15 to 24 years old",  # Y15T24
+                "age": "Y15T24",  # 15 to 24 years old
             },
         ],
         "MAIN": {

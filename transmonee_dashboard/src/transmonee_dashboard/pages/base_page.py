@@ -14,10 +14,8 @@ import plotly.io as pio
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
 import textwrap
 import pandas as pd
-from requests.exceptions import HTTPError
 
 from . import (
-    mapbox_access_token,
     unicef_country_prog,
     programme_country_indexes,
     selection_index,
@@ -27,11 +25,11 @@ from . import (
     unicef,
     dsd,
     indicator_names,
-    units_names,
-    age_groups_names,
-    residence_names,
-    wealth_names,
-    gender_names,
+    # units_names,
+    # age_groups_names,
+    # residence_names,
+    # wealth_names,
+    # gender_names,
     dimension_names,
     countries_iso3_dict,
     gender_indicators,
@@ -39,7 +37,7 @@ from . import (
     adolescent_codes,
     geo_json_countries,
     df_sources,
-    DEFAULT_DIMENSIONS,
+    get_filtered_dataset,
 )
 from ..app import app
 from ..components import fa
@@ -48,7 +46,6 @@ from ..components import fa
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
-# px.set_mapbox_access_token(mapbox_access_token)
 
 colours = [
     "primary",
@@ -70,6 +67,22 @@ DEFAULT_LABELS = {
     "Wealth_name": "Wealth Quintile",
 }
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
+
+EMPTY_CHART = {
+    "layout": {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "annotations": [
+            {
+                "text": "No data is available for the selected filters",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 28},
+            }
+        ],
+    }
+}
 
 
 def make_area(area_name):
@@ -412,86 +425,86 @@ def display_areas(theme, indicators_dict, id):
     return area not in indicators_dict[theme]
 
 
-def get_filtered_dataset(
-    indicators: list,
-    years: list,
-    countries: list,
-    dimensions: dict = {},
-    latest_data: bool = True,
-) -> pd.DataFrame:
+# def get_filtered_dataset(
+#     indicators: list,
+#     years: list,
+#     countries: list,
+#     dimensions: dict = {},
+#     latest_data: bool = True,
+# ) -> pd.DataFrame:
 
-    # TODO: This is temporary, need to move to config
-    keys = {
-        "REF_AREA": countries,
-        "INDICATOR": indicators,
-    }
-    keys.update(dimensions)
-    # replace empty dimensions with default breakdowns or set to total
-    for key, value in DEFAULT_DIMENSIONS.items():
-        keys[key] = value if key in keys and not keys[key] else ["_T"]
-    # column data types coerced
-    col_types = {"value": str}
-    try:
-        data = unicef.data(
-            "TRANSMONEE",
-            provider="ECARO",
-            key=keys,
-            params=dict(
-                startPeriod=years[0],
-                endPeriod=years[-1],
-                lastNObservations=1 if latest_data else 0,
-            ),
-            dsd=dsd,
-        )
-        # print(data.response.url)
-        # print(data.response.from_cache)
-    except HTTPError as e:
-        return pd.DataFrame()
+#     # TODO: This is temporary, need to move to config
+#     keys = {
+#         "REF_AREA": countries,
+#         "INDICATOR": indicators,
+#     }
+#     keys.update(dimensions)
+#     # replace empty dimensions with default breakdowns or set to total
+#     for key, value in DEFAULT_DIMENSIONS.items():
+#         keys[key] = value if key in keys and not keys[key] else ["_T"]
+#     # column data types coerced
+#     col_types = {"value": str}
+#     try:
+#         data = unicef.data(
+#             "TRANSMONEE",
+#             provider="ECARO",
+#             key=keys,
+#             params=dict(
+#                 startPeriod=years[0],
+#                 endPeriod=years[-1],
+#                 lastNObservations=1 if latest_data else 0,
+#             ),
+#             dsd=dsd,
+#         )
+#         # print(data.response.url)
+#         # print(data.response.from_cache)
+#     except HTTPError as e:
+#         return pd.DataFrame()
 
-    # lbassil: add sorting by Year to display the years in proper order on the x-axis
-    data = (
-        data.to_pandas(attributes="o", rtype="rows", dtype=col_types)  # dsgo
-        .sort_values(by=["TIME_PERIOD"])
-        .reset_index()
-    )
-    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
-    # lbassil: replace Yes by 1 and No by 0
-    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-    # lbassil: check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
-    filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
-    if filter_non_num.any():
-        not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
-        f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
-        data.drop(data[filter_non_num].index, inplace=True)
+#     # lbassil: add sorting by Year to display the years in proper order on the x-axis
+#     data = (
+#         data.to_pandas(attributes="o", rtype="rows", dtype=col_types)  # dsgo
+#         .sort_values(by=["TIME_PERIOD"])
+#         .reset_index()
+#     )
+#     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+#     # lbassil: replace Yes by 1 and No by 0
+#     data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+#     # lbassil: check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
+#     filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
+#     if filter_non_num.any():
+#         not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
+#         f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
+#         data.drop(data[filter_non_num].index, inplace=True)
 
-    # lbassil: convert to numeric
-    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-    data = data.round({"OBS_VALUE": 2})
-    # lbassil: add the code to fill the country names
-    countries_key_list = list(countries_iso3_dict.keys())
-    countries_val_list = list(countries_iso3_dict.values())
-    data["Country_name"] = data["REF_AREA"].apply(
-        lambda x: countries_key_list[countries_val_list.index(x)]
-    )
-    # lbassil: add the code to fill the indicators' unit names
-    data["Unit_name"] = data["UNIT_MEASURE"].apply(
-        lambda x: str(units_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' gender names
-    data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
-    # lbassil: add the code to fill the indicators' residence names
-    data["Residence_name"] = data["RESIDENCE"].apply(
-        lambda x: str(residence_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' wealth quintiles names
-    data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
-        lambda x: str(wealth_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' wealth quintiles names
-    data["Age_name"] = data["AGE"].apply(
-        lambda x: str(age_groups_names.get(str(x), ""))
-    )
-    return data
+#     # lbassil: convert to numeric
+#     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+#     data = data.round({"OBS_VALUE": 2})
+#     # lbassil: add the code to fill the country names
+#     countries_key_list = list(countries_iso3_dict.keys())
+#     countries_val_list = list(countries_iso3_dict.values())
+#     data["Country_name"] = data["REF_AREA"].apply(
+#         lambda x: countries_key_list[countries_val_list.index(x)]
+#     )
+#     # lbassil: add the code to fill the indicators' unit names
+#     data["Unit_name"] = data["UNIT_MEASURE"].apply(
+#         lambda x: str(units_names.get(str(x), ""))
+#     )
+#     # lbassil: add the code to fill the indicators' gender names
+#     data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
+#     # lbassil: add the code to fill the indicators' residence names
+#     data["Residence_name"] = data["RESIDENCE"].apply(
+#         lambda x: str(residence_names.get(str(x), ""))
+#     )
+#     # lbassil: add the code to fill the indicators' wealth quintiles names
+#     data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
+#         lambda x: str(wealth_names.get(str(x), ""))
+#     )
+#     # lbassil: add the code to fill the indicators' wealth quintiles names
+#     data["Age_name"] = data["AGE"].apply(
+#         lambda x: str(age_groups_names.get(str(x), ""))
+#     )
+#     return data
 
 
 @app.callback(
@@ -593,16 +606,20 @@ def indicator_card(
     # use one of the numerators if more than one --> assume all have the same disaggregation
     # other possibility could be to generalize more get_target_query function ...
 
-    dimension = (
-        {"AGE": [age_group]} if age_group else {"SEX": [sex_code]} if sex_code else {}
-    )
+    # dimension = (
+    #     {"AGE": [age_group]} if age_group else {"SEX": [sex_code]} if sex_code else {}
+    # )
+    # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
+    dimension = {
+        "AGE": [age_group] if age_group else ["_T"],
+        "SEX": [sex_code] if sex_code else ["_T"],
+    }
 
     # target_code = age_group if age_group else sex_code
     # target_and_total_query = get_target_query(
     #     filtered_data, numors[0], dimension, target_code
     # )
     # query = query + " & " + target_and_total_query
-
     filtered_data = get_filtered_dataset(
         indicators,
         selections["years"],
@@ -740,7 +757,7 @@ def indicator_card(
 def get_card_popover_body(sources):
     countries = []
     # lbassil: added this condition to stop the exception when sources is empty
-    if not sources.empty:
+    if len(sources) > 0:
         for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
             countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
         card_countries = "\n".join(countries)
@@ -830,7 +847,8 @@ def show_themes(selections, current_themes, indicators_dict):
 def set_options(theme, indicators_dict, id):
     area = id["index"]
     if area in indicators_dict[theme["theme"]]:
-        area_indicators = indicators_dict[theme["theme"]][area]["indicators"]
+        indicators = indicators_dict[theme["theme"]][area].get("indicators")
+        area_indicators = indicators.keys() if indicators is dict else indicators
         area_options = [
             {
                 "label": indicator_names[code],
@@ -1061,6 +1079,9 @@ def set_default_compare(
 )
 def main_figure(indicator, latest_data, selections, indicators_dict):
 
+    # TODO: Change the name of variable becuase we have inverted the logic
+    latest_data = not latest_data
+
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
     data = get_filtered_dataset(
@@ -1072,21 +1093,8 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return {
-            "layout": {
-                "xaxis": {"visible": False},
-                "yaxis": {"visible": False},
-                "annotations": [
-                    {
-                        "text": "No data is available for selected filters",
-                        "xref": "paper",
-                        "yref": "paper",
-                        "showarrow": False,
-                        "font": {"size": 28},
-                    }
-                ],
-            }
-        }, ""
+        return EMPTY_CHART, ""
+
     # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
     name = (
         data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
@@ -1101,27 +1109,18 @@ def main_figure(indicator, latest_data, selections, indicators_dict):
         else ""
     )
 
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = name
+    options["labels"]["text"] = "OBS_VALUE"
+    options["geojson"] = geo_json_countries
     if latest_data:
-        # remove the animation frame to be able to show more than one year in the map
+        # remove the animation frame and show all countries at once
         options.pop("animation_frame")
         # add the year to show on hover
         options["hover_name"] = "TIME_PERIOD"
-        # keep only the latest value of every country
-        data = data.sort_values(["REF_AREA", "TIME_PERIOD"]).drop_duplicates(
-            "REF_AREA", keep="last"
-        )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    options["geojson"] = geo_json_countries
 
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    if latest_data:
-        # hide the year range slider and the animation buttons
-        main_figure["layout"].pop("sliders")
-        main_figure["layout"].pop("updatemenus")
 
     # check if this area's config has an animation frame and hence a slider
     if len(main_figure.layout["sliders"]) > 0:
@@ -1166,38 +1165,40 @@ def area_figure(
         return {}, {}
 
     area = id["index"]
-    default = indicators_dict[selections["theme"]][area]["default_graph"]
-    fig_type = selected_type if selected_type else default
-    config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-    options = config.get("options")
-    traces = config.get("trace_options")
+    indicators = indicators_dict[selections["theme"]][area]["indicators"]
+    default_graph = indicators_dict[selections["theme"]][area].get(
+        "default_graph", "line"
+    )
+    fig_type = selected_type if selected_type else default_graph
+    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+    options = fig_config.get("options")
+    traces = fig_config.get("trace_options")
     dimension = False if fig_type == "line" or compare == "Total" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
+    indicator_settings = (
+        indicators.get(indicator, {}) if type(indicators) is dict else {}
+    )
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
         dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
+        dtype=indicator_settings.get("dtype"),
     )
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return {
-            "layout": {
-                "xaxis": {"visible": False},
-                "yaxis": {"visible": False},
-                "annotations": [
-                    {
-                        "text": "No data is available for the selected filters",
-                        "xref": "paper",
-                        "yref": "paper",
-                        "showarrow": False,
-                        "font": {"size": 28},
-                    }
-                ],
-            }
-        }, ""
+        return EMPTY_CHART, ""
+
+    # check if the exclude outliers checkbox is checked
+    if exclude_outliers:
+        # filter the data to the remove the outliers
+        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
+        # filter the data entries to remove the outliers
+        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
+
     # lbassil: was UNIT_MEASURE
     name = (
         data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
@@ -1211,14 +1212,6 @@ def area_figure(
         if len(unique_indicator_sources) > 0
         else ""
     )
-
-    # check if the exclude outliers checkbox is checked
-    if exclude_outliers:
-        # filter the data to the remove the outliers
-        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
-        # filter the data entries to remove the outliers
-        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1236,8 +1229,14 @@ def area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
-        # xaxis={"categoryorder": "total descending"},
+        xaxis={"categoryorder": "total descending"},
     )
+
+    # Add this code to avoid having decimal year on the x-axis for time series charts
+    if fig_type == "line":
+        data.sort_values(by=["TIME_PERIOD"], inplace=True)
+        layout["xaxis"] = dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
+
     if dimension:
         # lbassil: use the dimension name instead of the code
         dimension_name = str(dimension_names.get(dimension, ""))
@@ -1272,16 +1271,18 @@ def area_figure(
     #     ].head(100)
     # )
     fig = getattr(px, fig_type)(data, **options)
+    fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line":
-        fig.update_layout(
-            xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
-        )
-    # lbassil: add this else here in order for the trend year axis to be sorted and the bar chart too
-    else:
-        fig.update_xaxes(categoryorder="total descending")
-    fig.update_layout(layout)
+    # if fig_type == "line":
+    #     fig.update_layout(
+    #         xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
+    #     )
+    # # lbassil: add this else here in order for the trend year axis to be sorted and the bar chart too
+    # else:
+    #     fig.update_xaxes(categoryorder="total descending")
+    # fig.update_layout(layout)
+
     return fig, source
