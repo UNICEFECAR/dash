@@ -23,6 +23,9 @@ geo_json_file = (
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
+    
+with open("indicators_config.json") as config_file:
+    indicators_config = json.load(config_file)
 
 unicef = sdmx.Request("UNICEF")
 
@@ -63,12 +66,12 @@ wealth_names = {
 gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
 # TODO: may not live here forever or we take from DSD
-DEFAULT_DIMENSIONS = {
-    "SEX": ["M", "F"],
-    "AGE": list(age_groups_names.keys()),
-    "RESIDENCE": ["U", "R"],
-    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
-}
+DEFAULT_DIMENSIONS = [
+    "SEX",
+    "AGE",
+    "RESIDENCE",
+    "WEALTH_QUINTILE",
+]
 
 dimension_names = {
     "SEX": "Sex_name",
@@ -765,7 +768,7 @@ def get_filtered_dataset(
     indicators: list,
     years: list,
     country_codes: list,
-    dimensions: dict = {},
+    dimensions: dict = {"TOTAL": []},
     latest_data: bool = True,
     dtype: str = None,
 ) -> pd.DataFrame:
@@ -775,13 +778,12 @@ def get_filtered_dataset(
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
     }
-    keys.update(dimensions)
     # replace empty dimensions with default breakdowns or set to total
-    for key, value in DEFAULT_DIMENSIONS.items():
-        # keys[key] = value if key in keys and not keys[key] else ["_T"]
-        keys[key] = (
-            ["_T"] if key not in keys else value if len(keys[key]) == 0 else keys[key]
-        )
+    for indicator in indicators:
+        indicator_config = indicators_config.get(indicator, {})
+        for dim in DEFAULT_DIMENSIONS:
+            if dim in keys and dim in indicator_config:
+                keys.update(indicator_config.get(dim))      
 
     try:
         data = unicef.data(
