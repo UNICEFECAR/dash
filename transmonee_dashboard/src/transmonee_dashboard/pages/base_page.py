@@ -1,46 +1,24 @@
-from collections import defaultdict
-
 import textwrap
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_treeview_antd
 import numpy as np
-from scipy.stats import zscore
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH, ALL
-import textwrap
-import pandas as pd
+from dash.dependencies import (MATCH, ClientsideFunction, Input, Output,
+                               State)
+from scipy.stats import zscore
 
-from . import (
-    unicef_country_prog,
-    programme_country_indexes,
-    selection_index,
-    selection_tree,
-    countries,
-    years,
-    unicef,
-    dsd,
-    indicator_names,
-    # units_names,
-    # age_groups_names,
-    # residence_names,
-    # wealth_names,
-    # gender_names,
-    dimension_names,
-    countries_iso3_dict,
-    gender_indicators,
-    adolescent_age_groups,
-    adolescent_codes,
-    geo_json_countries,
-    df_sources,
-    get_filtered_dataset,
-)
 from ..app import app
 from ..components import fa
+from . import (countries, countries_iso3_dict, df_sources, dimension_names,
+               geo_json_countries, get_filtered_dataset, indicator_names,
+               programme_country_indexes, selection_index, selection_tree,
+               unicef_country_prog, years)
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -86,7 +64,7 @@ EMPTY_CHART = {
 
 
 def make_area(area_name):
-    if area_name == "MAIN":
+    if area_name == "MAIN": #TODO: Improve this so we dont need a massive if statement
         area = dbc.Card(
             [
                 dbc.CardHeader(
@@ -376,6 +354,76 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
+    
+def get_card_popover_body(sources):
+    """This function is used to generate the list of countries that are part of the card's 
+        displayed result; it displays the countries as a list, each on a separate line
+
+    Args:
+        sources (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    countries = []
+    # lbassil: added this condition to stop the exception when sources is empty
+    if len(sources) > 0:
+        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+        card_countries = "\n".join(countries)
+        return card_countries
+    else:
+        return "NA"
+    
+def make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs):
+    card = dbc.Card(
+        [
+            dbc.CardBody(
+                [
+                    html.H1(
+                        indicator_header,
+                        className="display-4",
+                        style={
+                            # "fontSize": 50,
+                            "textAlign": "center",
+                            "color": "#1cabe2",
+                        },
+                    ),
+                    html.H4(suffix, className="card-title"),
+                    html.P(name, className="lead"),
+                    html.Div(
+                        fa("fas fa-info-circle"),
+                        id=f"{card_id}_info",
+                        # className="float-right",
+                        style={
+                            "position": "absolute",
+                            "bottom": "10px",
+                            "right": "10px",
+                        },
+                    ),
+                ],
+                style={
+                    # "fontSize": 50,
+                    "textAlign": "center",
+                },
+            ),
+            dbc.Popover(
+                [
+                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
+                    dbc.PopoverBody(
+                        dcc.Markdown(get_card_popover_body(numerator_pairs))
+                    ),
+                ],
+                id="hover",
+                target=f"{card_id}_info",
+                trigger="hover",
+            ),
+        ],
+        color="primary",
+        outline=True,
+        id=card_id,
+    )
+    return card
 
 
 # TODO: Move to client side call back
@@ -423,88 +471,6 @@ def display_areas(theme, indicators_dict, id):
     area = id["index"]
     theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
     return area not in indicators_dict[theme]
-
-
-# def get_filtered_dataset(
-#     indicators: list,
-#     years: list,
-#     countries: list,
-#     dimensions: dict = {},
-#     latest_data: bool = True,
-# ) -> pd.DataFrame:
-
-#     # TODO: This is temporary, need to move to config
-#     keys = {
-#         "REF_AREA": countries,
-#         "INDICATOR": indicators,
-#     }
-#     keys.update(dimensions)
-#     # replace empty dimensions with default breakdowns or set to total
-#     for key, value in DEFAULT_DIMENSIONS.items():
-#         keys[key] = value if key in keys and not keys[key] else ["_T"]
-#     # column data types coerced
-#     col_types = {"value": str}
-#     try:
-#         data = unicef.data(
-#             "TRANSMONEE",
-#             provider="ECARO",
-#             key=keys,
-#             params=dict(
-#                 startPeriod=years[0],
-#                 endPeriod=years[-1],
-#                 lastNObservations=1 if latest_data else 0,
-#             ),
-#             dsd=dsd,
-#         )
-#         # print(data.response.url)
-#         # print(data.response.from_cache)
-#     except HTTPError as e:
-#         return pd.DataFrame()
-
-#     # lbassil: add sorting by Year to display the years in proper order on the x-axis
-#     data = (
-#         data.to_pandas(attributes="o", rtype="rows", dtype=col_types)  # dsgo
-#         .sort_values(by=["TIME_PERIOD"])
-#         .reset_index()
-#     )
-#     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
-#     # lbassil: replace Yes by 1 and No by 0
-#     data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-#     # lbassil: check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
-#     filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
-#     if filter_non_num.any():
-#         not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
-#         f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
-#         data.drop(data[filter_non_num].index, inplace=True)
-
-#     # lbassil: convert to numeric
-#     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-#     data = data.round({"OBS_VALUE": 2})
-#     # lbassil: add the code to fill the country names
-#     countries_key_list = list(countries_iso3_dict.keys())
-#     countries_val_list = list(countries_iso3_dict.values())
-#     data["Country_name"] = data["REF_AREA"].apply(
-#         lambda x: countries_key_list[countries_val_list.index(x)]
-#     )
-#     # lbassil: add the code to fill the indicators' unit names
-#     data["Unit_name"] = data["UNIT_MEASURE"].apply(
-#         lambda x: str(units_names.get(str(x), ""))
-#     )
-#     # lbassil: add the code to fill the indicators' gender names
-#     data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
-#     # lbassil: add the code to fill the indicators' residence names
-#     data["Residence_name"] = data["RESIDENCE"].apply(
-#         lambda x: str(residence_names.get(str(x), ""))
-#     )
-#     # lbassil: add the code to fill the indicators' wealth quintiles names
-#     data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
-#         lambda x: str(wealth_names.get(str(x), ""))
-#     )
-#     # lbassil: add the code to fill the indicators' wealth quintiles names
-#     data["Age_name"] = data["AGE"].apply(
-#         lambda x: str(age_groups_names.get(str(x), ""))
-#     )
-#     return data
 
 
 @app.callback(
@@ -591,35 +557,15 @@ def indicator_card(
     min_max=False,
     age_group=None,
 ):
-
-    # indicator could be a list --> great use of " in " instead of " == " !!!
-    # query = "CODE in @indicator"
-
     indicators = numerator.split(",")
 
-    # use filtered chached dataset
-    # filtered_data = get_filtered_dataset(**selections)
-
-    # build the (target + rest total) query
-    # target code is Total unless is not None
-    # sex_code = sex_code if sex_code else "Total"
-    # use one of the numerators if more than one --> assume all have the same disaggregation
-    # other possibility could be to generalize more get_target_query function ...
-
-    # dimension = (
-    #     {"AGE": [age_group]} if age_group else {"SEX": [sex_code]} if sex_code else {}
-    # )
+    #TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
     dimension = {
         "AGE": [age_group] if age_group else ["_T"],
         "SEX": [sex_code] if sex_code else ["_T"],
     }
 
-    # target_code = age_group if age_group else sex_code
-    # target_and_total_query = get_target_query(
-    #     filtered_data, numors[0], dimension, target_code
-    # )
-    # query = query + " & " + target_and_total_query
     filtered_data = get_filtered_dataset(
         indicators,
         selections["years"],
@@ -640,130 +586,70 @@ def indicator_card(
         indicator_header = "No data"
         indicator_sources = "NA"
         numerator_pairs = []
-    else:
-        # select last value for each country
-        indicator_values = (
-            filtered_data.groupby(
-                [
-                    "REF_AREA",
-                    "TIME_PERIOD",
-                ]
-            ).agg({"OBS_VALUE": "sum", "CODE": "count"})
-        ).reset_index()
+        return make_card(card_id, name, indicator_header, indicator_sources, numerator_pairs)
 
-        numerator_pairs = (
-            indicator_values[indicator_values.CODE == len(indicators)]
-            .groupby("REF_AREA", as_index=False)
-            .last()
-            .set_index(["REF_AREA", "TIME_PERIOD"])
-        )
+    # select last value for each country
+    indicator_values = (
+        filtered_data.groupby(
+            [
+                "REF_AREA",
+                "TIME_PERIOD",
+            ]
+        ).agg({"OBS_VALUE": "sum", "CODE": "count"})
+    ).reset_index()
 
-        if suffix.lower() == "countries":
-            # this is a hack to accomodate small cases (to discuss with James)
-            if "FREE" in numerator:
-                # trick to filter number of years of free education
-                indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
-                sources = numerator_pairs.index.tolist()
-                numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
-            elif absolute:
-                # trick cards data availability among group of indicators and latest time_period
-                # doesn't require filtering by count == len(numors)
-                numerator_pairs = indicator_values.groupby(
-                    "REF_AREA", as_index=False
-                ).last()
-                max_time_filter = (
-                    numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
-                )
-                numerator_pairs.drop(
-                    numerator_pairs[max_time_filter].index, inplace=True
-                )
-                numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
-                sources = numerator_pairs.index.tolist()
-                indicator_sum = len(sources)
-            else:
-                # trick to accomodate cards for admin exams (AND for boolean indicators)
-                # filter exams according to number of indicators
-                indicator_sum = (
-                    (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
-                )
-                sources = numerator_pairs.index.tolist()
-
-        else:
-            indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
-            sources = numerator_pairs.index.tolist()
-            if average and len(sources) > 1:
-                indicator_sum = indicator_sum / len(sources)
-
-        # define indicator header text: the resultant number except for the min-max range
-        if min_max and len(sources) > 1:
-            indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
-            indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
-            indicator_header = f"[{indicator_min} - {indicator_max}]"
-        else:
-            indicator_header = "{:,.0f}".format(indicator_sum)
-
-    card = dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H1(
-                        indicator_header,
-                        className="display-4",
-                        style={
-                            # "fontSize": 50,
-                            "textAlign": "center",
-                            "color": "#1cabe2",
-                        },
-                    ),
-                    html.H4(suffix, className="card-title"),
-                    html.P(name, className="lead"),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{card_id}_info",
-                        # className="float-right",
-                        style={
-                            "position": "absolute",
-                            "bottom": "10px",
-                            "right": "10px",
-                        },
-                    ),
-                ],
-                style={
-                    # "fontSize": 50,
-                    "textAlign": "center",
-                },
-            ),
-            dbc.Popover(
-                [
-                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
-                    dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(numerator_pairs))
-                    ),  # replace the tooltip with the desired bullet list layout),
-                ],
-                id="hover",
-                target=f"{card_id}_info",
-                trigger="hover",
-            ),
-        ],
-        color="primary",
-        outline=True,
-        id=card_id,
+    numerator_pairs = (
+        indicator_values[indicator_values.CODE == len(indicators)]
+        .groupby("REF_AREA", as_index=False)
+        .last()
+        .set_index(["REF_AREA", "TIME_PERIOD"])
     )
-    return card
 
+    if suffix.lower() == "countries":
+        # this is a hack to accomodate small cases (to discuss with James)
+        if "FREE" in numerator:
+            # trick to filter number of years of free education
+            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
+            sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
+        elif absolute:
+            # trick cards data availability among group of indicators and latest time_period
+            # doesn't require filtering by count == len(numors)
+            numerator_pairs = indicator_values.groupby(
+                "REF_AREA", as_index=False
+            ).last()
+            max_time_filter = (
+                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
+            )
+            numerator_pairs.drop(
+                numerator_pairs[max_time_filter].index, inplace=True
+            )
+            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+            sources = numerator_pairs.index.tolist()
+            indicator_sum = len(sources)
+        else:
+            # trick to accomodate cards for admin exams (AND for boolean indicators)
+            # filter exams according to number of indicators
+            indicator_sum = (
+                (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
+            )
+            sources = numerator_pairs.index.tolist()
 
-# This function is used to generate the list of countries that are part of the card's displayed result;
-# it displays the countries as a list, each on a separate line...
-def get_card_popover_body(sources):
-    countries = []
-    # lbassil: added this condition to stop the exception when sources is empty
-    if len(sources) > 0:
-        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(countries)
-        return card_countries
     else:
-        return "NA"
+        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
+        sources = numerator_pairs.index.tolist()
+        if average and len(sources) > 1:
+            indicator_sum = indicator_sum / len(sources)
+
+    # define indicator header text: the resultant number except for the min-max range
+    if min_max and len(sources) > 1:
+        indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
+        indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
+        indicator_header = f"[{indicator_min} - {indicator_max}]"
+    else:
+        indicator_header = "{:,.0f}".format(indicator_sum)
+
+    return make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs)
 
 
 @app.callback(
@@ -915,101 +801,6 @@ def set_default_chart_types(theme, indicators_dict, id):
     )
 
 
-# does this function assume dimension is a disaggregation?
-# should we call it only if dimension is a disaggregation?
-def get_disag_total(data, indicator, dimension, default_total="Total"):
-
-    data_disag_col = data[data["CODE"] == indicator][dimension]
-    max_val_count = data_disag_col.value_counts().idxmax()
-
-    # return max_val_count only if Total not in dimension
-    return [default_total if default_total in data_disag_col.values else max_val_count]
-
-
-# this could be a potential function to be decorated per indicator in each area?
-# area_1 breakdown does the first part of this
-def get_total_query(data, indicator, neq=False, dimension=None):
-
-    dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
-    disag = []
-
-    for item in dimensions:
-        if len(data[data["CODE"] == indicator][item].unique()) > 1:
-            disag.append(item)
-
-    if not disag:
-        return None
-    elif neq:
-        query_dim = " & ".join(
-            f"`{dimension}` != '{total}'"
-            for total in get_disag_total(data, indicator, dimension)
-        )
-
-        query_item = []
-        for item in disag:
-            if item != dimension:
-                item_total = []
-                # realized loop below could be replaced with query like:
-                # f"`{item}` in @total" --> great use of this !!!
-                for total in get_disag_total(data, indicator, item):
-                    item_total.append(f"`{item}` == '{total}'")
-                query_item.append(f"({' | '.join(item_total)})")
-        query_rest = " & ".join(query_item)
-        # return " & ".join(query_item)
-
-        # query_rest = " & ".join(
-        #     f"`{item}` == '{total}'"
-        #     for item in disag
-        #     for total in get_disag_total(data, indicator, item)
-        #     if item != dimension
-        # )
-
-        return (query_dim + " & " + query_rest) if query_rest else query_dim
-
-    else:
-
-        query_item = []
-        for item in disag:
-            item_total = []
-            for total in get_disag_total(data, indicator, item):
-                item_total.append(f"`{item}` == '{total}'")
-            query_item.append(f"({' | '.join(item_total)})")
-        return " & ".join(query_item)
-
-        # return " & ".join(
-        #     f"({' | '.join([f"`{item}` == '{total}'"])})"
-        #     for item in disag
-        #     for total in get_disag_total(data, indicator, item)
-        # )
-
-
-# targets one dimension to a code and the remaining total
-# assumes previous knowledge ON the EXISTANCE of the target_code for the dimension
-def get_target_query(data, indicator, dimension="Sex", target_code="Total"):
-    dimensions = ["Sex", "Age", "Residence", "Wealth Quintile"]
-    disag = [
-        item
-        for item in dimensions
-        if (
-            (len(data[data["CODE"] == indicator][item].unique()) > 1)
-            & (item != dimension)
-        )
-    ]
-    query_dim = f"`{dimension}` == '{target_code}'"
-
-    if not disag:
-        return query_dim
-    else:
-        query_item = []
-        for item in disag:
-            item_total = []
-            disag_total = get_disag_total(data, indicator, item)
-            for total in disag_total:
-                item_total.append(f"`{item}` == '{total}'")
-            query_item.append(f"({' | '.join(item_total)})")
-        return query_dim + " & " + " & ".join(query_item)
-
-
 @app.callback(
     Output({"type": "area_breakdowns", "index": MATCH}, "options"),
     Input({"type": "area_options", "index": MATCH}, "value"),
@@ -1157,7 +948,6 @@ def area_figure(
     indicators_dict,
     id,
 ):
-    # print(id["index"])
     # only run if indicator not empty
     if not indicator:
         return {}, {}
@@ -1254,33 +1044,9 @@ def area_figure(
             # sort by the compare value to have the legend in the right ascending order
             data.sort_values(by=[dimension], inplace=True)
 
-    # print(
-    #     data[
-    #         [
-    #             "CODE",
-    #             "Country_name",
-    #             "TIME_PERIOD",
-    #             "OBS_VALUE",
-    #             "Unit_name",
-    #             "Sex_name",
-    #             "Residence_name",
-    #             "Wealth_name",
-    #         ]
-    #     ].head(100)
-    # )
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
-
-    # Add this code to avoid having decimal year on the x-axis for time series charts
-    # if fig_type == "line":
-    #     fig.update_layout(
-    #         xaxis=dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
-    #     )
-    # # lbassil: add this else here in order for the trend year axis to be sorted and the bar chart too
-    # else:
-    #     fig.update_xaxes(categoryorder="total descending")
-    # fig.update_layout(layout)
 
     return fig, source

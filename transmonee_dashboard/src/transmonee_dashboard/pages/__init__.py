@@ -1,10 +1,10 @@
 import json
+import logging
 import pathlib
 import collections
 from io import BytesIO
 from re import L
 import urllib
-import time
 
 import dash_html_components as html
 import numpy as np
@@ -13,6 +13,7 @@ import requests
 from requests.exceptions import HTTPError
 
 import pandasdmx as sdmx
+
 
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
@@ -27,23 +28,21 @@ unicef = sdmx.Request("UNICEF")
 
 metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
 dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
-# lbassil: get the age groups code list as it is not in the DSD
-cl_age = unicef.codelist("CL_AGE", version="1.0")
-age_groups = sdmx.to_pandas(cl_age)
-dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
 
 indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
 }
-# lbassil: get the list of age group names to use them instead of the codes
+# lbassil: get the age groups code list as it is not in the DSD
+cl_age = unicef.codelist("CL_AGE", version="1.0")
+age_groups = sdmx.to_pandas(cl_age)
+dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
 age_groups_names = {
     age["CL_AGE"]: age["name"]
     for index, age in dict_age_groups.iterrows()
     if age["CL_AGE"] != "_T"
 }
 
-# lbassil: I did not use unit.name.en because not all have en language; i.e. BIRTHSPER1000WOMEN
 units_names = {
     unit.id: str(unit.name)
     for unit in dsd.attributes.get("UNIT_MEASURE").local_representation.enumerated
@@ -391,7 +390,7 @@ data_query_codes = [
     "CR_UN_RIGHTS_DISAB",
 ]
 
-years = list(range(2010, 2021))
+years = list(range(2010, 2022))
 
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
@@ -453,6 +452,7 @@ countries_iso3_dict = {
     "Uzbekistan": "UZB",
 }
 
+# create a list of country names in the same order as the countries_iso3_dict
 countries = list(countries_iso3_dict.keys())
 
 unicef_country_prog = [
@@ -764,22 +764,21 @@ def get_sector(subtopic):
 def get_filtered_dataset(
     indicators: list,
     years: list,
-    countries: list,
+    country_codes: list,
     dimensions: dict = {},
     latest_data: bool = True,
-    dtype: str = "str",  # lbassil: was always returning None and the it was giving an exception
+    dtype: str = None,
 ) -> pd.DataFrame:
 
     # TODO: This is temporary, need to move to config
     keys = {
-        "REF_AREA": countries,
+        "REF_AREA": country_codes,
         "INDICATOR": indicators,
     }
     keys.update(dimensions)
     # replace empty dimensions with default breakdowns or set to total
     for key, value in DEFAULT_DIMENSIONS.items():
         # keys[key] = value if key in keys and not keys[key] else ["_T"]
-        # lbassil: the above line was not working when a dimension value was sent like age or gender, was always setting it to _T
         keys[key] = (
             ["_T"] if key not in keys else value if len(keys[key]) == 0 else keys[key]
         )
@@ -796,9 +795,10 @@ def get_filtered_dataset(
             ),
             dsd=dsd,
         )
-        # print(data.response.url)
-        # print(data.response.from_cache)
+        logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
     except HTTPError as e:
+        logging.exception(f"URL: {e.response}", e)
+        #TODO: Maybe do something better here
         return pd.DataFrame()
 
     # lbassil: add sorting by Year to display the years in proper order on the x-axis
@@ -822,29 +822,20 @@ def get_filtered_dataset(
     data = data.round({"OBS_VALUE": 2})
 
     # lbassil: add the code to fill the country names
-    countries_key_list = list(countries_iso3_dict.keys())
     countries_val_list = list(countries_iso3_dict.values())
-    data["Country_name"] = data["REF_AREA"].apply(
-        lambda x: countries_key_list[countries_val_list.index(x)]
-    )
-    # lbassil: add the code to fill the indicators' unit names
-    data["Unit_name"] = data["UNIT_MEASURE"].apply(
-        lambda x: str(units_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' gender names
-    data["Sex_name"] = data["SEX"].apply(lambda x: str(gender_names.get(str(x), "")))
-    # lbassil: add the code to fill the indicators' residence names
-    data["Residence_name"] = data["RESIDENCE"].apply(
-        lambda x: str(residence_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' wealth quintiles names
-    data["Wealth_name"] = data["WEALTH_QUINTILE"].apply(
-        lambda x: str(wealth_names.get(str(x), ""))
-    )
-    # lbassil: add the code to fill the indicators' wealth quintiles names
-    data["Age_name"] = data["AGE"].apply(
-        lambda x: str(age_groups_names.get(str(x), ""))
-    )
+    
+    def create_lables(row):
+        row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
+        row["Unit_name"] =  str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
+        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
+        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
+        
+        return row
+    
+    data = data.apply(create_lables, axis='columns')
+    
     return data
 
 
