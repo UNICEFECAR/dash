@@ -24,6 +24,11 @@ geo_json_file = (
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
+with open(
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
+) as config_file:
+    indicators_config = json.load(config_file)
+
 unicef = sdmx.Request("UNICEF")
 
 metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
@@ -64,10 +69,10 @@ gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
 # TODO: may not live here forever or we take from DSD
 DEFAULT_DIMENSIONS = {
-    "SEX": ["M", "F"],
-    "AGE": list(age_groups_names.keys()),
-    "RESIDENCE": ["U", "R"],
-    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+    "SEX": {"SEX": ["_T"]},
+    "AGE": {"AGE": ["_T"]},
+    "RESIDENCE": {"RESIDENCE": ["_T"]},
+    "WEALTH_QUINTILE": {"WEALTH_QUINTILE": ["_T"]},
 }
 
 dimension_names = {
@@ -775,14 +780,14 @@ def get_filtered_dataset(
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
     }
-    keys.update(dimensions)
-    # replace empty dimensions with default breakdowns or set to total
-    for key, value in DEFAULT_DIMENSIONS.items():
-        # keys[key] = value if key in keys and not keys[key] else ["_T"]
-        keys[key] = (
-            ["_T"] if key not in keys else value if len(keys[key]) == 0 else keys[key]
-        )
-
+    for indicator in indicators:
+        indicator_config = indicators_config.get(indicator, DEFAULT_DIMENSIONS)
+        for dim in dimensions.keys():
+            # if the dimension is in the config and has not been overridden
+            if (dim in keys and dim in indicator_config) and not keys[dim]:
+                # replace the empty with the config value
+                keys.pop(dim)
+                keys.update(indicator_config[dim])
     try:
         data = unicef.data(
             "TRANSMONEE",
@@ -798,7 +803,7 @@ def get_filtered_dataset(
         logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
     except HTTPError as e:
         logging.exception(f"URL: {e.response}", e)
-        #TODO: Maybe do something better here
+        # TODO: Maybe do something better here
         return pd.DataFrame()
 
     # lbassil: add sorting by Year to display the years in proper order on the x-axis
@@ -823,19 +828,19 @@ def get_filtered_dataset(
 
     # lbassil: add the code to fill the country names
     countries_val_list = list(countries_iso3_dict.values())
-    
+
     def create_lables(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
-        row["Unit_name"] =  str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-        
+
         return row
-    
-    data = data.apply(create_lables, axis='columns')
-    
+
+    data = data.apply(create_lables, axis="columns")
+
     return data
 
 
