@@ -69,10 +69,11 @@ gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
 # TODO: may not live here forever or we take from DSD
 DEFAULT_DIMENSIONS = {
-    "SEX": {"SEX": ["_T"]},
-    "AGE": {"AGE": ["_T"]},
-    "RESIDENCE": {"RESIDENCE": ["_T"]},
-    "WEALTH_QUINTILE": {"WEALTH_QUINTILE": ["_T"]},
+    "SEX": {},
+    "AGE": {},
+    "RESIDENCE": {},
+    "WEALTH_QUINTILE": {},
+    "TOTAL": {},
 }
 
 dimension_names = {
@@ -814,7 +815,7 @@ def get_filtered_dataset(
     )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
-    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
     # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
     filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
     if filter_non_num.any():

@@ -761,7 +761,7 @@ def set_options(theme, indicators_dict, id):
             }
             for code in area_indicators
         ]
-        
+
         area_types = [
             {
                 "label": name,
@@ -964,7 +964,7 @@ def area_figure(
         selections["countries"],
         dimensions={dimension: []} if dimension else {},
         latest_data=False if fig_type == "line" else True,
-        dtype=indicator_settings.get("dtype"),
+        dtype=indicator_settings.get("DTYPE"),
     )
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
