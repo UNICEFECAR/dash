@@ -113,6 +113,36 @@
             ]
         }
     },
+    "CR_SG_REG_CENSUSN": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_FPOS": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_NSDSFDDNR": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_NSDSFDGVT": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_NSDSFDOTHR": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_NSDSFND": {
+        "DTYPE": "BINARY"
+    },
+    "CR_SG_STT_NSDSIMPL": {
+        "DTYPE": "BINARY"
+    },
+    "CR_UN_CHLD_RIGHTS": {
+        "DTYPE": "BINARY"
+    },
+    "CR_UN_CHLD_SALE": {
+        "DTYPE": "BINARY"
+    },
+    "CR_UN_RIGHTS_DISAB": {
+        "DTYPE": "BINARY"
+    },
     "CR_VC_VOV_GDSD": {
         "SEX": {
             "SEX": [
@@ -1142,6 +1172,24 @@
                 "_T"
             ]
         }
+    },
+    "EDUNF_ADMIN_L1_G2OR3_MAT": {
+        "DTYPE": "BINARY"
+    },
+    "EDUNF_ADMIN_L1_G2OR3_REA": {
+        "DTYPE": "BINARY"
+    },
+    "EDUNF_ADMIN_L1_GLAST_MAT": {
+        "DTYPE": "BINARY"
+    },
+    "EDUNF_ADMIN_L1_GLAST_REA": {
+        "DTYPE": "BINARY"
+    },
+    "EDUNF_ADMIN_L2_MAT": {
+        "DTYPE": "BINARY"
+    },
+    "EDUNF_ADMIN_L2_REA": {
+        "DTYPE": "BINARY"
     },
     "EDUNF_CR_L1": {
         "RESIDENCE": {
@@ -3508,6 +3556,12 @@
             ]
         }
     },
+    "GN_MTNTY_LV_BNFTS": {
+        "DTYPE": "BINARY"
+    },
+    "GN_PTNTY_LV_BNFTS": {
+        "DTYPE": "BINARY"
+    },
     "HT_ADOL_MT": {
         "SEX": {
             "SEX": [
@@ -4222,6 +4276,7 @@
                 "_T"
             ]
         },
+        "DTYPE": "NUM:<|>",
         "SEX": {
             "AGE": [
                 "_T"
@@ -4241,6 +4296,7 @@
         }
     },
     "HVA_EPI_INF_RT_0-14": {
+        "DTYPE": "NUM:<|>",
         "SEX": {
             "SEX": [
                 "F",
@@ -4254,6 +4310,7 @@
         }
     },
     "HVA_EPI_INF_RT_10-19": {
+        "DTYPE": "NUM:<|>",
         "SEX": {
             "SEX": [
                 "F",
@@ -4277,6 +4334,7 @@
                 "_T"
             ]
         },
+        "DTYPE": "NUM:<|>",
         "SEX": {
             "AGE": [
                 "_T"
@@ -4306,6 +4364,7 @@
                 "_T"
             ]
         },
+        "DTYPE": "NUM:<|>",
         "SEX": {
             "AGE": [
                 "_T"
@@ -4323,6 +4382,12 @@
                 "_T"
             ]
         }
+    },
+    "HVA_PED_ART_CVG": {
+        "DTYPE": "NUM:<|>"
+    },
+    "HVA_PMTCT_ARV_CVG": {
+        "DTYPE": "NUM:<|>"
     },
     "IM_MCV2": {
         "AGE": {
@@ -4620,6 +4685,7 @@
                 "Y0T17"
             ]
         },
+        "DTYPE": "NUM:<|>",
         "TOTAL": {
             "AGE": [
                 "_T"
@@ -5500,6 +5566,24 @@
                 "_T"
             ]
         }
+    },
+    "PP_SG_NHR_IMPLN": {
+        "DTYPE": "BINARY"
+    },
+    "PP_SG_NHR_INTEXSTN": {
+        "DTYPE": "BINARY"
+    },
+    "PP_SG_NHR_NOAPPLN": {
+        "DTYPE": "BINARY"
+    },
+    "PP_SG_NHR_NOSTUSN": {
+        "DTYPE": "BINARY"
+    },
+    "PP_SG_REG_BRTH90N": {
+        "DTYPE": "BINARY"
+    },
+    "PP_SG_REG_DETH75N": {
+        "DTYPE": "BINARY"
     },
     "PT_ADLS_10-14_LBR_HC": {
         "SEX": {
