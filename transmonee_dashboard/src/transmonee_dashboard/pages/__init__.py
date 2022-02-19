@@ -824,18 +824,16 @@ def get_filtered_dataset(
     # lbassil: add the code to fill the country names
     countries_val_list = list(countries_iso3_dict.values())
     
-    def create_lables(row):
+    def create_labels(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] =  str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
-        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-        
+        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))        
         return row
     
-    data = data.apply(create_lables, axis='columns')
-    
+    data = data.apply(create_labels, axis='columns')    
     return data
 
 
