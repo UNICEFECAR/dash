@@ -945,6 +945,7 @@ def area_figure(
     fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
+    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
     # do we need `indicator_settings` below?
