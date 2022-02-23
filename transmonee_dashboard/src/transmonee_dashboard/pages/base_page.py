@@ -584,7 +584,7 @@ def indicator_card(
 
     # TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    dimension = {
+    dimensions = {
         "AGE": [age_group] if age_group else ["_T"],
         "SEX": [sex_code] if sex_code else ["_T"],
     }
@@ -593,7 +593,7 @@ def indicator_card(
         indicators,
         selections["years"],
         selections["countries"],
-        dimension,
+        dimensions,
         latest_data=True,
     )
 
