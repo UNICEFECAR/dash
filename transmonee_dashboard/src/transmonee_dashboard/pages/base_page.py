@@ -577,18 +577,28 @@ def indicator_card(
     absolute=False,
     average=False,
     min_max=False,
+    sex_code=None,
+    age_group=None,
 ):
     indicators = numerator.split(",")
 
     # TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    dimension = card_id
+    # breakdown = card_id  # tweak added by Alberto to read card config from the json config file
+    breakdown = "TOTAL"
+    # define the empty dimensions dict to be filled based on the card data filters
+    dimensions = {}
+    if age_group is not None:
+        dimensions["AGE"] = [age_group]
+    if sex_code is not None:
+        dimensions["SEX"] = [sex_code]
 
     filtered_data = get_filtered_dataset(
         indicators,
         selections["years"],
         selections["countries"],
-        dimension,
+        breakdown,
+        dimensions,
         latest_data=True,
     )
 
@@ -691,6 +701,8 @@ def show_cards(selections, current_cards, indicators_dict):
             card.get("absolute"),
             card.get("average"),
             card.get("min_max"),
+            card.get("sex"),
+            card.get("age"),
         )
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
     ]

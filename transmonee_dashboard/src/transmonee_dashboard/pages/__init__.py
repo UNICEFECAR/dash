@@ -758,15 +758,22 @@ def get_sector(subtopic):
     return ""
 
 
+# function to check if the config of a certain indicator are only about its dtype
+def only_dtype(config):
+    return list(config.keys()) == ["DTYPE"]
+
+
 def get_filtered_dataset(
     indicators: list,
     years: list,
     country_codes: list,
-    dimension: str = "TOTAL",
+    breakdown: str = "TOTAL",  # send default breakdown as Total
+    dimensions: dict = {},
     latest_data: bool = True,
 ) -> pd.DataFrame:
 
     # TODO: This is temporary, need to move to config
+    # Add all dimensions by default to the keys
     keys = {
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
@@ -775,12 +782,20 @@ def get_filtered_dataset(
         "RESIDENCE": [],
         "WEALTH_QUINTILE": [],
     }
+
+    # get the first indicator of the list... we have more than one indicator in the cards
     indicator_config = (
         indicators_config[indicators[0]] if indicators[0] in indicators_config else {}
     )
-
-    if indicator_config:
-        keys.update(indicator_config[dimension])
+    # check if the indicator has special config, update the keys from the config
+    if indicator_config and not only_dtype(indicator_config):
+        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
+        card_keys = indicator_config[breakdown]
+        if (
+            dimensions
+        ):  # if we are sending cards related filters, update the keys with the set values
+            card_keys.update(dimensions)
+        keys.update(card_keys)  # update the keys with the sent values
 
     try:
         data = unicef.data(
@@ -821,17 +836,16 @@ def get_filtered_dataset(
     # lbassil: add the code to fill the country names
     countries_val_list = list(countries_iso3_dict.values())
 
-    def create_lables(row):
+    def create_labels(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-
         return row
 
-    data = data.apply(create_lables, axis="columns")
+    data = data.apply(create_labels, axis="columns")
 
     return data
 
