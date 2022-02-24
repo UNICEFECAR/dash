@@ -584,7 +584,6 @@ def indicator_card(
 
     # TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    # breakdown = card_id  # tweak added by Alberto to read card config from the json config file
     breakdown = "TOTAL"
     # define the empty dimensions dict to be filled based on the card data filters
     dimensions = {}
