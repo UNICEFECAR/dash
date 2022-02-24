@@ -1,10 +1,10 @@
 import json
+import logging
 import pathlib
 import collections
 from io import BytesIO
 from re import L
 import urllib
-import time
 
 import dash_html_components as html
 import numpy as np
@@ -14,12 +14,6 @@ from requests.exceptions import HTTPError
 
 import pandasdmx as sdmx
 
-# TODO: may not live here forever or we take from DSD
-DEFAULT_DIMENSIONS = {
-    "SEX": ["M", "F"],
-    "RESIDENCE": ["U", "R"],
-    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
-}
 
 # TODO: Move all of these to env/setting vars from production
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
@@ -38,6 +32,49 @@ dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
 indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
+}
+# lbassil: get the age groups code list as it is not in the DSD
+cl_age = unicef.codelist("CL_AGE", version="1.0")
+age_groups = sdmx.to_pandas(cl_age)
+dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
+age_groups_names = {
+    age["CL_AGE"]: age["name"]
+    for index, age in dict_age_groups.iterrows()
+    if age["CL_AGE"] != "_T"
+}
+
+units_names = {
+    unit.id: str(unit.name)
+    for unit in dsd.attributes.get("UNIT_MEASURE").local_representation.enumerated
+}
+
+# lbassil: get the names of the residence dimensions
+residence_names = {
+    residence.id: str(residence.name)
+    for residence in dsd.dimensions.get("RESIDENCE").local_representation.enumerated
+}
+
+# lbassil: get the names of the wealth quintiles dimensions
+wealth_names = {
+    wealth.id: str(wealth.name)
+    for wealth in dsd.dimensions.get("WEALTH_QUINTILE").local_representation.enumerated
+}
+
+gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
+
+# TODO: may not live here forever or we take from DSD
+DEFAULT_DIMENSIONS = {
+    "SEX": ["M", "F"],
+    "AGE": list(age_groups_names.keys()),
+    "RESIDENCE": ["U", "R"],
+    "WEALTH_QUINTILE": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+}
+
+dimension_names = {
+    "SEX": "Sex_name",
+    "AGE": "Age_name",
+    "RESIDENCE": "Residence_name",
+    "WEALTH_QUINTILE": "Wealth_name",
 }
 
 adolescent_codes = [
@@ -353,7 +390,7 @@ data_query_codes = [
     "CR_UN_RIGHTS_DISAB",
 ]
 
-years = list(range(2010, 2021))
+years = list(range(2010, 2022))
 
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
@@ -415,6 +452,7 @@ countries_iso3_dict = {
     "Uzbekistan": "UZB",
 }
 
+# create a list of country names in the same order as the countries_iso3_dict
 countries = list(countries_iso3_dict.keys())
 
 unicef_country_prog = [
@@ -726,7 +764,7 @@ def get_sector(subtopic):
 def get_filtered_dataset(
     indicators: list,
     years: list,
-    countries: list,
+    country_codes: list,
     dimensions: dict = {},
     latest_data: bool = True,
     dtype: str = None,
@@ -734,13 +772,16 @@ def get_filtered_dataset(
 
     # TODO: This is temporary, need to move to config
     keys = {
-        "REF_AREA": countries,
+        "REF_AREA": country_codes,
         "INDICATOR": indicators,
     }
     keys.update(dimensions)
     # replace empty dimensions with default breakdowns or set to total
     for key, value in DEFAULT_DIMENSIONS.items():
-        keys[key] = value if key in keys and not keys[key] else ["_T"]
+        # keys[key] = value if key in keys and not keys[key] else ["_T"]
+        keys[key] = (
+            ["_T"] if key not in keys else value if len(keys[key]) == 0 else keys[key]
+        )
 
     try:
         data = unicef.data(
@@ -754,12 +795,18 @@ def get_filtered_dataset(
             ),
             dsd=dsd,
         )
-        print(data.response.url)
-        print(data.response.from_cache)
+        logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
     except HTTPError as e:
+        logging.exception(f"URL: {e.response}", e)
+        #TODO: Maybe do something better here
         return pd.DataFrame()
 
-    data = data.to_pandas(attributes="o", rtype="rows", dtype=dtype or np.float64).reset_index()
+    # lbassil: add sorting by Year to display the years in proper order on the x-axis
+    data = (
+        data.to_pandas(attributes="o", rtype="rows", dtype=dtype or np.float64)
+        .sort_values(by=["TIME_PERIOD"])
+        .reset_index()
+    )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
@@ -773,6 +820,20 @@ def get_filtered_dataset(
     # convert to numeric and round
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
     data = data.round({"OBS_VALUE": 2})
+
+    # lbassil: add the code to fill the country names
+    countries_val_list = list(countries_iso3_dict.values())
+    
+    def create_labels(row):
+        row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
+        row["Unit_name"] =  str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
+        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
+        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))        
+        return row
+    
+    data = data.apply(create_labels, axis='columns')    
     return data
 
 
