@@ -575,24 +575,28 @@ def indicator_card(
     suffix,
     denominator=None,
     absolute=False,
-    sex_code=None,
     average=False,
     min_max=False,
+    sex_code=None,
     age_group=None,
 ):
     indicators = numerator.split(",")
 
     # TODO: Change to use albertos config
     # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    dimensions = {
-        "AGE": [age_group] if age_group else ["_T"],
-        "SEX": [sex_code] if sex_code else ["_T"],
-    }
+    breakdown = "TOTAL"
+    # define the empty dimensions dict to be filled based on the card data filters
+    dimensions = {}
+    if age_group is not None:
+        dimensions["AGE"] = [age_group]
+    if sex_code is not None:
+        dimensions["SEX"] = [sex_code]
 
     filtered_data = get_filtered_dataset(
         indicators,
         selections["years"],
         selections["countries"],
+        breakdown,
         dimensions,
         latest_data=True,
     )
@@ -694,9 +698,9 @@ def show_cards(selections, current_cards, indicators_dict):
             card["suffix"],
             card.get("denominator"),
             card.get("absolute"),
-            card.get("sex"),
             card.get("average"),
             card.get("min_max"),
+            card.get("sex"),
             card.get("age"),
         )
         for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
@@ -761,7 +765,7 @@ def set_options(theme, indicators_dict, id):
             }
             for code in area_indicators
         ]
-        
+
         area_types = [
             {
                 "label": name,
@@ -955,6 +959,7 @@ def area_figure(
     dimension = False if fig_type == "line" or compare == "TOTAL" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
+    # do we need `indicator_settings` below?
     indicator_settings = (
         indicators.get(indicator, {}) if type(indicators) is dict else {}
     )
@@ -962,9 +967,8 @@ def area_figure(
         [indicator],
         selections["years"],
         selections["countries"],
-        dimensions={dimension: []} if dimension else {},
+        compare,
         latest_data=False if fig_type == "line" else True,
-        dtype=indicator_settings.get("dtype"),
     )
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:

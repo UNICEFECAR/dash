@@ -67,14 +67,6 @@ wealth_names = {
 
 gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
-# TODO: may not live here forever or we take from DSD
-DEFAULT_DIMENSIONS = {
-    "SEX": {"SEX": ["_T"]},
-    "AGE": {"AGE": ["_T"]},
-    "RESIDENCE": {"RESIDENCE": ["_T"]},
-    "WEALTH_QUINTILE": {"WEALTH_QUINTILE": ["_T"]},
-}
-
 dimension_names = {
     "SEX": "Sex_name",
     "AGE": "Age_name",
@@ -766,28 +758,45 @@ def get_sector(subtopic):
     return ""
 
 
+# function to check if the config of a certain indicator are only about its dtype
+def only_dtype(config):
+    return list(config.keys()) == ["DTYPE"]
+
+
 def get_filtered_dataset(
     indicators: list,
     years: list,
     country_codes: list,
+    breakdown: str = "TOTAL",  # send default breakdown as Total
     dimensions: dict = {},
     latest_data: bool = True,
-    dtype: str = None,
 ) -> pd.DataFrame:
 
     # TODO: This is temporary, need to move to config
+    # Add all dimensions by default to the keys
     keys = {
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
+        "SEX": [],
+        "AGE": [],
+        "RESIDENCE": [],
+        "WEALTH_QUINTILE": [],
     }
-    for indicator in indicators:
-        indicator_config = indicators_config.get(indicator, DEFAULT_DIMENSIONS)
-        for dim in dimensions.keys():
-            # if the dimension is in the config and has not been overridden
-            if (dim in keys and dim in indicator_config) and not keys[dim]:
-                # replace the empty with the config value
-                keys.pop(dim)
-                keys.update(indicator_config[dim])
+
+    # get the first indicator of the list... we have more than one indicator in the cards
+    indicator_config = (
+        indicators_config[indicators[0]] if indicators[0] in indicators_config else {}
+    )
+    # check if the indicator has special config, update the keys from the config
+    if indicator_config and not only_dtype(indicator_config):
+        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
+        card_keys = indicator_config[breakdown]
+        if (
+            dimensions
+        ):  # if we are sending cards related filters, update the keys with the set values
+            card_keys.update(dimensions)
+        keys.update(card_keys)  # update the keys with the sent values
+
     try:
         data = unicef.data(
             "TRANSMONEE",
@@ -807,23 +816,21 @@ def get_filtered_dataset(
         return pd.DataFrame()
 
     # lbassil: add sorting by Year to display the years in proper order on the x-axis
+    dtype = (
+        eval(indicator_config["DTYPE"]) if "DTYPE" in indicator_config else np.float64
+    )
     data = (
-        data.to_pandas(attributes="o", rtype="rows", dtype=dtype or np.float64)
+        data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
         .sort_values(by=["TIME_PERIOD"])
         .reset_index()
     )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
-    data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-    # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
-    filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
-    if filter_non_num.any():
-        not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
-        f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
-        data.drop(data[filter_non_num].index, inplace=True)
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
 
     # convert to numeric and round
-    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
+    data.dropna(subset=["OBS_VALUE"], inplace=True)
     data = data.round({"OBS_VALUE": 2})
 
     # lbassil: add the code to fill the country names
@@ -836,7 +843,6 @@ def get_filtered_dataset(
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-
         return row
 
     data = data.apply(create_labels, axis="columns")
