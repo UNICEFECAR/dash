@@ -832,6 +832,8 @@ def get_filtered_dataset(
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
     data = data.round({"OBS_VALUE": 2})
+    # converting TIME_PERIOD to numeric: we should get integers by default
+    data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
     # lbassil: add the code to fill the country names
     countries_val_list = list(countries_iso3_dict.values())

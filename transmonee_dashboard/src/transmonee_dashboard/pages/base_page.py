@@ -373,9 +373,10 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
-    
+
+
 def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's 
+    """This function is used to generate the list of countries that are part of the card's
         displayed result; it displays the countries as a list, each on a separate line
 
     Args:
@@ -393,8 +394,11 @@ def get_card_popover_body(sources):
         return card_countries
     else:
         return "NA"
-    
-def make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs):
+
+
+def make_card(
+    card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+):
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -720,9 +724,7 @@ def indicator_card(
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
-            numerator_pairs.drop(
-                numerator_pairs[max_time_filter].index, inplace=True
-            )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
             numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
@@ -1090,7 +1092,13 @@ def area_figure(
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         data.sort_values(by=["TIME_PERIOD"], inplace=True)
-        layout["xaxis"] = dict(tickmode="linear", tick0=selections["years"][0], dtick=1)
+        # commenting @lbassil code below: TIME_PERIOD is numeric
+        # layout["xaxis"] = dict(
+        #     tickmode="linear",
+        #     tick0=selections["years"][0],
+        #     dtick=1,
+        #     categoryorder="total ascending",
+        # )
 
     if dimension:
         # lbassil: use the dimension name instead of the code
@@ -1115,5 +1123,7 @@ def area_figure(
     fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
+        # data has been ordered by years, forcing just in case
+        fig.update_layout(xaxis={"categoryorder": "total ascending"})
 
     return fig, source
