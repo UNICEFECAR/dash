@@ -373,6 +373,76 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
+    
+def get_card_popover_body(sources):
+    """This function is used to generate the list of countries that are part of the card's 
+        displayed result; it displays the countries as a list, each on a separate line
+
+    Args:
+        sources (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    countries = []
+    # lbassil: added this condition to stop the exception when sources is empty
+    if len(sources) > 0:
+        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+        card_countries = "\n".join(countries)
+        return card_countries
+    else:
+        return "NA"
+    
+def make_card(card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs):
+    card = dbc.Card(
+        [
+            dbc.CardBody(
+                [
+                    html.H1(
+                        indicator_header,
+                        className="display-4",
+                        style={
+                            # "fontSize": 50,
+                            "textAlign": "center",
+                            "color": "#1cabe2",
+                        },
+                    ),
+                    html.H4(suffix, className="card-title"),
+                    html.P(name, className="lead"),
+                    html.Div(
+                        fa("fas fa-info-circle"),
+                        id=f"{card_id}_info",
+                        # className="float-right",
+                        style={
+                            "position": "absolute",
+                            "bottom": "10px",
+                            "right": "10px",
+                        },
+                    ),
+                ],
+                style={
+                    # "fontSize": 50,
+                    "textAlign": "center",
+                },
+            ),
+            dbc.Popover(
+                [
+                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
+                    dbc.PopoverBody(
+                        dcc.Markdown(get_card_popover_body(numerator_pairs))
+                    ),
+                ],
+                id="hover",
+                target=f"{card_id}_info",
+                trigger="hover",
+            ),
+        ],
+        color="primary",
+        outline=True,
+        id=card_id,
+    )
+    return card
 
 
 def get_card_popover_body(sources):
@@ -650,7 +720,9 @@ def indicator_card(
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
-            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
+            numerator_pairs.drop(
+                numerator_pairs[max_time_filter].index, inplace=True
+            )
             numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
