@@ -1092,13 +1092,12 @@ def area_figure(
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line":
         data.sort_values(by=["TIME_PERIOD"], inplace=True)
-        # commenting @lbassil code below: TIME_PERIOD is numeric
-        # layout["xaxis"] = dict(
-        #     tickmode="linear",
-        #     tick0=selections["years"][0],
-        #     dtick=1,
-        #     categoryorder="total ascending",
-        # )
+        layout["xaxis"] = dict(
+            tickmode="linear",
+            tick0=selections["years"][0],
+            dtick=1,
+            categoryorder="total ascending",
+        )
 
     if dimension:
         # lbassil: use the dimension name instead of the code
@@ -1123,7 +1122,5 @@ def area_figure(
     fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
-        # data has been ordered by years, forcing just in case
-        fig.update_layout(xaxis={"categoryorder": "total ascending"})
 
     return fig, source
