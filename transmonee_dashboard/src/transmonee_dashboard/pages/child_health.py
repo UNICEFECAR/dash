@@ -599,6 +599,7 @@ indicators_dict = {
                 },
             },
             "indicators": [
+                "NT_ANT_WHZ_PO2",
                 "HT_SH_STA_ANEM",
                 "HT_SH_STA_ANEM_NPRG",
                 "HT_SH_STA_ANEM_PREG",
