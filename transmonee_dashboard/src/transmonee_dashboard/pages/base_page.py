@@ -842,7 +842,7 @@ def set_options(theme, indicators_dict, id):
 
         area_types = [
             {
-                "label": name,
+                "label": name.capitalize(),
                 "value": name,
             }
             for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
@@ -869,12 +869,15 @@ def set_options(theme, indicators_dict, id):
 
 @app.callback(
     Output({"type": "area_breakdowns", "index": MATCH}, "options"),
-    Input({"type": "area_options", "index": MATCH}, "value"),
+    [
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
+    ],
     [
         State({"type": "area_breakdowns", "index": MATCH}, "id"),
     ],
 )
-def breakdown_options(indicator, id):
+def breakdown_options(indicator, fig_type, id):
 
     options = [{"label": "Total", "value": "TOTAL"}]
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
@@ -885,7 +888,8 @@ def breakdown_options(indicator, id):
         {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
     ]
     dimensions = indicators_config.get(indicator, {}).keys()
-    if dimensions:
+    # keep only TOTAL for line charts
+    if dimensions and fig_type != "line":
         for breakdown in all_breakdowns:
             if breakdown["value"] in dimensions:
                 options.append(breakdown)
