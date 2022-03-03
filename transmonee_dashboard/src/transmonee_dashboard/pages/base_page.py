@@ -74,138 +74,95 @@ EMPTY_CHART = {
 
 
 def make_area(area_name):
-    if area_name == "MAIN":  # TODO: Improve this so we dont need a massive if statement
-        area = dbc.Card(
-            [
-                dbc.CardHeader(
-                    id={"type": "area_title", "index": "MAIN"},
-                ),
-                dbc.CardBody(
-                    [
-                        dcc.Dropdown(
-                            id={
-                                "type": "area_options",
-                                "index": "MAIN",
-                            },
-                            style={
-                                "zIndex": "11",
-                            },
-                        ),
-                        dbc.FormGroup(
-                            [
-                                dbc.Checkbox(
-                                    id="historical-data-toggle",
-                                    className="custom-control-input",
-                                ),
-                                dbc.Label(
-                                    "Show historical data",
-                                    html_for="historical-data-toggle",
-                                    className="custom-control-label",
-                                    color="primary",
-                                ),
-                            ],
-                            className="custom-control custom-switch m-2",
-                            check=True,
-                            inline=True,
-                        ),
-                        dbc.RadioItems(
-                            id={"type": "area_types", "index": area_name},
-                            # TODO: read chart types from config when we add more types
-                            options=[
-                                {"label": "Line", "value": "line"},
-                                {"label": "Bar", "value": "bar"},
-                            ],
-                            inline=True,
-                        ),
-                        dcc.Loading([dcc.Graph(id="main_area")]),
-                        html.Div(
-                            fa("fas fa-info-circle"),
-                            id="main_area_info",
-                            className="float-right",
-                        ),
-                        dbc.Popover(
-                            [
-                                dbc.PopoverHeader("Sources"),
-                                dbc.PopoverBody(id="main_area_sources"),
-                            ],
-                            id="hover",
-                            target="main_area_info",
-                            trigger="hover",
-                        ),
-                    ]
-                ),
-            ],
-        )
-    else:
-        area = dbc.Card(
-            [
-                dbc.CardHeader(
-                    id={"type": "area_title", "index": area_name},
-                ),
-                dbc.CardBody(
-                    [
-                        dcc.Dropdown(
-                            id={"type": "area_options", "index": area_name},
-                            className="dcc_control",
-                        ),
-                        html.Br(),
-                        dbc.RadioItems(
-                            id={"type": "area_types", "index": area_name},
-                            # TODO: read chart types from config when we add more types
-                            options=[
-                                {"label": "Line", "value": "line"},
-                                {"label": "Bar", "value": "bar"},
-                            ],
-                            inline=True,
-                        ),
-                        dcc.Loading(
-                            [
-                                dcc.Graph(id={"type": "area", "index": area_name}),
-                            ]
-                        ),
-                        dbc.Checklist(
-                            options=[
-                                {
-                                    "label": "Exclude outliers ",
-                                    "value": 1,
-                                }
-                            ],
-                            value=[1],
-                            id={
-                                "type": "exclude_outliers_toggle",
-                                "index": area_name,
-                            },
-                            switch=True,
-                            style={
-                                "paddingLeft": 20,
-                            },
-                        ),
-                        html.Br(),
-                        dbc.RadioItems(
-                            id={"type": "area_breakdowns", "index": area_name},
-                            inline=True,
-                        ),
-                        html.Div(
-                            fa("fas fa-info-circle"),
-                            id=f"{area_name.lower()}_info",
-                            className="float-right",
-                        ),
-                        dbc.Popover(
-                            [
-                                dbc.PopoverHeader("Sources"),
-                                dbc.PopoverBody(
-                                    id={"type": "area_sources", "index": area_name},
-                                ),
-                            ],
-                            id="hover",
-                            target=f"{area_name.lower()}_info",
-                            trigger="hover",
-                        ),
-                    ]
-                ),
-            ],
-            id={"type": "area_parent", "index": area_name},
-        )
+    area_id = {"type": "area", "index": area_name}
+    popover_id = {"type": "area_sources", "index": area_name}
+    historical_data_style = {"display": "none"}
+    exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
+    breakdowns_style = {"display": "block"}
+    # lbassil: still differentiating main area id from other areas ids because the call backs are still not unified
+    if area_name == "MAIN":
+        area_id = f"{area_name.lower()}_area"
+        popover_id = f"{area_name.lower()}_area_sources"
+        historical_data_style = {"display": "block"}
+        exclude_outliers_style = {"display": "none"}
+        breakdowns_style = {"display": "none"}
+
+    # lbassil: unifying both main and figure area generations by tweaking the ids and styles
+    area = dbc.Card(
+        [
+            dbc.CardHeader(
+                id={"type": "area_title", "index": area_name},
+            ),
+            dbc.CardBody(
+                [
+                    dcc.Dropdown(
+                        id={"type": "area_options", "index": area_name},
+                        className="dcc_control",
+                    ),
+                    dbc.FormGroup(
+                        [
+                            dbc.Checkbox(
+                                id="historical-data-toggle",
+                                className="custom-control-input",
+                            ),
+                            dbc.Label(
+                                "Show historical data",
+                                html_for="historical-data-toggle",
+                                className="custom-control-label",
+                                color="primary",
+                            ),
+                        ],
+                        className="custom-control custom-switch m-2",
+                        check=True,
+                        inline=True,
+                        style=historical_data_style,
+                    ),
+                    html.Br(),
+                    dbc.RadioItems(
+                        id={"type": "area_types", "index": area_name},
+                        inline=True,
+                    ),
+                    dcc.Loading([dcc.Graph(id=area_id)]),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Exclude outliers ",
+                                "value": 1,
+                            }
+                        ],
+                        value=[1],
+                        id={
+                            "type": "exclude_outliers_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
+                        style=exclude_outliers_style,
+                    ),
+                    html.Br(),
+                    dbc.RadioItems(
+                        id={"type": "area_breakdowns", "index": area_name},
+                        inline=True,
+                        style=breakdowns_style,
+                    ),
+                    html.Div(
+                        fa("fas fa-info-circle"),
+                        id=f"{area_name.lower()}_area_info",
+                        className="float-right",
+                    ),
+                    dbc.Popover(
+                        [
+                            dbc.PopoverHeader("Sources"),
+                            dbc.PopoverBody(id=popover_id),
+                        ],
+                        id="hover",
+                        target=f"{area_name.lower()}_area_info",
+                        trigger="hover",
+                    ),
+                ]
+            ),
+        ],
+        id={"type": "area_parent", "index": area_name},
+    )
     return area
 
 
@@ -842,7 +799,7 @@ def set_options(theme, indicators_dict, id):
 
         area_types = [
             {
-                "label": name,
+                "label": name.capitalize(),
                 "value": name,
             }
             for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
@@ -869,12 +826,15 @@ def set_options(theme, indicators_dict, id):
 
 @app.callback(
     Output({"type": "area_breakdowns", "index": MATCH}, "options"),
-    Input({"type": "area_options", "index": MATCH}, "value"),
+    [
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
+    ],
     [
         State({"type": "area_breakdowns", "index": MATCH}, "id"),
     ],
 )
-def breakdown_options(indicator, id):
+def breakdown_options(indicator, fig_type, id):
 
     options = [{"label": "Total", "value": "TOTAL"}]
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
@@ -885,7 +845,8 @@ def breakdown_options(indicator, id):
         {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
     ]
     dimensions = indicators_config.get(indicator, {}).keys()
-    if dimensions:
+    # keep only TOTAL for line charts
+    if dimensions and fig_type != "line":
         for breakdown in all_breakdowns:
             if breakdown["value"] in dimensions:
                 options.append(breakdown)
@@ -908,7 +869,8 @@ def set_default_compare(
     selections, compare_options, selected_type, indicators_dict, id
 ):
     area = id["index"]
-    if area in indicators_dict[selections["theme"]]:
+    # lbassil: add this condition to stop the exception for the main area
+    if area in indicators_dict[selections["theme"]] and area != "MAIN":
         default = indicators_dict[selections["theme"]][area]["default_graph"]
         fig_type = selected_type if selected_type else default
         config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
@@ -923,6 +885,7 @@ def set_default_compare(
             if len(compare_options) > 1
             else compare_options[0]["value"]
         )
+    return "TOTAL"
 
 
 @app.callback(
