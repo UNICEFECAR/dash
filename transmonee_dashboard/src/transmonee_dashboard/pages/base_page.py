@@ -28,6 +28,7 @@ from . import (
     selection_tree,
     unicef_country_prog,
     years,
+    get_search_countries,
 )
 
 # set defaults
@@ -169,11 +170,49 @@ def make_area(area_name):
 def get_base_layout(**kwargs):
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
+    is_country_profile = kwargs.get("is_country_profile")
+    print(is_country_profile)
+    country_dropdown_style = {"display": "none"}
+    filters_row_style = {"display": "block"}
+    main_area_style = {"display": "block"}
+    if is_country_profile:
+        country_dropdown_style = {"verticalAlign": "center", "display": "flex"}
+        filters_row_style = {"display": "none"}
+        main_area_style = {"display": "none"}
 
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
+            dbc.Row(
+                [
+                    dcc.Dropdown(
+                        id="countries",
+                        style={
+                            "minWidth": 400,
+                            "maxWidth": 600,
+                            "paddingRight": 20,
+                        },
+                        options=get_search_countries(False),
+                        multi=False,
+                        placeholder="Select a country...",
+                        # className="m-2",
+                    ),
+                    dbc.Button(
+                        html.Span(
+                            [
+                                "Generate",
+                                html.I(className="fas fa-search ml-2"),
+                            ],
+                        ),
+                        color="primary",
+                        id="generate-profile",
+                    ),
+                ],
+                className="my-2",
+                justify="center",
+                style=country_dropdown_style,
+            ),
             html.Div(
                 className="heading",
                 style={"padding": 36},
@@ -301,6 +340,7 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
+                style=filters_row_style,
             ),
             dbc.Row(
                 [
@@ -314,6 +354,7 @@ def get_base_layout(**kwargs):
             html.Br(),
             dbc.CardDeck(
                 [make_area(area) for area in ["MAIN"]],
+                style=main_area_style,
             ),
             html.Br(),
             dbc.CardDeck(
@@ -538,9 +579,11 @@ def display_areas(theme, indicators_dict, id):
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
+        Input("generate-profile", "n_clicks"),
     ],
     [
         State("indicators", "data"),
+        State("countries", "value"),
     ],
 )
 def apply_filters(
@@ -548,13 +591,19 @@ def apply_filters(
     years_slider,
     country_selector,
     programme_toggle,
+    generate_profile,
     indicators,
+    selected_country,
 ):
     ctx = dash.callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
 
-    if programme_toggle and selected == "programme-toggle":
+    if generate_profile and selected == "generate-profile":
+        key_list = list(countries_iso3_dict.keys())
+        val_list = list(countries_iso3_dict.values())
+        countries_selected = [key_list[val_list.index(selected_country)]]
+    elif programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
     # Add the condition to know when the user unchecks the UNICEF country programs!
@@ -744,10 +793,18 @@ def show_cards(selections, current_cards, indicators_dict):
     Output("themes", "children"),
     [
         Input("store", "data"),
+        Input("countries", "value"),
     ],
-    [State("indicators", "data")],
+    State("indicators", "data"),
 )
-def show_themes(selections, indicators_dict):
+def show_themes(selections, selected_country, indicators_dict):
+    ctx = dash.callback_context
+    ctrl_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if ctrl_id == "countries":
+        key_list = list(countries_iso3_dict.keys())
+        val_list = list(countries_iso3_dict.values())
+        subtitle = key_list[val_list.index(selected_country)]
+        return subtitle, []
 
     subtitle = indicators_dict[selections["theme"]].get("NAME")
 
@@ -983,6 +1040,8 @@ def area_figure(
     # only run if indicator not empty
     if not indicator:
         return {}, {}
+    # check if it is the country profile page
+    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
 
     area = id["index"]
     indicators = indicators_dict[selections["theme"]][area]["indicators"]
@@ -1005,7 +1064,7 @@ def area_figure(
         selections["years"],
         selections["countries"],
         compare,
-        latest_data=False if fig_type == "line" else True,
+        latest_data=False if fig_type == "line" or is_country_profile else True,
     )
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
@@ -1053,7 +1112,7 @@ def area_figure(
     )
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line":
+    if fig_type == "line" or is_country_profile:
         data.sort_values(by=["TIME_PERIOD"], inplace=True)
         layout["xaxis"] = dict(
             tickmode="linear",
