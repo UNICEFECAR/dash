@@ -171,7 +171,6 @@ def get_base_layout(**kwargs):
     indicators_dict = kwargs.get("indicators")
     main_title = kwargs.get("main_title")
     is_country_profile = kwargs.get("is_country_profile")
-    print(is_country_profile)
     country_dropdown_style = {"display": "none"}
     filters_row_style = {"display": "block"}
     main_area_style = {"display": "block"}
@@ -194,6 +193,7 @@ def get_base_layout(**kwargs):
                             "paddingRight": 20,
                         },
                         options=get_search_countries(False),
+                        value="ALB",
                         multi=False,
                         placeholder="Select a country...",
                         # className="m-2",
@@ -371,27 +371,6 @@ def get_base_layout(**kwargs):
             html.Br(),
         ],
     )
-
-
-def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's
-        displayed result; it displays the countries as a list, each on a separate line
-
-    Args:
-        sources (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    countries = []
-    # lbassil: added this condition to stop the exception when sources is empty
-    if len(sources) > 0:
-        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(countries)
-        return card_countries
-    else:
-        return "NA"
 
 
 def make_card(
@@ -598,11 +577,17 @@ def apply_filters(
     ctx = dash.callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
-
-    if generate_profile and selected == "generate-profile":
+    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
+    # check if it is the country profile page
+    is_country_profile = current_theme == "COUNTRYPROFILE"
+    # check if the user clicked on the generate button in the country profile page
+    if is_country_profile or (generate_profile and selected == "generate-profile"):
         key_list = list(countries_iso3_dict.keys())
         val_list = list(countries_iso3_dict.values())
-        countries_selected = [key_list[val_list.index(selected_country)]]
+        # get the name of the selected country in the dropdown to filter the data accordingly
+        countries_selected = (
+            [key_list[val_list.index(selected_country)]] if selected_country else []
+        )
     elif programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
@@ -631,7 +616,7 @@ def apply_filters(
         countries_iso3_dict[country] for country in countries_selected
     ]
     selections = dict(
-        theme=theme[1:].upper() if theme else next(iter(indicators.keys())),
+        theme=current_theme,
         indicators_dict=indicators,
         years=selected_years,
         countries=countries_selected_codes,
@@ -798,20 +783,26 @@ def show_cards(selections, current_cards, indicators_dict):
     State("indicators", "data"),
 )
 def show_themes(selections, selected_country, indicators_dict):
+    # check if it is the country profile page
+    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
     ctx = dash.callback_context
     ctrl_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if ctrl_id == "countries":
+    # check if the countries dropdown is causing this callback in order to set the sub-title to the country's name
+    if is_country_profile or ctrl_id == "countries":
         key_list = list(countries_iso3_dict.keys())
         val_list = list(countries_iso3_dict.values())
-        subtitle = key_list[val_list.index(selected_country)]
+        subtitle = (
+            key_list[val_list.index(selected_country)]
+            if selected_country
+            else "Country Name"
+        )
         return subtitle, []
 
     subtitle = indicators_dict[selections["theme"]].get("NAME")
-
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-    # hide the buttons when only one options is available
+    # hide the buttons when only one option is available
     if len(indicators_dict.items()) == 1:
-        return []
+        return subtitle, []
     buttons = [
         dbc.Button(
             value["NAME"],
