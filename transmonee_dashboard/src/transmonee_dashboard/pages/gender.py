@@ -9,14 +9,14 @@ indicators_dict = {
                 "name": "Girls completion rate - Upper secondary education",
                 "indicator": "EDUNF_CR_L3",
                 "suffix": "Range among countries",
-                "sex": "Female",
+                "sex": "F",
                 "min_max": True,
             },
             {
                 "name": "Adolescent birth rate for age 15-19 years (per 1,000 women)",
                 "indicator": "FT_SP_DYN_ADKL",
                 "suffix": "Range among countries",
-                "sex": "Female",
+                "sex": "F",
                 "min_max": True,
             },
             {
@@ -34,7 +34,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Gender Data",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 geojson=geo_json_countries,
                 locations="REF_AREA",
@@ -47,20 +47,21 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
             "indicators": [
+                "EC_GII",
                 "EDU_SDG_STU_L1_G2OR3_REA",
                 "EDU_SDG_STU_L1_G2OR3_MAT",
                 "EDU_SDG_STU_L1_GLAST_REA",
@@ -85,7 +86,7 @@ indicators_dict = {
                 "EDUNF_STEM_GRAD_RT",
                 "FT_SP_DYN_ADKL",
                 "HT_SH_FPL_MTMM",
-                "HT_SH_HIV_INCD ",
+                # "HT_SH_HIV_INCD ",
                 "HT_DIST79DTP3_P",
                 "HT_SH_ACS_DTP3",
                 "HT_DIST80DTP3_P",
@@ -168,7 +169,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -180,8 +181,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -220,7 +221,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -232,8 +233,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -260,7 +261,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -272,8 +273,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -283,7 +284,7 @@ indicators_dict = {
             "indicators": [
                 "FT_SP_DYN_ADKL",
                 "HT_SH_FPL_MTMM",
-                "HT_SH_HIV_INCD ",
+                # "HT_SH_HIV_INCD ",
                 "HT_DIST79DTP3_P",
                 "HT_SH_ACS_DTP3",
                 "HT_DIST80DTP3_P",
@@ -303,17 +304,16 @@ indicators_dict = {
                 "CME_MRM0",
                 "MNCH_SAB",
                 "CME_MRY0T4",
-                "WS_PPL_S-SM",
             ],
             "default_graph": "bar",
             "default": "FT_SP_DYN_ADKL",
         },
         "AREA_4": {
-            "name": "Poverty",
+            "name": "Poverty and Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -325,8 +325,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -354,11 +354,11 @@ indicators_dict = {
             "default": "PV_SI_POV_EMP1",
         },
         "AREA_5": {
-            "name": "Child Rights Landscape",
+            "name": "Child Rights Landscape and Governance",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -370,8 +370,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -397,16 +397,18 @@ indicators_dict = {
                 "DM_LIFE_EXP",
                 "GN_MTNTY_LV_BNFTS",
                 "GN_PTNTY_LV_BNFTS",
+                "CR_AAP_DEATH",
+                "CR_HAP_DEATH",
             ],
             "default_graph": "bar",
             "default": "DM_CHLD_POP_PT",
         },
         "AREA_6": {
-            "name": "Participation",
+            "name": "Participation and Civil Rights",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -418,8 +420,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -444,7 +446,6 @@ indicators_dict = {
         },
     },
 }
-
 
 main_title = "Gender"
 

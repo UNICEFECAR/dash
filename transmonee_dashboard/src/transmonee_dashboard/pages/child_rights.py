@@ -7,24 +7,47 @@ from .base_page import get_base_layout
 
 indicators_dict = {
     "DEMOGRAPHY": {
-        "NAME": "Demography about Children",
+        "NAME": "Demographics",
         "CARDS": [
+            {
+                "name": "Age 0-4 years",
+                "indicator": "DM_CHLD_POP",
+                "suffix": "Total child population (expressed in thousands)",
+                "absolute": True,
+                "age": "Y0T4",  # Under 5 years old
+            },
+            {
+                "name": "Age 10-19 years",
+                "indicator": "DM_ADOL_POP",
+                "suffix": "Total adolescent population (expressed in thousands)",
+                "absolute": True,
+                "age": "Y10T19",
+            },
             {
                 "name": "age 0-17 years",
                 "indicator": "DM_CHLD_POP",
                 "suffix": "Total child population (expressed in thousands)",
                 "absolute": True,
+                "age": "Y0T17",
             },
             {
-                "name": "Children (0-17) living with two parents",
-                "indicator": "DM_CHLD_TWO_PRNT",
+                "name": "Children as a share of the total population",
+                "indicator": "DM_CHLD_POP_PT",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
+                "age": "Y0T17",
+            },
+            {
+                "name": "Age 15-24 years",
+                "indicator": "DM_ADOL_YOUTH_POP",
+                "suffix": "Total young population (expressed in thousands)",
+                "absolute": True,
+                "age": "Y15T24",  # 15 to 24 years old
             },
         ],
         "MAIN": {
             "name": "Demography",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -36,14 +59,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -64,21 +87,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -100,21 +123,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -146,7 +169,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Political Economy",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -158,14 +181,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -200,21 +223,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -248,21 +271,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -298,7 +321,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Migration and Displacement",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -310,14 +333,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -339,21 +362,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -373,21 +396,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -404,19 +427,23 @@ indicators_dict = {
             "default": "DM_SM_POP_REFG",
         },
     },
-    "RISKS": {
-        "NAME": "Risks and humanitarian situation",
+    "ACCESS": {
+        "NAME": "Access to Justice",
         "CARDS": [
             {
-                "name": "Deaths and missing persons attributed to disasters (per 100,000 population)",
-                "indicator": "CR_VC_DSR_MTMP",
-                "suffix": "Rate range among countries",
-                "min_max": True,
+                "name": "brought by or on behalf of children to independent human rights mechanisms during the year",
+                "indicator": "",  # Missing
+                "suffix": "Number of complaints",
+            },
+            {
+                "name": "of registered crimes committed against children (during the year)",
+                "indicator": "JJ_CHLD_CRIME",
+                "suffix": "Total number",
             },
         ],
         "MAIN": {
-            "name": "Risks and humanitarian situation",
-            "geo": "Geographic area",
+            "name": "Access to Justice",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -428,46 +455,49 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
             "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
-                "CR_SG_DSR_LGRGSR",
+                "PP_SG_NHR_IMPLN",
+                "PP_SG_NHR_INTEXSTN",
+                "PP_SG_NHR_NOSTUSN",
+                "PP_SG_NHR_NOAPPLN",
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
             ],
-            "default": "CR_VC_DSR_MTMP",
+            "default": "PP_SG_NHR_IMPLN",
         },
         "AREA_1": {
-            "name": "Humanitarian Situation",
+            "name": "Countries with National Human Rights Institutions",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -476,31 +506,31 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "CR_VC_DSR_MTMP",
-                "CR_VC_DSR_DAFF",
+                "JJ_CHLD_CRIME",
+                "JJ_CHLD_CRIMERT",
             ],
-            "default": "CR_VC_DSR_MTMP",
+            "default": "JJ_CHLD_CRIME",
         },
         "AREA_2": {
-            "name": "Disaster Risk Reduction",
+            "name": "Crime and Justice",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -508,124 +538,243 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "CR_SG_DSR_LGRGSR",
+                "PP_SG_NHR_IMPLN",
+                "PP_SG_NHR_INTEXSTN",
+                "PP_SG_NHR_NOSTUSN",
+                "PP_SG_NHR_NOAPPLN",
             ],
-            "default": "CR_SG_DSR_LGRGSR",
+            "default": "PP_SG_NHR_IMPLN",
             "default_graph": "line",
         },
     },
-    "CLIMATE": {
-        "NAME": "Impact of climate change",
-        "CARDS": [
-            {
-                "name": "Population with primary reliance on clean fuels and technology",
-                "indicator": "CR_EG_EGY_CLEAN",
-                "suffix": "Percentage range among countries",
-                "min_max": True,
-            },
-        ],
-        "MAIN": {
-            "name": "Impact of climate change",
-            "geo": "Geographic area",
-            "options": dict(
-                locations="REF_AREA",
-                featureidkey="id",
-                color="OBS_VALUE",
-                color_continuous_scale=px.colors.sequential.GnBu,
-                mapbox_style="carto-positron",
-                zoom=2,
-                center={"lat": 62.995158, "lon": 88.048713},
-                opacity=0.5,
-                labels={
-                    "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
-                    "TIME_PERIOD": "Year",
-                    "REF_AREA": "ISO3 Code",
-                },
-                hover_data={
-                    "OBS_VALUE": True,
-                    "REF_AREA": False,
-                    "Geographic area": True,
-                    "TIME_PERIOD": True,
-                },
-                animation_frame="TIME_PERIOD",
-                height=750,
-            ),
-            "indicators": [
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
-            ],
-            "default": "CR_SH_STA_AIRP",
-        },
-        "AREA_1": {
-            "name": "Air Pollution",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            "indicators": [
-                "CR_SH_STA_AIRP",
-                "CR_SH_STA_ASAIRP",
-            ],
-            "default": "CR_SH_STA_AIRP",
-        },
-        "AREA_2": {
-            "name": "Clean Fuels and Technology",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Geographic area",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [
-                "CR_EG_EGY_CLEAN",
-                "CR_EG_ACS_ELEC",
-            ],
-            "default": "CR_EG_EGY_CLEAN",
-            "default_graph": "line",
-        },
-    },
+    # "RISKS": {
+    #     "NAME": "Risks and humanitarian situation",
+    #     "CARDS": [
+    #         {
+    #             "name": "Deaths and missing persons attributed to disasters (per 100,000 population)",
+    #             "indicator": "CR_VC_DSR_MTMP",
+    #             "suffix": "Rate range among countries",
+    #             "min_max": True,
+    #         },
+    #     ],
+    #     "MAIN": {
+    #         "name": "Risks and humanitarian situation",
+    #         "geo": "Country_name",
+    #         "options": dict(
+    #             locations="REF_AREA",
+    #             featureidkey="id",
+    #             color="OBS_VALUE",
+    #             color_continuous_scale=px.colors.sequential.GnBu,
+    #             mapbox_style="carto-positron",
+    #             zoom=2,
+    #             center={"lat": 62.995158, "lon": 88.048713},
+    #             opacity=0.5,
+    #             labels={
+    #                 "OBS_VALUE": "Value",
+    #                 "Country_name": "Country",
+    #                 "TIME_PERIOD": "Year",
+    #                 "REF_AREA": "ISO3 Code",
+    #             },
+    #             hover_data={
+    #                 "OBS_VALUE": True,
+    #                 "REF_AREA": False,
+    #                 "Country_name": True,
+    #                 "TIME_PERIOD": True,
+    #             },
+    #             animation_frame="TIME_PERIOD",
+    #             height=750,
+    #         ),
+    #         "indicators": [
+    #             "CR_VC_DSR_MTMP",
+    #             "CR_VC_DSR_DAFF",
+    #             "CR_SG_DSR_LGRGSR",
+    #             "CR_AAP_DEATH",
+    #             "CR_HAP_DEATH",
+    #         ],
+    #         "default": "CR_VC_DSR_MTMP",
+    #     },
+    #     "AREA_1": {
+    #         "name": "Humanitarian Situation",
+    #         "graphs": {
+    #             "bar": {
+    #                 "options": dict(
+    #                     x="Country_name",
+    #                     y="OBS_VALUE",
+    #                     barmode="group",
+    #                     # text="TIME_PERIOD",
+    #                     text="OBS_VALUE",
+    #                     hover_name="TIME_PERIOD",
+    #                 ),
+    #                 "compare": "Sex",
+    #             },
+    #             "line": {
+    #                 "options": dict(
+    #                     x="TIME_PERIOD",
+    #                     y="OBS_VALUE",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
+    #                     line_shape="spline",
+    #                     render_mode="svg",
+    #                 ),
+    #                 "trace_options": dict(mode="lines+markers"),
+    #             },
+    #         },
+    #         "default_graph": "bar",
+    #         "indicators": [
+    #             "CR_VC_DSR_MTMP",
+    #             "CR_VC_DSR_DAFF",
+    #             "CR_AAP_DEATH",
+    #             "CR_HAP_DEATH",
+    #         ],
+    #         "default": "CR_VC_DSR_MTMP",
+    #     },
+    #     "AREA_2": {
+    #         "name": "Disaster Risk Reduction",
+    #         "graphs": {
+    #             "bar": {
+    #                 "options": dict(
+    #                     x="Country_name",
+    #                     y="OBS_VALUE",
+    #                     barmode="group",
+    #                     # text="TIME_PERIOD",
+    #                     text="OBS_VALUE",
+    #                     hover_name="TIME_PERIOD",
+    #                 ),
+    #                 "compare": "Sex",
+    #             },
+    #             "line": {
+    #                 "options": dict(
+    #                     x="TIME_PERIOD",
+    #                     y="OBS_VALUE",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
+    #                     line_shape="spline",
+    #                     render_mode="svg",
+    #                 ),
+    #                 "trace_options": dict(mode="lines+markers"),
+    #             },
+    #         },
+    #         "indicators": [
+    #             "CR_SG_DSR_LGRGSR",
+    #         ],
+    #         "default": "CR_SG_DSR_LGRGSR",
+    #         "default_graph": "line",
+    #     },
+    # },
+    # "CLIMATE": {
+    #     "NAME": "Environment and Climate Change",
+    #     "CARDS": [
+    #         {
+    #             "name": "Population with primary reliance on clean fuels and technology",
+    #             "indicator": "CR_EG_EGY_CLEAN",
+    #             "suffix": "Percentage range among countries",
+    #             "min_max": True,
+    #         },
+    #     ],
+    #     "MAIN": {
+    #         "name": "Environment and Climate Change",
+    #         "geo": "Country_name",
+    #         "options": dict(
+    #             locations="REF_AREA",
+    #             featureidkey="id",
+    #             color="OBS_VALUE",
+    #             color_continuous_scale=px.colors.sequential.GnBu,
+    #             mapbox_style="carto-positron",
+    #             zoom=2,
+    #             center={"lat": 62.995158, "lon": 88.048713},
+    #             opacity=0.5,
+    #             labels={
+    #                 "OBS_VALUE": "Value",
+    #                 "Country_name": "Country",
+    #                 "TIME_PERIOD": "Year",
+    #                 "REF_AREA": "ISO3 Code",
+    #             },
+    #             hover_data={
+    #                 "OBS_VALUE": True,
+    #                 "REF_AREA": False,
+    #                 "Country_name": True,
+    #                 "TIME_PERIOD": True,
+    #             },
+    #             animation_frame="TIME_PERIOD",
+    #             height=750,
+    #         ),
+    #         "indicators": [
+    #             "CR_SH_STA_AIRP",
+    #             "CR_SH_STA_ASAIRP",
+    #             "CR_EG_EGY_CLEAN",
+    #             "CR_EG_ACS_ELEC",
+    #             "CR_CCRI",
+    #         ],
+    #         "default": "CR_SH_STA_AIRP",
+    #     },
+    #     "AREA_1": {
+    #         "name": "Air Pollution",
+    #         "graphs": {
+    #             "bar": {
+    #                 "options": dict(
+    #                     x="Country_name",
+    #                     y="OBS_VALUE",
+    #                     barmode="group",
+    #                     # text="TIME_PERIOD",
+    #                     text="OBS_VALUE",
+    #                     hover_name="TIME_PERIOD",
+    #                 ),
+    #                 "compare": "Sex",
+    #             },
+    #             "line": {
+    #                 "options": dict(
+    #                     x="TIME_PERIOD",
+    #                     y="OBS_VALUE",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
+    #                     line_shape="spline",
+    #                     render_mode="svg",
+    #                 ),
+    #                 "trace_options": dict(mode="lines+markers"),
+    #             },
+    #         },
+    #         "default_graph": "bar",
+    #         "indicators": [
+    #             "CR_SH_STA_AIRP",
+    #             "CR_SH_STA_ASAIRP",
+    #             "CR_CCRI",
+    #         ],
+    #         "default": "CR_SH_STA_AIRP",
+    #     },
+    #     "AREA_2": {
+    #         "name": "Clean Fuels and Technology",
+    #         "graphs": {
+    #             "bar": {
+    #                 "options": dict(
+    #                     x="Country_name",
+    #                     y="OBS_VALUE",
+    #                     barmode="group",
+    #                     # text="TIME_PERIOD",
+    #                     text="OBS_VALUE",
+    #                     hover_name="TIME_PERIOD",
+    #                 ),
+    #                 "compare": "Sex",
+    #             },
+    #             "line": {
+    #                 "options": dict(
+    #                     x="TIME_PERIOD",
+    #                     y="OBS_VALUE",
+    #                     color="Country_name",
+    #                     hover_name="Country_name",
+    #                     line_shape="spline",
+    #                     render_mode="svg",
+    #                 ),
+    #                 "trace_options": dict(mode="lines+markers"),
+    #             },
+    #         },
+    #         "indicators": [
+    #             "CR_EG_EGY_CLEAN",
+    #             "CR_EG_ACS_ELEC",
+    #         ],
+    #         "default": "CR_EG_EGY_CLEAN",
+    #         "default_graph": "line",
+    #     },
+    # },
     "DATA": {
         "NAME": "Data on Children",
         "CARDS": [
@@ -644,7 +793,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Availability of data on Children",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -656,14 +805,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -687,21 +836,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -721,21 +870,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -772,7 +921,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Public Expendiure on Children",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -784,14 +933,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -805,6 +954,12 @@ indicators_dict = {
                 "EC_TOT_PUB_EXP_TOT",
                 "EC_FAM_PUB_EXP_GDP",
                 "EC_FAM_PUB_EXP_TOT",
+                "HT_SH_XPD_CHEX_GD_ZS",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "HT_SH_XPD_CHEX_PP_CD",
+                "EDU_FIN_EXP_PT_GDP",
+                "EDU_FIN_EXP_PT_TOT",
+                "EDU_FIN_EXP_CONST_PPP",
             ],
             "default": "EC_TOT_PUB_EXP_TOT",
         },
@@ -813,21 +968,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -838,29 +993,35 @@ indicators_dict = {
             "indicators": [
                 "EDU_FIN_EXP_PT_GDP",
                 "HT_SH_XPD_GHED_GD_ZS",
+                "HT_SH_XPD_CHEX_GD_ZS",
+                "HT_SH_XPD_GHED_GD_ZS",
+                "HT_SH_XPD_CHEX_PP_CD",
+                "EDU_FIN_EXP_PT_GDP",
+                "EDU_FIN_EXP_PT_TOT",
+                "EDU_FIN_EXP_CONST_PPP",
             ],
             "default": "EDU_FIN_EXP_PT_GDP",
         },
         "AREA_2": {
-            "name": "Government spending on Social Protection",
+            "name": "Availability of Data on Children",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -881,7 +1042,7 @@ indicators_dict = {
 }
 
 
-main_title = "Child Rights Landscape"
+main_title = "Child Rights Landscape and Governance"
 
 
 def get_layout(**kwargs):

@@ -6,20 +6,14 @@ indicators_dict = {
         "NAME": "Cross-Cutting Issues",
         "CARDS": [
             {
-                "name": "of children as a share of total population",
-                "indicator": "DM_CHLD_POP_PT",
+                "name": "Children (aged 36-59 months) developmentally on track in at least 3 of the 4 following domains: literacy-numeracy, physical, social-emotional and learning",
+                "indicator": "ECD_CHLD_36-59M_LMPSL",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
-            # {
-            #     "name": "of the gross enrolment ratio, early childhood educational development programmes, Gender Parity Index (GPI)",
-            #     "indicator": "EDUNF_GER_GPI_L01",
-            #     "suffix": "Range among countries",
-            #     "min_max": True,
-            # },
             {
-                "name": "Government expenditure on education (% of GDP)",
-                "indicator": "EDU_FIN_EXP_PT_GDP",
+                "name": "Participation in organized learning - adjusted net enrolment rate, one year before official primary entry age",
+                "indicator": "EDUNF_NERA_L1_UNDER1",
                 "suffix": "Percentage range among countries",
                 "min_max": True,
             },
@@ -38,7 +32,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Nurturing care for early childhood development",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 geojson=geo_json_countries,
                 locations="REF_AREA",
@@ -51,14 +45,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -115,7 +109,7 @@ indicators_dict = {
                 "CME_PND",
                 "CME_SBR",
                 "CME_MRM0",
-                "CME_TRY0T4",
+                # "CME_TRY0T4",
                 "CME_MRY0T4",
                 "CME_MRY0",
                 "HT_SN_STA_OVWGTN",
@@ -175,21 +169,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -225,21 +219,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -267,21 +261,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -309,7 +303,7 @@ indicators_dict = {
                 "CME_PND",
                 "CME_SBR",
                 "CME_MRM0",
-                "CME_TRY0T4",
+                # "CME_TRY0T4",
                 "CME_MRY0T4",
                 "CME_MRY0",
                 "HT_SN_STA_OVWGTN",
@@ -328,25 +322,25 @@ indicators_dict = {
             "default": "HT_SH_XPD_CHEX_GD_ZS",
         },
         "AREA_4": {
-            "name": "Poverty",
+            "name": "Poverty and Social Protection",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -369,25 +363,25 @@ indicators_dict = {
             "default": "PV_SI_POV_UMIC",
         },
         "AREA_5": {
-            "name": "Child Rights Landscape",
+            "name": "Child Rights Landscape and Governance",
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Age",
+                    # "compare": "Age",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -432,7 +426,7 @@ indicators_dict = {
         #     "graphs": {
         #         "bar": {
         #             "options": dict(
-        #                 x="Geographic area",
+        #                 x="Country_name",
         #                 y="OBS_VALUE",
         #                 barmode="group",
         #                 # text="TIME_PERIOD",
@@ -445,8 +439,8 @@ indicators_dict = {
         #             "options": dict(
         #                 x="TIME_PERIOD",
         #                 y="OBS_VALUE",
-        #                 color="Geographic area",
-        #                 hover_name="Geographic area",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
         #                 line_shape="spline",
         #                 render_mode="svg",
         #             ),
@@ -460,7 +454,7 @@ indicators_dict = {
     },
 }
 
-main_title = "ECD"
+main_title = "Early Childhood Development (ECD)"
 
 
 def get_layout(**kwargs):

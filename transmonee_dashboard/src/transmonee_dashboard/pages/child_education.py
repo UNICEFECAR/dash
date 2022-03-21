@@ -1,5 +1,4 @@
-import pandas as pd
-
+from collections import defaultdict
 import plotly.express as px
 
 from . import data, years
@@ -7,28 +6,31 @@ from .base_page import get_base_layout
 
 indicators_dict = {
     "PARTICIPATION": {
-        "NAME": "Participation",
+        "NAME": "Education access and participation",
         "CARDS": [
             {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "age": "SCHOOL_AGE",
             },
             {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Girls",
-                "sex": "Female",
+                "sex": "F",
+                "age": "SCHOOL_AGE",
             },
             {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1_UNDER1",
                 "suffix": "Children one year younger than the official primary entry age",
+                "age": "UNDER1_SCHOOL_ENTRY",
             },
         ],
         "MAIN": {
             "name": "Out-of-School Children",
-            "geo": "Geographic area",
+            "geo": "Country_name",  # REF_AREA
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -40,14 +42,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
-                    "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
+                    "TIME_PERIOD": "Year",
+                    "Country_name": "Country",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -71,21 +73,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -115,21 +117,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -155,21 +157,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -196,21 +198,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -230,7 +232,7 @@ indicators_dict = {
         },
     },
     "QUALITY": {
-        "NAME": "Learning Quality",
+        "NAME": "Learning quality and skills",
         "CARDS": [
             {
                 "name": "(enrolled in the same grade for a second or further year) in primary and lower secondary education",
@@ -256,7 +258,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "What students know and can do",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -268,14 +270,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -289,21 +291,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -329,21 +331,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -369,21 +371,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -404,21 +406,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -435,8 +437,8 @@ indicators_dict = {
             "default": "EDU_SDG_QUTP_L2",
         },
     },
-    "GOVERNANCE": {
-        "NAME": "Governance",
+    "SYSTEM": {
+        "NAME": "Education System",
         "CARDS": [
             {
                 "name": "Guaranteeing at least one year of free pre-primary education in their legal frameworks",
@@ -456,7 +458,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Guaranteeing and paying for education",  # "Education Expenditures and Legal Frameworks",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",
                 featureidkey="id",
@@ -468,14 +470,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -495,21 +497,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -540,21 +542,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -585,21 +587,21 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
                     ),
-                    "compare": "Sex",
+                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -623,7 +625,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -635,8 +637,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -644,21 +646,21 @@ indicators_dict = {
                 },
             },
             "default_graph": "bar",
-            "indicators": [
-                "EDUNF_ADMIN_L1_GLAST_REA",
-                "EDUNF_ADMIN_L1_GLAST_MAT",
-                "EDUNF_ADMIN_L2_REA",
-                "EDUNF_ADMIN_L2_MAT",
-                "EDUNF_ADMIN_L1_G2OR3_REA",
-                "EDUNF_ADMIN_L1_G2OR3_MAT",
-            ],
+            "indicators": {
+                "EDUNF_ADMIN_L1_GLAST_REA": {},
+                "EDUNF_ADMIN_L1_GLAST_MAT": {},
+                "EDUNF_ADMIN_L2_REA": {},
+                "EDUNF_ADMIN_L2_MAT": {"dtype": "str"},
+                "EDUNF_ADMIN_L1_G2OR3_REA": {},
+                "EDUNF_ADMIN_L1_G2OR3_MAT": {},
+            },
             "default": "EDUNF_ADMIN_L2_MAT",
         },
     },
 }
 
 
-main_title = "Education"
+main_title = "Education, Leisure, and Culture"
 
 
 def get_layout(**kwargs):

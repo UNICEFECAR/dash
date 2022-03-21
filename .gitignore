@@ -77,6 +77,12 @@ nb_devs.ipynb
 check_on_cards.ipynb
 dev_nb.ipynb
 
+# config prep files
+query_keys_SDMX.py
+indicators_to_fill.xlsx
+config_query.json
+config_query_filled.json
+
 # pyenv
 .python-version
 
