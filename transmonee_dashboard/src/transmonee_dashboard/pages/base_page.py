@@ -98,23 +98,21 @@ def make_area(area_name):
                     dcc.Dropdown(
                         id={"type": "area_options", "index": area_name},
                         className="dcc_control",
-                    ),
-                    dbc.FormGroup(
-                        [
-                            dbc.Checkbox(
-                                id="historical-data-toggle",
-                                className="custom-control-input",
-                            ),
-                            dbc.Label(
-                                "Show historical data",
-                                html_for="historical-data-toggle",
-                                className="custom-control-label",
-                                color="primary",
-                            ),
+                    ),                    
+                    html.Br(),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Show historical data",
+                                "value": 1,
+                            }
                         ],
-                        className="custom-control custom-switch m-2",
-                        check=True,
-                        inline=True,
+                        value=[],
+                        id={
+                            "type": "historical_data_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
                         style=historical_data_style,
                     ),
                     html.Br(),
@@ -893,7 +891,7 @@ def set_default_compare(
     Output("main_area_sources", "children"),
     [
         Input({"type": "area_options", "index": "MAIN"}, "value"),
-        Input("historical-data-toggle", "checked"),
+        Input({"type": "historical_data_toggle", "index": "MAIN"}, "value"),
         Input("store", "data"),
     ],
     [
