@@ -101,7 +101,7 @@ nav_items = (
             ("climate", html.Div([fa("fas fa-sun"), "Climate Change"])),
         ],
     ),
-    ("profiles", html.Div([fa("fas fa-globe"), "Country Profiles"]), []),
+    ("profiles", html.Div([fa("fas fa-globe"), "Country Snapshots"]), []),
     ("data_query", html.Div([fa("fas fa-table"), "Query Data"]), []),
     ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
 )

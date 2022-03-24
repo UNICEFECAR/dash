@@ -61,7 +61,7 @@ indicators_dict = {
             },
         ],
         "AREA_1": {
-            "name": "Education",
+            "name": "Education, Leisure, and Culture",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -85,7 +85,7 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "default_graph": "bar",
+            "default_graph": "line",
             "indicators": [
                 "EDUNF_ROFST_L1",
                 "EDUNF_ROFST_L2",
@@ -176,10 +176,10 @@ indicators_dict = {
                 "EDUNF_ADMIN_L1_G2OR3_REA",
                 "EDUNF_ADMIN_L1_G2OR3_MAT",
             ],
-            "default": "EDU_SDG_STU_L1_G2OR3_REA",
+            "default": "EDU_FIN_EXP_PT_GDP",
         },
         "AREA_2": {
-            "name": "Family Environment and Protection",
+            "name": "Family environment and protection from violence and harmful practices",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -533,7 +533,6 @@ indicators_dict = {
                 "HT_SH_XPD_CHEX_GD_ZS",
                 "HT_SH_XPD_GHED_GD_ZS",
                 "HT_SH_XPD_CHEX_PP_CD",
-                "EDU_FIN_EXP_PT_GDP",
                 "EDU_FIN_EXP_PT_TOT",
                 "EDU_FIN_EXP_CONST_PPP",
             ],
@@ -587,12 +586,12 @@ indicators_dict = {
                 "PP_ADOL_WORK_HOME",
             ],
             "default_graph": "bar",
-            "default": "PP_SE_GPI_ICTS_ATCH",
+            "default": "PT_CHLD_Y0T4_REG",
         },
     },
 }
 
-main_title = "Country Profile"
+main_title = "Country Snapshot"
 
 
 def get_layout(**kwargs):

@@ -80,6 +80,7 @@ def make_area(area_name):
     historical_data_style = {"display": "none"}
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
+
     # lbassil: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
@@ -93,6 +94,7 @@ def make_area(area_name):
         [
             dbc.CardHeader(
                 id={"type": "area_title", "index": area_name},
+                style={"fontWeight": "bold"},
             ),
             dbc.CardBody(
                 [
@@ -100,22 +102,20 @@ def make_area(area_name):
                         id={"type": "area_options", "index": area_name},
                         className="dcc_control",
                     ),
-                    dbc.FormGroup(
-                        [
-                            dbc.Checkbox(
-                                id="historical-data-toggle",
-                                className="custom-control-input",
-                            ),
-                            dbc.Label(
-                                "Show historical data",
-                                html_for="historical-data-toggle",
-                                className="custom-control-label",
-                                color="primary",
-                            ),
+                    html.Br(),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Show historical data",
+                                "value": 1,
+                            }
                         ],
-                        className="custom-control custom-switch m-2",
-                        check=True,
-                        inline=True,
+                        value=[],
+                        id={
+                            "type": "historical_data_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
                         style=historical_data_style,
                     ),
                     html.Br(),
@@ -172,11 +172,16 @@ def get_base_layout(**kwargs):
     main_title = kwargs.get("main_title")
     is_country_profile = kwargs.get("is_country_profile")
     country_dropdown_style = {"display": "none"}
-    filters_row_style = {"display": "block"}
+    themes_row_style = {"display": "block"}
+    countries_filter_style = {"display": "block"}
+    programme_toggle_style = {"display": "block"}
     main_area_style = {"display": "block"}
+
     if is_country_profile:
         country_dropdown_style = {"verticalAlign": "center", "display": "flex"}
-        filters_row_style = {"display": "none"}
+        themes_row_style = {"display": "none"}
+        countries_filter_style = {"display": "none"}
+        programme_toggle_style = {"display": "none"}
         main_area_style = {"display": "none"}
 
     return html.Div(
@@ -254,6 +259,7 @@ def get_base_layout(**kwargs):
                                 className="my-2",
                                 # no_gutters=True,
                                 justify="center",
+                                style=themes_row_style,
                             ),
                             dbc.Row(
                                 [
@@ -292,7 +298,7 @@ def get_base_layout(**kwargs):
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
-                                        # block=True,
+                                        style=countries_filter_style,
                                         children=[
                                             dbc.Card(
                                                 dash_treeview_antd.TreeView(
@@ -329,6 +335,7 @@ def get_base_layout(**kwargs):
                                         className="custom-control custom-switch m-2",
                                         check=True,
                                         inline=True,
+                                        style=programme_toggle_style,
                                     ),
                                 ],
                                 id="filter-row",
@@ -340,7 +347,6 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
-                style=filters_row_style,
             ),
             dbc.Row(
                 [
@@ -445,59 +451,6 @@ def get_card_popover_body(sources):
         return card_countries
     else:
         return "NA"
-
-
-def make_card(
-    card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
-):
-    card = dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H1(
-                        indicator_header,
-                        className="display-4",
-                        style={
-                            # "fontSize": 50,
-                            "textAlign": "center",
-                            "color": "#1cabe2",
-                        },
-                    ),
-                    html.H4(suffix, className="card-title"),
-                    html.P(name, className="lead"),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{card_id}_info",
-                        # className="float-right",
-                        style={
-                            "position": "absolute",
-                            "bottom": "10px",
-                            "right": "10px",
-                        },
-                    ),
-                ],
-                style={
-                    # "fontSize": 50,
-                    "textAlign": "center",
-                },
-            ),
-            dbc.Popover(
-                [
-                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
-                    dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(numerator_pairs))
-                    ),
-                ],
-                id="hover",
-                target=f"{card_id}_info",
-                trigger="hover",
-            ),
-        ],
-        color="primary",
-        outline=True,
-        id=card_id,
-    )
-    return card
 
 
 # TODO: Move to client side call back
@@ -686,7 +639,7 @@ def indicator_card(
     indicator_values = (
         filtered_data.groupby(
             [
-                "REF_AREA",
+                "Country_name",
                 "TIME_PERIOD",
             ]
         ).agg({"OBS_VALUE": "sum", "CODE": "count"})
@@ -694,9 +647,9 @@ def indicator_card(
 
     numerator_pairs = (
         indicator_values[indicator_values.CODE == len(indicators)]
-        .groupby("REF_AREA", as_index=False)
+        .groupby("Country_name", as_index=False)
         .last()
-        .set_index(["REF_AREA", "TIME_PERIOD"])
+        .set_index(["Country_name", "TIME_PERIOD"])
     )
 
     if suffix.lower() == "countries":
@@ -941,16 +894,15 @@ def set_default_compare(
     Output("main_area_sources", "children"),
     [
         Input({"type": "area_options", "index": "MAIN"}, "value"),
-        Input("historical-data-toggle", "checked"),
+        Input({"type": "historical_data_toggle", "index": "MAIN"}, "value"),
         Input("store", "data"),
     ],
     [
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, historical_data, selections, indicators_dict):
-
-    latest_data = not historical_data
+def main_figure(indicator, show_historical_data, selections, indicators_dict):
+    latest_data = not show_historical_data
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
     data = get_filtered_dataset(
