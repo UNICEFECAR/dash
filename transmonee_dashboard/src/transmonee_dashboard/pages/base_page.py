@@ -172,7 +172,7 @@ def get_base_layout(**kwargs):
     main_title = kwargs.get("main_title")
     is_country_profile = kwargs.get("is_country_profile")
     country_dropdown_style = {"display": "none"}
-    themes_row_style = {"display": "block"}
+    themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     programme_toggle_style = {"display": "block"}
     main_area_style = {"display": "block"}
