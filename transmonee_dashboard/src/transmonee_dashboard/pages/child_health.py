@@ -921,6 +921,10 @@ indicators_dict = {
             ),
             "indicators": [
                 "WS_PPL_W-SM",
+                "WS_PPL_S-SM",
+                "WS_PPL_H-B",
+                "WS_PPS_S-OD",
+                "HT_NO_BTH_SHW_FLSH",
             ],
             "default": "WS_PPL_W-SM",
         },

@@ -25,6 +25,7 @@ from . import (
     data_sources,
     df_sources,
     indicators_disagg_details,
+    get_search_countries,
 )
 
 
@@ -306,7 +307,7 @@ def get_layout(**kwargs):
                                                                 "minWidth": 400,
                                                                 "maxWidth": 600,
                                                             },
-                                                            options=get_search_countries(),
+                                                            options=get_search_countries(True),
                                                             multi=True,
                                                             placeholder="Select one or more country...",
                                                             className="m-2",
@@ -541,20 +542,6 @@ def get_layout(**kwargs):
             ),
         ],
     )
-
-
-def get_search_countries():
-    all_countries = {"label": "All", "value": "All"}
-    countries_list = [
-        {
-            "label": key,
-            "value": countries_iso3_dict[key],
-        }
-        for key in countries_iso3_dict.keys()
-    ]
-    countries_list.insert(0, all_countries)
-    return countries_list
-
 
 def get_sources():
     all_sources = [

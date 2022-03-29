@@ -751,6 +751,20 @@ dict_topics_subtopics = {
 }
 
 
+def get_search_countries(add_all):
+    all_countries = {"label": "All", "value": "All"}
+    countries_list = [
+        {
+            "label": key,
+            "value": countries_iso3_dict[key],
+        }
+        for key in countries_iso3_dict.keys()
+    ]
+    if add_all:
+        countries_list.insert(0, all_countries)
+    return countries_list
+
+
 def get_sector(subtopic):
     for key in dict_topics_subtopics.keys():
         if subtopic.strip() in dict_topics_subtopics.get(key):
