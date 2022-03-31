@@ -32,7 +32,7 @@ indicators_dict = {
         ],
         "MAIN": {
             "name": "Nurturing care for early childhood development",
-            "geo": "Geographic area",
+            "geo": "Country_name",
             "options": dict(
                 geojson=geo_json_countries,
                 locations="REF_AREA",
@@ -45,14 +45,14 @@ indicators_dict = {
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
-                    "Geographic area": "Country",
+                    "Country_name": "Country",
                     "TIME_PERIOD": "Year",
                     "REF_AREA": "ISO3 Code",
                 },
                 hover_data={
                     "OBS_VALUE": True,
                     "REF_AREA": False,
-                    "Geographic area": True,
+                    "Country_name": True,
                     "TIME_PERIOD": True,
                 },
                 animation_frame="TIME_PERIOD",
@@ -109,7 +109,7 @@ indicators_dict = {
                 "CME_PND",
                 "CME_SBR",
                 "CME_MRM0",
-                "CME_TRY0T4",
+                # "CME_TRY0T4",
                 "CME_MRY0T4",
                 "CME_MRY0",
                 "HT_SN_STA_OVWGTN",
@@ -169,7 +169,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -182,8 +182,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -219,7 +219,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -232,8 +232,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -261,7 +261,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -274,8 +274,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -303,7 +303,7 @@ indicators_dict = {
                 "CME_PND",
                 "CME_SBR",
                 "CME_MRM0",
-                "CME_TRY0T4",
+                # "CME_TRY0T4",
                 "CME_MRY0T4",
                 "CME_MRY0",
                 "HT_SN_STA_OVWGTN",
@@ -326,7 +326,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -339,8 +339,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -367,7 +367,7 @@ indicators_dict = {
             "graphs": {
                 "bar": {
                     "options": dict(
-                        x="Geographic area",
+                        x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
                         # text="TIME_PERIOD",
@@ -380,8 +380,8 @@ indicators_dict = {
                     "options": dict(
                         x="TIME_PERIOD",
                         y="OBS_VALUE",
-                        color="Geographic area",
-                        hover_name="Geographic area",
+                        color="Country_name",
+                        hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
                     ),
@@ -426,7 +426,7 @@ indicators_dict = {
         #     "graphs": {
         #         "bar": {
         #             "options": dict(
-        #                 x="Geographic area",
+        #                 x="Country_name",
         #                 y="OBS_VALUE",
         #                 barmode="group",
         #                 # text="TIME_PERIOD",
@@ -439,8 +439,8 @@ indicators_dict = {
         #             "options": dict(
         #                 x="TIME_PERIOD",
         #                 y="OBS_VALUE",
-        #                 color="Geographic area",
-        #                 hover_name="Geographic area",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
         #                 line_shape="spline",
         #                 render_mode="svg",
         #             ),

@@ -9,7 +9,7 @@ Brotli==1.0.9
 CacheControl==0.12.6
 certifi==2020.12.5
 chardet==4.0.0
-click==7.1.2
+click<=9.0.0
 dash==1.19.0
 dash-bootstrap-components==0.12.0
 dash-core-components==1.15.0
@@ -61,5 +61,9 @@ urllib3==1.26.5
 wcwidth==0.2.5
 Werkzeug==1.0.1
 openpyxl==3.0.7
+pandasdmx
+pandasdmx[cache]
+scipy
+openpyxl
 
 sentry-sdk[flask]

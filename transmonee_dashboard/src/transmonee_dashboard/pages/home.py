@@ -36,7 +36,7 @@ def get_layout(**kwargs):
                 children=[
                     dbc.Card(
                         [
-                            dbc.CardHeader(html.H3("State of Children Rights")),
+                            # dbc.CardHeader(html.H3("State of Children Rights")),
                             dbc.CardBody(
                                 [
                                     html.Img(
@@ -44,10 +44,10 @@ def get_layout(**kwargs):
                                         className="rounded mx-auto d-block",
                                     ),
                                     html.Br(),
-                                    html.H4(
-                                        "What you can find here...",
-                                        className="card-title",
-                                    ),
+                                    # html.H4(
+                                    #     "What you can find here...",
+                                    #     className="card-title",
+                                    # ),
                                 ]
                             ),
                         ]
