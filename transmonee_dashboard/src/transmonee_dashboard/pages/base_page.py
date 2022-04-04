@@ -178,7 +178,13 @@ def get_base_layout(**kwargs):
     main_area_style = {"display": "block"}
 
     if is_country_profile:
-        country_dropdown_style = {"verticalAlign": "center", "display": "flex"}
+        country_dropdown_style = {
+            "minWidth": 400,
+            "maxWidth": 600,
+            "paddingRight": 4,
+            "verticalAlign": "center",
+            "display": "visible",
+        }
         themes_row_style = {"display": "none"}
         countries_filter_style = {"display": "none"}
         programme_toggle_style = {"display": "none"}
@@ -188,35 +194,6 @@ def get_base_layout(**kwargs):
         [
             dcc.Store(id="indicators", data=indicators_dict),
             dcc.Location(id="theme"),
-            dbc.Row(
-                [
-                    dcc.Dropdown(
-                        id="countries",
-                        style={
-                            "minWidth": 400,
-                            "maxWidth": 600,
-                            "paddingRight": 20,
-                        },
-                        options=get_search_countries(False),
-                        value="ALB",
-                        multi=False,
-                        placeholder="Select a country...",
-                    ),
-                    dbc.Button(
-                        html.Span(
-                            [
-                                "Generate",
-                                html.I(className="fas fa-search ml-2"),
-                            ],
-                        ),
-                        color="primary",
-                        id="generate-profile",
-                    ),
-                ],
-                className="my-2",
-                justify="center",
-                style=country_dropdown_style,
-            ),
             html.Div(
                 className="heading",
                 style={"padding": 36},
@@ -291,6 +268,15 @@ def get_base_layout(**kwargs):
                                                 body=True,
                                             ),
                                         ],
+                                    ),
+                                    dcc.Dropdown(
+                                        id="country_profile_selector",
+                                        options=get_search_countries(False),
+                                        value="ALB",
+                                        multi=False,
+                                        placeholder="Select a country...",
+                                        className="m-2",
+                                        style=country_dropdown_style,
                                     ),
                                     dbc.DropdownMenu(
                                         label=f"Countries: {len(countries)}",
@@ -510,21 +496,17 @@ def display_areas(theme, indicators_dict, id):
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
         Input("programme-toggle", "checked"),
-        Input("generate-profile", "n_clicks"),
+        Input("country_profile_selector", "value"),
     ],
-    [
-        State("indicators", "data"),
-        State("countries", "value"),
-    ],
+    State("indicators", "data"),
 )
 def apply_filters(
     theme,
     years_slider,
     country_selector,
     programme_toggle,
-    generate_profile,
-    indicators,
     selected_country,
+    indicators,
 ):
     ctx = dash.callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -533,7 +515,7 @@ def apply_filters(
     # check if it is the country profile page
     is_country_profile = current_theme == "COUNTRYPROFILE"
     # check if the user clicked on the generate button in the country profile page
-    if is_country_profile or (generate_profile and selected == "generate-profile"):
+    if is_country_profile:
         key_list = list(countries_iso3_dict.keys())
         val_list = list(countries_iso3_dict.values())
         # get the name of the selected country in the dropdown to filter the data accordingly
@@ -730,7 +712,7 @@ def show_cards(selections, current_cards, indicators_dict):
     Output("themes", "children"),
     [
         Input("store", "data"),
-        Input("countries", "value"),
+        Input("country_profile_selector", "value"),
     ],
     State("indicators", "data"),
 )
