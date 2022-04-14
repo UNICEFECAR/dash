@@ -327,6 +327,19 @@
             ]
         }
     },
+    "DM_CHLD_NSO": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "DM_CHLD_POP": {
         "AGE": {
             "AGE": [
@@ -357,6 +370,19 @@
         }
     },
     "DM_CHLD_POP_PT": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "DM_LIFE_EXP": {
         "SEX": {
             "SEX": [
                 "F",
@@ -4167,6 +4193,50 @@
             ]
         }
     },
+    "HT_NEW_REG_CHLD_DISAB": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T4",
+                "Y5T9",
+                "Y10T15",
+                "Y16T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "HT_NEW_REG_PS_DISAB": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "HT_NO_BTH_SHW_FLSH": {
         "AGE": {
             "AGE": [
@@ -4192,6 +4262,50 @@
             "AGE": [
                 "_T"
             ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "HT_REG_CHLD_DISAB": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T4",
+                "Y5T9",
+                "Y10T15",
+                "Y16T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "HT_REG_PS_DISAB": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
             "SEX": [
                 "_T"
             ]
@@ -4404,6 +4518,38 @@
             ]
         }
     },
+    "JJ_CHLD_ALTERNATIVE_SENTENCE": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_ALTERNATIVE_SENTENCE_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "JJ_CHLD_ARRESTED": {
         "SEX": {
             "SEX": [
@@ -4412,6 +4558,25 @@
             ]
         },
         "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_COMPLAINT_HHRR": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -4468,7 +4633,26 @@
             ]
         }
     },
-    "JJ_CHLD_DETENTION": {
+    "JJ_CHLD_CUSTODIAL_SENTENCE": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_CUSTODIAL_SENTENCE_PROP": {
         "SEX": {
             "SEX": [
                 "F",
@@ -4476,6 +4660,137 @@
             ]
         },
         "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_DETENTION": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_ENTER_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_ENTER_POST_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_ENTER_PRE_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -4552,14 +4867,95 @@
             ]
         }
     },
-    "JJ_CHLD_PRETRIAL": {
+    "JJ_CHLD_POST_SENTENCE_DETENTION": {
         "SEX": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_POST_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_PRETRIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_PRE_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -4567,12 +4963,18 @@
     },
     "JJ_CHLD_PRISION_ADJUDICATION": {
         "SEX": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -4607,6 +5009,70 @@
             ]
         }
     },
+    "JJ_CHLD_VICTIM_CRIME": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_VICTIM_CRIME_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_WITNESS_CRIME": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_WITNESS_CRIME_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "JJ_CRIMERT": {
         "AGE": {
             "AGE": [
@@ -4624,8 +5090,8 @@
         "AGE": {
             "AGE": [
                 "_T",
-                "Y0T17",
-                "Y_GE18"
+                "Y_GE18",
+                "Y0T17"
             ],
             "SEX": [
                 "_T"
@@ -4653,8 +5119,8 @@
         "AGE": {
             "AGE": [
                 "_T",
-                "Y0T17",
-                "Y_GE18"
+                "Y_GE18",
+                "Y0T17"
             ],
             "SEX": [
                 "_T"
@@ -5830,6 +6296,143 @@
             ]
         }
     },
+    "PT_CHLD_ADOPTION_INTERCOUNTRY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ADOPTION_INTERCOUNTRY_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T3"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ADOPTION_INTER_COUNTRY_DISAB": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ADOPTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T3"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ADOPT_DOMESTIC": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T2",
+                "Y3T6",
+                "Y7T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ADOPT_DOMESTIC_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "PT_CHLD_CARED_BY_FOSTER": {
         "AGE": {
             "AGE": [
@@ -5838,10 +6441,249 @@
                 "Y3T6",
                 "Y7T17",
                 "Y_GE18"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
             ]
         },
         "TOTAL": {
             "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ADOPT_DOMESTIC": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ADOPT_DOMESTIC_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ADOPT_INTERCOUNTRY_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ADOPT_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ENTER_ALLFAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ENTER_RESIDENTIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_ENTER_RESIDENTIAL_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_INALL_FAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_INFAMILY_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_INRESIDENTIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_INRESIDENTIAL_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_LEFT_ALLFAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_LEFT_RESIDENTIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_DISAB_LEFT_RESIDENTIAL_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
                 "_T"
             ]
         }
@@ -5877,6 +6719,19 @@
             ]
         }
     },
+    "PT_CHLD_ENTEREDFAMILY_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "PT_CHLD_ENTEREDFOSTER": {
         "AGE": {
             "AGE": [
@@ -5902,6 +6757,76 @@
             "AGE": [
                 "_T"
             ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ENTEREDKINSHIP": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ENTEREDOTHER_FAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ENTER_ALLFAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_ENTER_RESIDENTIAL_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
             "SEX": [
                 "_T"
             ]
@@ -5937,6 +6862,109 @@
             ]
         }
     },
+    "PT_CHLD_INCARE_FOSTER_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INFORMALCARE_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INFOSTER_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INKINSHIP": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INKINSHIP_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INOTHER_FAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INOTHER_FAMILY_PROP": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "PT_CHLD_INRESIDENTIAL": {
         "AGE": {
             "AGE": [
@@ -5950,6 +6978,114 @@
                 "_T"
             ]
         },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_INRESIDENTIAL_RATE_B": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_LEFTFOSTER": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_LEFT_ALLFAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_LEFT_FAMILY": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_LEFT_KINSHIP": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_LEFT_RESIDENTIAL": {
         "SEX": {
             "AGE": [
                 "_T"
@@ -6042,6 +7178,25 @@
             ]
         }
     },
+    "PT_CHLD_NO_PARENTAL_CARE_INRESIDENTIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "PT_CHLD_NO_PARENTAL_CARE_PUBLIC": {
         "AGE": {
             "AGE": [
@@ -6054,6 +7209,63 @@
         },
         "TOTAL": {
             "AGE": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_VIOLENCE_EDUCATION": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_VIOLENCE_HEALTHCARE": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_CHLD_VIOLENCE_WELFARE": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
                 "_T"
             ]
         }
@@ -6576,6 +7788,58 @@
             ]
         }
     },
+    "PT_YOUNG_INALL_FAMILY": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_YOUNG_INRESIDENTIAL": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_YOUNG_LEFT_ALLFAMILY": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PT_YOUNG_LEFT_RESIDENTIAL": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "PV_AROPE": {
         "AGE": {
             "AGE": [
@@ -6926,6 +8190,50 @@
             "SEX": [
                 "F",
                 "M"
+            ]
+        }
+    },
+    "SP_CHLD_DISAB_CASH": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T4",
+                "Y5T9",
+                "Y10T15",
+                "Y16T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "SP_PS_DISAB_CASH": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
             ]
         }
     },
