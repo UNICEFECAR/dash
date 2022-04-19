@@ -436,9 +436,12 @@ indicators_dict = {
                 "suffix": "Number of complaints",
             },
             {
-                "name": "of registered crimes committed against children (during the year)",
-                "indicator": "JJ_CHLD_CRIME",
+                "name": "of child victims of crime registered by the police (during the year)",
+                "indicator": "JJ_CHLD_VICTIM_CRIME",
+                "sex": "_T",
+                "age": "_T",
                 "suffix": "Total number",
+                "absolute": True,
             },
         ],
         "MAIN": {
@@ -473,8 +476,6 @@ indicators_dict = {
                 "PP_SG_NHR_INTEXSTN",
                 "PP_SG_NHR_NOSTUSN",
                 "PP_SG_NHR_NOAPPLN",
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
             ],
             "default": "PP_SG_NHR_IMPLN",
         },
@@ -506,10 +507,9 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
+                "JJ_CHLD_VICTIM_CRIME",
             ],
-            "default": "JJ_CHLD_CRIME",
+            "default": "JJ_CHLD_VICTIM_CRIME",
         },
         "AREA_2": {
             "name": "Crime and Justice",
