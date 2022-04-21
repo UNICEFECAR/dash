@@ -431,9 +431,10 @@ indicators_dict = {
         "NAME": "Access to Justice",
         "CARDS": [
             {
-                "name": "brought by or on behalf of children to independent human rights mechanisms during the year",
-                "indicator": "",  # Missing
-                "suffix": "Number of complaints",
+                "name": "of children who brought a complaint to independent human rights mechanisms (during the year)",
+                "indicator": "JJ_CHLD_COMPLAINT_HHRR",
+                "suffix": "Total number",
+                "absolute": True,
             },
             {
                 "name": "of child victims of crime registered by the police (during the year)",
@@ -480,7 +481,7 @@ indicators_dict = {
             "default": "PP_SG_NHR_IMPLN",
         },
         "AREA_1": {
-            "name": "Countries with National Human Rights Institutions",
+            "name": "Access to Independent Human Rights Institutions",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -507,12 +508,17 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "JJ_CHLD_VICTIM_CRIME",
+                "JJ_CHLD_COMPLAINT_HHRR",
+                "JJ_CHLD_DISAB_COMPLAINT_HHRR",
+                "PP_SG_NHR_IMPLN",
+                "PP_SG_NHR_INTEXSTN",
+                "PP_SG_NHR_NOSTUSN",
+                "PP_SG_NHR_NOAPPLN",
             ],
-            "default": "JJ_CHLD_VICTIM_CRIME",
+            "default": "JJ_CHLD_COMPLAINT_HHRR",
         },
         "AREA_2": {
-            "name": "Crime and Justice",
+            "name": "To Be Defined",  # Old: "Crime and Justice"
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -537,13 +543,8 @@ indicators_dict = {
                     "trace_options": dict(mode="lines+markers"),
                 },
             },
-            "indicators": [
-                "PP_SG_NHR_IMPLN",
-                "PP_SG_NHR_INTEXSTN",
-                "PP_SG_NHR_NOSTUSN",
-                "PP_SG_NHR_NOAPPLN",
-            ],
-            "default": "PP_SG_NHR_IMPLN",
+            "indicators": [""],
+            "default": "",
             "default_graph": "line",
         },
     },
