@@ -517,36 +517,36 @@ indicators_dict = {
             ],
             "default": "JJ_CHLD_COMPLAINT_HHRR",
         },
-        "AREA_2": {
-            "name": "To Be Defined",  # Old: "Crime and Justice"
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    # "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [""],
-            "default": "",
-            "default_graph": "line",
-        },
+        # "AREA_2": {
+        #     "name": "To Be Defined",  # Old: "Crime and Justice"
+        #     "graphs": {
+        #         "bar": {
+        #             "options": dict(
+        #                 x="Country_name",
+        #                 y="OBS_VALUE",
+        #                 barmode="group",
+        #                 # text="TIME_PERIOD",
+        #                 text="OBS_VALUE",
+        #                 hover_name="TIME_PERIOD",
+        #             ),
+        #             # "compare": "Sex",
+        #         },
+        #         "line": {
+        #             "options": dict(
+        #                 x="TIME_PERIOD",
+        #                 y="OBS_VALUE",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
+        #                 line_shape="spline",
+        #                 render_mode="svg",
+        #             ),
+        #             "trace_options": dict(mode="lines+markers"),
+        #         },
+        #     },
+        #     "indicators": [""],
+        #     "default": "",
+        #     "default_graph": "line",
+        # },
     },
     # "RISKS": {
     #     "NAME": "Risks and humanitarian situation",
