@@ -989,7 +989,7 @@ def area_figure(
         selections["countries"],
         compare,
         latest_data=False if fig_type == "line" or is_country_profile else True,
-    )
+    ).sort_values("OBS_VALUE", ascending=False)
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
@@ -1032,7 +1032,6 @@ def area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
-        xaxis={"categoryorder": "total descending"},
     )
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
