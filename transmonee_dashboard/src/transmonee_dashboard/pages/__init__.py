@@ -91,8 +91,6 @@ adolescent_codes = [
     "HT_SH_HIV_INCD",
     "HVA_EPI_LHIV_0-19",
     "HVA_EPI_LHIV_15-24",
-    "JJ_CHLD_CRIME",
-    "JJ_CHLD_POLICE",
     "JJ_PRISIONERS_RT",
     "MNCH_CSEC",
     "MNCH_PNCMOM",
@@ -100,12 +98,8 @@ adolescent_codes = [
     "PT_CHLD_1-14_PS-PSY-V_CGVR",
     "PT_CHLD_5-17_LBR_ECON",
     "PT_CHLD_5-17_LBR_ECON-HC",
-    "PT_CHLD_ADOPTION",
-    "PT_CHLD_ADOPTION_AVAILABLE",
     "PT_CHLD_CARED_BY_FOSTER",
-    "PT_CHLD_DISAB_PUBLIC",
     "PT_CHLD_ENTEREDFOSTER",
-    "PT_CHLD_GUARDIAN",
     "PT_CHLD_INRESIDENTIAL",
     "PT_F_15-49_W-BTNG",
     "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
@@ -976,8 +970,8 @@ df_topics_subtopics.dropna(subset=["Issue"], inplace=True)
 df_sources = pd.merge(df_topics_subtopics, snapshot_df, how="outer", on=["Code"])
 # assign source = TMEE to all indicators without a source since they all come from excel data collection files
 df_sources.fillna("TMEE", inplace=True)
-# Concatenate sectors/subtopics dictionary value lists
-sitan_subtopics = sum(dict_topics_subtopics.values(), [])
+# Concatenate sectors/subtopics dictionary value lists (mapping str lower)
+sitan_subtopics = list(map(str.lower, sum(dict_topics_subtopics.values(), [])))
 
 df_sources.rename(
     columns={
@@ -995,7 +989,7 @@ df_sources["Source_Full"] = df_sources["Source"].apply(
     lambda x: data_sources[x] if not pd.isna(x) else ""
 )
 
-df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
+df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.

@@ -431,14 +431,18 @@ indicators_dict = {
         "NAME": "Access to Justice",
         "CARDS": [
             {
-                "name": "brought by or on behalf of children to independent human rights mechanisms during the year",
-                "indicator": "",  # Missing
-                "suffix": "Number of complaints",
+                "name": "of children who brought a complaint to independent human rights mechanisms (during the year)",
+                "indicator": "JJ_CHLD_COMPLAINT_HHRR",
+                "suffix": "Total number",
+                "absolute": True,
             },
             {
-                "name": "of registered crimes committed against children (during the year)",
-                "indicator": "JJ_CHLD_CRIME",
+                "name": "of child victims of crime registered by the police (during the year)",
+                "indicator": "JJ_CHLD_VICTIM_CRIME",
+                "sex": "_T",
+                "age": "_T",
                 "suffix": "Total number",
+                "absolute": True,
             },
         ],
         "MAIN": {
@@ -473,13 +477,11 @@ indicators_dict = {
                 "PP_SG_NHR_INTEXSTN",
                 "PP_SG_NHR_NOSTUSN",
                 "PP_SG_NHR_NOAPPLN",
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
             ],
             "default": "PP_SG_NHR_IMPLN",
         },
         "AREA_1": {
-            "name": "Countries with National Human Rights Institutions",
+            "name": "Access to Independent Human Rights Institutions",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -506,46 +508,45 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-            ],
-            "default": "JJ_CHLD_CRIME",
-        },
-        "AREA_2": {
-            "name": "Crime and Justice",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    # "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [
+                "JJ_CHLD_COMPLAINT_HHRR",
+                "JJ_CHLD_DISAB_COMPLAINT_HHRR",
                 "PP_SG_NHR_IMPLN",
                 "PP_SG_NHR_INTEXSTN",
                 "PP_SG_NHR_NOSTUSN",
                 "PP_SG_NHR_NOAPPLN",
             ],
-            "default": "PP_SG_NHR_IMPLN",
-            "default_graph": "line",
+            "default": "JJ_CHLD_COMPLAINT_HHRR",
         },
+        # "AREA_2": {
+        #     "name": "To Be Defined",  # Old: "Crime and Justice"
+        #     "graphs": {
+        #         "bar": {
+        #             "options": dict(
+        #                 x="Country_name",
+        #                 y="OBS_VALUE",
+        #                 barmode="group",
+        #                 # text="TIME_PERIOD",
+        #                 text="OBS_VALUE",
+        #                 hover_name="TIME_PERIOD",
+        #             ),
+        #             # "compare": "Sex",
+        #         },
+        #         "line": {
+        #             "options": dict(
+        #                 x="TIME_PERIOD",
+        #                 y="OBS_VALUE",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
+        #                 line_shape="spline",
+        #                 render_mode="svg",
+        #             ),
+        #             "trace_options": dict(mode="lines+markers"),
+        #         },
+        #     },
+        #     "indicators": [""],
+        #     "default": "",
+        #     "default_graph": "line",
+        # },
     },
     # "RISKS": {
     #     "NAME": "Risks and humanitarian situation",
