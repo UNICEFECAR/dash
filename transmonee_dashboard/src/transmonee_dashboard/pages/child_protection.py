@@ -396,7 +396,7 @@ indicators_dict = {
             },
         ],
         "MAIN": {
-            "name": "Justice for Children",
+            "name": "Access to Justice for Children",
             "geo": "Country_name",
             "options": dict(
                 locations="REF_AREA",

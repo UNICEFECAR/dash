@@ -989,7 +989,7 @@ df_sources["Source_Full"] = df_sources["Source"].apply(
     lambda x: data_sources[x] if not pd.isna(x) else ""
 )
 
-df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
+df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.
