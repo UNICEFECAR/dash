@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, State, Output
 
 from ..app import app
+from ..components import make_wheel
 
 
 def get_layout(**kwargs):
@@ -36,18 +37,14 @@ def get_layout(**kwargs):
                 children=[
                     dbc.Card(
                         [
-                            # dbc.CardHeader(html.H3("State of Children Rights")),
                             dbc.CardBody(
                                 [
-                                    html.Img(
-                                        src="assets/home.png",
-                                        className="rounded mx-auto d-block",
-                                    ),
-                                    html.Br(),
-                                    # html.H4(
-                                    #     "What you can find here...",
-                                    #     className="card-title",
+                                    make_wheel(className="px-2"),
+                                    # html.Img(
+                                    #     src="assets/home.png",
+                                    #     className="rounded mx-auto d-block",
                                     # ),
+                                    html.Br(),
                                 ]
                             ),
                         ]
