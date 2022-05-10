@@ -365,7 +365,13 @@ def get_base_layout(**kwargs):
 
 
 def make_card(
-    card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+    card_id,
+    name,
+    suffix,
+    indicator_sources,
+    source_link,
+    indicator_header,
+    numerator_pairs,
 ):
     card = dbc.Card(
         [
@@ -400,7 +406,13 @@ def make_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
+                    dbc.PopoverHeader(
+                        html.A(
+                            html.P(f"Sources: {indicator_sources}"),
+                            href=source_link,
+                            target="_blank",
+                        )
+                    ),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),
@@ -607,13 +619,23 @@ def indicator_card(
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
     # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
     if filtered_data.empty:
         indicator_header = "No data"
         indicator_sources = "NA"
         numerator_pairs = []
         return make_card(
-            card_id, name, indicator_header, indicator_sources, numerator_pairs
+            card_id,
+            name,
+            indicator_header,
+            indicator_sources,
+            source_link,
+            numerator_pairs,
         )
 
     # select last value for each country
@@ -663,7 +685,13 @@ def indicator_card(
         indicator_header = "{:,.0f}".format(indicator_sum)
 
     return make_card(
-        card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+        card_id,
+        name,
+        suffix,
+        indicator_sources,
+        source_link,
+        indicator_header,
+        numerator_pairs,
     )
 
 
@@ -897,6 +925,11 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -921,7 +954,7 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
             frames=main_figure["frames"],
             layout=main_figure.layout,
         )
-    return main_figure, source
+    return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
 
 @app.callback(
@@ -1002,6 +1035,11 @@ def area_figure(
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1055,4 +1093,4 @@ def area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, source
+    return fig, html.A(html.P(source), href=source_link, target="_blank")

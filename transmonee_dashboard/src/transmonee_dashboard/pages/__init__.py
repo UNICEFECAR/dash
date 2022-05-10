@@ -990,6 +990,20 @@ df_sources["Source_Full"] = df_sources["Source"].apply(
 )
 
 df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
+# read source table from excel data-dictionary and merge
+source_table_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Source")
+df_sources = df_sources.merge(
+    source_table_df[["Source_Id", "Source_Link"]],
+    on="Source_Id",
+    how="left",
+    sort=False,
+)
+# assign source link for TMEE, url: UNICEF_RDM/indicator_code
+tmee_source_link = df_sources.Source_Link.isnull()
+unicef_rdm_url = "https://data.unicef.org/indicator-profile/{helix_code}/"
+df_sources.loc[tmee_source_link, "Source_Link"] = df_sources[
+    tmee_source_link
+].Code.apply(lambda x: unicef_rdm_url.format(helix_code=x))
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.
