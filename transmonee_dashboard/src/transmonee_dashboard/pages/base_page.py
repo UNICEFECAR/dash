@@ -408,7 +408,9 @@ def make_card(
                 [
                     dbc.PopoverHeader(
                         html.A(
-                            html.P(f"Sources: {indicator_sources}"), href=source_link
+                            html.P(f"Sources: {indicator_sources}"),
+                            href=source_link,
+                            target="_blank",
                         )
                     ),
                     dbc.PopoverBody(
@@ -952,7 +954,7 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
             frames=main_figure["frames"],
             layout=main_figure.layout,
         )
-    return main_figure, html.A(html.P(source), href=source_link)
+    return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
 
 @app.callback(
@@ -1091,4 +1093,4 @@ def area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, html.A(html.P(source), href=source_link)
+    return fig, html.A(html.P(source), href=source_link, target="_blank")
