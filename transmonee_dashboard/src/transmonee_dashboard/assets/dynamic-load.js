@@ -66,8 +66,42 @@ if (browserOk) {
     loadJson(remote_files_path,
         function (data) {
 
+            var baseUrl = new URL(remote_files_path);
+            console.log(baseUrl);
+
+            // The payload is the dash base HTML, need to inspect resources
             var dash = new DOMParser().parseFromString(data, "text/html");
             console.log(dash);
+
+            var links = dash.getElementsByTagName('link');
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i];
+                var href = link.getAttribute('href');
+                var rel = link.getAttribute('rel');
+                if (rel == 'stylesheet') {
+                    var linkElement = document.createElement('link');
+                    linkElement.setAttribute('rel', rel);
+                    linkElement.setAttribute('href', href.startsWith('/') ? new URL(href, baseUrl) : href);
+                    document.head.appendChild(linkElement);
+                }
+            }
+            var scripts = dash.getElementsByTagName("script");
+            for (var i = 0; i < scripts.length; i++) {
+                var script = scripts[i];
+                var src = script.getAttribute('src');
+                var scriptElement = document.createElement('script');
+                if (src) {
+                    // ignore this file to prevent load loops
+                    if (src.includes('dynamic-load.js')) {
+                        continue;
+                    }
+                    scriptElement.setAttribute('src', src.startsWith('/') ? new URL(src, baseUrl) : src);
+                }
+                if (script.innerHTML) {
+                    scriptElement.innerHTML = script.innerHTML;
+                }
+                document.body.appendChild(scriptElement);
+            }
 
         });
 }
