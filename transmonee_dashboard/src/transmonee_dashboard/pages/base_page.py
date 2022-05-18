@@ -1022,7 +1022,7 @@ def area_figure(
         selections["countries"],
         compare,
         latest_data=False if fig_type == "line" or is_country_profile else True,
-    )
+    ).sort_values("OBS_VALUE", ascending=False)
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""

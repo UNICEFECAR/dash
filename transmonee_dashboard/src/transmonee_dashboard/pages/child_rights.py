@@ -508,38 +508,8 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "JJ_CHLD_CRIME",
-                "JJ_CHLD_CRIMERT",
-            ],
-            "default": "JJ_CHLD_CRIME",
-        },
-        "AREA_2": {
-            "name": "Crime and Justice",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    # "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "indicators": [
+                "JJ_CHLD_COMPLAINT_HHRR",
+                "JJ_CHLD_DISAB_COMPLAINT_HHRR",
                 "PP_SG_NHR_IMPLN",
                 "PP_SG_NHR_INTEXSTN",
                 "PP_SG_NHR_NOSTUSN",
