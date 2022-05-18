@@ -83,6 +83,9 @@ class DashRouter:
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
+            
+            print(f"pathname: {pathname}")
+            
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 

@@ -49,30 +49,21 @@ function loadJson(url, onsuccess) {
     xmlhttp.send();
 }
 
-//Add a script element to the dom and calls the callback
-function addScript(src, callback) {
-    var s = document.createElement('script');
-    s.setAttribute('src', src);
-    s.onload = callback;
-    document.body.appendChild(s);
-}
-
 //Checks if the browser is supported 
 var browserOk = checkBrowser();
 
 if (browserOk) {
 
-    //loaad the json and adds to the page in the callback fun
+    //loaad the json and adds to the page in the callback function
     loadJson(remote_files_path,
         function (data) {
 
             var baseUrl = new URL(remote_files_path);
-            console.log(baseUrl);
 
             // The payload is the dash base HTML, need to inspect resources
             var dash = new DOMParser().parseFromString(data, "text/html");
-            console.log(dash);
 
+            // load the css
             var links = dash.getElementsByTagName('link');
             for (var i = 0; i < links.length; i++) {
                 var link = links[i];
@@ -85,22 +76,71 @@ if (browserOk) {
                     document.head.appendChild(linkElement);
                 }
             }
+
+            // load the html
+            var app_entry = dash.getElementById('react-entry-point');
+            document.getElementById('root').appendChild(app_entry);
+
+            // load the js
             var scripts = dash.getElementsByTagName("script");
             for (var i = 0; i < scripts.length; i++) {
                 var script = scripts[i];
                 var src = script.getAttribute('src');
+                var id = script.getAttribute('id');
+                var type = script.getAttribute('type');
                 var scriptElement = document.createElement('script');
                 if (src) {
                     // ignore this file to prevent load loops
                     if (src.includes('dynamic-load.js')) {
                         continue;
                     }
+                    // set the correct path if it is relative
                     scriptElement.setAttribute('src', src.startsWith('/') ? new URL(src, baseUrl) : src);
                 }
+                if (id) {
+                    scriptElement.setAttribute('id', id);
+                }
+                if (type) {
+                    scriptElement.setAttribute('type', type);
+                }
                 if (script.innerHTML) {
+                    if (script.innerHTML.includes('DashRenderer')) {
+                        // Leave the DashRenderer as the last script
+                        continue;
+                    }
+                    if (script.id == '_dash-config') {
+                        config = JSON.parse(script.innerHTML);
+                        config["url_base_pathname"] = baseUrl;
+                        delete config["requests_pathname_prefix"];
+                        script.innerHTML = JSON.stringify(config);
+                    }
                     scriptElement.innerHTML = script.innerHTML;
                 }
                 document.body.appendChild(scriptElement);
+            }
+
+            function loadDash() {
+                // need to wait for the dash libraries to finish loading
+                setTimeout(function () {
+                    // then load the dash renderer
+                    var dashRenderer = document.createElement('script');
+                    dashRenderer.setAttribute('id', '_dash-renderer');
+                    dashRenderer.setAttribute('type', 'text/javascript');
+                    dashRenderer.innerHTML = "var renderer = new DashRenderer();";
+                    document.body.appendChild(dashRenderer);
+                }, 500);
+            }
+
+            if (document.readyState == 'complete') {
+                // load the dash renderer when the page is ready
+                loadDash();
+            } else {
+                // wait for the page to be ready
+                document.onreadystatechange = function () {
+                    if (document.readyState === "complete") {
+                        loadDash();
+                    }
+                }
             }
 
         });
