@@ -49,6 +49,14 @@ function loadJson(url, onsuccess) {
     xmlhttp.send();
 }
 
+//Add a script element to the dom and calls the callback
+function addScript(src, callback) {
+    var s = document.createElement('script');
+    s.setAttribute('src', src);
+    s.onload = callback;
+    document.body.appendChild(s);
+}
+
 //Checks if the browser is supported 
 var browserOk = checkBrowser();
 
@@ -58,9 +66,8 @@ if (browserOk) {
     loadJson(remote_files_path,
         function (data) {
 
-            console.log(data);
-            //Load the cfg file
-            var cfg = JSON.parse(data);
+            var dash = new DOMParser().parseFromString(data, "text/html");
+            console.log(dash);
 
         });
 }
