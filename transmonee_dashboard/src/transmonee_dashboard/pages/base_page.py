@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    # lbassil: still differentiating main area id from other areas ids because the call backs are still not unified
+    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -365,7 +365,13 @@ def get_base_layout(**kwargs):
 
 
 def make_card(
-    card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+    card_id,
+    name,
+    suffix,
+    indicator_sources,
+    source_link,
+    indicator_header,
+    numerator_pairs,
 ):
     card = dbc.Card(
         [
@@ -400,7 +406,13 @@ def make_card(
             ),
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(f"Sources: {indicator_sources}"),
+                    dbc.PopoverHeader(
+                        html.A(
+                            html.P(f"Sources: {indicator_sources}"),
+                            href=source_link,
+                            target="_blank",
+                        )
+                    ),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),
@@ -607,13 +619,23 @@ def indicator_card(
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
     # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
     if filtered_data.empty:
         indicator_header = "No data"
         indicator_sources = "NA"
         numerator_pairs = []
         return make_card(
-            card_id, name, indicator_header, indicator_sources, numerator_pairs
+            card_id,
+            name,
+            indicator_header,
+            indicator_sources,
+            source_link,
+            numerator_pairs,
         )
 
     # select last value for each country
@@ -640,6 +662,19 @@ def indicator_card(
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
             numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
+        elif absolute:
+            # trick cards data availability among group of indicators and latest time_period
+            # doesn't require filtering by count == len(numors)
+            numerator_pairs = indicator_values.groupby(
+                "REF_AREA", as_index=False
+            ).last()
+            max_time_filter = (
+                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
+            )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
+            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+            sources = numerator_pairs.index.tolist()
+            indicator_sum = len(sources)
         else:
             # trick to accomodate cards for admin exams (AND for boolean indicators)
             # filter exams according to number of indicators
@@ -663,7 +698,13 @@ def indicator_card(
         indicator_header = "{:,.0f}".format(indicator_sum)
 
     return make_card(
-        card_id, name, suffix, indicator_sources, indicator_header, numerator_pairs
+        card_id,
+        name,
+        suffix,
+        indicator_sources,
+        source_link,
+        indicator_header,
+        numerator_pairs,
     )
 
 
@@ -897,6 +938,11 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -921,7 +967,7 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
             frames=main_figure["frames"],
             layout=main_figure.layout,
         )
-    return main_figure, source
+    return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
 
 @app.callback(
@@ -1002,6 +1048,11 @@ def area_figure(
         if len(unique_indicator_sources) > 0
         else ""
     )
+    source_link = (
+        df_indicator_sources["Source_Link"].unique()[0]
+        if len(unique_indicator_sources) > 0
+        else ""
+    )
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1055,4 +1106,4 @@ def area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, source
+    return fig, html.A(html.P(source), href=source_link, target="_blank")
