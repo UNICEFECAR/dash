@@ -39,9 +39,15 @@ def get_layout(**kwargs):
                             # dbc.CardHeader(html.H3("State of Children Rights")),
                             dbc.CardBody(
                                 [
-                                    html.Div([
-                                        html.P("Brazil info")
-                                    ])
+                                    html.Img(
+                                        src="assets/home.png",
+                                        className="rounded mx-auto d-block",
+                                    ),
+                                    html.Br(),
+                                    # html.H4(
+                                    #     "What you can find here...",
+                                    #     className="card-title",
+                                    # ),
                                 ]
                             ),
                         ]

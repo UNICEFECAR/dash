@@ -13,7 +13,7 @@ import pandas as pd
 from pandas.io.formats import style
 import re
 
-from transmonee_dashboard.pages.base_page import indicator_card
+from transmonee_dashboard.pages__TMONEE.base_page import indicator_card
 
 from ..app import app
 from . import (
