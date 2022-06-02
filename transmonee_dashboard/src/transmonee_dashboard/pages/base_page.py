@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    # lbassil: still differentiating main area id from other areas ids because the call backs are still not unified
+    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -662,6 +662,19 @@ def indicator_card(
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
             numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
+        elif absolute:
+            # trick cards data availability among group of indicators and latest time_period
+            # doesn't require filtering by count == len(numors)
+            numerator_pairs = indicator_values.groupby(
+                "REF_AREA", as_index=False
+            ).last()
+            max_time_filter = (
+                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
+            )
+            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
+            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+            sources = numerator_pairs.index.tolist()
+            indicator_sum = len(sources)
         else:
             # trick to accomodate cards for admin exams (AND for boolean indicators)
             # filter exams according to number of indicators
