@@ -25,7 +25,7 @@ REQUESTS_PATHNAME_PREFIX = None
 
 # URL prefix for server-side routes. If not None, must begin and end with a
 # '/'.
-ROUTES_PATHNAME_PREFIX = "/"
+ROUTES_PATHNAME_PREFIX = None
 
 # Externally hosted CSS files go in here. If you want to use Bootstrap from a
 # CDN, Dash Bootstrap Components contains links to bootstrapcdn:
