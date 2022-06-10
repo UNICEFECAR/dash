@@ -839,7 +839,14 @@ def get_filtered_dataset(
     # convert to numeric and round
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
-    data = data.round({"OBS_VALUE": 2})
+    # round based on indicator unit: index takes 3 decimals
+    ind_unit = data.UNIT_MEASURE.iloc[0].value
+    data = data.round({"OBS_VALUE": 3 if ind_unit == "IDX" else 1})
+    # round to whole number if values greater than one (and not index)
+    if ind_unit != "IDX":
+        data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
+            data.OBS_VALUE > 1
+        ].OBS_VALUE.round()
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
