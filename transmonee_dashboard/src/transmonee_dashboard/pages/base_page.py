@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
+    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -1074,13 +1074,14 @@ def area_figure(
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line" or is_country_profile:
-        data.sort_values(by=["TIME_PERIOD"], inplace=True)
+        data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
         layout["xaxis"] = dict(
             tickmode="linear",
             tick0=selections["years"][0],
             dtick=1,
             categoryorder="total ascending",
         )
+        layout["legend"] = dict(y=0.5, x=1)
 
     if dimension:
         # lbassil: use the dimension name instead of the code
