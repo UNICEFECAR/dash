@@ -699,7 +699,7 @@ topics_subtopics = {
     "Participation and Civil Rights": [
         {"Registration": "Birth registration and identity"},
         {"Information": "Information, Internet and Protection of privacy"},
-        {"Leisure": "Education, Leisure, and Culture"},
+        {"Leisure": "Leisure and Culture"},
     ],
 }
 
