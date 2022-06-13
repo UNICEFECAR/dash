@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
+    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -1070,6 +1070,7 @@ def area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
+        xaxis={"categoryorder": "total descending"},
     )
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
