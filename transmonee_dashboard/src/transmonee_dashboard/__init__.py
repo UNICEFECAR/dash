@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from dash import Dash
 
 from .__version__ import __version__
@@ -8,6 +9,9 @@ from .utils import get_dash_args_from_flask_config
 def create_flask(config_object=f"{__package__}.settings"):
     """Create the Flask instance for this application"""
     server = Flask(__package__)
+
+    # Enable CORS for all routes
+    CORS(server)
 
     # load default settings
     server.config.from_object(config_object)

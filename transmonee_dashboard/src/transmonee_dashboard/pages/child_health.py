@@ -599,13 +599,12 @@ indicators_dict = {
                 },
             },
             "indicators": [
-                "NT_ANT_WHZ_PO2",
                 "HT_SH_STA_ANEM",
                 "HT_SH_STA_ANEM_NPRG",
                 "HT_SH_STA_ANEM_PREG",
             ],
             "default_graph": "line",
-            "default": "NT_ANT_WHZ_PO2",
+            "default": "HT_SH_STA_ANEM",
         },
     },
     "ADOLESCENTS": {
@@ -957,10 +956,7 @@ indicators_dict = {
             "default_graph": "bar",
             "indicators": [
                 "WS_PPL_W-SM",
-                "WS_PPL_S-SM",
                 "WS_PPL_H-B",
-                "WS_PPS_S-OD",
-                "HT_NO_BTH_SHW_FLSH",
             ],
             "default": "WS_PPL_W-SM",
         },

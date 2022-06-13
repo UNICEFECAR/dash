@@ -290,7 +290,7 @@ indicators_dict = {
             "default": "EDU_PISA_MAT",
         },
         "AREA_1": {
-            "name": "Foundational skills",
+            "name": "Literacy and Development",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -318,16 +318,10 @@ indicators_dict = {
             "default_graph": "bar",
             "indicators": [
                 "ECD_CHLD_36-59M_LMPSL",
-                "EDU_SDG_STU_L2_GLAST_MAT",
-                "EDU_SDG_STU_L2_GLAST_REA",
-                "EDU_SDG_STU_L1_GLAST_MAT",
-                "EDU_SDG_STU_L1_G2OR3_MAT",
-                "EDU_SDG_STU_L1_GLAST_REA",
-                "EDU_SDG_STU_L1_G2OR3_REA",
                 "EDUNF_LR_YOUTH",
                 "EDUNF_LR_ADULT",
             ],
-            "default": "EDU_SDG_STU_L2_GLAST_MAT",
+            "default": "EDUNF_LR_YOUTH",
         },
         "AREA_2": {
             "name": "Foundational skills",
@@ -357,20 +351,17 @@ indicators_dict = {
             },
             "default_graph": "line",
             "indicators": [
-                "ECD_CHLD_36-59M_LMPSL",
                 "EDU_SDG_STU_L2_GLAST_MAT",
                 "EDU_SDG_STU_L2_GLAST_REA",
                 "EDU_SDG_STU_L1_GLAST_MAT",
                 "EDU_SDG_STU_L1_G2OR3_MAT",
                 "EDU_SDG_STU_L1_GLAST_REA",
                 "EDU_SDG_STU_L1_G2OR3_REA",
-                "EDUNF_LR_YOUTH",
-                "EDUNF_LR_ADULT",
             ],
             "default": "EDU_SDG_STU_L2_GLAST_MAT",
         },
         "AREA_3": {
-            "name": "Trained and qualified teachers",
+            "name": "Trained teachers",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -405,7 +396,7 @@ indicators_dict = {
             "default": "EDU_SDG_TRTP_L2",
         },
         "AREA_4": {
-            "name": "Trained and qualified teachers",
+            "name": "Qualified teachers",
             "graphs": {
                 "bar": {
                     "options": dict(
@@ -527,16 +518,6 @@ indicators_dict = {
                 "EDUNF_PRP_L1",
                 "EDUNF_PRP_L2",
                 "EDUNF_PRP_L3",
-                "EDUNF_STU_L01_PUB",
-                "EDUNF_STU_L02_PUB",
-                "EDUNF_STU_L1_PUB",
-                "EDUNF_STU_L2_PUB",
-                "EDUNF_STU_L3_PUB",
-                "EDUNF_STU_L01_PRV",
-                "EDUNF_STU_L02_PRV",
-                "EDUNF_STU_L1_PRV",
-                "EDUNF_STU_L2_PRV",
-                "EDUNF_STU_L3_PRV",
             ],
             "default": "EDUNF_PRP_L1",
         },
@@ -568,10 +549,6 @@ indicators_dict = {
             },
             "default_graph": "line",
             "indicators": [
-                "EDUNF_PRP_L02",
-                "EDUNF_PRP_L1",
-                "EDUNF_PRP_L2",
-                "EDUNF_PRP_L3",
                 "EDUNF_STU_L01_PUB",
                 "EDUNF_STU_L02_PUB",
                 "EDUNF_STU_L1_PUB",
@@ -583,7 +560,7 @@ indicators_dict = {
                 "EDUNF_STU_L2_PRV",
                 "EDUNF_STU_L3_PRV",
             ],
-            "default": "EDUNF_PRP_L2",
+            "default": "EDUNF_STU_L1_PUB",
         },
         "AREA_3": {
             "name": "Government education expenditure",

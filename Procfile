@@ -1,1 +1,1 @@
-web: run-transmonee_dashboard-dev
+web: gunicorn app:app

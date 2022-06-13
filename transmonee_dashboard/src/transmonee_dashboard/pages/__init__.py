@@ -699,7 +699,7 @@ topics_subtopics = {
     "Participation and Civil Rights": [
         {"Registration": "Birth registration and identity"},
         {"Information": "Information, Internet and Protection of privacy"},
-        {"Leisure": "Education, Leisure, and Culture"},
+        {"Leisure": "Leisure and Culture"},
     ],
 }
 
@@ -839,7 +839,14 @@ def get_filtered_dataset(
     # convert to numeric and round
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
-    data = data.round({"OBS_VALUE": 2})
+    # round based on indicator unit: index takes 3 decimals
+    ind_unit = data.UNIT_MEASURE.iloc[0].value
+    data = data.round({"OBS_VALUE": 3 if ind_unit == "IDX" else 1})
+    # round to whole number if values greater than one (and not index)
+    if ind_unit != "IDX":
+        data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
+            data.OBS_VALUE > 1
+        ].OBS_VALUE.round()
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
@@ -989,7 +996,21 @@ df_sources["Source_Full"] = df_sources["Source"].apply(
     lambda x: data_sources[x] if not pd.isna(x) else ""
 )
 
-df_sources = df_sources[df_sources["Subdomain"].isin(sitan_subtopics)]
+df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
+# read source table from excel data-dictionary and merge
+source_table_df = pd.read_excel(BytesIO(data_dict_content), sheet_name="Source")
+df_sources = df_sources.merge(
+    source_table_df[["Source_Id", "Source_Link"]],
+    on="Source_Id",
+    how="left",
+    sort=False,
+)
+# assign source link for TMEE, url: UNICEF_RDM/indicator_code
+tmee_source_link = df_sources.Source_Link.isnull()
+unicef_rdm_url = "https://data.unicef.org/indicator-profile/{helix_code}/"
+df_sources.loc[tmee_source_link, "Source_Link"] = df_sources[
+    tmee_source_link
+].Code.apply(lambda x: unicef_rdm_url.format(helix_code=x))
 df_sources_groups = df_sources.groupby("Source")
 df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.
