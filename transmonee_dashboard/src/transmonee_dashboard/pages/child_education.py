@@ -1,54 +1,27 @@
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_bootstrap_components as dbc
-from dash.dependencies import Input, State, Output
+import plotly.express as px
 
-from ..app import app
+from .base_page import get_base_layout
+
+
+indicators_dict = {
+    "PARTICIPATION": {
+        "NAME": "Education access and participation",
+        "CARDS": [
+            {
+                "name": "Who are Out-of-School",
+                "indicator": "REPROV_EFFINAL_MUNICIPAL",
+                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "age": "_T",
+            },
+        ],
+    },
+}
+
+
+main_title = "Education"
 
 
 def get_layout(**kwargs):
-    return html.Div(
-        children=[
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
-                    html.Div(
-                        className="heading-content",
-                        children=[
-                            html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
-                                children=[
-                                    html.H1(
-                                        "Education",
-                                        id="main_title",
-                                        className="heading-title",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            html.Br(),
-            html.Div(
-                children=[
-                    dbc.Card(
-                        [
-                            # dbc.CardHeader(html.H3("State of Children Rights")),
-                            dbc.CardBody(
-                                [
-                                    html.Div([
-                                        html.P("Brazil info")
-                                    ])
-                                ]
-                            ),
-                        ]
-                    ),
-                ],
-                style={"textAlign": "center"},
-            ),
-            html.Br(),
-        ],
-    )
+    kwargs["indicators"] = indicators_dict
+    kwargs["main_title"] = main_title
+    return get_base_layout(**kwargs)
