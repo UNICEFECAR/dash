@@ -40,32 +40,62 @@ indicator_names = {
 }
 # lbassil: get the age groups code list as it is not in the DSD
 cl_age = unicef.codelist("CL_AGE", version="1.0")
-age_groups = sdmx.to_pandas(cl_age)
-dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
-age_groups_names = {
-    age["CL_AGE"]: age["name"]
-    for index, age in dict_age_groups.iterrows()
-    if age["CL_AGE"] != "_T"
-}
+age_groups_names_df = (
+    sdmx.to_pandas(cl_age)["codelist"]["CL_AGE"]
+    .reset_index()
+    .drop(columns="parent")
+    .rename(columns={"CL_AGE": "AGE", "name": "Age_name"})
+)
 
-units_names = {
-    unit.id: str(unit.name)
-    for unit in dsd.attributes.get("UNIT_MEASURE").local_representation.enumerated
-}
+units_names_df = (
+    pd.DataFrame.from_dict(
+        {
+            unit.id: str(unit.name)
+            for unit in dsd.attributes.get(
+                "UNIT_MEASURE"
+            ).local_representation.enumerated
+        },
+        orient="index",
+    )
+    .reset_index()
+    .rename(columns={"index": "UNIT_MEASURE", 0: "Unit_name"})
+)
 
 # lbassil: get the names of the residence dimensions
-residence_names = {
-    residence.id: str(residence.name)
-    for residence in dsd.dimensions.get("RESIDENCE").local_representation.enumerated
-}
+residence_names_df = (
+    pd.DataFrame.from_dict(
+        {
+            residence.id: str(residence.name)
+            for residence in dsd.dimensions.get(
+                "RESIDENCE"
+            ).local_representation.enumerated
+        },
+        orient="index",
+    )
+    .reset_index()
+    .rename(columns={"index": "RESIDENCE", 0: "Residence_name"})
+)
 
 # lbassil: get the names of the wealth quintiles dimensions
-wealth_names = {
-    wealth.id: str(wealth.name)
-    for wealth in dsd.dimensions.get("WEALTH_QUINTILE").local_representation.enumerated
-}
+wealth_names_df = (
+    pd.DataFrame.from_dict(
+        {
+            wealth.id: str(wealth.name)
+            for wealth in dsd.dimensions.get(
+                "WEALTH_QUINTILE"
+            ).local_representation.enumerated
+        },
+        orient="index",
+    )
+    .reset_index()
+    .rename(columns={"index": "WEALTH_QUINTILE", 0: "Wealth_name"})
+)
 
-gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
+gender_names_df = (
+    pd.DataFrame.from_dict({"F": "Female", "M": "Male", "_T": "Total"}, orient="index")
+    .reset_index()
+    .rename(columns={"index": "SEX", 0: "Sex_name"})
+)
 
 dimension_names = {
     "SEX": "Sex_name",
@@ -445,6 +475,12 @@ countries_iso3_dict = {
 
 # create a list of country names in the same order as the countries_iso3_dict
 countries = list(countries_iso3_dict.keys())
+# countries_iso3_dict dataframe to join with data codes
+country_names_df = (
+    pd.DataFrame.from_dict(countries_iso3_dict, orient="index")
+    .reset_index()
+    .rename(columns={"index": "Country_name", 0: "REF_AREA"})
+)
 
 unicef_country_prog = [
     "Albania",
@@ -798,7 +834,7 @@ def get_filtered_dataset(
     # check if the indicator has special config, update the keys from the config
     if indicator_config and not only_dtype(indicator_config):
         # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown]
+        card_keys = indicator_config[breakdown].copy()
         if (
             dimensions
         ):  # if we are sending cards related filters, update the keys with the set values
@@ -850,19 +886,34 @@ def get_filtered_dataset(
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
-    # lbassil: add the code to fill the country names
-    countries_val_list = list(countries_iso3_dict.values())
-
-    def create_labels(row):
-        row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
-        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
-        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
-        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
-        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
-        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-        return row
-
-    data = data.apply(create_labels, axis="columns")
+    data = (
+        data.astype(
+            {
+                "REF_AREA": str,
+                "UNIT_MEASURE": str,
+                "SEX": str,
+                "RESIDENCE": str,
+                "WEALTH_QUINTILE": str,
+                "AGE": str,
+            }
+        )
+        .merge(country_names_df, on="REF_AREA", how="left", sort=False, validate="m:1")
+        .merge(
+            units_names_df, on="UNIT_MEASURE", how="left", sort=False, validate="m:1"
+        )
+        .merge(gender_names_df, on="SEX", how="left", sort=False, validate="m:1")
+        .merge(
+            residence_names_df, on="RESIDENCE", how="left", sort=False, validate="m:1"
+        )
+        .merge(
+            wealth_names_df,
+            on="WEALTH_QUINTILE",
+            how="left",
+            sort=False,
+            validate="m:1",
+        )
+        .merge(age_groups_names_df, on="AGE", how="left", sort=False, validate="m:1")
+    )
 
     return data
 
