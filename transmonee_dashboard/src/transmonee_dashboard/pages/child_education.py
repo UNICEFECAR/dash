@@ -62,7 +62,7 @@ indicators_dict = {
             ],
             "default": "TDI_EFFINAL_ESTADUAL",
         },
-"AREA_1": {
+        "AREA_1": {
             "name": "Education entry and transition",
             "graphs": {
                 "bar": {
@@ -90,21 +90,10 @@ indicators_dict = {
             },
             "default_graph": "bar",
             "indicators": [
-                "EDUNF_ROFST_L1",
-                "EDUNF_ROFST_L2",
-                "EDUNF_ROFST_L3",
-                "EDUNF_ROFST_L1_UNDER1",
-                "EDUNF_ROFST_L1T3",
-                "EDUNF_STU_L1_TOT",
-                "EDUNF_STU_L2_TOT",
-                "EDUNF_STU_L3_TOT",
-                "EDUNF_GER_L2_GEN",
-                "EDUNF_GER_L2_VOC",
-                "EDUNF_GER_L3",
-                "EDUNF_GER_L3_GEN",
-                "EDUNF_GER_L3_VOC",
+                "BPCNAESCOLA",
+                "FORADAESCOLA0A3"
             ],
-            "default": "EDUNF_ROFST_L1",
+            "default": "BPCNAESCOLA",
         },
         "AREA_2": {
             "name": "Education entry and transition",
@@ -134,99 +123,92 @@ indicators_dict = {
             },
             "default_graph": "line",
             "indicators": [
-                "EDUNF_NER_L02",
-                "EDUNF_NERA_L1_UNDER1",
-                "EDUNF_NERA_L1",
-                "EDUNF_NERA_L2",
-                "EDUNF_GER_L1",
-                "EDUNF_GER_L2",
-                "EDUNF_GER_L3",
-                "EDUNF_NIR_L1_ENTRYAGE",
-                "EDUNF_TRANRA_L2",
+                "BPCNAESCOLA",
+                "FORADAESCOLA0A3"
             ],
-            "default": "EDUNF_TRANRA_L2",
+            "default": "BPCNAESCOLA",
         },
-        "AREA_3": {
-            "name": "Safe and inclusive learning environments",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    # "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            "indicators": [
-                "EDU_SDG_SCH_L1",
-                "EDU_SDG_SCH_L2",
-                "EDU_SDG_SCH_L3",
-                "WS_SCH_H-B",
-                "WS_SCH_S-B",
-                "WS_SCH_W-B",
-                "EDU_CHLD_DISAB",
-                "EDU_CHLD_DISAB_GENERAL",
-                "EDU_CHLD_DISAB_SPECIAL",
-                "EDU_CHLD_DISAB_GENERAL_BOARDING",
-                "EDU_CHLD_DISAB_SPECIAL_BOARDING",
-                "EDU_CHLD_DISAB_HOME",
-                "EDU_SDG_PRYA",
-            ],
-            "default": "EDU_CHLD_DISAB",
-        },
-        "AREA_4": {
-            "name": "Education completion",
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        # text="TIME_PERIOD",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                    ),
-                    # "compare": "Sex",
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        line_shape="spline",
-                        render_mode="svg",
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                },
-            },
-            "default_graph": "bar",
-            "indicators": [
-                "EDUNF_CR_L1",
-                "EDUNF_CR_L2",
-                "EDUNF_CR_L3",
-                "EDUNF_DR_L1",
-                "EDUNF_DR_L2",
-                "EDUNF_GER_L2",
-            ],
-            "default": "EDUNF_CR_L1",
-        },
+        # "AREA_3": {
+        #     "name": "Safe and inclusive learning environments",
+        #     "graphs": {
+        #         "bar": {
+        #             "options": dict(
+        #                 x="Country_name",
+        #                 y="OBS_VALUE",
+        #                 barmode="group",
+        #                 # text="TIME_PERIOD",
+        #                 text="OBS_VALUE",
+        #                 hover_name="TIME_PERIOD",
+        #             ),
+        #             # "compare": "Sex",
+        #         },
+        #         "line": {
+        #             "options": dict(
+        #                 x="TIME_PERIOD",
+        #                 y="OBS_VALUE",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
+        #                 line_shape="spline",
+        #                 render_mode="svg",
+        #             ),
+        #             "trace_options": dict(mode="lines+markers"),
+        #         },
+        #     },
+        #     "default_graph": "bar",
+        #     "indicators": [
+        #         "EDU_SDG_SCH_L1",
+        #         "EDU_SDG_SCH_L2",
+        #         "EDU_SDG_SCH_L3",
+        #         "WS_SCH_H-B",
+        #         "WS_SCH_S-B",
+        #         "WS_SCH_W-B",
+        #         "EDU_CHLD_DISAB",
+        #         "EDU_CHLD_DISAB_GENERAL",
+        #         "EDU_CHLD_DISAB_SPECIAL",
+        #         "EDU_CHLD_DISAB_GENERAL_BOARDING",
+        #         "EDU_CHLD_DISAB_SPECIAL_BOARDING",
+        #         "EDU_CHLD_DISAB_HOME",
+        #         "EDU_SDG_PRYA",
+        #     ],
+        #     "default": "EDU_CHLD_DISAB",
+        # },
+        # "AREA_4": {
+        #     "name": "Education completion",
+        #     "graphs": {
+        #         "bar": {
+        #             "options": dict(
+        #                 x="Country_name",
+        #                 y="OBS_VALUE",
+        #                 barmode="group",
+        #                 # text="TIME_PERIOD",
+        #                 text="OBS_VALUE",
+        #                 hover_name="TIME_PERIOD",
+        #             ),
+        #             # "compare": "Sex",
+        #         },
+        #         "line": {
+        #             "options": dict(
+        #                 x="TIME_PERIOD",
+        #                 y="OBS_VALUE",
+        #                 color="Country_name",
+        #                 hover_name="Country_name",
+        #                 line_shape="spline",
+        #                 render_mode="svg",
+        #             ),
+        #             "trace_options": dict(mode="lines+markers"),
+        #         },
+        #     },
+        #     "default_graph": "bar",
+        #     "indicators": [
+        #         "EDUNF_CR_L1",
+        #         "EDUNF_CR_L2",
+        #         "EDUNF_CR_L3",
+        #         "EDUNF_DR_L1",
+        #         "EDUNF_DR_L2",
+        #         "EDUNF_GER_L2",
+        #     ],
+        #     "default": "EDUNF_CR_L1",
+        # },
     },
     "QUALITY": {
         "NAME": "Learning quality and skills",
@@ -632,7 +614,6 @@ indicators_dict = {
         },
     },
 }
-
 
 main_title = "Education"
 

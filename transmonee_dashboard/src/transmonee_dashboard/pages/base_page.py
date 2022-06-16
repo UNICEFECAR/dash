@@ -1060,18 +1060,20 @@ def area_figure(
         if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source = ""
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source_link = ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name

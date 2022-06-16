@@ -157,7 +157,10 @@ data_query_codes = [
     "TDI_EFFINAL_ESTADUAL",
     "TDI_EFFINAL_MUNICIPAL",
     "ABANDONOEFFINAISABSOLUTO",
-    "REPROV_EFFINAL_ESTADUAL"
+    "REPROV_EFFINAL_ESTADUAL",
+    "BPCNAESCOLA",
+    "FORADAESCOLA0A3",
+
 ]
 
 years = list(range(2010, 2022))
@@ -406,11 +409,11 @@ def get_filtered_dataset(
     #     "WEALTH_QUINTILE": [],
     # }
     keys = {
-            "REF_AREA": country_codes,
-            "INDICATOR": indicators,
-            "AGE": [],
-            "EDUCATION_LEVEL": [],
-        }
+        "REF_AREA": country_codes,
+        "INDICATOR": indicators,
+        "AGE": [],
+        "EDUCATION_LEVEL": [],
+    }
 
     print("indicators")
     print(indicators)
