@@ -727,17 +727,6 @@ def indicator_card(
 )
 def show_cards(selections, current_cards, indicators_dict):
 
-    print("Selections")
-    print(selections)
-    print(selections["theme"])
-
-
-    for idx, card in enumerate(indicators_dict[selections["theme"]]["CARDS"]):
-        print("idx")
-        print("idx")
-        print(idx)
-        print(card)
-
     cards = [
         indicator_card(
             selections,
@@ -955,11 +944,11 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
     )
     # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
     # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
     source = ""
     # source_link = (
     #     df_indicator_sources["Source_Link"].unique()[0]
