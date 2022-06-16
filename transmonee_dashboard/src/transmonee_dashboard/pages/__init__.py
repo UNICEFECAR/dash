@@ -156,7 +156,8 @@ dimension_names = {
 data_query_codes = [
     "TDI_EFFINAL_ESTADUAL",
     "TDI_EFFINAL_MUNICIPAL",
-    "ABANDONOEFFINAISABSOLUTO"
+    "ABANDONOEFFINAISABSOLUTO",
+    "REPROV_EFFINAL_ESTADUAL"
 ]
 
 years = list(range(2010, 2022))
@@ -396,14 +397,25 @@ def get_filtered_dataset(
 ) -> pd.DataFrame:
     # TODO: This is temporary, need to move to config
     # Add all dimensions by default to the keys
+    # keys = {
+    #     "REF_AREA": country_codes,
+    #     "INDICATOR": indicators,
+    #     "SEX": [],
+    #     "AGE": [],
+    #     "RESIDENCE": [],
+    #     "WEALTH_QUINTILE": [],
+    # }
     keys = {
-        "REF_AREA": country_codes,
-        "INDICATOR": indicators,
-        "SEX": [],
-        "AGE": [],
-        "RESIDENCE": [],
-        "WEALTH_QUINTILE": [],
-    }
+            "REF_AREA": country_codes,
+            "INDICATOR": indicators,
+            "AGE": [],
+            "EDUCATION_LEVEL": [],
+        }
+
+    print("indicators")
+    print(indicators)
+    print("years")
+    print(years)
 
     # get the first indicator of the list... we have more than one indicator in the cards
     indicator_config = (

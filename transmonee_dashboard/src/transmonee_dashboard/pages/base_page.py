@@ -339,7 +339,7 @@ def get_base_layout(**kwargs):
                     dbc.CardDeck(
                         id="cards_row",
                         className="mt-3",
-                    ),
+                    )
                 ],
                 justify="center",
             ),
@@ -501,14 +501,14 @@ def display_areas(theme, indicators_dict, id):
 @app.callback(
     Output("store", "data"),
     Output("country_selector", "checked"),
-    Output("programme-toggle", "checked"),
+    # Output("programme-toggle", "checked"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
         Input("theme", "hash"),
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
-        Input("programme-toggle", "checked"),
+        # Input("programme-toggle", "checked"),
         Input("country_profile_selector", "value"),
     ],
     State("indicators", "data"),
@@ -517,7 +517,7 @@ def apply_filters(
     theme,
     years_slider,
     country_selector,
-    programme_toggle,
+    # programme_toggle,
     selected_country,
     indicators,
 ):
@@ -581,11 +581,10 @@ def apply_filters(
     return (
         selections,
         country_selector,
-        countries_selected == unicef_country_prog,
+        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
-
 
 def indicator_card(
     selections,
@@ -727,6 +726,18 @@ def indicator_card(
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
+
+    print("Selections")
+    print(selections)
+    print(selections["theme"])
+
+
+    for idx, card in enumerate(indicators_dict[selections["theme"]]["CARDS"]):
+        print("idx")
+        print("idx")
+        print(idx)
+        print(card)
+
     cards = [
         indicator_card(
             selections,
@@ -1007,6 +1018,12 @@ def area_figure(
     indicators_dict,
     id,
 ):
+
+    print("In area_figure")
+    print(selections)
+    print(indicator)
+
+
     # only run if indicator not empty
     if not indicator:
         return {}, {}
