@@ -161,6 +161,11 @@ data_query_codes = [
     "BPCNAESCOLA",
     "FORADAESCOLA0A3",
 
+    "ABANDONOEFFINAIS",
+    # "ABANDONOEFFINAISABSOLUTO",
+    "ABANDONOEFINICIAIS",
+
+
 ]
 
 years = list(range(2010, 2022))

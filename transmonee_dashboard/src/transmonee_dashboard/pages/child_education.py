@@ -56,12 +56,12 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "ABANDONOEFFINAIS"
-                "ABANDONOEFFINAISABSOLUTO",
+                "ABANDONOEFFINAIS",
+                # "ABANDONOEFFINAISABSOLUTO",
                 "ABANDONOEFINICIAIS",
                 "BPCNAESCOLA",
             ],
-            "default": "ABANDONOEFFINAISABSOLUTO",
+            "default": "ABANDONOEFFINAIS",
         },
         "AREA_1": {
             "name": "Education entry and transition",
@@ -127,7 +127,7 @@ indicators_dict = {
                 "BPCNAESCOLA",
                 "FORADAESCOLA0A3"
             ],
-            "default": "FORADAESCOLA0A3",
+            "default": "BPCNAESCOLA",
         },
         # "AREA_3": {
         #     "name": "Safe and inclusive learning environments",
