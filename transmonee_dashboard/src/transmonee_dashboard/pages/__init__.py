@@ -482,8 +482,8 @@ def get_filtered_dataset(
     def create_labels(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
-        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
-        row["Educationlevel_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        # row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Educationlevel_name"] = str(gender_names.get(str(row["EDUCATION_LEVEL"]), ""))
         # row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         # row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         # row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
