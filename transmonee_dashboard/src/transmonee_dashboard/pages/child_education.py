@@ -37,8 +37,8 @@ indicators_dict = {
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
-                zoom=2,
-                center={"lat": 62.995158, "lon": 88.048713},
+                zoom=1,
+                center={"lat": 0.0, "lon": 0.0},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -56,11 +56,12 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "TDI_EFFINAL_ESTADUAL",
-                "TDI_EFFINAL_MUNICIPAL",
+                "ABANDONOEFFINAIS"
                 "ABANDONOEFFINAISABSOLUTO",
+                "ABANDONOEFINICIAIS",
+                "BPCNAESCOLA",
             ],
-            "default": "TDI_EFFINAL_ESTADUAL",
+            "default": "ABANDONOEFFINAISABSOLUTO",
         },
         "AREA_1": {
             "name": "Education entry and transition",
@@ -126,7 +127,7 @@ indicators_dict = {
                 "BPCNAESCOLA",
                 "FORADAESCOLA0A3"
             ],
-            "default": "BPCNAESCOLA",
+            "default": "FORADAESCOLA0A3",
         },
         # "AREA_3": {
         #     "name": "Safe and inclusive learning environments",
@@ -244,8 +245,8 @@ indicators_dict = {
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
-                zoom=2,
-                center={"lat": 62.995158, "lon": 88.048713},
+                zoom=1,
+                center={"lat": 0.0, "lon": 0.0},
                 opacity=0.5,
                 labels={
                     "OBS_VALUE": "Value",
@@ -435,7 +436,7 @@ indicators_dict = {
                 color="OBS_VALUE",
                 color_continuous_scale=px.colors.sequential.GnBu,
                 mapbox_style="carto-positron",
-                zoom=2,
+                zoom=3,
                 center={"lat": 62.995158, "lon": 88.048713},
                 opacity=0.5,
                 labels={
