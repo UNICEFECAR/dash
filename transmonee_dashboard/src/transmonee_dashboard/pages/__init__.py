@@ -18,13 +18,13 @@ import pandasdmx as sdmx
 sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/BRAZIL_CO,BRAZIL_CO,1.0/.{}..?format=csv&startPeriod={}&endPeriod={}"
 
 geo_json_file = (
-        pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
 with open(
-        pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
+    pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
 ) as config_file:
     indicators_config = json.load(config_file)
 
@@ -160,12 +160,9 @@ data_query_codes = [
     "REPROV_EFFINAL_ESTADUAL",
     "BPCNAESCOLA",
     "FORADAESCOLA0A3",
-
     "ABANDONOEFFINAIS",
     # "ABANDONOEFFINAISABSOLUTO",
     "ABANDONOEFINICIAIS",
-
-
 ]
 
 years = list(range(2010, 2022))
@@ -201,7 +198,6 @@ countries_iso3_dict = {
     "Sergipe": "SE",
     "São Paulo": "SP",
     "Tocantins": "TO",
-
 }
 
 # create a list of country names in the same order as the countries_iso3_dict
@@ -262,7 +258,7 @@ country_selections = [
             "Santa Catarina",
             "Sergipe",
             "São Paulo",
-            "Tocantins"
+            "Tocantins",
         ],
     },
 ]
@@ -396,12 +392,12 @@ def only_dtype(config):
 
 
 def get_filtered_dataset(
-        indicators: list,
-        years: list,
-        country_codes: list,
-        breakdown: str = "TOTAL",  # send default breakdown as Total
-        dimensions: dict = {},
-        latest_data: bool = True,
+    indicators: list,
+    years: list,
+    country_codes: list,
+    breakdown: str = "TOTAL",  # send default breakdown as Total
+    dimensions: dict = {},
+    latest_data: bool = True,
 ) -> pd.DataFrame:
     # TODO: This is temporary, need to move to config
     # Add all dimensions by default to the keys
@@ -432,9 +428,9 @@ def get_filtered_dataset(
     # check if the indicator has special config, update the keys from the config
     if indicator_config and not only_dtype(indicator_config):
         # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown]
+        card_keys = indicator_config[breakdown].copy()
         if (
-                dimensions
+            dimensions
         ):  # if we are sending cards related filters, update the keys with the set values
             card_keys.update(dimensions)
         keys.update(card_keys)  # update the keys with the sent values
@@ -463,8 +459,8 @@ def get_filtered_dataset(
     )
     data = (
         data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
-            .sort_values(by=["TIME_PERIOD"])
-            .reset_index()
+        .sort_values(by=["TIME_PERIOD"])
+        .reset_index()
     )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
@@ -480,7 +476,7 @@ def get_filtered_dataset(
     if ind_unit != "IDX":
         data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
             data.OBS_VALUE > 1
-            ].OBS_VALUE.round()
+        ].OBS_VALUE.round()
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
@@ -491,7 +487,9 @@ def get_filtered_dataset(
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         # row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
-        row["Educationlevel_name"] = str(gender_names.get(str(row["EDUCATION_LEVEL"]), ""))
+        row["Educationlevel_name"] = str(
+            gender_names.get(str(row["EDUCATION_LEVEL"]), "")
+        )
         # row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
         # row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
         # row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
@@ -592,7 +590,7 @@ data = data.round({"OBS_VALUE": 2})
 # print(data.shape)
 
 
-'''
+"""
 # TODO: calculations for children age population
 indicators = data["Indicator"].unique()
 
@@ -723,7 +721,7 @@ age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
 
 # age_indicators.to_csv("age_indicators.csv", index=False)
 
-'''
+"""
 
 
 def page_not_found(pathname):
