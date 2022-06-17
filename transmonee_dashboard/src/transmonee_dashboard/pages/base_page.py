@@ -529,7 +529,6 @@ def apply_filters(
     is_country_profile = current_theme == "COUNTRYPROFILE"
     # check if the user clicked on the generate button in the country profile page
 
-
     # if is_country_profile:
     #     key_list = list(countries_iso3_dict.keys())
     #     val_list = list(countries_iso3_dict.values())
@@ -585,6 +584,7 @@ def apply_filters(
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
+
 
 def indicator_card(
     selections,
@@ -1012,7 +1012,6 @@ def area_figure(
     print(selections)
     print(indicator)
 
-
     # only run if indicator not empty
     if not indicator:
         return {}, {}
@@ -1090,7 +1089,7 @@ def area_figure(
         title=chart_title,
         title_x=0.5,
         font=dict(family="Arial", size=12),
-        legend=dict(x=0.9, y=0.5),
+        legend=dict(x=1, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
 
@@ -1103,7 +1102,6 @@ def area_figure(
             dtick=1,
             categoryorder="total ascending",
         )
-        layout["legend"] = dict(y=0.5, x=1)
 
     if dimension:
         # lbassil: use the dimension name instead of the code
