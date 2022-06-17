@@ -56,12 +56,12 @@ indicators_dict = {
                 height=750,
             ),
             "indicators": [
-                "ABANDONOEFFINAIS",
+                # "ABANDONOEFFINAIS",
                 # "ABANDONOEFFINAISABSOLUTO",
                 "ABANDONOEFINICIAIS",
                 "BPCNAESCOLA",
             ],
-            "default": "ABANDONOEFFINAIS",
+            "default": "ABANDONOEFINICIAIS",
         },
         "AREA_1": {
             "name": "Education entry and transition",
@@ -90,10 +90,7 @@ indicators_dict = {
                 },
             },
             "default_graph": "bar",
-            "indicators": [
-                "BPCNAESCOLA",
-                "FORADAESCOLA0A3"
-            ],
+            "indicators": ["BPCNAESCOLA", "FORADAESCOLA0A3"],
             "default": "BPCNAESCOLA",
         },
         "AREA_2": {
@@ -123,10 +120,7 @@ indicators_dict = {
                 },
             },
             "default_graph": "line",
-            "indicators": [
-                "BPCNAESCOLA",
-                "FORADAESCOLA0A3"
-            ],
+            "indicators": ["BPCNAESCOLA", "FORADAESCOLA0A3"],
             "default": "BPCNAESCOLA",
         },
         # "AREA_3": {
