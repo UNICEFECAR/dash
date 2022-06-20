@@ -11,29 +11,90 @@ import numpy as np
 import pandas as pd
 import requests
 from requests.exceptions import HTTPError
+from ..sdmx import Codelist
 
 import pandasdmx as sdmx
 
+endpoint_ids = {
+    "UNICEF": "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/"
+}
+
+years = list(range(2010, 2022))
 
 # TODO: Move all of these to env/setting vars from production
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
+# sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 geo_json_file = (
-    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
+        pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
 
-with open(
-    pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
-) as config_file:
-    indicators_config = json.load(config_file)
+def get_search_countries(countries_cl):
+    all_countries = {"label": "All", "value": "All"}
+    countries_list = []
+    print(countries_cl)
+    # countries_list = [
+    #     {
+    #         "label": key,
+    #         "value": countries_iso3_dict[key],
+    #     }
+    #     for key in countries_iso3_dict.keys()
+    # ]
+    # if add_all:
+    #     countries_list.insert(0, all_countries)
+    return countries_list
 
-unicef = sdmx.Request("UNICEF")
+# create two dicts, one for display tree and one with the index of all possible selections
+selection_index = collections.OrderedDict({"0": ["countries"]})
+selection_tree = dict(title="Select All", key="0", children=[])
+# for num1, group in enumerate(country_selections):
+#     parent = dict(title=group["label"], key=f"0-{num1}", children=[])
+#     group_countries = []
+#
+#     for num2, region in enumerate(group["value"]):
+#         child_region = dict(
+#             title=region["label"] if "label" in region else region,
+#             key=f"0-{num1}-{num2}",
+#             children=[],
+#         )
+#         parent.get("children").append(child_region)
+#         if "value" in region:
+#             selection_index[f"0-{num1}-{num2}"] = (
+#                 region["value"]
+#                 if isinstance(region["value"], list)
+#                 else [region["value"]]
+#             )
+#             for num3, country in enumerate(region["value"]):
+#                 child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
+#                 if len(region["value"]) > 1:
+#                     # only create child nodes for more then one child
+#                     child_region.get("children").append(child_country)
+#                     selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
+#                 group_countries.append(country)
+#         else:
+#             selection_index[f"0-{num1}-{num2}"] = [region]
+#             group_countries.append(region)
+#
+#     selection_index[f"0-{num1}"] = group_countries
+#     selection_tree.get("children").append(parent)
 
-metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
-dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
 
+
+def page_not_found(pathname):
+    return html.P("No page '{}'".format(pathname))
+
+# with open(
+#         pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"
+# ) as config_file:
+#     indicators_config = json.load(config_file)
+
+# unicef = sdmx.Request("UNICEF")
+
+# metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
+# dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
+
+'''
 indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
@@ -772,14 +833,13 @@ def only_dtype(config):
 
 
 def get_filtered_dataset(
-    indicators: list,
-    years: list,
-    country_codes: list,
-    breakdown: str = "TOTAL",  # send default breakdown as Total
-    dimensions: dict = {},
-    latest_data: bool = True,
+        indicators: list,
+        years: list,
+        country_codes: list,
+        breakdown: str = "TOTAL",  # send default breakdown as Total
+        dimensions: dict = {},
+        latest_data: bool = True,
 ) -> pd.DataFrame:
-
     # TODO: This is temporary, need to move to config
     # Add all dimensions by default to the keys
     keys = {
@@ -800,7 +860,7 @@ def get_filtered_dataset(
         # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
         card_keys = indicator_config[breakdown]
         if (
-            dimensions
+                dimensions
         ):  # if we are sending cards related filters, update the keys with the set values
             card_keys.update(dimensions)
         keys.update(card_keys)  # update the keys with the sent values
@@ -829,8 +889,8 @@ def get_filtered_dataset(
     )
     data = (
         data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
-        .sort_values(by=["TIME_PERIOD"])
-        .reset_index()
+            .sort_values(by=["TIME_PERIOD"])
+            .reset_index()
     )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
@@ -846,7 +906,7 @@ def get_filtered_dataset(
     if ind_unit != "IDX":
         data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
             data.OBS_VALUE > 1
-        ].OBS_VALUE.round()
+            ].OBS_VALUE.round()
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
@@ -867,39 +927,7 @@ def get_filtered_dataset(
     return data
 
 
-# create two dicts, one for display tree and one with the index of all possible selections
-selection_index = collections.OrderedDict({"0": countries})
-selection_tree = dict(title="Select All", key="0", children=[])
-for num1, group in enumerate(country_selections):
-    parent = dict(title=group["label"], key=f"0-{num1}", children=[])
-    group_countries = []
 
-    for num2, region in enumerate(group["value"]):
-        child_region = dict(
-            title=region["label"] if "label" in region else region,
-            key=f"0-{num1}-{num2}",
-            children=[],
-        )
-        parent.get("children").append(child_region)
-        if "value" in region:
-            selection_index[f"0-{num1}-{num2}"] = (
-                region["value"]
-                if isinstance(region["value"], list)
-                else [region["value"]]
-            )
-            for num3, country in enumerate(region["value"]):
-                child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
-                if len(region["value"]) > 1:
-                    # only create child nodes for more then one child
-                    child_region.get("children").append(child_country)
-                    selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
-                group_countries.append(country)
-        else:
-            selection_index[f"0-{num1}-{num2}"] = [region]
-            group_countries.append(region)
-
-    selection_index[f"0-{num1}"] = group_countries
-    selection_tree.get("children").append(parent)
 
 programme_country_indexes = [
     next(
@@ -942,7 +970,6 @@ data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 
 # replace Yes by 1 and No by 0
 data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-
 
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
@@ -1018,7 +1045,7 @@ df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Sex, Age, Residence and Wealth.
 indicators_disagg = (
     data.groupby("CODE")
-    .agg(
+        .agg(
         {
             "AGE": "nunique",
             "SEX": "nunique",
@@ -1026,7 +1053,7 @@ indicators_disagg = (
             "WEALTH_QUINTILE": "nunique",
         }
     )
-    .reset_index()
+        .reset_index()
 )
 # Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
 indicators_disagg_no_total = indicators_disagg[
@@ -1034,7 +1061,7 @@ indicators_disagg_no_total = indicators_disagg[
     | (indicators_disagg["SEX"] > 1)
     | (indicators_disagg["RESIDENCE"] > 1)
     | (indicators_disagg["WEALTH_QUINTILE"] > 1)
-]
+    ]
 
 # include the indicators with Total only to show in the data query
 indicators_disagg_with_total = indicators_disagg[
@@ -1042,7 +1069,7 @@ indicators_disagg_with_total = indicators_disagg[
     | (indicators_disagg["SEX"] >= 1)
     | (indicators_disagg["RESIDENCE"] >= 1)
     | (indicators_disagg["WEALTH_QUINTILE"] >= 1)
-]
+    ]
 # Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
 indicators_disagg_details = data[
     data["CODE"].isin(indicators_disagg_with_total["CODE"])
@@ -1074,8 +1101,11 @@ age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
 age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
 age_indicators = age_indicators.drop_duplicates()
 age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+
+
 # age_indicators.to_csv("age_indicators.csv", index=False)
 
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))
+'''

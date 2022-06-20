@@ -15,18 +15,18 @@ from scipy.stats import zscore
 from ..app import app
 from ..components import fa
 from . import (
-    countries,
-    countries_iso3_dict,
-    df_sources,
-    dimension_names,
+    # countries,
+    # countries_iso3_dict,
+    # df_sources,
+    # dimension_names,
     geo_json_countries,
-    get_filtered_dataset,
-    indicator_names,
-    indicators_config,
-    programme_country_indexes,
-    selection_index,
+    # get_filtered_dataset,
+    # indicator_names,
+    # indicators_config,
+    # programme_country_indexes,
+    # selection_index,
     selection_tree,
-    unicef_country_prog,
+    # unicef_country_prog,
     years,
     get_search_countries,
 )
@@ -47,14 +47,14 @@ colours = [
     "danger",
 ]
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
-DEFAULT_LABELS = {
-    "Country_name": "Country",
-    "TIME_PERIOD": "Year",
-    "Sex_name": "Sex",
-    "Residence_name": "Residence",
-    "Age_name": "Age",
-    "Wealth_name": "Wealth Quintile",
-}
+# DEFAULT_LABELS = {
+#     "Country_name": "Country",
+#     "TIME_PERIOD": "Year",
+#     "Sex_name": "Sex",
+#     "Residence_name": "Residence",
+#     "Age_name": "Age",
+#     "Wealth_name": "Wealth Quintile",
+# }
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 EMPTY_CHART = {
@@ -279,7 +279,7 @@ def get_base_layout(**kwargs):
                                         style=country_dropdown_style,
                                     ),
                                     dbc.DropdownMenu(
-                                        label=f"Countries: {len(countries)}",
+                                        label=f"Countries: {'len(countries)'}",
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
@@ -303,24 +303,6 @@ def get_base_layout(**kwargs):
                                                 body=True,
                                             ),
                                         ],
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Checkbox(
-                                                id="programme-toggle",
-                                                className="custom-control-input",
-                                            ),
-                                            dbc.Label(
-                                                "UNICEF Country Programmes",
-                                                html_for="programme-toggle",
-                                                className="custom-control-label",
-                                                color="primary",
-                                            ),
-                                        ],
-                                        className="custom-control custom-switch m-2",
-                                        check=True,
-                                        inline=True,
-                                        style=programme_toggle_style,
                                     ),
                                 ],
                                 id="filter-row",
@@ -449,7 +431,7 @@ def get_card_popover_body(sources):
     else:
         return "NA"
 
-
+'''
 # TODO: Move to client side call back
 @app.callback(
     Output("collapse-years", "is_open"),
@@ -1109,3 +1091,4 @@ def area_figure(
         fig.update_traces(**traces)
 
     return fig, html.A(html.P(source), href=source_link, target="_blank")
+'''

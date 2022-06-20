@@ -1,9 +1,18 @@
 from collections import defaultdict
 import plotly.express as px
 
-from . import data, years
+# from . import data, years
 from .base_page import get_base_layout
 
+cfg = {
+    "ddl_ref_areas_cl": {
+        "agency": "BRAZIL_CO",
+        "id": "CL_BRAZIL_REF_AREAS",
+    },
+    "main_title": "Education, Leisure, and Culture"
+}
+
+'''
 indicators_dict = {
     "PARTICIPATION": {
         "NAME": "Education access and participation",
@@ -641,9 +650,11 @@ indicators_dict = {
 
 
 main_title = "Education, Leisure, and Culture"
+'''
 
 
 def get_layout(**kwargs):
-    kwargs["indicators"] = indicators_dict
-    kwargs["main_title"] = main_title
+    # kwargs["indicators"] = indicators_dict
+    # kwargs["main_title"] = main_title
+    kwargs["main_title"] = cfg["main_title"]
     return get_base_layout(**kwargs)

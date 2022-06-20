@@ -1,5 +1,4 @@
-import pandas as pd
-import SdmxApi
+from . import SdmxApi
 
 class Codelist:
 
