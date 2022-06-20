@@ -11,13 +11,18 @@ import numpy as np
 import pandas as pd
 import requests
 from requests.exceptions import HTTPError
-from ..sdmx import Codelist
+from ..sdmx import Codelist, SdmxApi
 
 import pandasdmx as sdmx
 
 endpoint_ids = {
     "UNICEF": "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/"
 }
+
+
+def get_endpoint(endpoint_id):
+    return endpoint_ids[endpoint_id]
+
 
 years = list(range(2010, 2022))
 
@@ -29,6 +34,7 @@ geo_json_file = (
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
+
 
 def get_search_countries(countries_cl):
     all_countries = {"label": "All", "value": "All"}
@@ -45,44 +51,159 @@ def get_search_countries(countries_cl):
     #     countries_list.insert(0, all_countries)
     return countries_list
 
-# create two dicts, one for display tree and one with the index of all possible selections
-selection_index = collections.OrderedDict({"0": ["countries"]})
-selection_tree = dict(title="Select All", key="0", children=[])
-# for num1, group in enumerate(country_selections):
-#     parent = dict(title=group["label"], key=f"0-{num1}", children=[])
-#     group_countries = []
-#
-#     for num2, region in enumerate(group["value"]):
-#         child_region = dict(
-#             title=region["label"] if "label" in region else region,
-#             key=f"0-{num1}-{num2}",
-#             children=[],
-#         )
-#         parent.get("children").append(child_region)
-#         if "value" in region:
-#             selection_index[f"0-{num1}-{num2}"] = (
-#                 region["value"]
-#                 if isinstance(region["value"], list)
-#                 else [region["value"]]
-#             )
-#             for num3, country in enumerate(region["value"]):
-#                 child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
-#                 if len(region["value"]) > 1:
-#                     # only create child nodes for more then one child
-#                     child_region.get("children").append(child_country)
-#                     selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
-#                 group_countries.append(country)
-#         else:
-#             selection_index[f"0-{num1}-{num2}"] = [region]
-#             group_countries.append(region)
-#
-#     selection_index[f"0-{num1}"] = group_countries
-#     selection_tree.get("children").append(parent)
 
+def _add_tree_level(tree_node, parent_code, codes):
+    for c in codes:
+        if "parent" in c and c["parent"] == parent_code:
+            if "children" not in tree_node:
+                tree_node["children"] = []
+            tree_node["children"].append({"key": c["id"], "title": c["name"]})
+            _add_tree_level(tree_node["children"][-1], c["id"], codes)
+
+
+def get_selection_tree(ref_area_cl):
+    cl = Codelist.Codelist()
+    cl.download_codelist(get_endpoint("UNICEF"), ref_area_cl["agency"], ref_area_cl["id"])
+    codes = cl.get_codes()
+
+    all_checked_codes = [c["id"] for c in codes]
+
+    # first loop: the codes without a parent then recursive
+    ch = []
+    for c in codes:
+        if "parent" not in c:
+            ch.append({"key": c["id"], "title": c["name"]})
+            # recursion
+            _add_tree_level(ch[-1], c["id"], codes)
+
+    # selection_tree = dict(title="Select All", key="0", children=[], checked=all_checked_codes)
+    return {"data": dict(title="Select All", key="0", children=ch),
+            "checked": all_checked_codes}
+
+
+def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
+    api = SdmxApi.SdmxApi(get_endpoint("UNICEF"))
+
+    # TODO The data query must reflect the data structure, FIX THAT
+    query = [q for q in cfg_data["dq"].values()]
+    if len(countries)>0:
+        query[0]="+".join(countries)
+
+    dq = ".".join(query)
+    lastnobservations = cfg_data.get("lastnobservations")
+    if recent_data:
+        lastnobservations = 1
+    df = api.get_dataflow_as_dataframe(cfg_data["agency"], cfg_data["id"], cfg_data["version"], dataquery=dq,
+                                       lastnobservations=lastnobservations)
+    # if len(df) > 0:
+    #     return df.iloc[0]["OBS_VALUE"]
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', 500)
+    pd.set_option('display.max_colwidth', 200)
+    print(df)
+
+    return df
+
+
+def get_filtered_dataset(
+        indicators: list,
+        years: list,
+        country_codes: list,
+        breakdown: str = "TOTAL",  # send default breakdown as Total
+        dimensions: dict = {},
+        latest_data: bool = True,
+) -> pd.DataFrame:
+    # TODO: This is temporary, need to move to config
+    # Add all dimensions by default to the keys
+    keys = {
+        "REF_AREA": country_codes,
+        "INDICATOR": indicators,
+        "SEX": [],
+        "AGE": [],
+        "RESIDENCE": [],
+        "WEALTH_QUINTILE": [],
+    }
+
+    # get the first indicator of the list... we have more than one indicator in the cards
+    indicator_config = (
+        indicators_config[indicators[0]] if indicators[0] in indicators_config else {}
+    )
+    # check if the indicator has special config, update the keys from the config
+    if indicator_config and not only_dtype(indicator_config):
+        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
+        card_keys = indicator_config[breakdown]
+        if (
+                dimensions
+        ):  # if we are sending cards related filters, update the keys with the set values
+            card_keys.update(dimensions)
+        keys.update(card_keys)  # update the keys with the sent values
+
+    try:
+        data = unicef.data(
+            "TRANSMONEE",
+            provider="ECARO",
+            key=keys,
+            params=dict(
+                startPeriod=years[0],
+                endPeriod=years[-1],
+                lastNObservations=1 if latest_data else 0,
+            ),
+            dsd=dsd,
+        )
+        logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
+    except HTTPError as e:
+        logging.exception(f"URL: {e.response}", e)
+        # TODO: Maybe do something better here
+        return pd.DataFrame()
+
+    # lbassil: add sorting by Year to display the years in proper order on the x-axis
+    dtype = (
+        eval(indicator_config["DTYPE"]) if "DTYPE" in indicator_config else np.float64
+    )
+    data = (
+        data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
+            .sort_values(by=["TIME_PERIOD"])
+            .reset_index()
+    )
+    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+    # replace Yes by 1 and No by 0
+    data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
+
+    # convert to numeric and round
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
+    data.dropna(subset=["OBS_VALUE"], inplace=True)
+    # round based on indicator unit: index takes 3 decimals
+    ind_unit = data.UNIT_MEASURE.iloc[0].value
+    data = data.round({"OBS_VALUE": 3 if ind_unit == "IDX" else 1})
+    # round to whole number if values greater than one (and not index)
+    if ind_unit != "IDX":
+        data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
+            data.OBS_VALUE > 1
+            ].OBS_VALUE.round()
+    # converting TIME_PERIOD to numeric: we should get integers by default
+    data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
+
+    # lbassil: add the code to fill the country names
+    countries_val_list = list(countries_iso3_dict.values())
+
+    def create_labels(row):
+        row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
+        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
+        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
+        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
+        return row
+
+    data = data.apply(create_labels, axis="columns")
+
+    return data
 
 
 def page_not_found(pathname):
     return html.P("No page '{}'".format(pathname))
+
 
 # with open(
 #         pathlib.Path(__file__).parent.parent.absolute() / "assets/indicator_config.json"

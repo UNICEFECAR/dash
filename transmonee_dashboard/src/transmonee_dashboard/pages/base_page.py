@@ -25,9 +25,11 @@ from . import (
     # indicators_config,
     # programme_country_indexes,
     # selection_index,
-    selection_tree,
+    # selection_tree,
     # unicef_country_prog,
     years,
+    get_selection_tree,
+    get_dataset,
     get_search_countries,
 )
 
@@ -168,31 +170,29 @@ def make_area(area_name):
 
 
 def get_base_layout(**kwargs):
-    indicators_dict = kwargs.get("indicators")
-    main_title = kwargs.get("main_title")
-    is_country_profile = kwargs.get("is_country_profile")
+    # indicators_dict = kwargs.get("indicators")
+    cfg = kwargs.get("cfg")
+    main_title = cfg["main_title"]
+    selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
+
+    '''
+    
+    
+    ddl_ref_areas_cl
+    
+    
+    
+    '''
+    # is_country_profile = kwargs.get("is_country_profile")
     country_dropdown_style = {"display": "none"}
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     programme_toggle_style = {"display": "block"}
     main_area_style = {"display": "block"}
 
-    if is_country_profile:
-        country_dropdown_style = {
-            "minWidth": 400,
-            "maxWidth": 600,
-            "paddingRight": 4,
-            "verticalAlign": "center",
-            "display": "visible",
-        }
-        themes_row_style = {"display": "none"}
-        countries_filter_style = {"display": "none"}
-        programme_toggle_style = {"display": "none"}
-        main_area_style = {"display": "none"}
-
     return html.Div(
         [
-            dcc.Store(id="indicators", data=indicators_dict),
+            dcc.Store(id="page_cfg", data=cfg),
             dcc.Location(id="theme"),
             html.Div(
                 className="heading",
@@ -269,15 +269,15 @@ def get_base_layout(**kwargs):
                                             ),
                                         ],
                                     ),
-                                    dcc.Dropdown(
-                                        id="country_profile_selector",
-                                        options=get_search_countries(False),
-                                        value="ALB",
-                                        multi=False,
-                                        placeholder="Select a country...",
-                                        className="m-2",
-                                        style=country_dropdown_style,
-                                    ),
+                                    # dcc.Dropdown(
+                                    #     id="country_profile_selector",
+                                    #     options=get_search_countries(False),
+                                    #     value="ALB",
+                                    #     multi=False,
+                                    #     placeholder="Select a country...",
+                                    #     className="m-2",
+                                    #     style=country_dropdown_style,
+                                    # ),
                                     dbc.DropdownMenu(
                                         label=f"Countries: {'len(countries)'}",
                                         id="collapse-countries-button",
@@ -290,10 +290,12 @@ def get_base_layout(**kwargs):
                                                     id="country_selector",
                                                     multiple=True,
                                                     checkable=True,
-                                                    checked=["0"],
+                                                    # checked=["0"],
+                                                    checked=selection_tree["checked"],
                                                     # selected=[],
                                                     expanded=["0"],
-                                                    data=selection_tree,
+                                                    # data=[]
+                                                    data=selection_tree["data"],
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
@@ -347,13 +349,13 @@ def get_base_layout(**kwargs):
 
 
 def make_card(
-    card_id,
-    name,
-    suffix,
-    indicator_sources,
-    source_link,
-    indicator_header,
-    numerator_pairs,
+        card_id,
+        name,
+        suffix,
+        indicator_sources,
+        source_link,
+        indicator_header,
+        numerator_pairs,
 ):
     card = dbc.Card(
         [
@@ -431,290 +433,97 @@ def get_card_popover_body(sources):
     else:
         return "NA"
 
-'''
-# TODO: Move to client side call back
-@app.callback(
-    Output("collapse-years", "is_open"),
-    Output("collapse-countries", "is_open"),
-    Output("collapse-engagements", "is_open"),
-    [
-        Input("collapse-years-button", "n_clicks"),
-        Input("collapse-countries-button", "n_clicks"),
-        Input("collapse-engagements-button", "n_clicks"),
-    ],
-    [
-        State("collapse-years-button", "is_open"),
-        State("collapse-countries-button", "is_open"),
-        State("collapse-engagements-button", "is_open"),
-    ],
-)
-def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
-    ctx = dash.callback_context
 
-    if not ctx.triggered:
-        return False, False, False
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "collapse-years-button" and n1:
-        return not is_open1, False, False
-    elif button_id == "collapse-countries-button" and n2:
-        return False, not is_open2, False
-    elif button_id == "collapse-engagements-button" and n3:
-        return False, False, not is_open3
-    return False, False, False
-
-
-@app.callback(
-    Output({"type": "area_parent", "index": MATCH}, "hidden"),
-    Input("theme", "hash"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_parent", "index": MATCH}, "id"),
-    ],
-)
-def display_areas(theme, indicators_dict, id):
-    area = id["index"]
-    theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
-    return area not in indicators_dict[theme]
-
+# @app.callback(
+#     Output({"type": "area_parent", "index": MATCH}, "hidden"),
+#     Input("theme", "hash"),
+#     [
+#         State("page_cfg", "data"),
+#         State({"type": "area_parent", "index": MATCH}, "id"),
+#     ],
+# )
+# def display_areas(theme, page_cfg, id):
+#     print("id")
+#     print(id)
+#     area = id["index"]
+#     print("page_cfg.keys()")
+#     print(page_cfg.keys())
+#     theme = theme[1:].upper() if theme else next(iter(page_cfg.keys()))
+#
+#     print("theme")
+#     print(theme)
+#
+#     return area not in indicators_dict[theme]
 
 @app.callback(
     Output("store", "data"),
-    Output("country_selector", "checked"),
-    Output("programme-toggle", "checked"),
+    # Output("country_selector", "checked"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
         Input("theme", "hash"),
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
-        Input("programme-toggle", "checked"),
-        Input("country_profile_selector", "value"),
     ],
-    State("indicators", "data"),
+    State("page_cfg", "data"),
 )
 def apply_filters(
-    theme,
-    years_slider,
-    country_selector,
-    programme_toggle,
-    selected_country,
-    indicators,
+        theme,
+        years_slider,
+        country_selector,
+        # selected_country,
+        # indicators,
+        store_page_cfg
 ):
-    ctx = dash.callback_context
-    selected = ctx.triggered[0]["prop_id"].split(".")[0]
-    countries_selected = set()
-    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
-    # check if it is the country profile page
-    is_country_profile = current_theme == "COUNTRYPROFILE"
-    # check if the user clicked on the generate button in the country profile page
-    if is_country_profile:
-        key_list = list(countries_iso3_dict.keys())
-        val_list = list(countries_iso3_dict.values())
-        # get the name of the selected country in the dropdown to filter the data accordingly
-        countries_selected = (
-            [key_list[val_list.index(selected_country)]] if selected_country else []
-        )
-    elif programme_toggle and selected == "programme-toggle":
-        countries_selected = unicef_country_prog
-        country_selector = programme_country_indexes
-    # Add the condition to know when the user unchecks the UNICEF country programs!
-    elif not country_selector or (
-        not programme_toggle and selected == "programme-toggle"
-    ):
-        countries_selected = countries
-        # Add this to check all the items in the selection tree
-        country_selector = ["0"]
-    else:
-        for index in country_selector:
-            countries_selected.update(selection_index[index])
-            if countries_selected == countries:
-                # if all countries are all selected then stop
-                break
+    print("Store page_cfg")
+    print(store_page_cfg)
+    # ctx = dash.callback_context
+    # selected = ctx.triggered[0]["prop_id"].split(".")[0]
+    # print("theme")
+    # print(theme)
+    # print("years_slider")
+    # print(years_slider)
+    # print("country_selector")
+    # print(country_selector)
+    # print("selected_country")
+    # print(selected_country)
+    # print("indicators")
+    # print(indicators)
 
-    countries_selected = list(countries_selected)
-    country_text = f"{len(countries_selected)} Selected"
-    # need to include the last selected year as it was exluded in the previous method
-    selected_years = years[years_slider[0] : years_slider[1] + 1]
-    # selected_years = years[slice(*years_slider)]
+    # selections = dict(
+    #     theme=current_theme,
+    #     indicators_dict=indicators,
+    #     years=selected_years,
+    #     countries=countries_selected_codes,
+    #     is_adolescent=("ADOLESCENT" in indicators),
+    # )
 
-    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
-    countries_selected_codes = [
-        countries_iso3_dict[country] for country in countries_selected
-    ]
+    print("store_page_cfg[]")
+    print(store_page_cfg["THEMES"])
+    print(store_page_cfg["THEMES"][0])
+
+    theme = theme[1:].upper() if theme else next(iter(store_page_cfg["THEMES"].keys()))
+
+    selected_years = years[years_slider[0]: years_slider[1] + 1]
+    sel_country_codes = [c for c in country_selector if c != "0"]  # Exclude the Select all code
+
     selections = dict(
-        theme=current_theme,
-        indicators_dict=indicators,
+        theme=theme,
+        # indicators_dict=indicators,
         years=selected_years,
-        countries=countries_selected_codes,
-        is_adolescent=("ADOLESCENT" in indicators),
+        countries=sel_country_codes,
+        # is_adolescent=("ADOLESCENT" in indicators),
     )
 
     return (
         selections,
-        country_selector,
-        countries_selected == unicef_country_prog,
+        # country_selector,
+        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
-        "Countries: {}".format(country_text),
+        # "Countries: {}".format(country_text),
+        # "Countries: {}".format("UPDATED"),
+        f"Countries: {str(len(sel_country_codes))} selected",
     )
-
-
-def indicator_card(
-    selections,
-    card_id,
-    name,
-    numerator,
-    suffix,
-    denominator=None,
-    absolute=False,
-    average=False,
-    min_max=False,
-    sex_code=None,
-    age_group=None,
-):
-    indicators = numerator.split(",")
-
-    # TODO: Change to use albertos config
-    # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    breakdown = "TOTAL"
-    # define the empty dimensions dict to be filled based on the card data filters
-    dimensions = {}
-    if age_group is not None:
-        dimensions["AGE"] = [age_group]
-    if sex_code is not None:
-        dimensions["SEX"] = [sex_code]
-
-    filtered_data = get_filtered_dataset(
-        indicators,
-        selections["years"],
-        selections["countries"],
-        breakdown,
-        dimensions,
-        latest_data=True,
-    )
-
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    indicator_sources = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
-    if filtered_data.empty:
-        indicator_header = "No data"
-        indicator_sources = "NA"
-        numerator_pairs = []
-        return make_card(
-            card_id,
-            name,
-            indicator_header,
-            indicator_sources,
-            source_link,
-            numerator_pairs,
-        )
-
-    # select last value for each country
-    indicator_values = (
-        filtered_data.groupby(
-            [
-                "Country_name",
-                "TIME_PERIOD",
-            ]
-        ).agg({"OBS_VALUE": "sum", "CODE": "count"})
-    ).reset_index()
-
-    numerator_pairs = (
-        indicator_values[indicator_values.CODE == len(indicators)]
-        .groupby("Country_name", as_index=False)
-        .last()
-        .set_index(["Country_name", "TIME_PERIOD"])
-    )
-
-    if suffix.lower() == "countries":
-        # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator:
-            # trick to filter number of years of free education
-            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
-            sources = numerator_pairs.index.tolist()
-            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
-        elif absolute:
-            # trick cards data availability among group of indicators and latest time_period
-            # doesn't require filtering by count == len(numors)
-            numerator_pairs = indicator_values.groupby(
-                "REF_AREA", as_index=False
-            ).last()
-            max_time_filter = (
-                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
-            )
-            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
-            sources = numerator_pairs.index.tolist()
-            indicator_sum = len(sources)
-        else:
-            # trick to accomodate cards for admin exams (AND for boolean indicators)
-            # filter exams according to number of indicators
-            indicator_sum = (
-                (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
-            )
-            sources = numerator_pairs.index.tolist()
-
-    else:
-        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
-        sources = numerator_pairs.index.tolist()
-        if average and len(sources) > 1:
-            indicator_sum = indicator_sum / len(sources)
-
-    # define indicator header text: the resultant number except for the min-max range
-    if min_max and len(sources) > 1:
-        indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
-        indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
-        indicator_header = f"[{indicator_min} - {indicator_max}]"
-    else:
-        indicator_header = "{:,.0f}".format(indicator_sum)
-
-    return make_card(
-        card_id,
-        name,
-        suffix,
-        indicator_sources,
-        source_link,
-        indicator_header,
-        numerator_pairs,
-    )
-
-
-@app.callback(
-    Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
-    [State("cards_row", "children"), State("indicators", "data")],
-)
-def show_cards(selections, current_cards, indicators_dict):
-    cards = [
-        indicator_card(
-            selections,
-            f"card-{num}",
-            card["name"],
-            card["indicator"],
-            card["suffix"],
-            card.get("denominator"),
-            card.get("absolute"),
-            card.get("average"),
-            card.get("min_max"),
-            card.get("sex"),
-            card.get("age"),
-        )
-        for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
-    ]
-    return cards
 
 
 @app.callback(
@@ -722,31 +531,23 @@ def show_cards(selections, current_cards, indicators_dict):
     Output("themes", "children"),
     [
         Input("store", "data"),
-        Input("country_profile_selector", "value"),
     ],
-    State("indicators", "data"),
+    State("page_cfg", "data"),
 )
-def show_themes(selections, selected_country, indicators_dict):
-    # check if it is the country profile page
-    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
-    ctx = dash.callback_context
-    ctrl_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    # check if the countries dropdown is causing this callback in order to set the sub-title to the country's name
-    if is_country_profile or ctrl_id == "countries":
-        key_list = list(countries_iso3_dict.keys())
-        val_list = list(countries_iso3_dict.values())
-        subtitle = (
-            key_list[val_list.index(selected_country)]
-            if selected_country
-            else "Country Name"
-        )
+def show_themes(selections, cfg):
+    if selections is None or selections["theme"] is None or selections["theme"].strip() == "":
+        theme_key = list(cfg["THEMES"].keys())[0]
+        theme = cfg["THEMES"][theme_key]
+    else:
+        theme_key = selections["theme"]
+        theme = cfg["THEMES"][selections["theme"]]
+
+    subtitle = theme.get("NAME")
+
+    # hide the buttons when only one option is available
+    if len(cfg["THEMES"].items()) == 1:
         return subtitle, []
 
-    subtitle = indicators_dict[selections["theme"]].get("NAME")
-    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-    # hide the buttons when only one option is available
-    if len(indicators_dict.items()) == 1:
-        return subtitle, []
     buttons = [
         dbc.Button(
             value["NAME"],
@@ -754,130 +555,77 @@ def show_themes(selections, selected_country, indicators_dict):
             color=colours[num],
             className="theme mx-1",
             href=f"#{key.lower()}",
-            active=url_hash == f"#{key.lower()}",
+            active=theme_key == key,
         )
-        for num, (key, value) in enumerate(indicators_dict.items())
+        for num, (key, value) in enumerate(cfg["THEMES"].items())
     ]
     return subtitle, buttons
 
 
 @app.callback(
-    Output({"type": "area_title", "index": MATCH}, "children"),
-    Output({"type": "area_options", "index": MATCH}, "options"),
-    Output({"type": "area_types", "index": MATCH}, "options"),
-    Output({"type": "area_options", "index": MATCH}, "value"),
-    Output({"type": "area_types", "index": MATCH}, "value"),
-    Input("store", "data"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_options", "index": MATCH}, "id"),
-    ],
-)
-def set_options(theme, indicators_dict, id):
-
-    area = id["index"]
-
-    area_options = area_types = []
-    if area in indicators_dict[theme["theme"]]:
-        indicators = indicators_dict[theme["theme"]][area].get("indicators")
-        area_indicators = indicators.keys() if indicators is dict else indicators
-        area_options = [
-            {
-                "label": indicator_names[code],
-                "value": code,
-            }
-            for code in area_indicators
-        ]
-
-        area_types = [
-            {
-                "label": name.capitalize(),
-                "value": name,
-            }
-            for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
-        ]
-
-    name = (
-        indicators_dict[theme["theme"]][area].get("name")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-    )
-    default_option = (
-        indicators_dict[theme["theme"]][area].get("default")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-    )
-    default_graph = (
-        indicators_dict[theme["theme"]][area].get("default_graph")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-    )
-
-    return name, area_options, area_types, default_option, default_graph
-
-
-@app.callback(
-    Output({"type": "area_breakdowns", "index": MATCH}, "options"),
-    [
-        Input({"type": "area_options", "index": MATCH}, "value"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
-    ],
-    [
-        State({"type": "area_breakdowns", "index": MATCH}, "id"),
-    ],
-)
-def breakdown_options(indicator, fig_type, id):
-
-    options = [{"label": "Total", "value": "TOTAL"}]
-    # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
-    all_breakdowns = [
-        {"label": "Sex", "value": "SEX"},
-        {"label": "Age", "value": "AGE"},
-        {"label": "Residence", "value": "RESIDENCE"},
-        {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
-    ]
-    dimensions = indicators_config.get(indicator, {}).keys()
-    # keep only TOTAL for line charts
-    if dimensions and fig_type != "line":
-        for breakdown in all_breakdowns:
-            if breakdown["value"] in dimensions:
-                options.append(breakdown)
-    return options
-
-
-@app.callback(
-    Output({"type": "area_breakdowns", "index": MATCH}, "value"),
+    Output("cards_row", "children"),
     [
         Input("store", "data"),
-        Input({"type": "area_breakdowns", "index": MATCH}, "options"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
     ],
-    [
-        State("indicators", "data"),
-        State({"type": "area_breakdowns", "index": MATCH}, "id"),
-    ],
+    # [State("cards_row", "children"), State("indicators", "data")],
+    [State("cards_row", "children"), State("page_cfg", "data")],
 )
-def set_default_compare(
-    selections, compare_options, selected_type, indicators_dict, id
-):
-    area = id["index"]
-    # lbassil: add this condition to stop the exception for the main area
-    if area in indicators_dict[selections["theme"]] and area != "MAIN":
-        default = indicators_dict[selections["theme"]][area]["default_graph"]
-        fig_type = selected_type if selected_type else default
-        config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-        default_compare = config.get("compare")
-
-        return (
-            "TOTAL"
-            if fig_type == "line" or default_compare is None
-            else default_compare
-            if default_compare in compare_options
-            else compare_options[1]["value"]
-            if len(compare_options) > 1
-            else compare_options[0]["value"]
+# def show_cards(selections, current_cards, indicators_dict):
+def show_cards(selections, current_cards, page_cfg):
+    cards = [
+        indicator_card(
+            selections,
+            f"card-{num}",
+            card["name"],
+            card["indicator"],
+            card["suffix"],
+            card["api"],
+            card.get("denominator"),
+            card.get("absolute"),
+            card.get("average"),
+            card.get("min_max"),
+            card.get("sex"),
+            card.get("age"),
         )
-    return "TOTAL"
+        # for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
+        for num, card in enumerate(page_cfg["THEMES"]["PARTICIPATION"]["CARDS"])
+    ]
+
+    return cards
+
+
+def indicator_card(
+        selections,
+        card_id,
+        name,
+        numerator,
+        suffix,
+        cfg,
+        denominator=None,
+        absolute=False,
+        average=False,
+        min_max=False,
+        sex_code=None,
+        age_group=None,
+):
+    df_vals = get_dataset(cfg)
+    card_value = ""
+    if len(df_vals) > 0:
+        card_value = df_vals.iloc[0]["OBS_VALUE"]
+
+    return make_card(
+        card_id,
+        name,
+        suffix,
+        "Indicator sources",
+        "Source link",
+        card_value,
+        []
+        # indicator_sources,
+        # source_link,
+        # indicator_header,
+        # numerator_pairs,
+    )
 
 
 @app.callback(
@@ -889,23 +637,33 @@ def set_default_compare(
         Input("store", "data"),
     ],
     [
-        State("indicators", "data"),
+        State("page_cfg", "data"),
     ],
 )
-def main_figure(indicator, show_historical_data, selections, indicators_dict):
-    latest_data = not show_historical_data
-    options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
-    data = get_filtered_dataset(
-        [indicator],
-        selections["years"],
-        selections["countries"],
-        latest_data=latest_data,
-    )
+def main_figure(indicator, show_historical_data, selections, cfg):
+    latest_data = not show_historical_data
+    print("main_figure")
+    print(selections)
+    print(cfg["THEMES"][selections["theme"]])
+    options = cfg["THEMES"][selections["theme"]]["MAIN"]["options"]
+    series = cfg["THEMES"][selections["theme"]]["MAIN"]["data"]
+    time_period = [min(selections["years"]), max(selections["years"])]
+    ref_areas = selections["countries"]
+
+    if latest_data:
+        df_data = get_dataset(series[0], time_period, ref_areas)
+    else:
+        df_data = get_dataset(series[0], time_period, ref_areas)
+
+    print("HERE")
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
+    if df_data.empty:
         return EMPTY_CHART, ""
+
+
+    '''
 
     # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
     name = (
@@ -949,146 +707,7 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
             frames=main_figure["frames"],
             layout=main_figure.layout,
         )
+    '''
+    source = ""
+    source_link = ""
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")
-
-
-@app.callback(
-    Output({"type": "area", "index": MATCH}, "figure"),
-    Output({"type": "area_sources", "index": MATCH}, "children"),
-    [
-        Input("store", "data"),
-        Input({"type": "area_options", "index": MATCH}, "value"),
-        Input({"type": "area_breakdowns", "index": MATCH}, "value"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
-        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
-    ],
-    [
-        State("indicators", "data"),
-        State({"type": "area_options", "index": MATCH}, "id"),
-    ],
-)
-def area_figure(
-    selections,
-    indicator,
-    compare,
-    selected_type,
-    exclude_outliers,
-    indicators_dict,
-    id,
-):
-    # only run if indicator not empty
-    if not indicator:
-        return {}, {}
-    # check if it is the country profile page
-    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
-
-    area = id["index"]
-    indicators = indicators_dict[selections["theme"]][area]["indicators"]
-    default_graph = indicators_dict[selections["theme"]][area].get(
-        "default_graph", "line"
-    )
-    fig_type = selected_type if selected_type else default_graph
-    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-    options = fig_config.get("options")
-    traces = fig_config.get("trace_options")
-    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
-
-    indicator_name = str(indicator_names.get(indicator, ""))
-    # do we need `indicator_settings` below?
-    indicator_settings = (
-        indicators.get(indicator, {}) if type(indicators) is dict else {}
-    )
-    data = get_filtered_dataset(
-        [indicator],
-        selections["years"],
-        selections["countries"],
-        compare,
-        latest_data=False if fig_type == "line" or is_country_profile else True,
-    )
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, ""
-
-    # check if the exclude outliers checkbox is checked
-    if exclude_outliers:
-        # filter the data to the remove the outliers
-        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
-        # filter the data entries to remove the outliers
-        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
-
-    # lbassil: was UNIT_MEASURE
-    name = (
-        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
-        else ""
-    )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-
-    # set the chart title, wrap the text when the indicator name is too long
-    chart_title = textwrap.wrap(
-        indicator_name,
-        width=74,
-    )
-    chart_title = "<br>".join(chart_title)
-
-    # set the layout to center the chart title and change its font size and color
-    layout = go.Layout(
-        title=chart_title,
-        title_x=0.5,
-        font=dict(family="Arial", size=12),
-        legend=dict(x=0.9, y=0.5),
-        xaxis={"categoryorder": "total descending"},
-    )
-
-    # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line" or is_country_profile:
-        data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
-        layout["xaxis"] = dict(
-            tickmode="linear",
-            tick0=selections["years"][0],
-            dtick=1,
-            categoryorder="total ascending",
-        )
-        layout["legend"] = dict(y=0.5, x=1)
-
-    if dimension:
-        # lbassil: use the dimension name instead of the code
-        dimension_name = str(dimension_names.get(dimension, ""))
-        options["color"] = dimension_name
-        if compare == "WEALTH_QUINTILE":
-            wealth_dict = {
-                "Lowest": 0,
-                "Second": 1,
-                "Middle": 2,
-                "Fourth": 3,
-                "Highest": 4,
-            }
-            data.sort_values(
-                by=[dimension], key=lambda x: x.map(wealth_dict), inplace=True
-            )
-        else:
-            # sort by the compare value to have the legend in the right ascending order
-            data.sort_values(by=[dimension], inplace=True)
-
-    fig = getattr(px, fig_type)(data, **options)
-    fig.update_layout(layout)
-    if traces:
-        fig.update_traces(**traces)
-
-    return fig, html.A(html.P(source), href=source_link, target="_blank")
-'''

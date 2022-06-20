@@ -9,7 +9,90 @@ cfg = {
         "agency": "BRAZIL_CO",
         "id": "CL_BRAZIL_REF_AREAS",
     },
-    "main_title": "Education, Leisure, and Culture"
+    "main_title": "Education, Leisure, and Culture",
+    "THEMES": {
+        "PARTICIPATION": {
+            "NAME": "Education access and participation",
+            "CARDS": [
+                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                         "dq": {
+                             "REF_AREA": "BR",
+                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                             "AGE": "_T",
+                             "EDUCATION_LEVEL": "ISCED11_1"
+                         },
+                         "lastnobservations": 1},
+                 "name": "Who are Out-of-School",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Primary to upper secondary aged Children and Adolescents",
+                 },
+                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                         "dq": {
+                             "REF_AREA": "BR",
+                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                             "AGE": "_T",
+                             "EDUCATION_LEVEL": "ISCED11_2"
+                         },
+                         "lastnobservations": 1},
+                 "name": "Who are Out-of-School",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Primary to upper secondary aged Children and Adolescents",
+                 },
+                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                         "dq": {
+                             "REF_AREA": "BR",
+                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                             "AGE": "_T",
+                             "EDUCATION_LEVEL": "ISCED11_3"
+                         },
+                         "lastnobservations": 1},
+                 "name": "Who are Out-of-School",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Primary to upper secondary aged Children and Adolescents",
+                 }
+            ],
+            "MAIN": {
+                "name": "Out-of-School Children",
+                "options": {
+                    "locations": "REF_AREA",
+                    "featureidkey": "id",
+                    "color": "OBS_VALUE",
+                    "color_continuous_scale": "px.colors.sequential.GnBu",
+                    "mapbox_style": "carto-positron",
+                    "zoom": 2,
+                    "center": {"lat": 62.995158, "lon": 88.048713},
+                    "opacity": 0.5,
+                    "labels": {
+                        "OBS_VALUE": "Value",
+                        "REF_AREA": "ISO3 Code",
+                        "TIME_PERIOD": "Year",
+                        "Country_name": "Country",
+                    },
+                    "hover_data": {
+                        "OBS_VALUE": True,
+                        "REF_AREA": False,
+                        "Country_name": True,
+                        "TIME_PERIOD": True,
+                    },
+                    "animation_frame": "TIME_PERIOD",
+                    "height": 750},
+                "name": "Who are Out-of-School",
+                "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "data": [{
+                    "api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                            "dq": {
+                                "INDICATOR": "ABANDONOEFINICIAIS",
+                                "AGE": "_T",
+                                "EDUCATION_LEVEL": "ABANDONOEFINICIAIS"
+                            }
+                            }
+                }
+                ],
+
+            }
+        },"THEME2": {"NAME":"Theme 2"}
+    }
 }
 
 '''
@@ -656,5 +739,6 @@ main_title = "Education, Leisure, and Culture"
 def get_layout(**kwargs):
     # kwargs["indicators"] = indicators_dict
     # kwargs["main_title"] = main_title
-    kwargs["main_title"] = cfg["main_title"]
+    # kwargs["main_title"] = cfg["main_title"]
+    kwargs["cfg"] = cfg
     return get_base_layout(**kwargs)
