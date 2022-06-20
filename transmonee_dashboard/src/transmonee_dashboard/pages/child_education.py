@@ -55,13 +55,13 @@ indicators_dict = {
                 animation_frame="TIME_PERIOD",
                 height=750,
             ),
-            "indicators": [
+            "indicators": {
                 # "ABANDONOEFFINAIS",
-                # "ABANDONOEFFINAISABSOLUTO",
-                "ABANDONOEFINICIAIS",
-                "BPCNAESCOLA",
-            ],
-            "default": "ABANDONOEFINICIAIS",
+                "ABANDONOEFFINAISABSOLUTO": {"EDUCATION_LEVEL": "ISCED11_1"},
+                "ABANDONOEFINICIAIS": {},
+                "BPCNAESCOLA": {},
+            },
+            "default": "ABANDONOEFFINAISABSOLUTO",
         },
         "AREA_1": {
             "name": "Education entry and transition",

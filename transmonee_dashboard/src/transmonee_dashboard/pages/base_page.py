@@ -925,10 +925,27 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
     latest_data = not show_historical_data
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
+    age_group = indicators_dict[selections["theme"]]["MAIN"]["indicators"][
+        indicator
+    ].get("AGE")
+    ed_code = indicators_dict[selections["theme"]]["MAIN"]["indicators"][indicator].get(
+        "EDUCATION_LEVEL"
+    )
+
+    breakdown = "TOTAL"
+    # define the empty dimensions dict to be filled based on the card data filters
+    dimensions = {}
+    if age_group is not None:
+        dimensions["AGE"] = [age_group]
+    if ed_code is not None:
+        dimensions["EDUCATION_LEVEL"] = [ed_code]
+
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
+        breakdown,
+        dimensions,
         latest_data=latest_data,
     )
 
