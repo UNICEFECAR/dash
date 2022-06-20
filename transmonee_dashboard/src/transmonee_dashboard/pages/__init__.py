@@ -14,9 +14,8 @@ from requests.exceptions import HTTPError
 
 import pandasdmx as sdmx
 
-
 # TODO: Move all of these to env/setting vars from production
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
+sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/BRAZIL_CO,BRAZIL_CO,1.0/.{}..?format=csv&startPeriod={}&endPeriod={}"
 
 geo_json_file = (
     pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
@@ -31,22 +30,22 @@ with open(
 
 unicef = sdmx.Request("UNICEF")
 
-metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
-dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
+metadata = unicef.dataflow("BRAZIL_CO", provider="BRAZIL_CO", version="1.0")
+dsd = metadata.structure["DSD_BRAZIL_CO"]
 
 indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
 }
 # lbassil: get the age groups code list as it is not in the DSD
-cl_age = unicef.codelist("CL_AGE", version="1.0")
-age_groups = sdmx.to_pandas(cl_age)
-dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
-age_groups_names = {
-    age["CL_AGE"]: age["name"]
-    for index, age in dict_age_groups.iterrows()
-    if age["CL_AGE"] != "_T"
-}
+# cl_age = unicef.codelist("CL_AGE", version="1.0")
+# age_groups = sdmx.to_pandas(cl_age)
+# dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
+# age_groups_names = {
+#     age["CL_AGE"]: age["name"]
+#     for index, age in dict_age_groups.iterrows()
+#     if age["CL_AGE"] != "_T"
+# }
 
 units_names = {
     unit.id: str(unit.name)
@@ -54,331 +53,116 @@ units_names = {
 }
 
 # lbassil: get the names of the residence dimensions
-residence_names = {
-    residence.id: str(residence.name)
-    for residence in dsd.dimensions.get("RESIDENCE").local_representation.enumerated
-}
+# residence_names = {
+#     residence.id: str(residence.name)
+#     for residence in dsd.dimensions.get("RESIDENCE").local_representation.enumerated
+# }
 
 # lbassil: get the names of the wealth quintiles dimensions
-wealth_names = {
-    wealth.id: str(wealth.name)
-    for wealth in dsd.dimensions.get("WEALTH_QUINTILE").local_representation.enumerated
-}
+# wealth_names = {
+#     wealth.id: str(wealth.name)
+#     for wealth in dsd.dimensions.get("WEALTH_QUINTILE").local_representation.enumerated
+# }
 
 gender_names = {"F": "Female", "M": "Male", "_T": "Total"}
 
 dimension_names = {
-    "SEX": "Sex_name",
+    # "SEX": "Sex_name",
     "AGE": "Age_name",
-    "RESIDENCE": "Residence_name",
-    "WEALTH_QUINTILE": "Wealth_name",
+    "EDUCATION_LEVEL": "Educationlevel_name",
+    # "RESIDENCE": "Residence_name",
+    # "WEALTH_QUINTILE": "Wealth_name",
 }
 
-adolescent_codes = [
-    "DM_ASYL_FRST",
-    "DM_ASYL_UASC",
-    "HT_ADOL_UNMETMED_FEAR",
-    "HT_ADOL_UNMETMED_HOPING",
-    "HT_ADOL_UNMETMED_NOKNOW",
-    "HT_ADOL_UNMETMED_NOTIME",
-    "HT_ADOL_UNMETMED_NOUNMET",
-    "HT_ADOL_UNMETMED_TOOEFW",
-    "HT_ADOL_UNMETMED_TOOEXP",
-    "HT_ADOL_UNMETMED_TOOFAR",
-    "HT_ADOL_UNMETMED_WAITING",
-    "HT_ADOL_UNMETMED_OTH",
-    "HT_CDRT_SELF_HARM",
-    "HT_SH_HIV_INCD",
-    "HVA_EPI_LHIV_0-19",
-    "HVA_EPI_LHIV_15-24",
-    "JJ_PRISIONERS_RT",
-    "MNCH_CSEC",
-    "MNCH_PNCMOM",
-    "PT_ADLT_PS_NEC",
-    "PT_CHLD_1-14_PS-PSY-V_CGVR",
-    "PT_CHLD_5-17_LBR_ECON",
-    "PT_CHLD_5-17_LBR_ECON-HC",
-    "PT_CHLD_CARED_BY_FOSTER",
-    "PT_CHLD_ENTEREDFOSTER",
-    "PT_CHLD_INRESIDENTIAL",
-    "PT_F_15-49_W-BTNG",
-    "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
-    "PT_M_15-49_W-BTNG",
-    "PT_ST_13-15_BUL_30-DYS",
-    "PV_AROPE",
-    "PV_AROPRT",
-    "PV_SD_MDP_MUHC",
-    "PV_SEV_MAT_DPRT",
-    "PV_SI_POV_EMP1",
-]
+# adolescent_codes = [
+#     "DM_ASYL_FRST",
+#     "DM_ASYL_UASC",
+#     "HT_ADOL_UNMETMED_FEAR",
+#     "HT_ADOL_UNMETMED_HOPING",
+#     "HT_ADOL_UNMETMED_NOKNOW",
+#     "HT_ADOL_UNMETMED_NOTIME",
+#     "HT_ADOL_UNMETMED_NOUNMET",
+#     "HT_ADOL_UNMETMED_TOOEFW",
+#     "HT_ADOL_UNMETMED_TOOEXP",
+#     "HT_ADOL_UNMETMED_TOOFAR",
+#     "HT_ADOL_UNMETMED_WAITING",
+#     "HT_ADOL_UNMETMED_OTH",
+#     "HT_CDRT_SELF_HARM",
+#     "HT_SH_HIV_INCD",
+#     "HVA_EPI_LHIV_0-19",
+#     "HVA_EPI_LHIV_15-24",
+#     "JJ_PRISIONERS_RT",
+#     "MNCH_CSEC",
+#     "MNCH_PNCMOM",
+#     "PT_ADLT_PS_NEC",
+#     "PT_CHLD_1-14_PS-PSY-V_CGVR",
+#     "PT_CHLD_5-17_LBR_ECON",
+#     "PT_CHLD_5-17_LBR_ECON-HC",
+#     "PT_CHLD_CARED_BY_FOSTER",
+#     "PT_CHLD_ENTEREDFOSTER",
+#     "PT_CHLD_INRESIDENTIAL",
+#     "PT_F_15-49_W-BTNG",
+#     "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
+#     "PT_M_15-49_W-BTNG",
+#     "PT_ST_13-15_BUL_30-DYS",
+#     "PV_AROPE",
+#     "PV_AROPRT",
+#     "PV_SD_MDP_MUHC",
+#     "PV_SEV_MAT_DPRT",
+#     "PV_SI_POV_EMP1",
+# ]
 
-adolescent_age_groups = [
-    "_T",
-    "Y14T17",
-    "Y0T13",
-    "Y1T4",
-    "Y0",
-    "Y0T14",
-    "Y14T15",
-    "Y16T17",
-    "Y16T19",
-    "Y16T24",
-    "Y10T14",
-    "Y15T19",
-    "Y15T24",
-    "Y10T19",
-    "Y0T17",
-    "Y15T49",
-    "Y20T24",
-    "Y18T49",
-    "Y18T29",
-    "Y0T24",
-    "Y25T39",
-    "Y40T59",
-    "Y_GE50",
-    "Y_GE15",
-    "Y1T14",
-    "Y2T14",
-    "Y5T14",
-    "Y5T17",
-    "Y7T17",
-    "Y10T17",
-    "Y13T15",
-    "Y15",
-    "Y11T15",
-    "Y12T17",
-    "Y0T15",
-    "Y0T4",
-    "M0",
-]
+# adolescent_age_groups = [
+#     "_T",
+#     "Y14T17",
+#     "Y0T13",
+#     "Y1T4",
+#     "Y0",
+#     "Y0T14",
+#     "Y14T15",
+#     "Y16T17",
+#     "Y16T19",
+#     "Y16T24",
+#     "Y10T14",
+#     "Y15T19",
+#     "Y15T24",
+#     "Y10T19",
+#     "Y0T17",
+#     "Y15T49",
+#     "Y20T24",
+#     "Y18T49",
+#     "Y18T29",
+#     "Y0T24",
+#     "Y25T39",
+#     "Y40T59",
+#     "Y_GE50",
+#     "Y_GE15",
+#     "Y1T14",
+#     "Y2T14",
+#     "Y5T14",
+#     "Y5T17",
+#     "Y7T17",
+#     "Y10T17",
+#     "Y13T15",
+#     "Y15",
+#     "Y11T15",
+#     "Y12T17",
+#     "Y0T15",
+#     "Y0T4",
+#     "M0",
+# ]
 
 # Add all indicators found in the data dictionary to get their data to the query data page
 data_query_codes = [
-    "DM_BRTS",
-    # "DM_POP_TOT",
-    # "DM_AVG_POP_TOT",
-    # "DM_POP_PROP",
-    "DM_DPR_AGE",
-    "DM_DPR_CHD",
-    "DM_DPR_OLD",
-    # "DM_IMG",
-    # "DM_EMG",
-    # "DM_NEXTRT_MG",
-    "DM_MRG_AGE",
-    "DM_DIV",
-    "DM_CRDIVRT",
-    "DM_CHLD_DIV",
-    "DM_CHLDRT_DIV",
-    "DM_POP_TOT_AGE",
-    "FT_WHS_PBR",
-    "MT_SP_DYN_CDRT_IN",
-    "DM_LIFE_EXP",
-    "HT_SH_HAP_HBSAG",
-    "HT_SH_TBS_INCD",
-    "HT_SH_SUD_ALCOL",
-    "HT_DIST79DTP3_P",
-    "IM_MCV2",
-    "HT_DIST79MCV2_P",
-    "HT_SDG_PM25",
-    "ECD_CHLD_36-59M_ADLT_SRC",
-    "HT_SH_SUD_TREAT",
-    "EDUNF_STU_L01_TOT",
-    "EDU_SDG_GER_L01",
-    "EDUNF_STU_L02_TOT",
-    "EDUNF_FEP_L02",
-    "EDUNF_NARA_L1_UNDER1",
-    "EDUNF_FEP_L1",
-    "EDUNF_FEP_L2",
-    "EDUNF_FEP_L3",
-    "EDUNF_STU_L3_GEN",
-    "EDUNF_STU_L3_VOC",
-    "EDUNF_STU_L3_GEN_PUB",
-    "EDUNF_STU_L3_GEN_PRV",
-    "EDUNF_STU_L3_VOC_PUB",
-    "EDUNF_STU_L3_VOC_PRV",
-    "EDUNF_GER_L1AND2",
-    "EDU_TIMSS_MAT4",
-    "EDU_TIMSS_SCI4",
-    "EDU_TIMSS_MAT8",
-    "EDU_TIMSS_SCI8",
-    "EDU_PIRLS_REA",
-    "EDUNF_REPP_L1",
-    "EDUNF_REPP_L2",
-    "EDUNF_FRP_L1",
-    "EDUNF_SR_L1",
-    "EDUNF_SR_L2",
-    "EDUNF_STU_L4_TOT",
-    "EDUNF_STU_L4_PUB",
-    "EDUNF_STU_L4_PRV",
-    "EDUNF_PRP_L4",
-    "EDUNF_FEP_L4",
-    "EDUNF_STU_L5T8_TOT",
-    "EDUNF_STU_L5T8_PUB",
-    "EDUNF_STU_L5T8_PRV",
-    "EDUNF_PRP_L5T8",
-    "EDUNF_FEP_L5T8",
-    "EDUNF_GER_GPI_L02",
-    "EDUNF_GER_GPI_L1",
-    "EDUNF_GER_GPI_L2",
-    "EDUNF_GER_GPI_L3",
-    "EDUNF_GER_GPI_L2AND3",
-    "EDUNF_PTR_L1",
-    "EDUNF_PTR_L2",
-    "EDUNF_PTR_L2AND3",
-    "EDUNF_PTR_L3",
-    "EDU_SDG_PTTR_L02",
-    "EDU_SDG_PTTR_L1",
-    "EDU_SDG_PTTR_L2",
-    "EDU_SDG_PTTR_L3",
-    "EDU_SDG_PQTR_L02",
-    "EDU_SDG_PQTR_L1",
-    "EDU_SDG_PQTR_L2",
-    "EDU_SDG_PQTR_L3",
-    "ECD_CHLD_U5_BKS-HM",
-    "ECD_CHLD_U5_PLYTH-HM",
-    "EDUNF_EA_L2T8",
-    "EDU_PISA_MAT2",
-    "EDU_PISA_MAT3",
-    "EDU_PISA_MAT4",
-    "EDU_PISA_MAT5",
-    "EDU_PISA_MAT6",
-    "EDU_PISA_REA2",
-    "EDU_PISA_REA3",
-    "EDU_PISA_REA4",
-    "EDU_PISA_REA5",
-    "EDU_PISA_REA6",
-    "EDU_PISA_SCI2",
-    "EDU_PISA_SCI3",
-    "EDU_PISA_SCI4",
-    "EDU_PISA_SCI5",
-    "EDU_PISA_SCI6",
-    "EDU_CHLD_DISAB_L02",
-    "EDU_CHLD_DISAB_L1",
-    "EDU_CHLD_DISAB_L2",
-    "EDU_CHLD_DISAB_L3",
-    "EDUNF_SAP_L02",
-    "EDUNF_SAP_L1",
-    "EDUNF_SAP_L2",
-    "EDUNF_SAP_L3",
-    "EDUNF_SAP_L2_GLAST",
-    "EDUNF_FRP_L2AND3",
-    "EDUNF_GER_GPI_L01",
-    "EDUNF_OFST_L1T3",
-    "EDUNF_PRP_L2AND3",
-    "EDUNF_STU_L2AND3_PRV",
-    "EDUNF_COMP_YR",
-    "EDUNF_COMP_YR_L02T3",
-    "EDUNF_PTR_L02",
-    "EDUNF_GECER_L01",
-    "EDUNF_GECER_L02",
-    "ED_ANAR_L1",
-    "ED_ANAR_L2",
-    "ED_ANAR_L3",
-    "EDU_SE_ACS_INTNT_L1",
-    "EDU_SE_ACS_INTNT_L2",
-    "EDU_SE_ACS_INTNT_L3",
-    "EDU_SE_ACS_CMPTR_L1",
-    "EDU_SE_ACS_CMPTR_L2",
-    "EDU_SE_ACS_CMPTR_L3",
-    "EDU_SE_ACS_ELECT_L1",
-    "EDU_SE_ACS_ELECT_L2",
-    "EDU_SE_ACS_ELECT_L3",
-    "EDU_SE_TOT_GPI_L1_REA",
-    "EDU_SE_TOT_GPI_L2_REA",
-    "EDU_SE_TOT_GPI_L1_MAT",
-    "EDU_SE_TOT_GPI_L2_MAT",
-    "EDU_SE_TOT_GPI_FS_LIT",
-    "EDU_SE_TOT_GPI_FS_NUM",
-    "EDU_SE_AGP_CPRA_L1",
-    "EDU_SE_AGP_CPRA_L2",
-    "EDU_SE_AGP_CPRA_L3",
-    "EDU_SE_GPI_PART",
-    "EDU_SE_GPI_PTNPRE",
-    "EDU_SE_GPI_TCAQ_L02",
-    "EDU_SE_GPI_TCAQ_L1",
-    "EDU_SE_GPI_TCAQ_L2",
-    "EDU_SE_GPI_TCAQ_L3",
-    "EDU_SE_NAP_ACHI_L1_REA",
-    "EDU_SE_NAP_ACHI_L2_REA",
-    "EDU_SE_NAP_ACHI_L1_MAT",
-    "EDU_SE_NAP_ACHI_L2_MAT",
-    "EDU_SE_IMP_FPOF_LIT",
-    "EDU_SE_IMP_FPOF_NUM",
-    "EDU_SE_LGP_ACHI_L1_REA",
-    "EDU_SE_LGP_ACHI_L2_REA",
-    "EDU_SE_LGP_ACHI_L1_MAT",
-    "EDU_SE_LGP_ACHI_L2_MAT",
-    "EDU_SE_ALP_CPLR_L1",
-    "EDU_SE_ALP_CPLR_L2",
-    "EDU_SE_ALP_CPLR_L3",
-    "EDU_SE_TOT_SESPI_L1_REA",
-    "EDU_SE_TOT_SESPI_L2_REA",
-    "EDU_SE_TOT_SESPI_L1_MAT",
-    "EDU_SE_TOT_SESPI_L2_MAT",
-    "EDU_SE_TOT_SESPI_FS_LIT",
-    "EDU_SE_TOT_SESPI_FS_NUM",
-    "EDU_SE_TOT_RUPI_L1_REA",
-    "EDU_SE_TOT_RUPI_L2_REA",
-    "EDU_SE_TOT_RUPI_L1_MAT",
-    "EDU_SE_TOT_RUPI_L2_MAT",
-    "EDU_SE_AWP_CPRA_L1",
-    "EDU_SE_AWP_CPRA_L2",
-    "EDU_SE_AWP_CPRA_L3",
-    "EDU_SE_GPI_ICTS_ATCH",
-    "EDU_SE_GPI_ICTS_CPT",
-    "EDU_SE_GPI_ICTS_CDV",
-    "EDU_SE_GPI_ICTS_SSHT",
-    "EDU_SE_GPI_ICTS_PRGM",
-    "EDU_SE_GPI_ICTS_PST",
-    "EDU_SE_GPI_ICTS_SFWR",
-    "EDU_SE_GPI_ICTS_TRFF",
-    "EDU_SE_GPI_ICTS_CMFL",
-    "EDUNF_STEM_GRAD_RT",
-    "DM_TOT_POP_PROSP",
-    "DM_SP_POP_BRTH_MF",
-    "DM_ADOL_YOUTH_POP",
-    "DM_REPD_AGE_POP",
-    "GN_MTNTY_LV_BNFTS",
-    "GN_PTNTY_LV_BNFTS",
-    "EC_GDI",
-    "EC_HCI_OVRL",
-    "EC_MIN_WAGE",
-    "EC_IQ_CPA_GNDR_XQ",
-    "EC_SIGI",
-    "EC_YOUTH_UNE_RT",
-    "EC_EAP_RT",
-    "EC_GNI_PCAP_PPP",
-    "EC_FB_BNK_ACCSS",
-    "SL_DOM_TSPD",
-    "SG_GEN_PARL",
-    "CR_VC_VOV_GDSD",
-    "PT_ADLS_10-14_LBR_HC",
-    "ECD_CHLD_U5_LFT-ALN",
-    "MNCH_MATERNAL_DEATHS",
-    "MNCH_SH_MMR_RISK",
-    "MNCH_SH_MMR_RISK_ZS",
-    "MNCH_INSTDEL",
-    "MNCH_BIRTH18",
-    "HT_NCD_BMI_18A",
-    "HVA_EPI_INF_ANN_15-24",
-    "CR_CCRI_VUL_HT",
-    "CR_CCRI_VUL_EDU",
-    "CR_CCRI_VUL_WASH",
-    "CR_CCRI_VUL_SP",
-    "CR_CCRI_VUL_ES",
-    "CR_CCRI",
-    "CR_CCRI_EXP_WS",
-    "CR_CCRI_EXP_RF",
-    "CR_CCRI_EXP_CF",
-    "CR_CCRI_EXP_TC",
-    "CR_CCRI_EXP_VBD",
-    "CR_CCRI_EXP_HEAT",
-    "CR_CCRI_EXP_AP",
-    "CR_CCRI_EXP_SWP",
-    "CR_CCRI_EXP_CESS",
-    "CR_UN_CHLD_RIGHTS",
-    "CR_UN_CHLD_SALE",
-    "CR_UN_RIGHTS_DISAB",
+    "TDI_EFFINAL_ESTADUAL",
+    "TDI_EFFINAL_MUNICIPAL",
+    "ABANDONOEFFINAISABSOLUTO",
+    "REPROV_EFFINAL_ESTADUAL",
+    "BPCNAESCOLA",
+    "FORADAESCOLA0A3",
+    "ABANDONOEFFINAIS",
+    # "ABANDONOEFFINAISABSOLUTO",
+    "ABANDONOEFINICIAIS",
 ]
 
 years = list(range(2010, 2022))
@@ -386,280 +170,116 @@ years = list(range(2010, 2022))
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
 countries_iso3_dict = {
-    "Albania": "ALB",
-    "Andorra": "AND",
-    "Armenia": "ARM",
-    "Austria": "AUT",
-    "Azerbaijan": "AZE",
-    "Belarus": "BLR",
-    "Belgium": "BEL",
-    "Bosnia and Herzegovina": "BIH",
-    "Bulgaria": "BGR",
-    "Croatia": "HRV",
-    "Cyprus": "CYP",
-    "Czech Republic": "CZE",
-    "Denmark": "DNK",
-    "Estonia": "EST",
-    "Finland": "FIN",
-    "France": "FRA",
-    "Georgia": "GEO",
-    "Germany": "DEU",
-    "Greece": "GRC",
-    "Holy See": "VAT",
-    "Hungary": "HUN",
-    "Iceland": "ISL",
-    "Ireland": "IRL",
-    "Italy": "ITA",
-    "Kazakhstan": "KAZ",
-    "Kosovo (UN SC resolution 1244)": "XKX",  # UNDP defines it as KOS
-    "Kyrgyzstan": "KGZ",
-    "Latvia": "LVA",
-    "Liechtenstein": "LIE",
-    "Lithuania": "LTU",
-    "Luxembourg": "LUX",
-    "Malta": "MLT",
-    "Monaco": "MCO",
-    "Montenegro": "MNE",
-    "Netherlands": "NLD",
-    "North Macedonia": "MKD",
-    "Norway": "NOR",
-    "Poland": "POL",
-    "Portugal": "PRT",
-    "Republic of Moldova": "MDA",
-    "Romania": "ROU",
-    "Russian Federation": "RUS",
-    "San Marino": "SMR",
-    "Serbia": "SRB",
-    "Slovakia": "SVK",
-    "Slovenia": "SVN",
-    "Spain": "ESP",
-    "Sweden": "SWE",
-    "Switzerland": "CHE",
-    "Tajikistan": "TJK",
-    "Turkey": "TUR",
-    "Turkmenistan": "TKM",
-    "Ukraine": "UKR",
-    "United Kingdom": "GBR",
-    "Uzbekistan": "UZB",
+    "Acre": "AC",
+    "Alagoas": "AL",
+    "Amapá ": "AP",
+    "Amazonas": "AM",
+    "Bahia": "BA",
+    "Brasil": "BR",
+    "Ceará": "CE",
+    "Distrito Federal": "DF",
+    "Espírito Santo": "ES",
+    "Goiás": "GO",
+    "Maranhão": "MA",
+    "Mato Grosso": "MT",
+    "Mato Grosso do Sul": "MS",
+    "Minas Gerais": "MG",
+    "Paraná": "PR",
+    "Paraíba": "PB",
+    "Pará": "PA",
+    "Pernambuco": "PE",
+    "Piauí": "PI",
+    "Rio Grande do Norte": "RN",
+    "Rio Grande do Sul": "RS",
+    "Rio de Janeiro": "RJ",
+    "Rondônia": "RO",
+    "Roraima": "RR",
+    "Santa Catarina": "SC",
+    "Sergipe": "SE",
+    "São Paulo": "SP",
+    "Tocantins": "TO",
 }
 
 # create a list of country names in the same order as the countries_iso3_dict
 countries = list(countries_iso3_dict.keys())
 
-unicef_country_prog = [
-    "Albania",
-    "Armenia",
-    "Azerbaijan",
-    "Belarus",
-    "Bosnia and Herzegovina",
-    "Bulgaria",
-    "Croatia",
-    "Georgia",
-    "Greece",
-    "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)",
-    "Kyrgyzstan",
-    "Montenegro",
-    "North Macedonia",
-    "Republic of Moldova",
-    "Romania",
-    "Serbia",
-    "Tajikistan",
-    "Turkey",
-    "Turkmenistan",
-    "Ukraine",
-    "Uzbekistan",
-]
+# unicef_country_prog = [
+#     "Albania",
+#     "Armenia",
+#     "Azerbaijan",
+#     "Belarus",
+#     "Bosnia and Herzegovina",
+#     "Bulgaria",
+#     "Croatia",
+#     "Georgia",
+#     "Greece",
+#     "Kazakhstan",
+#     "Kosovo (UN SC resolution 1244)",
+#     "Kyrgyzstan",
+#     "Montenegro",
+#     "North Macedonia",
+#     "Republic of Moldova",
+#     "Romania",
+#     "Serbia",
+#     "Tajikistan",
+#     "Turkey",
+#     "Turkmenistan",
+#     "Ukraine",
+#     "Uzbekistan",
+# ]
 
 country_selections = [
     {
-        "label": "Eastern Europe and Central Asia",
+        "label": "Brasil",
         "value": [
-            {"label": "Caucasus", "value": ["Armenia", "Azerbaijan", "Georgia"]},
-            {
-                "label": "Western Balkans",
-                "value": [
-                    "Albania",
-                    "Bosnia and Herzegovina",
-                    "Croatia",
-                    "Kosovo (UN SC resolution 1244)",
-                    "North Macedonia",
-                    "Montenegro",
-                    "Serbia",
-                ],
-            },
-            {
-                "label": "Central Asia",
-                "value": [
-                    "Kazakhstan",
-                    "Kyrgyzstan",
-                    "Tajikistan",
-                    "Turkmenistan",
-                    "Uzbekistan",
-                ],
-            },
-            {
-                "label": "Eastern Europe",
-                "value": [
-                    "Bulgaria",
-                    "Belarus",
-                    "Republic of Moldova",
-                    "Romania",
-                    "Russian Federation",
-                    "Turkey",
-                    "Ukraine",
-                ],
-            },
-        ],
-    },
-    {
-        "label": "Western Europe",
-        "value": [
-            "Andorra",
-            "Austria",
-            "Belgium",
-            "Cyprus",
-            "Czech Republic",
-            "Denmark",
-            "Estonia",
-            "Finland",
-            "France",
-            "Germany",
-            "Greece",
-            "Holy See",
-            "Hungary",
-            "Iceland",
-            "Ireland",
-            "Italy",
-            "Latvia",
-            "Liechtenstein",
-            "Lithuania",
-            "Luxembourg",
-            "Malta",
-            "Monaco",
-            "Netherlands",
-            "Norway",
-            "Poland",
-            "Portugal",
-            "San Marino",
-            "Slovakia",
-            "Slovenia",
-            "Spain",
-            "Sweden",
-            "Switzerland",
-            "United Kingdom",
-        ],
-    },
-    {
-        "label": "By EU Engagement",
-        "value": [
-            {
-                "label": "Central Asia",
-                "value": [
-                    "Kazakhstan",
-                    "Kyrgyzstan",
-                    "Tajikistan",
-                    "Turkmenistan",
-                    "Uzbekistan",
-                ],
-            },
-            {
-                "label": "Eastern Partnership",
-                "value": [
-                    "Armenia",
-                    "Azerbaijan",
-                    "Belarus",
-                    "Georgia",
-                    "Republic of Moldova",
-                    "Ukraine",
-                ],
-            },
-            {
-                "label": "EFTA",
-                "value": ["Iceland", "Liechtenstein", "Norway", "Switzerland"],
-            },
-            {
-                "label": "EU Member States",
-                "value": [
-                    "Andorra",
-                    "Austria",
-                    "Belgium",
-                    "Bulgaria",
-                    "Croatia",
-                    "Cyprus",
-                    "Czech Republic",
-                    "Denmark",
-                    "Estonia",
-                    "Finland",
-                    "France",
-                    "Germany",
-                    "Greece",
-                    "Hungary",
-                    "Ireland",
-                    "Italy",
-                    "Latvia",
-                    "Lithuania",
-                    "Luxembourg",
-                    "Malta",
-                    "Netherlands",
-                    "Poland",
-                    "Portugal",
-                    "Romania",
-                    "Slovakia",
-                    "Slovenia",
-                    "Spain",
-                    "Sweden",
-                ],
-            },
-            {
-                "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
-            },
-            {
-                "label": "Pre-accession countries",
-                "value": [
-                    "Albania",
-                    "Bosnia and Herzegovina",
-                    "Kosovo (UN SC resolution 1244)",
-                    "North Macedonia",
-                    "Montenegro",
-                    "Serbia",
-                    "Turkey",
-                ],
-            },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
-            {
-                "label": "United Kingdom (left EU on January 31, 2020)",
-                "value": ["United Kingdom"],
-            },
+            "Acre",
+            "Alagoas",
+            "Amapá",
+            "Amazonas",
+            "Bahia",
+            "Ceará",
+            "Distrito Federal",
+            "Espírito Santo",
+            "Goiás",
+            "Maranhão",
+            "Mato Grosso",
+            "Mato Grosso do Sul",
+            "Minas Gerais",
+            "Paraná",
+            "Paraíba",
+            "Pará",
+            "Pernambuco",
+            "Piauí",
+            "Rio Grande do Norte",
+            "Rio Grande do Sul",
+            "Rio de Janeiro",
+            "Rondônia",
+            "Roraima",
+            "Santa Catarina",
+            "Sergipe",
+            "São Paulo",
+            "Tocantins",
         ],
     },
 ]
 
-data_sources = {
-    "CDDEM": "CountDown 2030",
-    "CCRI": "Children's Climate Risk Index",
-    "UN Treaties": "UN Treaties",
-    "ESTAT": "Euro Stat",
-    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
-    "ILO": "International Labour Organization",
-    "WHO": "World Health Organization",
-    "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
-    "WB": "World Bank",
-    "OECD": "Organisation for Economic Co-operation and Development",
-    "SDG": "Sustainable Development Goals",
-    "UIS": "UNESCO Institute for Statistics",
-    "UNDP": "United Nations Development Programme",
-    "TMEE": "Transformative Monitoring for Enhanced Equity",
-}
+# data_sources = {
+#     "CDDEM": "CountDown 2030",
+#     "CCRI": "Children's Climate Risk Index",
+#     "UN Treaties": "UN Treaties",
+#     "ESTAT": "Euro Stat",
+#     "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+#     "ILO": "International Labour Organization",
+#     "WHO": "World Health Organization",
+#     "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
+#     "WB": "World Bank",
+#     "OECD": "Organisation for Economic Co-operation and Development",
+#     "SDG": "Sustainable Development Goals",
+#     "UIS": "UNESCO Institute for Statistics",
+#     "UNDP": "United Nations Development Programme",
+#     "TMEE": "Transformative Monitoring for Enhanced Equity",
+# }
+data_sources = {}
 
 topics_subtopics = {
     "All": ["All"],
@@ -779,17 +399,27 @@ def get_filtered_dataset(
     dimensions: dict = {},
     latest_data: bool = True,
 ) -> pd.DataFrame:
-
     # TODO: This is temporary, need to move to config
     # Add all dimensions by default to the keys
+    # keys = {
+    #     "REF_AREA": country_codes,
+    #     "INDICATOR": indicators,
+    #     "SEX": [],
+    #     "AGE": [],
+    #     "RESIDENCE": [],
+    #     "WEALTH_QUINTILE": [],
+    # }
     keys = {
         "REF_AREA": country_codes,
         "INDICATOR": indicators,
-        "SEX": [],
         "AGE": [],
-        "RESIDENCE": [],
-        "WEALTH_QUINTILE": [],
+        "EDUCATION_LEVEL": [],
     }
+
+    print("indicators")
+    print(indicators)
+    print("years")
+    print(years)
 
     # get the first indicator of the list... we have more than one indicator in the cards
     indicator_config = (
@@ -798,7 +428,7 @@ def get_filtered_dataset(
     # check if the indicator has special config, update the keys from the config
     if indicator_config and not only_dtype(indicator_config):
         # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown]
+        card_keys = indicator_config[breakdown].copy()
         if (
             dimensions
         ):  # if we are sending cards related filters, update the keys with the set values
@@ -807,8 +437,8 @@ def get_filtered_dataset(
 
     try:
         data = unicef.data(
-            "TRANSMONEE",
-            provider="ECARO",
+            "BRAZIL_CO",
+            provider="BRAZIL_CO",
             key=keys,
             params=dict(
                 startPeriod=years[0],
@@ -856,10 +486,13 @@ def get_filtered_dataset(
     def create_labels(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
-        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
-        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
-        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
-        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
+        # row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Educationlevel_name"] = str(
+            gender_names.get(str(row["EDUCATION_LEVEL"]), "")
+        )
+        # row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
+        # row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
+        # row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
         return row
 
     data = data.apply(create_labels, axis="columns")
@@ -901,14 +534,14 @@ for num1, group in enumerate(country_selections):
     selection_index[f"0-{num1}"] = group_countries
     selection_tree.get("children").append(parent)
 
-programme_country_indexes = [
-    next(
-        key
-        for key, value in selection_index.items()
-        if value[0] == item and len(value) == 1
-    )
-    for item in unicef_country_prog
-]
+# programme_country_indexes = [
+#     next(
+#         key
+#         for key, value in selection_index.items()
+#         if value[0] == item and len(value) == 1
+#     )
+#     for item in unicef_country_prog
+# ]
 
 data = pd.DataFrame()
 data_query_inds = set(data_query_codes)
@@ -926,6 +559,7 @@ col_types = {
 }
 
 # avoid a loop to query SDMX
+
 try:
     data_query_sdmx = pd.read_csv(
         sdmx_url.format("+".join(data_query_inds), years[0], years[-1]),
@@ -943,7 +577,6 @@ data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 # replace Yes by 1 and No by 0
 data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
 
-
 # check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
 filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
 if filter_non_num.any():
@@ -956,13 +589,15 @@ data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
 data = data.round({"OBS_VALUE": 2})
 # print(data.shape)
 
+
+"""
 # TODO: calculations for children age population
 indicators = data["Indicator"].unique()
 
 # extract the indicators that have gender/sex disaggregation
-gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
+# gender_indicators = data.groupby("CODE").agg({"SEX": "nunique"}).reset_index()
 # Keep only indicators with gender/sex disaggregation
-gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
+# gender_indicators = gender_indicators[gender_indicators["SEX"] > 1]
 
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
@@ -992,9 +627,9 @@ df_sources["Subdomain"] = df_sources["Subdomain"].str.strip()
 df_sources["Domain"] = df_sources["Subdomain"].apply(
     lambda x: get_sector(x) if not pd.isna(x) else ""
 )
-df_sources["Source_Full"] = df_sources["Source"].apply(
-    lambda x: data_sources[x] if not pd.isna(x) else ""
-)
+# df_sources["Source_Full"] = df_sources["Source"].apply(
+#     lambda x: data_sources[x] if not pd.isna(x) else ""
+# )
 
 df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
 # read source table from excel data-dictionary and merge
@@ -1012,36 +647,37 @@ df_sources.loc[tmee_source_link, "Source_Link"] = df_sources[
     tmee_source_link
 ].Code.apply(lambda x: unicef_rdm_url.format(helix_code=x))
 df_sources_groups = df_sources.groupby("Source")
-df_sources_summary_groups = df_sources.groupby("Source_Full")
+# df_sources_summary_groups = df_sources.groupby("Source_Full")
 # Extract the indicators' potential unique disaggregations.
 # Group by indicator code and keep only unique aggregations for the 4 possible dimensions:
 # Sex, Age, Residence and Wealth.
 indicators_disagg = (
     data.groupby("CODE")
-    .agg(
+        .agg(
         {
             "AGE": "nunique",
-            "SEX": "nunique",
-            "RESIDENCE": "nunique",
-            "WEALTH_QUINTILE": "nunique",
+            "EDUCATION_LEVEL": "nunique"
+            # "SEX": "nunique",
+            # "RESIDENCE": "nunique",
+            # "WEALTH_QUINTILE": "nunique",
         }
     )
-    .reset_index()
+        .reset_index()
 )
 # Filter the dimensions with count greater than 1 which means Total is there (default) in addition to other possible values.
 indicators_disagg_no_total = indicators_disagg[
     (indicators_disagg["AGE"] > 1)
-    | (indicators_disagg["SEX"] > 1)
-    | (indicators_disagg["RESIDENCE"] > 1)
-    | (indicators_disagg["WEALTH_QUINTILE"] > 1)
+    # | (indicators_disagg["SEX"] > 1)
+    # | (indicators_disagg["RESIDENCE"] > 1)
+    # | (indicators_disagg["WEALTH_QUINTILE"] > 1)
 ]
 
 # include the indicators with Total only to show in the data query
 indicators_disagg_with_total = indicators_disagg[
     (indicators_disagg["AGE"] >= 1)
-    | (indicators_disagg["SEX"] >= 1)
-    | (indicators_disagg["RESIDENCE"] >= 1)
-    | (indicators_disagg["WEALTH_QUINTILE"] >= 1)
+    # | (indicators_disagg["SEX"] >= 1)
+    # | (indicators_disagg["RESIDENCE"] >= 1)
+    # | (indicators_disagg["WEALTH_QUINTILE"] >= 1)
 ]
 # Get the data for all the indicators having disaggregated data by any of the 4 dimensions.
 indicators_disagg_details = data[
@@ -1050,20 +686,23 @@ indicators_disagg_details = data[
 
 # Filter the dataframe to be used in the data query to keep indicators code and the possible disaggregations.
 indicators_disagg_details = indicators_disagg_details[
-    ["CODE", "Age", "Sex", "Residence", "Wealth Quintile"]
+    ["CODE", "AGE", "EDUCATION_LEVEL"]
 ]
 indicators_disagg_details = indicators_disagg_details.drop_duplicates()
 
 # extract the indicators that have gender/sex disaggregation
+
 age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
+
 # Keep only indicators with gender/sex disaggregation
-age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
-# age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
-age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
-age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
-age_indicators = age_indicators.drop_duplicates()
-age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
-# age_indicators.to_csv("age_indicators.csv", index=False)
+# age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
+# # age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
+# age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+# print(age_indicators)
+# age_indicators = age_indicators[["CODE", "Indicator", "AGE"]]
+# age_indicators = age_indicators.drop_duplicates()
+# age_indicators = age_indicators.sort_values(by=["CODE", "AGE"])
+# # age_indicators.to_csv("age_indicators.csv", index=False)
 
 # extract the indicators that have gender/sex disaggregation
 age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index()
@@ -1071,10 +710,18 @@ age_indicators_counts = data.groupby("CODE").agg({"AGE": "nunique"}).reset_index
 age_indicators_counts = age_indicators_counts[age_indicators_counts["AGE"] > 1]
 # age_indicators_counts.to_csv("age_indicators_counts.csv", index=True)
 age_indicators = pd.merge(data, age_indicators_counts, on=["CODE"])
+
+print("age_indicators")
+print(age_indicators)
+
 age_indicators = age_indicators[["CODE", "Indicator", "Age"]]
 age_indicators = age_indicators.drop_duplicates()
 age_indicators = age_indicators.sort_values(by=["CODE", "Age"])
+
+
 # age_indicators.to_csv("age_indicators.csv", index=False)
+
+"""
 
 
 def page_not_found(pathname):

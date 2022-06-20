@@ -81,6 +81,7 @@ dev_nb.ipynb
 query_keys_SDMX.py
 indicators_to_fill.xlsx
 config_query.json
+config_query_ind.json
 config_query_filled.json
 
 # pyenv

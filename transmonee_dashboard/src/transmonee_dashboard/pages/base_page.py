@@ -17,16 +17,16 @@ from ..components import fa
 from . import (
     countries,
     countries_iso3_dict,
-    df_sources,
+    # df_sources,
     dimension_names,
     geo_json_countries,
     get_filtered_dataset,
     indicator_names,
     indicators_config,
-    programme_country_indexes,
+    # programme_country_indexes,
     selection_index,
     selection_tree,
-    unicef_country_prog,
+    # unicef_country_prog,
     years,
     get_search_countries,
 )
@@ -51,6 +51,7 @@ DEFAULT_LABELS = {
     "Country_name": "Country",
     "TIME_PERIOD": "Year",
     "Sex_name": "Sex",
+    "Educationlevel_name": "Education level",
     "Residence_name": "Residence",
     "Age_name": "Age",
     "Wealth_name": "Wealth Quintile",
@@ -304,24 +305,24 @@ def get_base_layout(**kwargs):
                                             ),
                                         ],
                                     ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Checkbox(
-                                                id="programme-toggle",
-                                                className="custom-control-input",
-                                            ),
-                                            dbc.Label(
-                                                "UNICEF Country Programmes",
-                                                html_for="programme-toggle",
-                                                className="custom-control-label",
-                                                color="primary",
-                                            ),
-                                        ],
-                                        className="custom-control custom-switch m-2",
-                                        check=True,
-                                        inline=True,
-                                        style=programme_toggle_style,
-                                    ),
+                                    # dbc.FormGroup(
+                                    #     [
+                                    #         dbc.Checkbox(
+                                    #             id="programme-toggle",
+                                    #             className="custom-control-input",
+                                    #         ),
+                                    #         dbc.Label(
+                                    #             "UNICEF Country Programmes",
+                                    #             html_for="programme-toggle",
+                                    #             className="custom-control-label",
+                                    #             color="primary",
+                                    #         ),
+                                    #     ],
+                                    #     className="custom-control custom-switch m-2",
+                                    #     check=True,
+                                    #     inline=True,
+                                    #     style=programme_toggle_style,
+                                    # ),
                                 ],
                                 id="filter-row",
                                 no_gutters=True,
@@ -338,7 +339,7 @@ def get_base_layout(**kwargs):
                     dbc.CardDeck(
                         id="cards_row",
                         className="mt-3",
-                    ),
+                    )
                 ],
                 justify="center",
             ),
@@ -500,14 +501,14 @@ def display_areas(theme, indicators_dict, id):
 @app.callback(
     Output("store", "data"),
     Output("country_selector", "checked"),
-    Output("programme-toggle", "checked"),
+    # Output("programme-toggle", "checked"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
         Input("theme", "hash"),
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
-        Input("programme-toggle", "checked"),
+        # Input("programme-toggle", "checked"),
         Input("country_profile_selector", "value"),
     ],
     State("indicators", "data"),
@@ -516,7 +517,7 @@ def apply_filters(
     theme,
     years_slider,
     country_selector,
-    programme_toggle,
+    # programme_toggle,
     selected_country,
     indicators,
 ):
@@ -527,29 +528,36 @@ def apply_filters(
     # check if it is the country profile page
     is_country_profile = current_theme == "COUNTRYPROFILE"
     # check if the user clicked on the generate button in the country profile page
-    if is_country_profile:
-        key_list = list(countries_iso3_dict.keys())
-        val_list = list(countries_iso3_dict.values())
-        # get the name of the selected country in the dropdown to filter the data accordingly
-        countries_selected = (
-            [key_list[val_list.index(selected_country)]] if selected_country else []
-        )
-    elif programme_toggle and selected == "programme-toggle":
-        countries_selected = unicef_country_prog
-        country_selector = programme_country_indexes
-    # Add the condition to know when the user unchecks the UNICEF country programs!
-    elif not country_selector or (
-        not programme_toggle and selected == "programme-toggle"
-    ):
-        countries_selected = countries
-        # Add this to check all the items in the selection tree
-        country_selector = ["0"]
-    else:
-        for index in country_selector:
-            countries_selected.update(selection_index[index])
-            if countries_selected == countries:
-                # if all countries are all selected then stop
-                break
+
+    # if is_country_profile:
+    #     key_list = list(countries_iso3_dict.keys())
+    #     val_list = list(countries_iso3_dict.values())
+    #     # get the name of the selected country in the dropdown to filter the data accordingly
+    #     countries_selected = (
+    #         [key_list[val_list.index(selected_country)]] if selected_country else []
+    #     )
+    # elif programme_toggle and selected == "programme-toggle":
+    #     countries_selected = unicef_country_prog
+    #     country_selector = programme_country_indexes
+    # # Add the condition to know when the user unchecks the UNICEF country programs!
+    # elif not country_selector or (
+    #     not programme_toggle and selected == "programme-toggle"
+    # ):
+    #     countries_selected = countries
+    #     # Add this to check all the items in the selection tree
+    #     country_selector = ["0"]
+    # else:
+    #     for index in country_selector:
+    #         countries_selected.update(selection_index[index])
+    #         if countries_selected == countries:
+    #             # if all countries are all selected then stop
+    #             break
+
+    for index in country_selector:
+        countries_selected.update(selection_index[index])
+        if countries_selected == countries:
+            # if all countries are all selected then stop
+            break
 
     countries_selected = list(countries_selected)
     country_text = f"{len(countries_selected)} Selected"
@@ -572,7 +580,7 @@ def apply_filters(
     return (
         selections,
         country_selector,
-        countries_selected == unicef_country_prog,
+        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -612,18 +620,20 @@ def indicator_card(
         latest_data=True,
     )
 
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    unique_indicator_sources = []
     indicator_sources = (
         "; ".join(list(unique_indicator_sources))
         if len(unique_indicator_sources) > 0
         else ""
     )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source_link = ""
     # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
     if filtered_data.empty:
         indicator_header = "No data"
@@ -716,6 +726,7 @@ def indicator_card(
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
+
     cards = [
         indicator_card(
             selections,
@@ -914,10 +925,27 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
     latest_data = not show_historical_data
     options = indicators_dict[selections["theme"]]["MAIN"]["options"]
 
+    age_group = indicators_dict[selections["theme"]]["MAIN"]["indicators"][
+        indicator
+    ].get("AGE")
+    ed_code = indicators_dict[selections["theme"]]["MAIN"]["indicators"][indicator].get(
+        "EDUCATION_LEVEL"
+    )
+
+    breakdown = "TOTAL"
+    # define the empty dimensions dict to be filled based on the card data filters
+    dimensions = {}
+    if age_group is not None:
+        dimensions["AGE"] = [age_group]
+    if ed_code is not None:
+        dimensions["EDUCATION_LEVEL"] = [ed_code]
+
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
+        breakdown,
+        dimensions,
         latest_data=latest_data,
     )
 
@@ -931,18 +959,20 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
         if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source = ""
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source_link = ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -994,6 +1024,11 @@ def area_figure(
     indicators_dict,
     id,
 ):
+
+    print("In area_figure")
+    print(selections)
+    print(indicator)
+
     # only run if indicator not empty
     if not indicator:
         return {}, {}
@@ -1041,18 +1076,20 @@ def area_figure(
         if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source = ""
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    source_link = ""
 
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = name
@@ -1069,7 +1106,7 @@ def area_figure(
         title=chart_title,
         title_x=0.5,
         font=dict(family="Arial", size=12),
-        legend=dict(x=0.9, y=0.5),
+        legend=dict(x=1, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
 
@@ -1082,7 +1119,6 @@ def area_figure(
             dtick=1,
             categoryorder="total ascending",
         )
-        layout["legend"] = dict(y=0.5, x=1)
 
     if dimension:
         # lbassil: use the dimension name instead of the code

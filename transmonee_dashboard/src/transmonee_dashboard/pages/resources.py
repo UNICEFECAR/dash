@@ -6,7 +6,8 @@ from dash.dependencies import Input, State, Output
 from ..app import app
 import pandas as pd
 from io import StringIO
-from . import df_sources, data_sources, df_sources_groups, df_sources_summary_groups
+# from . import df_sources, data_sources, df_sources_groups, df_sources_summary_groups
+# from . import df_sources, df_sources_groups
 import dash_table
 
 
@@ -134,7 +135,7 @@ def get_layout(**kwargs):
         ],
     )
 
-
+'''
 def get_data_sources():
     df_summary = pd.DataFrame(columns=["Source", "Domain", "Count"])
 
@@ -308,3 +309,4 @@ def get_data_sources():
 
     sources_tabs.insert(0, summary_tab)
     return dcc.Tabs(id="sources-tabs", children=sources_tabs)
+'''
