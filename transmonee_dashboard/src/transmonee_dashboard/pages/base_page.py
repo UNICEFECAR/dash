@@ -681,45 +681,40 @@ def set_options(selection, cfg, id):
     cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
     # for c in cl_indicators:
     #     print(c)
-
+    area_options = []
     if area in cfg["THEMES"][selection["theme"]]:
         api_params = cfg["THEMES"][selection["theme"]][area].get("data")
+
+        area_options = []
+
+        for idx, ap in enumerate(api_params):
+            if "label" in ap:
+                lbl = ap["label"]
+            else:
+                indic = next(item for item in cl_indicators if item["id"] == ap["dq"]["INDICATOR"])
+                lbl = indic["name"]
+            key = selection["theme"] + "|" + str(idx)
+            area_options.append({"label": lbl, "value": key})
+
+        print(area_options)
+
         indic_info = []
-        for ap in api_params:
-            # indic_name = get_indicator_name(ap, ap["dq"]["INDICATOR"])
-            indic = next(item for item in cl_indicators if item["id"] == ap["dq"]["INDICATOR"])
-            indic_info.append((ap["dq"]["INDICATOR"], indic["name"]))
 
-        area_options = [
+        area_types = [
             {
-                "label": i[1],
-                "value": i[0],
+                "label": name.capitalize(),
+                "value": name,
             }
-            for i in indic_info]
+            for name in cfg["THEMES"][selection["theme"]][area].get("graphs", {}).keys()
+        ]
 
-        # indicators = indicators_dict[theme["theme"]][area].get("indicators")
-        # area_indicators = indicators.keys() if indicators is dict else indicators
-        # area_options = [
-        #     {
-        #         "label": indicator_names[code],
-        #         "value": code,
-        #     }
-        #     for code in area_indicators
-        # ]
 
-    #     area_types = [
-    #         {
-    #             "label": name.capitalize(),
-    #             "value": name,
-    #         }
-    #         for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
-    #     ]
-    #
-    # name = (
-    #     indicators_dict[theme["theme"]][area].get("name")
-    #     if area in indicators_dict[theme["theme"]]
-    #     else ""
-    # )
+
+    name = (
+        cfg["THEMES"][selection["theme"]][area].get("name")
+        if area in cfg["THEMES"][selection["theme"]]
+        else ""
+    )
     # default_option = (
     #     indicators_dict[theme["theme"]][area].get("default")
     #     if area in indicators_dict[theme["theme"]]
@@ -733,7 +728,6 @@ def set_options(selection, cfg, id):
 
     default_option = "default_option"
     default_graph = "default_graph"
-    name = "NAME"
 
     return name, area_options, area_types, default_option, default_graph
 
