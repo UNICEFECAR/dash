@@ -666,13 +666,13 @@ def indicator_card(
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
             numerator_pairs = indicator_values.groupby(
-                "REF_AREA", as_index=False
+                "Country_name", as_index=False
             ).last()
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
             numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+            numerator_pairs.set_index(["Country_name", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
         else:
@@ -682,7 +682,9 @@ def indicator_card(
                 (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
             )
             sources = numerator_pairs.index.tolist()
-
+            numerator_pairs = numerator_pairs[
+                numerator_pairs.OBS_VALUE == len(indicators)
+            ]
     else:
         indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
         sources = numerator_pairs.index.tolist()
@@ -1069,7 +1071,7 @@ def area_figure(
         title=chart_title,
         title_x=0.5,
         font=dict(family="Arial", size=12),
-        legend=dict(x=0.9, y=0.5),
+        legend=dict(x=1, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
 
@@ -1082,7 +1084,6 @@ def area_figure(
             dtick=1,
             categoryorder="total ascending",
         )
-        layout["legend"] = dict(y=0.5, x=1)
 
     if dimension:
         # lbassil: use the dimension name instead of the code

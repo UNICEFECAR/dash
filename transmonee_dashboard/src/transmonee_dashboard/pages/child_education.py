@@ -10,13 +10,13 @@ indicators_dict = {
         "CARDS": [
             {
                 "name": "Who are Out-of-School",
-                "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "indicator": "EDUNF_OFST_L1T3",
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
                 "age": "SCHOOL_AGE",
             },
             {
                 "name": "Who are Out-of-School",
-                "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "indicator": "EDUNF_OFST_L1T3",
                 "suffix": "Primary to upper secondary aged Girls",
                 "sex": "F",
                 "age": "SCHOOL_AGE",

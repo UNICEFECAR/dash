@@ -798,7 +798,7 @@ def get_filtered_dataset(
     # check if the indicator has special config, update the keys from the config
     if indicator_config and not only_dtype(indicator_config):
         # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown]
+        card_keys = indicator_config[breakdown].copy()
         if (
             dimensions
         ):  # if we are sending cards related filters, update the keys with the set values
