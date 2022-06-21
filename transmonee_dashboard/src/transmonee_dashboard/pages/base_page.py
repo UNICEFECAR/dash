@@ -743,72 +743,98 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
-    print("options")
-    print(options)
-    print("series")
-    print(series)
-    print("time_period")
-    print(time_period)
-    print("ref_areas")
-    print(ref_areas)
+    # print("options")
+    # print(options)
+    # print("series")
+    # print(series)
+    # print("time_period")
+    # print(time_period)
+    # print("ref_areas")
+    # print(ref_areas)
 
     # def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
     if latest_data:
-        df_data = get_dataset(series[0], recent_data=True, countries=ref_areas)
+        data = get_dataset(series[0], recent_data=True, countries=ref_areas)
     else:
-        df_data = get_dataset(series[0], years=time_period, countries=ref_areas)
+        data = get_dataset(series[0], years=time_period, countries=ref_areas)
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
-    if df_data.empty:
+    if data.empty:
         return EMPTY_CHART, ""
 
+    '''[28 rows x 10 columns]
+Index(['REF_AREA', 'CODE', 'AGE', 'EDUCATION_LEVEL', 'TIME_PERIOD',
+       'OBS_VALUE', 'UNIT_MEASURE', 'Country_name', 'Unit_name',
+       'Educationlevel_name'],
+      dtype='object')
+      '''
 
-
-    '''
-
-    # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
-    name = (
-        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
-        else ""
-    )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
+    DEFAULT_LABELS = {
+        "REF_AREA": "Geographic area",
+        "INDICATOR": "Indicator",
+        "AGE": "Current age",
+        "EDUCATION_LEVEL": "Education level",
+        "TIME_PERIOD": "Time period",
+    }
 
     options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
+    options["labels"]["OBS_VALUE"] = "OOOO"
     options["labels"]["text"] = "OBS_VALUE"
     options["geojson"] = geo_json_countries
-    if latest_data:
-        # remove the animation frame and show all countries at once
-        options.pop("animation_frame")
-        # add the year to show on hover
-        options["hover_name"] = "TIME_PERIOD"
+
+    data = data[data["TIME_PERIOD"] == 2020]
+    data = data[data["REF_AREA"] != "BR"]
+
+    import pandas as pd
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.width', 500)
+    pd.set_option('display.max_colwidth', 200)
+    print(data)
+
+    # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
+    # name = (
+    #     data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
+    #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
+    #     else ""
+    # )
+    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    #
+    # options["labels"] = DEFAULT_LABELS.copy()
+    # options["labels"]["OBS_VALUE"] = name
+    # options["labels"]["text"] = "OBS_VALUE"
+    # options["geojson"] = geo_json_countries
+    # if latest_data:
+    #     # remove the animation frame and show all countries at once
+    #     options.pop("animation_frame")
+    #     # add the year to show on hover
+    #     options["hover_name"] = "TIME_PERIOD"
 
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
     # check if this area's config has an animation frame and hence a slider
-    if len(main_figure.layout["sliders"]) > 0:
-        # set last frame as the active one; i.e. select the max year as the default displayed year
-        main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
-        # assign the data of the last year to the map; without this line the data will show the first year;
-        main_figure = go.Figure(
-            data=main_figure["frames"][-1]["data"],
-            frames=main_figure["frames"],
-            layout=main_figure.layout,
-        )
-    '''
+    # if len(main_figure.layout["sliders"]) > 0:
+    #     # set last frame as the active one; i.e. select the max year as the default displayed year
+    #     main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
+    #     # assign the data of the last year to the map; without this line the data will show the first year;
+    #     main_figure = go.Figure(
+    #         data=main_figure["frames"][-1]["data"],
+    #         frames=main_figure["frames"],
+    #         layout=main_figure.layout,
+    #     )
+
     source = ""
     source_link = ""
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")

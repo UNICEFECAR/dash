@@ -75,7 +75,6 @@ def get_codelist(agency, id, version="latest"):
     codelists[cl_id] = cl.get_codes()
     return cl.get_codes()
 
-
 def get_selection_tree(ref_area_cl):
     cl = Codelist.Codelist()
     codes = get_codelist(ref_area_cl["agency"], ref_area_cl["id"])
