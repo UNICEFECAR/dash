@@ -66,12 +66,13 @@ cfg = {
                         "OBS_VALUE": "Value",
                         "REF_AREA": "ISO3 Code",
                         "TIME_PERIOD": "Year",
-                        "REF_AREA": "Country",
+                        # "REF_AREA": "Country",
+                        "name":"Country"
                     },
                     "hover_data": {
                         "OBS_VALUE": True,
                         "REF_AREA": False,
-                        # "Country_name": True,
+                        "name": True,
                         "TIME_PERIOD": True,
                     },
                     "animation_frame": "TIME_PERIOD",

@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from scipy.stats import zscore
+import pandas as pd
 
 from ..app import app
 from ..components import fa
@@ -743,16 +744,8 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
-    # print("options")
-    # print(options)
-    # print("series")
-    # print(series)
-    # print("time_period")
-    # print(time_period)
-    # print("ref_areas")
-    # print(ref_areas)
+    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
 
-    # def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
     if latest_data:
         data = get_dataset(series[0], recent_data=True, countries=ref_areas)
     else:
@@ -762,12 +755,9 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     if data.empty:
         return EMPTY_CHART, ""
 
-    '''[28 rows x 10 columns]
-Index(['REF_AREA', 'CODE', 'AGE', 'EDUCATION_LEVEL', 'TIME_PERIOD',
-       'OBS_VALUE', 'UNIT_MEASURE', 'Country_name', 'Unit_name',
-       'Educationlevel_name'],
-      dtype='object')
-      '''
+    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
+
+    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
 
     DEFAULT_LABELS = {
         "REF_AREA": "Geographic area",
@@ -781,16 +771,6 @@ Index(['REF_AREA', 'CODE', 'AGE', 'EDUCATION_LEVEL', 'TIME_PERIOD',
     options["labels"]["OBS_VALUE"] = "Value"
     options["labels"]["text"] = "OBS_VALUE"
     options["geojson"] = geo_json_countries
-
-    # data = data[data["TIME_PERIOD"] == 2020]
-    data = data[data["REF_AREA"] != "BR"]
-
-    # import pandas as pd
-    # pd.set_option('display.max_columns', None)
-    # pd.set_option('display.max_rows', None)
-    # pd.set_option('display.width', 500)
-    # pd.set_option('display.max_colwidth', 200)
-    # print(data)
 
     # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
     # name = (

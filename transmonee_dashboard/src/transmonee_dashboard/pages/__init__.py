@@ -94,7 +94,7 @@ def get_selection_tree(ref_area_cl):
             "checked": all_checked_codes}
 
 
-def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
+def get_dataset(cfg_data, years=None, countries=[], recent_data=False):
     api = SdmxApi.SdmxApi(get_endpoint())
 
     # TODO The data query must reflect the data structure, FIX THAT
@@ -108,7 +108,7 @@ def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
         lastnobservations = 1
 
     df = api.get_dataflow_as_dataframe(cfg_data["agency"], cfg_data["id"], cfg_data["version"], dataquery=dq,
-                                       lastnobservations=lastnobservations)
+                                       lastnobservations=lastnobservations, time_period=years)
 
     # pd.set_option('display.max_columns', None)
     # pd.set_option('display.max_rows', None)
