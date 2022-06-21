@@ -5,7 +5,7 @@ import pandas as pd
 class SdmxApi:
     def __init__(self, endpoint):
         self.endpoint = ""
-        if self.endpoint.endswith("/"):
+        if endpoint.endswith("/"):
             self.endpoint = endpoint
         else:
             self.endpoint = endpoint + "/"
@@ -89,6 +89,8 @@ class SdmxApi:
 
         params_to_send = [f"{p[0]}={p[1]}" for p in params.items()]
         params_to_send = "&".join(params_to_send)
+
+
 
         # compose the url to call
         to_call = f"{self.endpoint}data/{agency},{dfid},{version}/{dq}?{params_to_send}"

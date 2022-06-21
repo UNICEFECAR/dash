@@ -81,11 +81,11 @@ cfg = {
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
                 "data": [
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T", "EDUCATION_LEVEL": "ISCED11_2"},
+                     "dq": {"REF_AREA":"", "INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T", "EDUCATION_LEVEL": "ISCED11_2"},
                      "label": "% of school dropout - final years of elementary school 1"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T", "EDUCATION_LEVEL": "ISCED11_1"},
+                     "dq": {"REF_AREA":"", "INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T", "EDUCATION_LEVEL": "ISCED11_1"},
                      "label": "% of school dropout - early years of elementary school 2"
                      },
 

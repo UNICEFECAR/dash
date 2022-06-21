@@ -107,14 +107,14 @@ def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
     lastnobservations = cfg_data.get("lastnobservations")
     if recent_data:
         lastnobservations = 1
+
     df = api.get_dataflow_as_dataframe(cfg_data["agency"], cfg_data["id"], cfg_data["version"], dataquery=dq,
                                        lastnobservations=lastnobservations)
-    # if len(df) > 0:
-    #     return df.iloc[0]["OBS_VALUE"]
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.width', 500)
-    pd.set_option('display.max_colwidth', 200)
+
+    # pd.set_option('display.max_columns', None)
+    # pd.set_option('display.max_rows', None)
+    # pd.set_option('display.width', 500)
+    # pd.set_option('display.max_colwidth', 200)
     # print(df)
 
     return df

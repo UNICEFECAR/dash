@@ -682,6 +682,8 @@ def set_options(selection, cfg, id):
     # for c in cl_indicators:
     #     print(c)
     area_options = []
+    default_option = ""
+
     if area in cfg["THEMES"][selection["theme"]]:
         api_params = cfg["THEMES"][selection["theme"]][area].get("data")
 
@@ -694,11 +696,9 @@ def set_options(selection, cfg, id):
                 indic = next(item for item in cl_indicators if item["id"] == ap["dq"]["INDICATOR"])
                 lbl = indic["name"]
             key = selection["theme"] + "|" + str(idx)
+            if idx == 0:
+                default_option = key
             area_options.append({"label": lbl, "value": key})
-
-        print(area_options)
-
-        indic_info = []
 
         area_types = [
             {
@@ -708,31 +708,21 @@ def set_options(selection, cfg, id):
             for name in cfg["THEMES"][selection["theme"]][area].get("graphs", {}).keys()
         ]
 
-
-
     name = (
         cfg["THEMES"][selection["theme"]][area].get("name")
         if area in cfg["THEMES"][selection["theme"]]
         else ""
     )
-    # default_option = (
-    #     indicators_dict[theme["theme"]][area].get("default")
-    #     if area in indicators_dict[theme["theme"]]
-    #     else ""
-    # )
-    # default_graph = (
-    #     indicators_dict[theme["theme"]][area].get("default_graph")
-    #     if area in indicators_dict[theme["theme"]]
-    #     else ""
-    # )
 
-    default_option = "default_option"
-    default_graph = "default_graph"
+    default_graph = (
+        cfg["THEMES"][selection["theme"]][area].get("default_graph")
+        if area in cfg["THEMES"][selection["theme"]]
+        else ""
+    )
 
     return name, area_options, area_types, default_option, default_graph
 
 
-'''
 @app.callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
@@ -745,9 +735,6 @@ def set_options(selection, cfg, id):
         State("page_cfg", "data"),
     ],
 )
-'''
-
-
 def main_figure(indicator, show_historical_data, selections, cfg):
     latest_data = not show_historical_data
 
@@ -756,14 +743,26 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
+    print("options")
+    print(options)
+    print("series")
+    print(series)
+    print("time_period")
+    print(time_period)
+    print("ref_areas")
+    print(ref_areas)
+
+    # def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
     if latest_data:
-        df_data = get_dataset(series[0], time_period, ref_areas)
+        df_data = get_dataset(series[0], recent_data=True, countries=ref_areas)
     else:
-        df_data = get_dataset(series[0], time_period, ref_areas)
+        df_data = get_dataset(series[0], years=time_period, countries=ref_areas)
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df_data.empty:
         return EMPTY_CHART, ""
+
+
 
     '''
 
