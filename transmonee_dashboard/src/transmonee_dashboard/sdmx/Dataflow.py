@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-import SdmxApi
+from . import SdmxApi
 
 
 class Dataflow:
@@ -169,7 +169,7 @@ class Dataflow:
         ret = []
         for cl in self.structure["data"]["codelists"]:
             to_add = {
-                "agencyID": cl["agencyID"],
+                "agency": cl["agencyID"],
                 "id": cl["id"],
                 "version": cl["version"],
                 # "cl_df": self.__codelist_to_pd(codes=cl["codes"])

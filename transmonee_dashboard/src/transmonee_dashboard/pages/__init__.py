@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import requests
 from requests.exceptions import HTTPError
-from ..sdmx import Codelist, SdmxApi
+from ..sdmx import Codelist, SdmxApi, Dataflow
 
 import pandasdmx as sdmx
 
@@ -20,7 +20,7 @@ endpoint_ids = {
 }
 
 
-def get_endpoint(endpoint_id):
+def get_endpoint(endpoint_id="UNICEF"):
     return endpoint_ids[endpoint_id]
 
 
@@ -34,6 +34,10 @@ geo_json_file = (
 )
 with open(geo_json_file) as shapes_file:
     geo_json_countries = json.load(shapes_file)
+
+codelists = {
+
+}
 
 
 def get_search_countries(countries_cl):
@@ -61,10 +65,20 @@ def _add_tree_level(tree_node, parent_code, codes):
             _add_tree_level(tree_node["children"][-1], c["id"], codes)
 
 
+def get_codelist(agency, id, version="latest"):
+    cl_id = f"{agency}|{id}|{version}"
+    if cl_id in codelists:
+        return codelists[cl_id]
+
+    cl = Codelist.Codelist()
+    cl.download_codelist(get_endpoint(), agency, id, version=version)
+    codelists[cl_id] = cl.get_codes()
+    return cl.get_codes()
+
+
 def get_selection_tree(ref_area_cl):
     cl = Codelist.Codelist()
-    cl.download_codelist(get_endpoint("UNICEF"), ref_area_cl["agency"], ref_area_cl["id"])
-    codes = cl.get_codes()
+    codes = get_codelist(ref_area_cl["agency"], ref_area_cl["id"])
 
     all_checked_codes = [c["id"] for c in codes]
 
@@ -82,12 +96,12 @@ def get_selection_tree(ref_area_cl):
 
 
 def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
-    api = SdmxApi.SdmxApi(get_endpoint("UNICEF"))
+    api = SdmxApi.SdmxApi(get_endpoint())
 
     # TODO The data query must reflect the data structure, FIX THAT
     query = [q for q in cfg_data["dq"].values()]
-    if len(countries)>0:
-        query[0]="+".join(countries)
+    if len(countries) > 0:
+        query[0] = "+".join(countries)
 
     dq = ".".join(query)
     lastnobservations = cfg_data.get("lastnobservations")
@@ -101,9 +115,50 @@ def get_dataset(cfg_data, years=[], countries=[], recent_data=False):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.width', 500)
     pd.set_option('display.max_colwidth', 200)
-    print(df)
+    # print(df)
 
     return df
+
+
+# def get_dataflow_struct(cfg_data):
+#     df_id = f'{get_endpoint()} | {cfg_data["agency"]} | {cfg_data["id"]} | {cfg_data["version"]}'
+#     if df_id in sdmx_dataflows_structs:
+#         print("already downloaded")
+#         return sdmx_dataflows_structs[df_id]
+#     print("new download")
+#
+#     dataflow = Dataflow.Dataflow()
+#
+#     dataflow.download_dataflow_structure(get_endpoint(), cfg_data["agency"], cfg_data["id"], cfg_data["version"])
+#
+#     sdmx_dataflows_structs[df_id] = dataflow
+#
+#     # print(dataflow.structure)
+#     # for cl in dataflow.codelists:
+#     #     print(cl["id"])
+#     # print(dataflow.concepts)
+#
+#     return dataflow
+
+
+# def _check_artefact_id(artefact1, artefact2):
+#     print("Check")
+#     print(artefact1)
+#     print(artefact2)
+#     if artefact1["id"] == artefact2["id"] and artefact1["agency"] == artefact2["agency"] and artefact1["version"] == \
+#             artefact2["version"]:
+#         return True
+#     return False
+#
+#
+# def get_indicator_name(cfg_data, indicator_code):
+#     struct = get_dataflow_struct(cfg_data)
+#     print("cfg_data")
+#     print(cfg_data)
+#
+#     indic_cl = next(item for item in struct.codelists if _check_artefact_id(cfg_data, item))
+#     print("indic_cl")
+#     print(indic_cl)
 
 
 def get_filtered_dataset(

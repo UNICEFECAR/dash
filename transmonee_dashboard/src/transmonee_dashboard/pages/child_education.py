@@ -14,38 +14,38 @@ cfg = {
         "PARTICIPATION": {
             "NAME": "Education access and participation",
             "CARDS": [
-                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                         "dq": {
-                             "REF_AREA": "BR",
-                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
-                             "AGE": "_T",
-                             "EDUCATION_LEVEL": "ISCED11_1"
-                         },
-                         "lastnobservations": 1},
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "ISCED11_1"
+                          },
+                          "lastnobservations": 1},
                  "name": "Who are Out-of-School",
                  "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                  "suffix": "Primary to upper secondary aged Children and Adolescents",
                  },
-                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                         "dq": {
-                             "REF_AREA": "BR",
-                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
-                             "AGE": "_T",
-                             "EDUCATION_LEVEL": "ISCED11_2"
-                         },
-                         "lastnobservations": 1},
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "ISCED11_2"
+                          },
+                          "lastnobservations": 1},
                  "name": "Who are Out-of-School",
                  "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                  "suffix": "Primary to upper secondary aged Children and Adolescents",
                  },
-                {"api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                         "dq": {
-                             "REF_AREA": "BR",
-                             "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
-                             "AGE": "_T",
-                             "EDUCATION_LEVEL": "ISCED11_3"
-                         },
-                         "lastnobservations": 1},
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "REPROV_EFFINAL_ESTADUAL",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "ISCED11_3"
+                          },
+                          "lastnobservations": 1},
                  "name": "Who are Out-of-School",
                  "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                  "suffix": "Primary to upper secondary aged Children and Adolescents",
@@ -79,19 +79,15 @@ cfg = {
                 "name": "Who are Out-of-School",
                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
-                "data": [{
-                    "api": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                            "dq": {
-                                "INDICATOR": "ABANDONOEFINICIAIS",
-                                "AGE": "_T",
-                                "EDUCATION_LEVEL": "ABANDONOEFINICIAIS"
-                            }
-                            }
-                }
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T", "EDUCATION_LEVEL": "ABANDONOEFINICIAIS"}
+                     }
+
                 ],
 
             }
-        },"THEME2": {"NAME":"Theme 2"}
+        }, "THEME2": {"NAME": "Theme 2"}
     }
 }
 
