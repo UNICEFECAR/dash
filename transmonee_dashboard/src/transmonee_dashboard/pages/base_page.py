@@ -778,19 +778,19 @@ Index(['REF_AREA', 'CODE', 'AGE', 'EDUCATION_LEVEL', 'TIME_PERIOD',
     }
 
     options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = "OOOO"
+    options["labels"]["OBS_VALUE"] = "Value"
     options["labels"]["text"] = "OBS_VALUE"
     options["geojson"] = geo_json_countries
 
-    data = data[data["TIME_PERIOD"] == 2020]
+    # data = data[data["TIME_PERIOD"] == 2020]
     data = data[data["REF_AREA"] != "BR"]
 
-    import pandas as pd
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.width', 500)
-    pd.set_option('display.max_colwidth', 200)
-    print(data)
+    # import pandas as pd
+    # pd.set_option('display.max_columns', None)
+    # pd.set_option('display.max_rows', None)
+    # pd.set_option('display.width', 500)
+    # pd.set_option('display.max_colwidth', 200)
+    # print(data)
 
     # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
     # name = (
