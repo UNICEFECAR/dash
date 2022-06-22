@@ -143,7 +143,9 @@ def make_area(area_name):
                             "index": area_name,
                         },
                         switch=True,
-                        style=exclude_outliers_style,
+                        # style=exclude_outliers_style,
+                        style={"display":"none"}
+
                     ),
                     html.Br(),
                     dbc.RadioItems(
@@ -668,13 +670,6 @@ def show_themes(selections, cfg):
     ],
 )
 def set_options(selection, cfg, id):
-    print("Set options")
-    # print("print id")
-    # print(id)
-    # print(cfg)
-    # print("selection")
-    # print(selection)
-
     area = id["index"]
 
     area_options = area_types = []
@@ -696,7 +691,7 @@ def set_options(selection, cfg, id):
             else:
                 indic = next(item for item in cl_indicators if item["id"] == ap["dq"]["INDICATOR"])
                 lbl = indic["name"]
-            key = selection["theme"] + "|" + str(idx)
+            key = selection["theme"] + "|" + area + "|" + str(idx)
             if idx == 0:
                 default_option = key
             area_options.append({"label": lbl, "value": key})
@@ -740,16 +735,19 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     latest_data = not show_historical_data
 
     options = cfg["THEMES"][selections["theme"]]["MAIN"]["options"]
-    series = cfg["THEMES"][selections["theme"]]["MAIN"]["data"]
+
+    series_id = indicator.split("|")
+    series = cfg["THEMES"][series_id[0]][series_id[1]]["data"][int(series_id[2])]
+    # series = cfg["THEMES"][selections["theme"]]["MAIN"]["data"]
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
     cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
 
     if latest_data:
-        data = get_dataset(series[0], recent_data=True, countries=ref_areas)
+        data = get_dataset(series, recent_data=True, countries=ref_areas)
     else:
-        data = get_dataset(series[0], years=time_period, countries=ref_areas)
+        data = get_dataset(series, years=time_period, countries=ref_areas)
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
@@ -818,3 +816,186 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     source = ""
     source_link = ""
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")
+
+
+@app.callback(
+    Output({"type": "area", "index": MATCH}, "figure"),
+    Output({"type": "area_sources", "index": MATCH}, "children"),
+    [
+        Input("store", "data"),
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_breakdowns", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
+    ],
+    [
+        State("page_cfg", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
+    ],
+)
+def area_figure(
+        selections,
+        indicator,
+        compare,
+        selected_type,
+        exclude_outliers,
+        cfg,
+        id,
+):
+    # only run if indicator not empty
+    if not indicator:
+        return {}, {}
+    # check if it is the country profile page
+    # is_country_profile = selections["theme"] == "COUNTRYPROFILE"
+
+    area = id["index"]
+    series_id = indicator.split("|")
+    series = cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
+    time_period = [min(selections["years"]), max(selections["years"])]
+    ref_areas = selections["countries"]
+
+    default_graph = cfg["THEMES"][selections["theme"]][area].get(
+        "default_graph", "line"
+    )
+    fig_type = selected_type if selected_type else default_graph
+    fig_config = cfg["THEMES"][selections["theme"]][area]["graphs"][fig_type]
+    options = fig_config.get("options")
+    traces = fig_config.get("trace_options")
+    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
+
+    if fig_type == "line":
+        data = get_dataset(series, years=time_period, countries=ref_areas)
+    else:
+        data = get_dataset(series, recent_data=True, countries=ref_areas)
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return EMPTY_CHART, ""
+
+    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
+
+    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
+
+    # indicator_name = str(indicator_names.get(indicator, ""))
+    # # do we need `indicator_settings` below?
+    # indicator_settings = (
+    #     indicators.get(indicator, {}) if type(indicators) is dict else {}
+    # )
+    # data = get_filtered_dataset(
+    #     [indicator],
+    #     selections["years"],
+    #     selections["countries"],
+    #     compare,
+    #     latest_data=False if fig_type == "line" or is_country_profile else True,
+    # )
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return EMPTY_CHART, ""
+
+    # check if the exclude outliers checkbox is checked
+    # if exclude_outliers:
+    #     # filter the data to the remove the outliers
+    #     # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
+    #     data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
+    #     # filter the data entries to remove the outliers
+    #     data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
+
+    # lbassil: was UNIT_MEASURE
+    # name = (
+    #     data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
+    #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
+    #     else ""
+    # )
+    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+    # source = (
+    #     "; ".join(list(unique_indicator_sources))
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+    # source_link = (
+    #     df_indicator_sources["Source_Link"].unique()[0]
+    #     if len(unique_indicator_sources) > 0
+    #     else ""
+    # )
+
+    source = ""
+    source_link = ""
+
+    # options["labels"] = DEFAULT_LABELS.copy()
+    # options["labels"]["OBS_VALUE"] = name
+
+    DEFAULT_LABELS = {
+        "REF_AREA": "Geographic area",
+        "INDICATOR": "Indicator",
+        "AGE": "Current age",
+        "EDUCATION_LEVEL": "Education level",
+        "TIME_PERIOD": "Time period",
+    }
+
+    options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"]["OBS_VALUE"] = "Value"
+    options["labels"]["text"] = "OBS_VALUE"
+
+    if "label" in cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]:
+        indicator_name = cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]["label"]
+    else:
+        cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
+        ind = list(data["INDICATOR"].unique())[0]
+        indicator_name = next(item for item in cl_indicators if item["id"] == ind)
+        indicator_name = indicator_name["name"]
+    # cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+    # set the chart title, wrap the text when the indicator name is too long
+    chart_title = textwrap.wrap(
+        indicator_name,
+        width=74,
+    )
+    chart_title = "<br>".join(chart_title)
+
+    # set the layout to center the chart title and change its font size and color
+    layout = go.Layout(
+        title=chart_title,
+        title_x=0.5,
+        font=dict(family="Arial", size=12),
+        legend=dict(x=0.9, y=0.5),
+        xaxis={"categoryorder": "total descending"},
+    )
+
+    # Add this code to avoid having decimal year on the x-axis for time series charts
+    # if fig_type == "line" or is_country_profile:
+    #     data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
+    #     layout["xaxis"] = dict(
+    #         tickmode="linear",
+    #         tick0=selections["years"][0],
+    #         dtick=1,
+    #         categoryorder="total ascending",
+    #     )
+    #     layout["legend"] = dict(y=0.5, x=1)
+
+    # if dimension:
+    #     # lbassil: use the dimension name instead of the code
+    #     dimension_name = str(dimension_names.get(dimension, ""))
+    #     options["color"] = dimension_name
+    #     if compare == "WEALTH_QUINTILE":
+    #         wealth_dict = {
+    #             "Lowest": 0,
+    #             "Second": 1,
+    #             "Middle": 2,
+    #             "Fourth": 3,
+    #             "Highest": 4,
+    #         }
+    #         data.sort_values(
+    #             by=[dimension], key=lambda x: x.map(wealth_dict), inplace=True
+    #         )
+    #     else:
+    #         # sort by the compare value to have the legend in the right ascending order
+    #         data.sort_values(by=[dimension], inplace=True)
+
+    fig = getattr(px, fig_type)(data, **options)
+    fig.update_layout(layout)
+    if traces:
+        fig.update_traces(**traces)
+
+    return fig, html.A(html.P(source), href=source_link, target="_blank")

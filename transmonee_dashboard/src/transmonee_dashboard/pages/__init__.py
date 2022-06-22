@@ -68,7 +68,9 @@ def _add_tree_level(tree_node, parent_code, codes):
 def get_codelist(agency, id, version="latest"):
     cl_id = f"{agency}|{id}|{version}"
     if cl_id in codelists:
+        print("CL " + id + " already downloaded")
         return codelists[cl_id]
+    print("CL " + id + " new downloaded")
 
     cl = Codelist.Codelist()
     cl.download_codelist(get_endpoint(), agency, id, version=version)
@@ -76,7 +78,6 @@ def get_codelist(agency, id, version="latest"):
     return cl.get_codes()
 
 def get_selection_tree(ref_area_cl):
-    cl = Codelist.Codelist()
     codes = get_codelist(ref_area_cl["agency"], ref_area_cl["id"])
 
     all_checked_codes = [c["id"] for c in codes]

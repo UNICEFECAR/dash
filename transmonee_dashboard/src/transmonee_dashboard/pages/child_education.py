@@ -67,7 +67,7 @@ cfg = {
                         "REF_AREA": "ISO3 Code",
                         "TIME_PERIOD": "Year",
                         # "REF_AREA": "Country",
-                        "name":"Country"
+                        "name": "Country"
                     },
                     "hover_data": {
                         "OBS_VALUE": True,
@@ -94,8 +94,91 @@ cfg = {
 
                 ],
 
-            }
-        }, "THEME2": {"NAME": "Theme 2"}
+            },
+            "AREA_1": {
+                "name": "Education entry and transition",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "BPCNAESCOLA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of elementary school 1"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "FORADAESCOLA0A3", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school 2"
+                     },
+
+                ],
+                "default": "EDUNF_ROFST_L1",
+            },
+            "AREA_2": {
+                "name": "Education entry and transition",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "FORADAESCOLA0A3", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "BPCNAESCOLA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     }
+                ],
+                "default": "EDUNF_ROFST_L1",
+            },
+
+        },
+        "THEME2": {"NAME": "Theme 2"}
     }
 }
 
