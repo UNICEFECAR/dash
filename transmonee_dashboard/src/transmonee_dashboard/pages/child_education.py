@@ -273,7 +273,7 @@ cfg = {
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
                      "dq": {"REF_AREA": "", "INDICATOR": "IDEBFINAIS", "AGE": "_T",
                             "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "% of municipalities that reached the IDEB target - initial years of Elementary School"
+                     "label": "% of municipalities that reached the IDEB target - early years of Elementary School"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
                      "dq": {"REF_AREA": "", "INDICATOR": "ABANDONOEFINICIAIS", "AGE": "_T",
@@ -281,15 +281,170 @@ cfg = {
                      "label": "% of municipalities that reached the IDEB target - final years of Elementary School"
                      },
 
-
                 ],
 
             },
 
+            "AREA_1": {
+                "name": "School Failure Rate",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Failure rate: early years of Elementary School - Municipal network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_2"},
+                     "label": "Failure rate: final years of Elementary School - Municipal network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_3"},
+                     "label": "Failure rate: High School - Municipal network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Failure rate: early years of Elementary School - Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Failure rate: final years of Elementary School - Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Failure rate: high School - Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Failure rate: early years of Elementary School - State network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_2"},
+                     "label": "Failure rate: final years of Elementary School - State networ"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_3"},
+                     "label": "Failure rate: high years of Elementary School - State networ"
+                     },
+                ],
+                "default": "EDUNF_ROFST_L1",
+            },
+
+            "AREA_2": {
+                "name": "Education entry and transition",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Age-grade distortion rate: early years of Elementary School - Municipal Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_2"},
+                     "label": "Age-grade distortion rate: final years of Elementary School - Municipal Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_3"},
+                     "label": "Age-grade distortion rate: High School - Municipal public network"
+                     },
+
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Age-grade distortion rate: early years of Elementary School - State Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_2"},
+                     "label": "Age-grade distortion rate: final years of Elementary School - State Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_3"},
+                     "label": "Age-grade distortion rate: High School - State public network"
+                     },
+
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_1"},
+                     "label": "Age-grade distortion rate: early years of Elementary School - Total Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_2"},
+                     "label": "Age-grade distortion rate: final years of Elementary School - Public Network"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
+                            "EDUCATION_LEVEL": "ISCED11_3"},
+                     "label": "Age-grade distortion rate: High School - Public Network"
+                     },
+
+                ],
+                "default": "EDUNF_ROFST_L1",
+            }
+
         }
     }
 }
-
 
 
 def get_layout(**kwargs):
