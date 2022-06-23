@@ -179,6 +179,7 @@ def get_base_layout(**kwargs):
     # indicators_dict = kwargs.get("indicators")
     cfg = kwargs.get("cfg")
     main_title = cfg["main_title"]
+    cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
     selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
 
     '''
@@ -567,6 +568,8 @@ def indicator_card(
         sex_code=None,
         age_group=None,
 ):
+    print("cfgcfgcfgcfgcfg")
+    print(cfg)
     df_vals = get_dataset(cfg)
     card_value = ""
     if len(df_vals) > 0:
@@ -597,7 +600,9 @@ def indicator_card(
 )
 # def show_cards(selections, current_cards, indicators_dict):
 def show_cards(selections, current_cards, page_cfg):
-    print("Show cards")
+    print("selections")
+    print(selections)
+    print(page_cfg["THEMES"][selections["theme"]]["CARDS"])
     cards = [
         indicator_card(
             selections,
@@ -613,8 +618,7 @@ def show_cards(selections, current_cards, page_cfg):
             card.get("sex"),
             card.get("age"),
         )
-        # for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
-        for num, card in enumerate(page_cfg["THEMES"]["PARTICIPATION"]["CARDS"])
+        for num, card in enumerate(page_cfg["THEMES"][selections["theme"]]["CARDS"])
     ]
 
     return cards
