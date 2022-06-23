@@ -24,7 +24,7 @@ def get_endpoint(endpoint_id="UNICEF"):
     return endpoint_ids[endpoint_id]
 
 
-years = list(range(2010, 2022))
+years = list(range(2007, 2022))
 
 # TODO: Move all of these to env/setting vars from production
 # sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
