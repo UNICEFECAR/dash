@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - dev
+      - brazil
 
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
@@ -54,7 +55,7 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: ${{ github.ref_name == 'dev' && 'dev' || '' }}
+          slot-name: ${{ github.ref_name }}
           package: ${{ env.WORKING_DIRECTORY }}
           startup-command: ${{ env.STARTUP_COMMAND }}
 
