@@ -48,7 +48,7 @@ def main_default_layout():
 
     return html.Div(
         [
-            make_header(),
+            # make_header(),
             html.Br(),
             dcc.Store(id="store"),
             dbc.Container(
@@ -60,7 +60,7 @@ def main_default_layout():
                     ),
                 ],
             ),
-            make_footer(),
+            # make_footer(),
             html.Button(
                 id="btnScroll",
                 title="Scroll to top",
