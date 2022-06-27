@@ -43,7 +43,7 @@ codelists = {
 def get_search_countries(countries_cl):
     all_countries = {"label": "All", "value": "All"}
     countries_list = []
-    print(countries_cl)
+    #print(countries_cl)
     # countries_list = [
     #     {
     #         "label": key,
@@ -68,9 +68,9 @@ def _add_tree_level(tree_node, parent_code, codes):
 def get_codelist(agency, id, version="latest"):
     cl_id = f"{agency}|{id}|{version}"
     if cl_id in codelists:
-        print("CL " + id + " already downloaded")
+        #print("CL " + id + " already downloaded")
         return codelists[cl_id]
-    print("CL " + id + " new downloaded")
+    #print("CL " + id + " new downloaded")
 
     cl = Codelist.Codelist()
     cl.download_codelist(get_endpoint(), agency, id, version=version)

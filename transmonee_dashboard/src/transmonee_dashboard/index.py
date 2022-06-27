@@ -28,9 +28,11 @@ from .components import fa
 # string corresponding to path of the route (will be prefixed with Dash's
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
 urls = (
-    ("", home.get_layout),
-    ("overview", overview.get_layout),
-    ("child-education", child_education.get_layout),
+    # ("", home.get_layout),
+    # ("overview", overview.get_layout),
+    ("", child_education.get_layout),
+    # ("child-education", child_education.get_layout),
+
     # ("child-protection", child_protection.get_layout),
     # ("child-health", child_health.get_layout),
     # ("child-poverty", child_poverty.get_layout),

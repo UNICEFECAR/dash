@@ -508,19 +508,9 @@ def apply_filters(
         # indicators,
         store_page_cfg
 ):
-    print("Apply filters")
     # ctx = dash.callback_context
     # selected = ctx.triggered[0]["prop_id"].split(".")[0]
-    # print("theme")
-    # print(theme)
-    # print("years_slider")
-    # print(years_slider)
-    # print("country_selector")
-    # print(country_selector)
-    # print("selected_country")
-    # print(selected_country)
-    # print("indicators")
-    # print(indicators)
+
 
     # selections = dict(
     #     theme=current_theme,
@@ -568,8 +558,6 @@ def indicator_card(
         sex_code=None,
         age_group=None,
 ):
-    print("cfgcfgcfgcfgcfg")
-    print(cfg)
     df_vals = get_dataset(cfg)
     card_value = ""
     if len(df_vals) > 0:
@@ -600,9 +588,7 @@ def indicator_card(
 )
 # def show_cards(selections, current_cards, indicators_dict):
 def show_cards(selections, current_cards, page_cfg):
-    print("selections")
-    print(selections)
-    print(page_cfg["THEMES"][selections["theme"]]["CARDS"])
+
     cards = [
         indicator_card(
             selections,
@@ -633,7 +619,6 @@ def show_cards(selections, current_cards, page_cfg):
     State("page_cfg", "data"),
 )
 def show_themes(selections, cfg):
-    print("Show themes")
     if selections is None or selections["theme"] is None or selections["theme"].strip() == "":
         theme_key = list(cfg["THEMES"].keys())[0]
         theme = cfg["THEMES"][theme_key]
@@ -679,8 +664,6 @@ def set_options(selection, cfg, id):
     area_options = area_types = []
 
     cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
-    # for c in cl_indicators:
-    #     print(c)
     area_options = []
     default_option = ""
 
