@@ -4,6 +4,7 @@ from .app import app
 from .utils import DashRouter, DashNavBar
 from .pages import (
     child_education,
+    health,
     # child_protection,
     # child_health,
     # child_poverty,
@@ -31,6 +32,7 @@ urls = (
     # ("", home.get_layout),
     # ("overview", overview.get_layout),
     ("", child_education.get_layout),
+    ("health", health.get_layout),
     # ("child-education", child_education.get_layout),
 
     # ("child-protection", child_protection.get_layout),
@@ -53,7 +55,7 @@ urls = (
 # is a string corresponding to path of the route (will be prefixed with
 # 'routes_pathname_prefix') and 'display' is a valid value for the `children`
 # keyword argument for a Dash component (ie a Dash Component or a string).
-nav_items = (
+nav_items_old = (
     ("", html.Div([fa("fas fa-home"), "Home"]), []),
     ("overview", html.Div([fa("fas fa-info-circle"), "Overview"]), []),
     (
@@ -106,6 +108,13 @@ nav_items = (
     # ("profiles", html.Div([fa("fas fa-globe"), "Country Snapshots"]), []),
     # ("data_query", html.Div([fa("fas fa-table"), "Query Data"]), []),
     # ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
+)
+
+nav_items = (
+
+    ("", html.Div([fa("fas fa-info-circle"), "Education"]), []),
+    ("health", html.Div([fa("fas fa-medkit"), "Health"]), []),
+    ("protection", html.Div([fa("fas fa-bullseye"), "Protection"]), []),
 )
 
 nav_items_full_names = {

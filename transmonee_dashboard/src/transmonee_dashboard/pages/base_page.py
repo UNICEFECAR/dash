@@ -180,6 +180,7 @@ def get_base_layout(**kwargs):
     cfg = kwargs.get("cfg")
     main_title = cfg["main_title"]
     cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
+    cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
     selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
 
     '''

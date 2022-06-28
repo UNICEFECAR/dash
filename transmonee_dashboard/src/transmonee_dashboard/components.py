@@ -36,6 +36,30 @@ def make_brand(**kwargs):
         ],
     )
 
+@component
+def make_header_nav(**kwargs):
+    return html.Header(
+        id="header",
+        className="header",
+        children=[
+
+            html.Div(
+                className="header__bottom",
+                children=[
+                    html.Div(
+                        className="header__inner",
+                        children=[
+                            html.Nav(
+                                className="header__navigation",
+                                id=server.config["NAVBAR_CONTAINER_ID"],
+                            )
+                        ],
+                    )
+                ],
+            ),
+        ],
+        **kwargs,
+    )
 
 @component
 def make_header(**kwargs):
