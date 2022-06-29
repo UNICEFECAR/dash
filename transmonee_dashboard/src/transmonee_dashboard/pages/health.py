@@ -533,7 +533,7 @@ cfg = {
                 ],
             },
             "AREA_1": {
-                "name": "Education entry and transition",
+                "name": "Vector-borne diseases",
                 "graphs": {
                     "bar": {
                         "options": dict(
