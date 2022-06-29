@@ -7,7 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from .components import make_footer, make_header, make_sidebar
+from .components import make_footer, make_header, make_sidebar, make_header_nav
 from .components import fa
 
 
@@ -48,7 +48,7 @@ def main_default_layout():
 
     return html.Div(
         [
-            # make_header(),
+            make_header_nav(),
             html.Br(),
             dcc.Store(id="store"),
             dbc.Container(

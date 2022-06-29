@@ -180,6 +180,7 @@ def get_base_layout(**kwargs):
     cfg = kwargs.get("cfg")
     main_title = cfg["main_title"]
     cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
+    cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
     selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
 
     '''
@@ -730,6 +731,7 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     ref_areas = selections["countries"]
 
     cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+    cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
 
     if latest_data:
         data = get_dataset(series, recent_data=True, countries=ref_areas)
@@ -741,8 +743,12 @@ def main_figure(indicator, show_historical_data, selections, cfg):
         return EMPTY_CHART, ""
 
     df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
+    df_units = pd.DataFrame(columns=["name", "id"], data=cl_units)
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
+    # data = data.drop(columns=["id"])
+    # data = data.rename(columns={"name":"REF_AREA_NAME"})
+    # data = data.merge(cl_units, how="left", left_on="UNIT_MEASURE", right_on="id")
 
     DEFAULT_LABELS = {
         "REF_AREA": "Geographic area",
