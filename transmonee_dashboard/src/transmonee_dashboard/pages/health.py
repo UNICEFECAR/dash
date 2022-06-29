@@ -473,7 +473,108 @@ cfg = {
                 ],
             }
 
-        }
+        },
+        "VECTOR_DISEASE": {
+            "NAME": "Vector-borne diseases",
+            "CARDS": [
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "DENGUEINCIDENCIA",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "_T"
+                          },
+                          "lastnobservations": 1},
+                 "name": "",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Dengue incidence rate",
+                 },
+
+            ],
+            "MAIN": {
+                "options": {
+                    "locations": "REF_AREA",
+                    "featureidkey": "id",
+                    "color": "OBS_VALUE",
+                    "color_continuous_scale": "gnbu",
+                    "mapbox_style": "carto-positron",
+                    "zoom": 3,
+                    "center": {"lat": -11.7462, "lon": -53.222},
+                    "opacity": 0.5,
+                    "labels": {
+                        "OBS_VALUE": "Value",
+                        "REF_AREA": "ISO3 Code",
+                        "TIME_PERIOD": "Year",
+                        # "REF_AREA": "Country",
+                        "name": "Country"
+                    },
+                    "hover_data": {
+                        "OBS_VALUE": True,
+                        "REF_AREA": False,
+                        "name": True,
+                        "TIME_PERIOD": True,
+                    },
+                    "animation_frame": "TIME_PERIOD",
+                    "height": 750},
+                "name": "Immunization",
+                # "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUEINCIDENCIA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUETOTAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of Elementary School"
+                     },
+                ],
+            },
+            "AREA_1": {
+                "name": "Education entry and transition",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUEINCIDENCIA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of elementary school 1"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUETOTAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school 2"
+                     },
+                ],
+            },
+            
+
+        },
     }
 }
 
