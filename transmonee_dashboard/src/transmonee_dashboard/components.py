@@ -36,8 +36,34 @@ def make_brand(**kwargs):
         ],
     )
 
+
 @component
 def make_header_nav(**kwargs):
+    return html.Header(
+        id="header",
+        className="header",
+        children=[
+            html.Div(
+                className="container-fluid",
+                children=[
+                    html.Div(
+                        className="row",
+                        children=[
+                            html.Nav(
+                                className="col-12",
+                                id=server.config["NAVBAR_CONTAINER_ID"],
+                            )
+                        ],
+                    )
+                ],
+            ),
+        ],
+        **kwargs,
+    )
+
+
+@component
+def make_header_nav_old(**kwargs):
     return html.Header(
         id="header",
         className="header",
@@ -60,6 +86,7 @@ def make_header_nav(**kwargs):
         ],
         **kwargs,
     )
+
 
 @component
 def make_header(**kwargs):
