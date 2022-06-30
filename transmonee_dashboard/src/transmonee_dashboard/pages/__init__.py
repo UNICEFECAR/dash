@@ -740,7 +740,7 @@ dict_topics_subtopics = {
     "Participation and Civil Rights": [
         "Birth registration and identity",
         "Information, Internet and Protection of privacy",
-        "Education, Leisure, and Culture",
+        "Leisure and Culture",
     ],
 }
 
