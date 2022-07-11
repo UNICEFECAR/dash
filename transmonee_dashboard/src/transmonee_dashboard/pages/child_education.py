@@ -132,7 +132,7 @@ cfg = {
                 "graphs": {
                     "bar": {
                         "options": dict(
-                            x="name",
+                            x="REF_AREA_l",
                             y="OBS_VALUE",
                             barmode="group",
                             # text="TIME_PERIOD",
@@ -174,7 +174,7 @@ cfg = {
                 "graphs": {
                     "bar": {
                         "options": dict(
-                            x="name",
+                            x="REF_AREA_l",
                             y="OBS_VALUE",
                             barmode="group",
                             # text="TIME_PERIOD",
@@ -290,7 +290,7 @@ cfg = {
                 "graphs": {
                     "bar": {
                         "options": dict(
-                            x="name",
+                            x="REF_AREA_l",
                             y="OBS_VALUE",
                             barmode="group",
                             # text="TIME_PERIOD",
@@ -367,7 +367,7 @@ cfg = {
                 "graphs": {
                     "bar": {
                         "options": dict(
-                            x="name",
+                            x="REF_AREA_l",
                             y="OBS_VALUE",
                             barmode="group",
                             # text="TIME_PERIOD",

@@ -43,7 +43,7 @@ codelists = {
 def get_search_countries(countries_cl):
     all_countries = {"label": "All", "value": "All"}
     countries_list = []
-    #print(countries_cl)
+    # print(countries_cl)
     # countries_list = [
     #     {
     #         "label": key,
@@ -56,6 +56,18 @@ def get_search_countries(countries_cl):
     return countries_list
 
 
+def get_codelist(agency, id, version="latest"):
+    cl_id = f"{agency}|{id}|{version}"
+    if cl_id in codelists:
+        # print("CL " + id + " already downloaded")
+        return codelists[cl_id]
+    # print("CL " + id + " new downloaded")
+
+    cl = Codelist.Codelist()
+    cl.download_codelist(get_endpoint(), agency, id, version=version)
+    codelists[cl_id] = cl.get_codes()
+    return cl.get_codes()
+
 def _add_tree_level(tree_node, parent_code, codes):
     for c in codes:
         if "parent" in c and c["parent"] == parent_code:
@@ -63,19 +75,6 @@ def _add_tree_level(tree_node, parent_code, codes):
                 tree_node["children"] = []
             tree_node["children"].append({"key": c["id"], "title": c["name"]})
             _add_tree_level(tree_node["children"][-1], c["id"], codes)
-
-
-def get_codelist(agency, id, version="latest"):
-    cl_id = f"{agency}|{id}|{version}"
-    if cl_id in codelists:
-        #print("CL " + id + " already downloaded")
-        return codelists[cl_id]
-    #print("CL " + id + " new downloaded")
-
-    cl = Codelist.Codelist()
-    cl.download_codelist(get_endpoint(), agency, id, version=version)
-    codelists[cl_id] = cl.get_codes()
-    return cl.get_codes()
 
 def get_selection_tree(ref_area_cl):
     codes = get_codelist(ref_area_cl["agency"], ref_area_cl["id"])
@@ -118,6 +117,16 @@ def get_dataset(cfg_data, years=None, countries=[], recent_data=False):
     # print(df)
 
     return df
+
+
+def get_col_unique(df: Dataflow, col_id: str) -> list:
+    if not col_id in df:
+        return []
+    #Unique and remove nans
+    ret = df[col_id].unique()
+    ret = ret[~pd.isnull(ret)]
+    return ret
+
 
 
 # def get_dataflow_struct(cfg_data):

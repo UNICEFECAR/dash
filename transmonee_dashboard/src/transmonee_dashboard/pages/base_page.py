@@ -34,13 +34,22 @@ from . import (
     get_dataset,
     get_search_countries,
     # get_indicator_name,
-    get_codelist
+    get_codelist,
+    get_col_unique
 )
 
 # set defaults
 pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
+
+#language shouold be read from a param if forced or from the browser
+lang = "en"
+# move this elsewhere
+translations = {
+    "en": {"REF_AREA": "Geographic areas"},
+    "pt": {"REF_AREA": "Geographic areas [PT]"}
+}
 
 colours = [
     "primary",
@@ -144,7 +153,7 @@ def make_area(area_name):
                         },
                         switch=True,
                         # style=exclude_outliers_style,
-                        style={"display":"none"}
+                        style={"display": "none"}
 
                     ),
                     html.Br(),
@@ -287,7 +296,7 @@ def get_base_layout(**kwargs):
                                     #     style=country_dropdown_style,
                                     # ),
                                     dbc.DropdownMenu(
-                                        label=f"Countries: {'len(countries)'}",
+                                        label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
@@ -301,7 +310,8 @@ def get_base_layout(**kwargs):
                                                     # checked=["0"],
                                                     checked=selection_tree["checked"],
                                                     # selected=[],
-                                                    expanded=["0"],
+                                                    # expanded=["0", "BR"],
+                                                    expanded=selection_tree["checked"],
                                                     # data=[]
                                                     data=selection_tree["data"],
                                                 ),
@@ -512,7 +522,6 @@ def apply_filters(
     # ctx = dash.callback_context
     # selected = ctx.triggered[0]["prop_id"].split(".")[0]
 
-
     # selections = dict(
     #     theme=current_theme,
     #     indicators_dict=indicators,
@@ -541,7 +550,7 @@ def apply_filters(
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         # "Countries: {}".format(country_text),
         # "Countries: {}".format("UPDATED"),
-        f"Countries: {str(len(sel_country_codes))} selected",
+        f"{translations[lang]['REF_AREA']}: {str(len(sel_country_codes))} selected",
     )
 
 
@@ -589,7 +598,6 @@ def indicator_card(
 )
 # def show_cards(selections, current_cards, indicators_dict):
 def show_cards(selections, current_cards, page_cfg):
-
     cards = [
         indicator_card(
             selections,
@@ -764,6 +772,13 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
     #     else ""
     # )
+
+    # TODO this code seems to be duplicated in area_figure, merge the code
+    source = ""
+    sources = get_col_unique(data, "DATA_SOURCE")
+    if len(sources) > 0:
+        source = ", ".join(sources)
+
     # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
     # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     # source = (
@@ -801,7 +816,6 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     #         layout=main_figure.layout,
     #     )
 
-    source = ""
     source_link = ""
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
@@ -862,6 +876,7 @@ def area_figure(
 
     cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
     df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
+    df_countries = df_countries.rename(columns={"name":"REF_AREA_l"})
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
 
@@ -896,6 +911,12 @@ def area_figure(
     #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
     #     else ""
     # )
+
+    # TODO this code seems to be duplicated in main_figure, merge the code
+    source = ""
+    sources = get_col_unique(data, "DATA_SOURCE")
+    if len(sources) > 0:
+        source = ", ".join(sources)
     # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
     # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     # source = (
@@ -909,7 +930,6 @@ def area_figure(
     #     else ""
     # )
 
-    source = ""
     source_link = ""
 
     # options["labels"] = DEFAULT_LABELS.copy()
@@ -921,6 +941,7 @@ def area_figure(
         "AGE": "Current age",
         "EDUCATION_LEVEL": "Education level",
         "TIME_PERIOD": "Time period",
+        "REF_AREA_l":"Geographic area"
     }
 
     options["labels"] = DEFAULT_LABELS.copy()
@@ -934,6 +955,7 @@ def area_figure(
         ind = list(data["INDICATOR"].unique())[0]
         indicator_name = next(item for item in cl_indicators if item["id"] == ind)
         indicator_name = indicator_name["name"]
+
     # cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
     # set the chart title, wrap the text when the indicator name is too long
     chart_title = textwrap.wrap(
