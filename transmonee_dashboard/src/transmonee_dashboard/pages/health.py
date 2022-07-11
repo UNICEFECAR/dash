@@ -321,59 +321,219 @@ cfg = {
                         "trace_options": dict(mode="lines+markers"),
                     },
                 },
+
                 "default_graph": "bar",
                 "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADEINFANTIL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADEINFANCIAMENOR5", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADENEONATAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "RAZAOMORTALIDADEMAT", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+                ],
+            },
+
+            "AREA_2": {
+                "name": "Births",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14", "AGE": "Y10T14",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Children born alive to mothers 10 to 14 years of age"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14PERCENTAGEM", "AGE": "Y10T14",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "% of live births to mothers aged 10 to 14 years"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14", "AGE": "Y15T19",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Children born alive to mothers 15 to 19 years of age"
+                     },
+
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14PERCENTAGEM", "AGE": "Y15T19",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "% of live births to mothers aged 15 to 19 years"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PREMATUROPORCENTAGEM", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     },
+
+                ],
+            },
+
+            "AREA_3": {
+                "name": "Maternal, Newborn and Child Health",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14", "AGE": "Y10T14",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Children born alive to mothers 10 to 14 years of age"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14PERCENTAGEM", "AGE": "Y10T14",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "% of live births to mothers aged 10 to 14 years"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "NASCIMENTOS10A14PERCENTAGEM", "AGE": "Y15T19",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "% of live births to mothers aged 15 to 19 years"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PREMATUROPORCENTAGEM", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "% of premature births - less than 37 weeks"
+                     },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
                      "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADEINFANTIL", "AGE": "_T",
                             "EDUCATION_LEVEL": "_T"},
                      "label": "Infant mortality rate"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_MUNICIPAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_2"},
-                     "label": "Failure rate: final years of Elementary School - Municipal network"
+                     "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADEINFANCIAMENOR5", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Childhood mortality rate - under 5 years old"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_MUNICIPAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_3"},
-                     "label": "Failure rate: High School - Municipal network"
+                     "dq": {"REF_AREA": "", "INDICATOR": "MORTALIDADENEONATAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Neonatal mortality rate - 0 to 27 days"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Failure rate: early years of Elementary School - Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Failure rate: final years of Elementary School - Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_PUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Failure rate: high School - Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Failure rate: early years of Elementary School - State network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_2"},
-                     "label": "Failure rate: final years of Elementary School - State networ"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "REPROV_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_3"},
-                     "label": "Failure rate: high years of Elementary School - State networ"
+                     "dq": {"REF_AREA": "", "INDICATOR": "RAZAOMORTALIDADEMAT", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     "label": "Maternal mortality ratio"
                      },
                 ],
-                "default": "EDUNF_ROFST_L1",
-            },
+            }
 
-            "AREA_2": {
-                "name": "Education entry and transition",
+        },
+        "VECTOR_DISEASE": {
+            "NAME": "Vector-borne diseases",
+            "CARDS": [
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "DENGUEINCIDENCIA",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "_T"
+                          },
+                          "lastnobservations": 1},
+                 "name": "",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Dengue incidence rate",
+                 },
+
+            ],
+            "MAIN": {
+                "options": {
+                    "locations": "REF_AREA",
+                    "featureidkey": "id",
+                    "color": "OBS_VALUE",
+                    "color_continuous_scale": "gnbu",
+                    "mapbox_style": "carto-positron",
+                    "zoom": 3,
+                    "center": {"lat": -11.7462, "lon": -53.222},
+                    "opacity": 0.5,
+                    "labels": {
+                        "OBS_VALUE": "Value",
+                        "REF_AREA": "ISO3 Code",
+                        "TIME_PERIOD": "Year",
+                        # "REF_AREA": "Country",
+                        "name": "Country"
+                    },
+                    "hover_data": {
+                        "OBS_VALUE": True,
+                        "REF_AREA": False,
+                        "name": True,
+                        "TIME_PERIOD": True,
+                    },
+                    "animation_frame": "TIME_PERIOD",
+                    "height": 750},
+                "name": "Vector-borne diseases",
+                # "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUEINCIDENCIA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUETOTAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of Elementary School"
+                     },
+                ],
+            },
+            "AREA_1": {
+                "name": "Vector-borne diseases",
                 "graphs": {
                     "bar": {
                         "options": dict(
@@ -401,58 +561,153 @@ cfg = {
                 "default_graph": "bar",
                 "data": [
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Age-grade distortion rate: early years of Elementary School - Municipal Public Network"
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUEINCIDENCIA", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of elementary school 1"
                      },
                     {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_2"},
-                     "label": "Age-grade distortion rate: final years of Elementary School - Municipal Public Network"
+                     "dq": {"REF_AREA": "", "INDICATOR": "DENGUETOTAL", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school 2"
                      },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_MUNICIPAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_3"},
-                     "label": "Age-grade distortion rate: High School - Municipal public network"
-                     },
-
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Age-grade distortion rate: early years of Elementary School - State Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_2"},
-                     "label": "Age-grade distortion rate: final years of Elementary School - State Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDI_EFFINAL_ESTADUAL", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_3"},
-                     "label": "Age-grade distortion rate: High School - State public network"
-                     },
-
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_1"},
-                     "label": "Age-grade distortion rate: early years of Elementary School - Total Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_2"},
-                     "label": "Age-grade distortion rate: final years of Elementary School - Public Network"
-                     },
-                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
-                     "dq": {"REF_AREA": "", "INDICATOR": "TDIANOSFINAISPUB", "AGE": "_T",
-                            "EDUCATION_LEVEL": "ISCED11_3"},
-                     "label": "Age-grade distortion rate: High School - Public Network"
-                     },
-
                 ],
-                "default": "EDUNF_ROFST_L1",
-            }
+            },
+        },
 
-        }
+        "NUTRITION": {
+            "NAME": "Nutrition",
+            "CARDS": [
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "PESO0A5",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "_T"
+                          },
+                          "lastnobservations": 1},
+                 "name": "",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Overweight: % of children aged 0 to 5 years with high weight for their age"
+                 },
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "PESO5A9",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "_T"
+                          },
+                          "lastnobservations": 1},
+                 "name": "",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Overweight: % of children aged 5 to 9 years who are overweight for their age",
+                 },
+                {"data": {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                          "dq": {
+                              "REF_AREA": "BR",
+                              "INDICATOR": "PESOADOLESCENTES",
+                              "AGE": "_T",
+                              "EDUCATION_LEVEL": "_T"
+                          },
+                          "lastnobservations": 1},
+                 "name": "",
+                 "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                 "suffix": "Overweight: overweight adolescents aged 10 to 19",
+                 },
+
+            ],
+            "MAIN": {
+                "options": {
+                    "locations": "REF_AREA",
+                    "featureidkey": "id",
+                    "color": "OBS_VALUE",
+                    "color_continuous_scale": "gnbu",
+                    "mapbox_style": "carto-positron",
+                    "zoom": 3,
+                    "center": {"lat": -11.7462, "lon": -53.222},
+                    "opacity": 0.5,
+                    "labels": {
+                        "OBS_VALUE": "Value",
+                        "REF_AREA": "ISO3 Code",
+                        "TIME_PERIOD": "Year",
+                        # "REF_AREA": "Country",
+                        "name": "Country"
+                    },
+                    "hover_data": {
+                        "OBS_VALUE": True,
+                        "REF_AREA": False,
+                        "name": True,
+                        "TIME_PERIOD": True,
+                    },
+                    "animation_frame": "TIME_PERIOD",
+                    "height": 750},
+                "name": "Nutrition",
+                # "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
+                "suffix": "Primary to upper secondary aged Children and Adolescents",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESO0A5", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESO5A9", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of Elementary School"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESOADOLESCENTES", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of Elementary School"
+                     },
+                ],
+            },
+            "AREA_1": {
+                "name": "Nutrition",
+                "graphs": {
+                    "bar": {
+                        "options": dict(
+                            x="name",
+                            y="OBS_VALUE",
+                            barmode="group",
+                            # text="TIME_PERIOD",
+                            text="OBS_VALUE",
+                            hover_name="TIME_PERIOD",
+                        ),
+                        # "compare": "Sex",
+                    },
+                    "line": {
+                        "options": dict(
+                            x="TIME_PERIOD",
+                            y="OBS_VALUE",
+                            color="name",
+                            hover_name="name",
+                            line_shape="spline",
+                            render_mode="svg",
+                        ),
+                        "trace_options": dict(mode="lines+markers"),
+                    },
+                },
+                "default_graph": "bar",
+                "data": [
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESO0A5", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - final years of elementary school 1"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESO5A9", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school 2"
+                     },
+                    {"agency": "BRAZIL_CO", "id": "BRAZIL_CO", "version": "1.0",
+                     "dq": {"REF_AREA": "", "INDICATOR": "PESOADOLESCENTES", "AGE": "_T",
+                            "EDUCATION_LEVEL": "_T"},
+                     # "label": "% of school dropout - early years of elementary school 2"
+                     },
+                ],
+            },
+
+        },
     }
 }
 

@@ -114,7 +114,7 @@ nav_items = (
 
     ("", html.Div([fa("fas fa-info-circle"), "Education"]), []),
     ("health", html.Div([fa("fas fa-medkit"), "Health"]), []),
-    ("protection", html.Div([fa("fas fa-bullseye"), "Protection"]), []),
+    # ("protection", html.Div([fa("fas fa-bullseye"), "Protection"]), []),
 )
 
 nav_items_full_names = {
