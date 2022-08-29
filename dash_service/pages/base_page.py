@@ -6,36 +6,23 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_treeview_antd
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from scipy.stats import zscore
-import pandas as pd
 
 from ..app import app
 from ..components import fa
 from . import (
-    # countries,
-    # countries_iso3_dict,
-    # df_sources,
-    # dimension_names,
     geo_json_countries,
-    # get_filtered_dataset,
-    # indicator_names,
-    # indicators_config,
-    # programme_country_indexes,
-    # selection_index,
-    # selection_tree,
-    # unicef_country_prog,
-    years,
-    get_selection_tree,
-    # get_dataflow_struct,
+    get_codelist,
+    get_col_unique,
     get_dataset,
     get_search_countries,
-    # get_indicator_name,
-    get_codelist,
-    get_col_unique
+    get_selection_tree,
+    years,
 )
 
 # set defaults
@@ -43,12 +30,12 @@ pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 
-#language shouold be read from a param if forced or from the browser
+# TODO: language shouold be read from a param if forced or from the browser
 lang = "en"
 # move this elsewhere
 translations = {
     "en": {"REF_AREA": "Geographic areas"},
-    "pt": {"REF_AREA": "Geographic areas [PT]"}
+    "pt": {"REF_AREA": "Geographic areas [PT]"},
 }
 
 colours = [
@@ -62,14 +49,7 @@ colours = [
     "danger",
 ]
 AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
-# DEFAULT_LABELS = {
-#     "Country_name": "Country",
-#     "TIME_PERIOD": "Year",
-#     "Sex_name": "Sex",
-#     "Residence_name": "Residence",
-#     "Age_name": "Age",
-#     "Wealth_name": "Wealth Quintile",
-# }
+
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
 EMPTY_CHART = {
@@ -93,7 +73,6 @@ def make_area(area_name):
     area_id = {"type": "area", "index": area_name}
     popover_id = {"type": "area_sources", "index": area_name}
     historical_data_style = {"display": "none"}
-    exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
     # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
@@ -101,10 +80,8 @@ def make_area(area_name):
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
         historical_data_style = {"display": "block"}
-        exclude_outliers_style = {"display": "none"}
         breakdowns_style = {"display": "none"}
 
-    # lbassil: unifying both main and figure area generations by tweaking the ids and styles
     area = dbc.Card(
         [
             dbc.CardHeader(
@@ -152,9 +129,7 @@ def make_area(area_name):
                             "index": area_name,
                         },
                         switch=True,
-                        # style=exclude_outliers_style,
-                        style={"display": "none"}
-
+                        style={"display": "none"},
                     ),
                     html.Br(),
                     dbc.RadioItems(
@@ -192,15 +167,6 @@ def get_base_layout(**kwargs):
     cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
     selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
 
-    '''
-    
-    
-    ddl_ref_areas_cl
-    
-    
-    
-    '''
-    # is_country_profile = kwargs.get("is_country_profile")
     country_dropdown_style = {"display": "none"}
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
@@ -286,15 +252,6 @@ def get_base_layout(**kwargs):
                                             ),
                                         ],
                                     ),
-                                    # dcc.Dropdown(
-                                    #     id="country_profile_selector",
-                                    #     options=get_search_countries(False),
-                                    #     value="ALB",
-                                    #     multi=False,
-                                    #     placeholder="Select a country...",
-                                    #     className="m-2",
-                                    #     style=country_dropdown_style,
-                                    # ),
                                     dbc.DropdownMenu(
                                         label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
                                         id="collapse-countries-button",
@@ -307,17 +264,12 @@ def get_base_layout(**kwargs):
                                                     id="country_selector",
                                                     multiple=True,
                                                     checkable=True,
-                                                    # checked=["0"],
                                                     checked=selection_tree["checked"],
-                                                    # selected=[],
-                                                    # expanded=["0", "BR"],
                                                     expanded=selection_tree["checked"],
-                                                    # data=[]
                                                     data=selection_tree["data"],
                                                 ),
                                                 style={
                                                     "maxHeight": "250px",
-                                                    # "maxWidth": "300px",
                                                 },
                                                 className="overflow-auto",
                                                 body=True,
@@ -367,13 +319,13 @@ def get_base_layout(**kwargs):
 
 
 def make_card(
-        card_id,
-        name,
-        suffix,
-        indicator_sources,
-        source_link,
-        indicator_header,
-        numerator_pairs,
+    card_id,
+    name,
+    suffix,
+    indicator_sources,
+    source_link,
+    indicator_header,
+    numerator_pairs,
 ):
     card = dbc.Card(
         [
@@ -448,8 +400,8 @@ def get_card_popover_body(sources):
             countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
         card_countries = "\n".join(countries)
         return card_countries
-    else:
-        return "NA"
+
+    return "NA"
 
 
 # TODO: Move to client side call back
@@ -512,61 +464,37 @@ def display_areas(theme, page_cfg, id):
     State("page_cfg", "data"),
 )
 def apply_filters(
-        theme,
-        years_slider,
-        country_selector,
-        # selected_country,
-        # indicators,
-        store_page_cfg
+    theme,
+    years_slider,
+    country_selector,
+    store_page_cfg,
 ):
-    # ctx = dash.callback_context
-    # selected = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    # selections = dict(
-    #     theme=current_theme,
-    #     indicators_dict=indicators,
-    #     years=selected_years,
-    #     countries=countries_selected_codes,
-    #     is_adolescent=("ADOLESCENT" in indicators),
-    # )
 
     theme = theme[1:].upper() if theme else next(iter(store_page_cfg["THEMES"].keys()))
 
-    selected_years = years[years_slider[0]: years_slider[1] + 1]
-    sel_country_codes = [c for c in country_selector if c != "0"]  # Exclude the Select all code
+    selected_years = years[years_slider[0] : years_slider[1] + 1]
+    selected_country_codes = [
+        code for code in country_selector if code != "0"
+    ]  # Exclude the Select all code
 
     selections = dict(
         theme=theme,
-        # indicators_dict=indicators,
         years=selected_years,
-        countries=sel_country_codes,
-        # is_adolescent=("ADOLESCENT" in indicators),
+        countries=selected_country_codes,
     )
 
     return (
         selections,
-        # country_selector,
-        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
-        # "Countries: {}".format(country_text),
-        # "Countries: {}".format("UPDATED"),
-        f"{translations[lang]['REF_AREA']}: {str(len(sel_country_codes))} selected",
+        f"{translations[lang]['REF_AREA']}: {str(len(selected_country_codes))} selected",
     )
 
 
 def indicator_card(
-        selections,
-        card_id,
-        name,
-        numerator,
-        suffix,
-        cfg,
-        denominator=None,
-        absolute=False,
-        average=False,
-        min_max=False,
-        sex_code=None,
-        age_group=None,
+    card_id,
+    name,
+    suffix,
+    cfg,
 ):
     df_vals = get_dataset(cfg)
     card_value = ""
@@ -574,17 +502,7 @@ def indicator_card(
         card_value = df_vals.iloc[0]["OBS_VALUE"]
 
     return make_card(
-        card_id,
-        name,
-        suffix,
-        "Indicator sources",
-        "Source link",
-        card_value,
-        []
-        # indicator_sources,
-        # source_link,
-        # indicator_header,
-        # numerator_pairs,
+        card_id, name, suffix, "Indicator sources", "Source link", card_value, []
     )
 
 
@@ -593,25 +511,15 @@ def indicator_card(
     [
         Input("store", "data"),
     ],
-    # [State("cards_row", "children"), State("indicators", "data")],
     [State("cards_row", "children"), State("page_cfg", "data")],
 )
-# def show_cards(selections, current_cards, indicators_dict):
 def show_cards(selections, current_cards, page_cfg):
     cards = [
         indicator_card(
-            selections,
             f"card-{num}",
             card["name"],
-            card["indicator"],
             card["suffix"],
             card["data"],
-            card.get("denominator"),
-            card.get("absolute"),
-            card.get("average"),
-            card.get("min_max"),
-            card.get("sex"),
-            card.get("age"),
         )
         for num, card in enumerate(page_cfg["THEMES"][selections["theme"]]["CARDS"])
     ]
@@ -628,7 +536,11 @@ def show_cards(selections, current_cards, page_cfg):
     State("page_cfg", "data"),
 )
 def show_themes(selections, cfg):
-    if selections is None or selections["theme"] is None or selections["theme"].strip() == "":
+    if (
+        selections is None
+        or selections["theme"] is None
+        or selections["theme"].strip() == ""
+    ):
         theme_key = list(cfg["THEMES"].keys())[0]
         theme = cfg["THEMES"][theme_key]
     else:
@@ -685,7 +597,11 @@ def set_options(selection, cfg, id):
             if "label" in ap:
                 lbl = ap["label"]
             else:
-                indic = next(item for item in cl_indicators if item["id"] == ap["dq"]["INDICATOR"])
+                indic = next(
+                    item
+                    for item in cl_indicators
+                    if item["id"] == ap["dq"]["INDICATOR"]
+                )
                 lbl = indic["name"]
             key = selection["theme"] + "|" + area + "|" + str(idx)
             if idx == 0:
@@ -841,13 +757,13 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     ],
 )
 def area_figure(
-        selections,
-        indicator,
-        compare,
-        selected_type,
-        exclude_outliers,
-        cfg,
-        id,
+    selections,
+    indicator,
+    compare,
+    selected_type,
+    exclude_outliers,
+    cfg,
+    id,
 ):
     # only run if indicator not empty
     if not indicator:
@@ -881,7 +797,7 @@ def area_figure(
 
     cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
     df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
-    df_countries = df_countries.rename(columns={"name":"REF_AREA_l"})
+    df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
 
@@ -946,7 +862,7 @@ def area_figure(
         "AGE": "Current age",
         "EDUCATION_LEVEL": "Education level",
         "TIME_PERIOD": "Time period",
-        "REF_AREA_l":"Geographic area"
+        "REF_AREA_l": "Geographic area",
     }
 
     options["labels"] = DEFAULT_LABELS.copy()
@@ -954,7 +870,9 @@ def area_figure(
     options["labels"]["text"] = "OBS_VALUE"
 
     if "label" in cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]:
-        indicator_name = cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]["label"]
+        indicator_name = cfg["THEMES"][selections["theme"]][area]["data"][
+            int(series_id[2])
+        ]["label"]
     else:
         cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
         ind = list(data["INDICATOR"].unique())[0]

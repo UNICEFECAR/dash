@@ -5,22 +5,7 @@ from .utils import DashRouter, DashNavBar
 from .pages import (
     child_education,
     health,
-    # child_protection,
-    # child_health,
-    # child_poverty,
-    # child_rights,
-    # child_participation,
     home,
-    overview,
-    # resources,
-    # country_profiles,
-    # data_query,
-    # adolescent,
-    # disability,
-    # gender,
-    # ecd,
-    # risks,
-    # climate,
 )
 from .components import fa
 
@@ -30,25 +15,8 @@ from .components import fa
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
 urls = (
     # ("", home.get_layout),
-    # ("overview", overview.get_layout),
     ("", child_education.get_layout),
     ("health", health.get_layout),
-    # ("child-education", child_education.get_layout),
-
-    # ("child-protection", child_protection.get_layout),
-    # ("child-health", child_health.get_layout),
-    # ("child-poverty", child_poverty.get_layout),
-    # ("child-rights", child_rights.get_layout),
-    # ("child-participation", child_participation.get_layout),
-    # ("profiles", country_profiles.get_layout),
-    # ("data_query", data_query.get_layout),
-    # ("resources", resources.get_layout),
-    # ("adolescent", adolescent.get_layout),
-    # ("disability", disability.get_layout),
-    # ("gender", gender.get_layout),
-    # ("ecd", ecd.get_layout),
-    # ("risks", risks.get_layout),
-    # ("climate", climate.get_layout),
 )
 
 # Ordered iterable of navbar items: tuples of `(route, display)`, where `route`
@@ -111,20 +79,11 @@ nav_items_old = (
 )
 
 nav_items = (
-
     ("", html.Div([fa("fas fa-info-circle"), "Education"]), []),
     ("health", html.Div([fa("fas fa-medkit"), "Health"]), []),
     # ("protection", html.Div([fa("fas fa-bullseye"), "Protection"]), []),
 )
 
-nav_items_full_names = {
-    "education": "Education",
-    "child-protection": "Family environment and protection from violence and harmful practices",
-    "child-health": "Health and Nutrition",
-    "child-poverty": "Poverty and Social Protection",
-    "child-rights": "Child Rights Landscape",
-    "participation": "Participation",
-}
 
 router = DashRouter(app, urls)
 navbar = DashNavBar(app, nav_items)

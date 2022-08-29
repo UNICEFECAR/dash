@@ -6,9 +6,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from . import create_flask, create_dash
 from .layouts import main_layout_header, main_layout_sidebar, main_default_layout
 
-# TODO: Move to envvar
 sentry_sdk.init(
-    dsn="https://5f42c982ec844b7ea35b62bef6e117cb@o33646.ingest.sentry.io/5874251",
     integrations=[FlaskIntegration()],
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.

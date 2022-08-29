@@ -2,7 +2,7 @@
 
 import click
 
-from transmonee_dashboard.app import app
+from .app import app
 
 
 @click.command()
