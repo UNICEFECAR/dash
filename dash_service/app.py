@@ -1,10 +1,11 @@
 import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
 
 # from flask_caching import Cache
+from flask_admin import Admin
+from sentry_sdk.integrations.flask import FlaskIntegration
 
-from . import create_flask, create_dash
-from .layouts import main_layout_header, main_layout_sidebar, main_default_layout
+from . import create_dash, create_flask
+from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
 
 sentry_sdk.init(
     integrations=[FlaskIntegration()],
@@ -20,6 +21,8 @@ server = create_flask()
 
 # The Dash instance
 app = create_dash(server)
+
+admin = Admin(app.server, name="Dash Service", template_mode="bootstrap3")
 
 # define a cache instance
 # TODO: Move configuration to settings
