@@ -1,20 +1,36 @@
-from flask import Flask
-from flask_cors import CORS
 from dash import Dash
+from flask import Flask
+
 
 from .__version__ import __version__
 from .utils import get_dash_args_from_flask_config
+from .extensions import db, admin, cors
+
+
+def register_extensions(app):
+    """Register Flask extensions."""
+
+    db.init_app(app)
+    admin.init_app(app)
+    cors.init_app(app)
+    # bcrypt.init_app(app)
+    # cache.init_app(app)
+    # csrf_protect.init_app(app)
+    # login_manager.init_app(app)
+    # debug_toolbar.init_app(app)
+    # migrate.init_app(app, db)
+    # flask_static_digest.init_app(app)
 
 
 def create_flask(config_object=f"{__package__}.settings"):
     """Create the Flask instance for this application"""
     server = Flask(__package__)
 
-    # Enable CORS for all routes
-    CORS(server)
-
     # load default settings
     server.config.from_object(config_object)
+
+    # register extensions
+    register_extensions(server)
 
     # load additional settings that will override the defaults in settings.py. eg
     # $ export SETTINGS=/some/path/prod_settings.py

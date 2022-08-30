@@ -61,3 +61,7 @@ CONTENT_CONTAINER_ID = "page-content"
 
 # The ID of the element used to inject the navbar items into
 NAVBAR_CONTAINER_ID = "navbar-items"
+
+FLASK_ADMIN_SWATCH = "cerulean"
+
+SQLALCHEMY_DATABASE_URI = "sqlite:///pages.db"

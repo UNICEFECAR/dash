@@ -1,10 +1,9 @@
 import sentry_sdk
 
-# from flask_caching import Cache
-from flask_admin import Admin
+
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from . import create_dash, create_flask
+from . import create_dash, create_flask, admin
 from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
 
 sentry_sdk.init(
@@ -22,14 +21,7 @@ server = create_flask()
 # The Dash instance
 app = create_dash(server)
 
-admin = Admin(app.server, name="Dash Service", template_mode="bootstrap3")
-
-# define a cache instance
-# TODO: Move configuration to settings
-# TODO: for prod move to redis or similar
-# cache = Cache(
-#     app.server, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "cache-directory"}
-# )
+# Flask-Admin
 
 # Push an application context so we can use Flask's 'current_app'
 with server.app_context():
