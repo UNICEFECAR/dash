@@ -29,7 +29,7 @@ with open(
 ) as config_file:
     indicators_config = json.load(config_file)
 
-unicef = sdmx.Request("UNICEF")
+unicef = sdmx.Request("UNICEF", timeout=50.1)
 
 metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
 dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
