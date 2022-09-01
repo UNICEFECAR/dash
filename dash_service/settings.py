@@ -65,3 +65,5 @@ NAVBAR_CONTAINER_ID = "navbar-items"
 FLASK_ADMIN_SWATCH = "cerulean"
 
 SQLALCHEMY_DATABASE_URI = "sqlite:///pages.db"
+
+SECRET_KEY = "secretthatneedstobechangedinproduction"

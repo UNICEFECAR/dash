@@ -93,8 +93,6 @@ cfg = {
                     "animation_frame": "TIME_PERIOD",
                     "height": 750,
                 },
-                "name": "Who are Out-of-School",
-                # "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
                 "data": [
                     {
@@ -199,26 +197,24 @@ cfg = {
                 "name": "Education entry and transition",
                 "graphs": {
                     "bar": {
-                        "options": dict(
-                            x="REF_AREA_l",
-                            y="OBS_VALUE",
-                            barmode="group",
-                            # text="TIME_PERIOD",
-                            text="OBS_VALUE",
-                            hover_name="TIME_PERIOD",
-                        ),
-                        # "compare": "Sex",
+                        "options": {
+                            "x": "REF_AREA_l",
+                            "y": "OBS_VALUE",
+                            "barmode": "group",
+                            "text": "OBS_VALUE",
+                            "hover_name": "TIME_PERIOD",
+                        }
                     },
                     "line": {
-                        "options": dict(
-                            x="TIME_PERIOD",
-                            y="OBS_VALUE",
-                            color="name",
-                            hover_name="name",
-                            line_shape="spline",
-                            render_mode="svg",
-                        ),
-                        "trace_options": dict(mode="lines+markers"),
+                        "options": {
+                            "x": "TIME_PERIOD",
+                            "y": "OBS_VALUE",
+                            "color": "name",
+                            "hover_name": "name",
+                            "line_shape": "spline",
+                            "render_mode": "svg",
+                        },
+                        "trace_options": {"mode": "lines+markers"},
                     },
                 },
                 "default_graph": "bar",
@@ -233,7 +229,6 @@ cfg = {
                             "AGE": "_T",
                             "EDUCATION_LEVEL": "_T",
                         },
-                        # "label": "% of school dropout - final years of elementary school 1"
                     },
                     {
                         "agency": "BRAZIL_CO",
@@ -245,7 +240,6 @@ cfg = {
                             "AGE": "_T",
                             "EDUCATION_LEVEL": "_T",
                         },
-                        # "label": "% of school dropout - early years of elementary school 2"
                     },
                 ],
                 "default": "EDUNF_ROFST_L1",
@@ -254,26 +248,24 @@ cfg = {
                 "name": "Education entry and transition",
                 "graphs": {
                     "bar": {
-                        "options": dict(
-                            x="REF_AREA_l",
-                            y="OBS_VALUE",
-                            barmode="group",
-                            # text="TIME_PERIOD",
-                            text="OBS_VALUE",
-                            hover_name="TIME_PERIOD",
-                        ),
-                        # "compare": "Sex",
+                        "options": {
+                            "x": "REF_AREA_l",
+                            "y": "OBS_VALUE",
+                            "barmode": "group",
+                            "text": "OBS_VALUE",
+                            "hover_name": "TIME_PERIOD",
+                        },
                     },
                     "line": {
-                        "options": dict(
-                            x="TIME_PERIOD",
-                            y="OBS_VALUE",
-                            color="name",
-                            hover_name="name",
-                            line_shape="spline",
-                            render_mode="svg",
-                        ),
-                        "trace_options": dict(mode="lines+markers"),
+                        "options": {
+                            "x": "TIME_PERIOD",
+                            "y": "OBS_VALUE",
+                            "color": "name",
+                            "hover_name": "name",
+                            "line_shape": "spline",
+                            "render_mode": "svg",
+                        },
+                        "trace_options": {"mode": "lines+markers"},
                     },
                 },
                 "default_graph": "bar",
@@ -357,7 +349,6 @@ cfg = {
                         "OBS_VALUE": "Value",
                         "REF_AREA": "ISO3 Code",
                         "TIME_PERIOD": "Year",
-                        # "REF_AREA": "Country",
                         "name": "Country",
                     },
                     "hover_data": {
@@ -369,8 +360,6 @@ cfg = {
                     "animation_frame": "TIME_PERIOD",
                     "height": 750,
                 },
-                "name": "Who are Out-of-School",
-                # "indicator": "EDUNF_OFST_L1,EDUNF_OFST_L2,EDUNF_OFST_L3",
                 "suffix": "Primary to upper secondary aged Children and Adolescents",
                 "data": [
                     {
@@ -403,26 +392,24 @@ cfg = {
                 "name": "School Failure Rate",
                 "graphs": {
                     "bar": {
-                        "options": dict(
-                            x="REF_AREA_l",
-                            y="OBS_VALUE",
-                            barmode="group",
-                            # text="TIME_PERIOD",
-                            text="OBS_VALUE",
-                            hover_name="TIME_PERIOD",
-                        ),
-                        # "compare": "Sex",
+                        "options": {
+                            "x": "REF_AREA_l",
+                            "y": "OBS_VALUE",
+                            "barmode": "group",
+                            "text": "OBS_VALUE",
+                            "hover_name": "TIME_PERIOD",
+                        },
                     },
                     "line": {
-                        "options": dict(
-                            x="TIME_PERIOD",
-                            y="OBS_VALUE",
-                            color="name",
-                            hover_name="name",
-                            line_shape="spline",
-                            render_mode="svg",
-                        ),
-                        "trace_options": dict(mode="lines+markers"),
+                        "options": {
+                            "x": "TIME_PERIOD",
+                            "y": "OBS_VALUE",
+                            "color": "name",
+                            "hover_name": "name",
+                            "line_shape": "spline",
+                            "render_mode": "svg",
+                        },
+                        "trace_options": {"mode": "lines+markers"},
                     },
                 },
                 "default_graph": "bar",
@@ -542,26 +529,24 @@ cfg = {
                 "name": "Education entry and transition",
                 "graphs": {
                     "bar": {
-                        "options": dict(
-                            x="REF_AREA_l",
-                            y="OBS_VALUE",
-                            barmode="group",
-                            # text="TIME_PERIOD",
-                            text="OBS_VALUE",
-                            hover_name="TIME_PERIOD",
-                        ),
-                        # "compare": "Sex",
+                        "options": {
+                            "x": "REF_AREA_l",
+                            "y": "OBS_VALUE",
+                            "barmode": "group",
+                            "text": "OBS_VALUE",
+                            "hover_name": "TIME_PERIOD",
+                        },
                     },
                     "line": {
-                        "options": dict(
-                            x="TIME_PERIOD",
-                            y="OBS_VALUE",
-                            color="name",
-                            hover_name="name",
-                            line_shape="spline",
-                            render_mode="svg",
-                        ),
-                        "trace_options": dict(mode="lines+markers"),
+                        "options": {
+                            "x": "TIME_PERIOD",
+                            "y": "OBS_VALUE",
+                            "color": "name",
+                            "hover_name": "name",
+                            "line_shape": "spline",
+                            "render_mode": "svg",
+                        },
+                        "trace_options": {"mode": "lines+markers"},
                     },
                 },
                 "default_graph": "bar",
@@ -683,8 +668,8 @@ cfg = {
 
 
 def get_layout(**kwargs):
-    # kwargs["indicators"] = indicators_dict
-    # kwargs["main_title"] = main_title
-    # kwargs["main_title"] = cfg["main_title"]
+    # kwargs["indicators"] : indicators_dict
+    # kwargs["main_title"] : main_title
+    # kwargs["main_title"] : cfg["main_title"]
     kwargs["cfg"] = cfg
     return get_base_layout(**kwargs)

@@ -1,10 +1,11 @@
 import sentry_sdk
-
-
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from . import create_dash, create_flask, admin
+from . import admin, create_dash, create_app
+from .extensions import admin, db
 from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
+from .models import Page
+from .views import PageView
 
 sentry_sdk.init(
     integrations=[FlaskIntegration()],
@@ -16,12 +17,13 @@ sentry_sdk.init(
 
 
 # The Flask instance
-server = create_flask()
+server = create_app()
 
 # The Dash instance
 app = create_dash(server)
 
 # Flask-Admin
+admin.add_view(PageView(Page, db.session))
 
 # Push an application context so we can use Flask's 'current_app'
 with server.app_context():

@@ -4,13 +4,14 @@ from flask import Flask
 
 from .__version__ import __version__
 from .utils import get_dash_args_from_flask_config
-from .extensions import db, admin, cors
+from .extensions import db, admin, cors, migrate
 
 
 def register_extensions(app):
     """Register Flask extensions."""
 
     db.init_app(app)
+    migrate.init_app(app, db)
     admin.init_app(app)
     cors.init_app(app)
     # bcrypt.init_app(app)
@@ -22,7 +23,7 @@ def register_extensions(app):
     # flask_static_digest.init_app(app)
 
 
-def create_flask(config_object=f"{__package__}.settings"):
+def create_app(config_object=f"{__package__}.settings"):
     """Create the Flask instance for this application"""
     server = Flask(__package__)
 

@@ -163,11 +163,8 @@ def get_base_layout(**kwargs):
     # indicators_dict = kwargs.get("indicators")
     cfg = kwargs.get("cfg")
     main_title = cfg["main_title"]
-    cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
-    cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
     selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
 
-    country_dropdown_style = {"display": "none"}
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     programme_toggle_style = {"display": "block"}
