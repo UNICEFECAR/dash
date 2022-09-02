@@ -1,20 +1,19 @@
 import inspect
+import os
 from functools import wraps
 from urllib.parse import parse_qs
 
 import dash
-import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Output, Input, State
-from dash.exceptions import PreventUpdate
+import dash_html_components as html
+from dash.dependencies import Input, Output, State
 from dash.development.base_component import Component
+from dash.exceptions import PreventUpdate
 from flask import current_app as server
 from werkzeug.datastructures import MultiDict
 
-from .pages import page_not_found
 from .exceptions import InvalidLayoutError
-
-import itertools
+from .pages import page_not_found
 
 
 def fa(className):
@@ -83,12 +82,13 @@ class DashRouter:
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
-            
-            print(f"pathname: {pathname}")
-            
+                        
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
-
+            
+            # we just need the last part of the pathname to find the page
+            # (parent paths might be added by the calling page if embedding etc)
+            pathname = "/"+os.path.basename(os.path.normpath(pathname))
             page = self.routes.get(pathname, None)
 
             if page is None:

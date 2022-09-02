@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
+    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -1024,7 +1024,7 @@ def area_figure(
         selections["countries"],
         compare,
         latest_data=False if fig_type == "line" or is_country_profile else True,
-    )
+    ).sort_values("OBS_VALUE", ascending=False)
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
