@@ -1035,9 +1035,12 @@ def area_figure(
 ):
 
     # assumes indicator is not empty
-    indicator = 
-    buttons_properties['props']['children']
-    
+    indicator = [
+        but_prop["props"]["id"]
+        for but_prop in buttons_properties["props"]["children"]
+        if but_prop["props"]["active"] is True
+    ][0]
+
     # check if it is the country profile page
     is_country_profile = selections["theme"] == "COUNTRYPROFILE"
 
