@@ -81,7 +81,7 @@ def make_area(area_name):
     exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
     breakdowns_style = {"display": "block"}
 
-    #TODO: still differentiating main area id from other areas ids because the call backs are still not unified
+    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
         area_id = f"{area_name.lower()}_area"
         popover_id = f"{area_name.lower()}_area_sources"
@@ -98,66 +98,92 @@ def make_area(area_name):
             ),
             dbc.CardBody(
                 [
-                    dcc.Dropdown(
-                        id={"type": "area_options", "index": area_name},
-                        className="dcc_control",
-                    ),
-                    html.Br(),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Show historical data",
-                                "value": 1,
-                            }
-                        ],
-                        value=[],
-                        id={
-                            "type": "historical_data_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style=historical_data_style,
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_types", "index": area_name},
-                        inline=True,
-                    ),
-                    dcc.Loading([dcc.Graph(id=area_id)]),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Exclude outliers ",
-                                "value": 1,
-                            }
-                        ],
-                        value=[1],
-                        id={
-                            "type": "exclude_outliers_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style=exclude_outliers_style,
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_breakdowns", "index": area_name},
-                        inline=True,
-                        style=breakdowns_style,
-                    ),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{area_name.lower()}_area_info",
-                        className="float-right",
-                    ),
-                    dbc.Popover(
-                        [
-                            dbc.PopoverHeader("Sources"),
-                            dbc.PopoverBody(id=popover_id),
-                        ],
-                        id="hover",
-                        target=f"{area_name.lower()}_area_info",
-                        trigger="hover",
+                    dbc.Container(
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.ButtonGroup(
+                                        id={
+                                            "type": "area_options",
+                                            "index": area_name,
+                                        },
+                                    ),
+                                    width=4,
+                                ),
+                                dbc.Col(
+                                    html.Div(
+                                        [
+                                            dbc.Checklist(
+                                                options=[
+                                                    {
+                                                        "label": "Show historical data",
+                                                        "value": 1,
+                                                    }
+                                                ],
+                                                value=[],
+                                                id={
+                                                    "type": "historical_data_toggle",
+                                                    "index": area_name,
+                                                },
+                                                switch=True,
+                                                style=historical_data_style,
+                                            ),
+                                            html.Br(),
+                                            dbc.RadioItems(
+                                                id={
+                                                    "type": "area_types",
+                                                    "index": area_name,
+                                                },
+                                                inline=True,
+                                            ),
+                                            dcc.Loading([dcc.Graph(id=area_id)]),
+                                            dbc.Checklist(
+                                                options=[
+                                                    {
+                                                        "label": "Exclude outliers ",
+                                                        "value": 1,
+                                                    }
+                                                ],
+                                                value=[1],
+                                                id={
+                                                    "type": "exclude_outliers_toggle",
+                                                    "index": area_name,
+                                                },
+                                                switch=True,
+                                                style=exclude_outliers_style,
+                                            ),
+                                            html.Br(),
+                                            dbc.RadioItems(
+                                                id={
+                                                    "type": "area_breakdowns",
+                                                    "index": area_name,
+                                                },
+                                                inline=True,
+                                                style=breakdowns_style,
+                                            ),
+                                            html.Div(
+                                                fa("fas fa-info-circle"),
+                                                id=f"{area_name.lower()}_area_info",
+                                                className="float-right",
+                                            ),
+                                            dbc.Popover(
+                                                [
+                                                    dbc.PopoverHeader("Sources"),
+                                                    dbc.PopoverBody(id=popover_id),
+                                                ],
+                                                id="hover",
+                                                target=f"{area_name.lower()}_area_info",
+                                                trigger="hover",
+                                            ),
+                                        ],
+                                    ),
+                                    width=8,
+                                ),
+                            ],
+                            justify="evenly",
+                            align="start",
+                        ),
+                        fluid=True,
                     ),
                 ]
             ),
@@ -343,21 +369,13 @@ def get_base_layout(**kwargs):
                 justify="center",
             ),
             html.Br(),
+            # dbc.CardDeck(
+            #     [make_area(area) for area in ["MAIN"]],
+            #     style=main_area_style,
+            # ),
+            # html.Br(),
             dbc.CardDeck(
-                [make_area(area) for area in ["MAIN"]],
-                style=main_area_style,
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_1", "AREA_2"]],
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_3", "AREA_4"]],
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_5", "AREA_6"]],
+                [make_area(area) for area in ["AREA_1"]],
             ),
             html.Br(),
         ],
@@ -666,13 +684,13 @@ def indicator_card(
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
             numerator_pairs = indicator_values.groupby(
-                "REF_AREA", as_index=False
+                "Country_name", as_index=False
             ).last()
             max_time_filter = (
                 numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
             )
             numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["REF_AREA", "TIME_PERIOD"], inplace=True)
+            numerator_pairs.set_index(["Country_name", "TIME_PERIOD"], inplace=True)
             sources = numerator_pairs.index.tolist()
             indicator_sum = len(sources)
         else:
@@ -682,6 +700,9 @@ def indicator_card(
                 (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
             )
             sources = numerator_pairs.index.tolist()
+            numerator_pairs = numerator_pairs[
+                numerator_pairs.OBS_VALUE == len(indicators)
+            ]
 
     else:
         indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
@@ -716,22 +737,26 @@ def indicator_card(
     [State("cards_row", "children"), State("indicators", "data")],
 )
 def show_cards(selections, current_cards, indicators_dict):
-    cards = [
-        indicator_card(
-            selections,
-            f"card-{num}",
-            card["name"],
-            card["indicator"],
-            card["suffix"],
-            card.get("denominator"),
-            card.get("absolute"),
-            card.get("average"),
-            card.get("min_max"),
-            card.get("sex"),
-            card.get("age"),
-        )
-        for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
-    ]
+    cards = (
+        [
+            indicator_card(
+                selections,
+                f"card-{num}",
+                card["name"],
+                card["indicator"],
+                card["suffix"],
+                card.get("denominator"),
+                card.get("absolute"),
+                card.get("average"),
+                card.get("min_max"),
+                card.get("sex"),
+                card.get("age"),
+            )
+            for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
+        ]
+        if "CARDS" in indicators_dict[selections["theme"]]
+        else []
+    )
     return cards
 
 
@@ -781,9 +806,8 @@ def show_themes(selections, selected_country, indicators_dict):
 
 @app.callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
-    Output({"type": "area_options", "index": MATCH}, "options"),
+    Output({"type": "area_options", "index": MATCH}, "children"),
     Output({"type": "area_types", "index": MATCH}, "options"),
-    Output({"type": "area_options", "index": MATCH}, "value"),
     Output({"type": "area_types", "index": MATCH}, "value"),
     Input("store", "data"),
     [
@@ -799,13 +823,26 @@ def set_options(theme, indicators_dict, id):
     if area in indicators_dict[theme["theme"]]:
         indicators = indicators_dict[theme["theme"]][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
-        area_options = [
-            {
-                "label": indicator_names[code],
-                "value": code,
-            }
-            for code in area_indicators
-        ]
+
+        default_option = (
+            indicators_dict[theme["theme"]][area].get("default")
+            if area in indicators_dict[theme["theme"]]
+            else ""
+        )
+
+        area_butons = dbc.ButtonGroup(
+            [
+                dbc.Button(
+                    indicator_names[code],
+                    id=code,
+                    color="info",
+                    className="theme mx-1",
+                    active=code == default_option if default_option != "" else num == 0,
+                )
+                for num, code in enumerate(area_indicators)
+            ],
+            vertical=True,
+        )
 
         area_types = [
             {
@@ -820,18 +857,14 @@ def set_options(theme, indicators_dict, id):
         if area in indicators_dict[theme["theme"]]
         else ""
     )
-    default_option = (
-        indicators_dict[theme["theme"]][area].get("default")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-    )
+
     default_graph = (
         indicators_dict[theme["theme"]][area].get("default_graph")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
 
-    return name, area_options, area_types, default_option, default_graph
+    return name, area_butons, area_types, default_graph
 
 
 @app.callback(
@@ -971,11 +1004,17 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
 
 
 @app.callback(
-    Output({"type": "area", "index": MATCH}, "figure"),
-    Output({"type": "area_sources", "index": MATCH}, "children"),
+    [
+        Output({"type": "area", "index": MATCH}, "figure"),
+        Output({"type": "area_sources", "index": MATCH}, "children"),
+        # TODO: make the active button true if possible
+        # Output({"type": "area_options", "index": MATCH}, "children"),
+        # *[Output(f"{code}", "active") for code in [1, 2, 3]]
+    ],
     [
         Input("store", "data"),
-        Input({"type": "area_options", "index": MATCH}, "value"),
+        # check if enough to trigger with children
+        Input({"type": "area_options", "index": MATCH}, "children"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
         Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
@@ -987,16 +1026,21 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
 )
 def area_figure(
     selections,
-    indicator,
+    buttons_properties,
     compare,
     selected_type,
     exclude_outliers,
     indicators_dict,
     id,
 ):
-    # only run if indicator not empty
-    if not indicator:
-        return {}, {}
+
+    # assumes indicator is not empty
+    indicator = [
+        but_prop["props"]["id"]
+        for but_prop in buttons_properties["props"]["children"]
+        if but_prop["props"]["active"] is True
+    ][0]
+
     # check if it is the country profile page
     is_country_profile = selections["theme"] == "COUNTRYPROFILE"
 
@@ -1069,12 +1113,13 @@ def area_figure(
         title=chart_title,
         title_x=0.5,
         font=dict(family="Arial", size=12),
-        legend=dict(x=0.9, y=0.5),
+        legend=dict(x=1, y=0.5),
+        xaxis={"categoryorder": "total descending"},
     )
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line" or is_country_profile:
-        data.sort_values(by=["TIME_PERIOD"], inplace=True)
+        data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
         layout["xaxis"] = dict(
             tickmode="linear",
             tick0=selections["years"][0],
@@ -1086,20 +1131,9 @@ def area_figure(
         # lbassil: use the dimension name instead of the code
         dimension_name = str(dimension_names.get(dimension, ""))
         options["color"] = dimension_name
-        if compare == "WEALTH_QUINTILE":
-            wealth_dict = {
-                "Lowest": 0,
-                "Second": 1,
-                "Middle": 2,
-                "Fourth": 3,
-                "Highest": 4,
-            }
-            data.sort_values(
-                by=[dimension], key=lambda x: x.map(wealth_dict), inplace=True
-            )
-        else:
-            # sort by the compare value to have the legend in the right ascending order
-            data.sort_values(by=[dimension], inplace=True)
+
+        # sort by the compare value to have the legend in the right ascending order
+        data.sort_values(by=[dimension], inplace=True)
 
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
