@@ -102,20 +102,11 @@ def make_area(area_name):
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    html.Div(
-                                        [
-                                            dbc.RadioItems(
-                                                id={
-                                                    "type": "area_options",
-                                                    "index": area_name,
-                                                },
-                                                className="btn-group",
-                                                inputClassName="btn-check",
-                                                labelClassName="btn btn-outline-info",
-                                                labelCheckedClassName="active",
-                                            ),
-                                        ],
-                                        className="radio-group",
+                                    dbc.ButtonGroup(
+                                        id={
+                                            "type": "area_options",
+                                            "index": area_name,
+                                        },
                                     ),
                                     width=4,
                                 ),
@@ -815,9 +806,8 @@ def show_themes(selections, selected_country, indicators_dict):
 
 @app.callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
-    Output({"type": "area_options", "index": MATCH}, "options"),
+    Output({"type": "area_options", "index": MATCH}, "children"),
     Output({"type": "area_types", "index": MATCH}, "options"),
-    Output({"type": "area_options", "index": MATCH}, "value"),
     Output({"type": "area_types", "index": MATCH}, "value"),
     Input("store", "data"),
     [
@@ -833,13 +823,26 @@ def set_options(theme, indicators_dict, id):
     if area in indicators_dict[theme["theme"]]:
         indicators = indicators_dict[theme["theme"]][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
-        area_options = [
-            {
-                "label": indicator_names[code],
-                "value": code,
-            }
-            for code in area_indicators
-        ]
+
+        default_option = (
+            indicators_dict[theme["theme"]][area].get("default")
+            if area in indicators_dict[theme["theme"]]
+            else ""
+        )
+
+        area_butons = dbc.ButtonGroup(
+            [
+                dbc.Button(
+                    indicator_names[code],
+                    id=code,
+                    color="info",
+                    className="theme mx-1",
+                    active=code == default_option if default_option != "" else num == 0,
+                )
+                for num, code in enumerate(area_indicators)
+            ],
+            vertical=True,
+        )
 
         area_types = [
             {
@@ -854,18 +857,14 @@ def set_options(theme, indicators_dict, id):
         if area in indicators_dict[theme["theme"]]
         else ""
     )
-    default_option = (
-        indicators_dict[theme["theme"]][area].get("default")
-        if area in indicators_dict[theme["theme"]]
-        else ""
-    )
+
     default_graph = (
         indicators_dict[theme["theme"]][area].get("default_graph")
         if area in indicators_dict[theme["theme"]]
         else ""
     )
 
-    return name, area_options, area_types, default_option, default_graph
+    return name, area_butons, area_types, default_graph
 
 
 @app.callback(
@@ -1005,11 +1004,17 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
 
 
 @app.callback(
-    Output({"type": "area", "index": MATCH}, "figure"),
-    Output({"type": "area_sources", "index": MATCH}, "children"),
+    [
+        Output({"type": "area", "index": MATCH}, "figure"),
+        Output({"type": "area_sources", "index": MATCH}, "children"),
+        # TODO: make the active button true if possible
+        # Output({"type": "area_options", "index": MATCH}, "children"),
+        # *[Output(f"{code}", "active") for code in [1, 2, 3]]
+    ],
     [
         Input("store", "data"),
-        Input({"type": "area_options", "index": MATCH}, "value"),
+        # check if enough to trigger with children
+        Input({"type": "area_options", "index": MATCH}, "children"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
         Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
@@ -1021,16 +1026,18 @@ def main_figure(indicator, show_historical_data, selections, indicators_dict):
 )
 def area_figure(
     selections,
-    indicator,
+    buttons_properties,
     compare,
     selected_type,
     exclude_outliers,
     indicators_dict,
     id,
 ):
-    # only run if indicator not empty
-    if not indicator:
-        return {}, {}
+
+    # assumes indicator is not empty
+    indicator = 
+    buttons_properties['props']['children']
+    
     # check if it is the country profile page
     is_country_profile = selections["theme"] == "COUNTRYPROFILE"
 
