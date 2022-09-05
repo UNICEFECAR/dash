@@ -4870,6 +4870,283 @@
     "JJ_CHLD_POST_SENTENCE_DETENTION": {
         "SEX": {
             "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_POST_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_PRETRIAL": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_PRE_SENTENCE_DETENTION_RATE": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_PRISION_ADJUDICATION": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_VICTIM": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y0T13",
+                "Y14T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_VICTIM_CRIME": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_VICTIM_CRIME_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_WITNESS_CRIME": {
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CHLD_WITNESS_CRIME_RATE": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_CRIMERT": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y14T17"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_PRISIONERS": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y_GE18",
+                "Y0T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "JJ_PRISIONERS_RT": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y_GE18",
+                "Y0T17"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "MG_INTNL_MG_CNTRY_DEST_PS": {
+        "AGE": {
+            "AGE": [
                 "_T",
                 "Y0T17"
             ]
@@ -4924,9 +5201,69 @@
             "RESIDENCE": [
                 "_T"
             ],
-            "SEX": [
-                "F",
-                "M"
+            "WEALTH_QUINTILE": [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4",
+                "Q5"
+            ]
+        }
+    },
+    "MNCH_BIRTH18": {
+        "RESIDENCE": {
+            "RESIDENCE": [
+                "R",
+                "U"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "TOTAL": {
+            "RESIDENCE": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "WEALTH_QUINTILE": {
+            "RESIDENCE": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4",
+                "Q5"
+            ]
+        }
+    },
+    "MNCH_CSEC": {
+        "AGE": {
+            "AGE": [
+                "_T",
+                "Y15T19"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "RESIDENCE": {
+            "AGE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "R",
+                "U"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
             ]
         },
         "TOTAL": {
@@ -5035,393 +5372,7 @@
         },
         "TOTAL": {
             "AGE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
                 "Y15T49"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ]
-        },
-        "WEALTH_QUINTILE": {
-            "AGE": [
-                "Y15T49"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
-            ]
-        }
-    },
-    "MT_SDG_SUICIDE": {
-        "AGE": {
-            "AGE": [
-                "Y15T19",
-                "Y15T29",
-                "Y30T49"
-            ],
-            "SEX": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ]
-        }
-    },
-    "NT_ANT_HAZ_NE2": {
-        "AGE": {
-            "AGE": [
-                "_T",
-                "Y14T17"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "_T"
-            ]
-        }
-    },
-    "JJ_PRISIONERS": {
-        "AGE": {
-            "AGE": [
-                "_T",
-                "Y_GE18",
-                "Y0T17"
-            ],
-            "SEX": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "Y0T4"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "_T"
-            ]
-        }
-    },
-    "MNCH_ANC4": {
-        "AGE": {
-            "AGE": [
-                "Y0T4",
-                "M0T23",
-                "M24T59"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "RESIDENCE": {
-            "AGE": [
-                "Y0T4"
-            ],
-            "RESIDENCE": [
-                "R",
-                "U"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "Y0T4"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
-            ]
-        }
-    },
-    "MNCH_BIRTH18": {
-        "RESIDENCE": {
-            "RESIDENCE": [
-                "R",
-                "U"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "Y0T4"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "WEALTH_QUINTILE": {
-            "AGE": [
-                "Y0T4"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
-            ]
-        }
-    },
-    "NT_BF_EIBF": {
-        "RESIDENCE": {
-            "RESIDENCE": [
-                "R",
-                "U"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "TOTAL": {
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "WEALTH_QUINTILE": {
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
-            ]
-        }
-    },
-    "NT_BF_EXBF": {
-        "AGE": {
-            "AGE": [
-                "M0T5",
-                "M0T1",
-                "M2T3",
-                "M4T5"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "RESIDENCE": {
-            "AGE": [
-                "M0T5"
-            ],
-            "RESIDENCE": [
-                "R",
-                "U"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "M0T5"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "F",
-                "M"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "TOTAL": {
-            "AGE": [
-                "M0T5"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "WEALTH_QUINTILE": {
-            "AGE": [
-                "M0T5"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
-            ]
-        }
-    },
-    "NT_CF_MAD": {
-        "AGE": {
-            "AGE": [
-                "M6T23",
-                "M6T11",
-                "M12T23"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "RESIDENCE": {
-            "AGE": [
-                "M6T23"
-            ],
-            "RESIDENCE": [
-                "R",
-                "U"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
-        "SEX": {
-            "AGE": [
-                "M6T23"
             ],
             "RESIDENCE": [
                 "_T"
@@ -6842,20 +6793,10 @@
         },
         "TOTAL": {
             "AGE": [
-                "M6T23"
-            ],
-            "RESIDENCE": [
                 "_T"
             ],
             "SEX": [
                 "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "Q1",
-                "Q2",
-                "Q3",
-                "Q4",
-                "Q5"
             ]
         }
     },
@@ -6962,18 +6903,24 @@
     },
     "PT_CHLD_INKINSHIP": {
         "SEX": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
         }
     },
-    "PP_SE_ADT_ACTS_SFWR": {
+    "PT_CHLD_INKINSHIP_PROP": {
         "SEX": {
             "SEX": [
                 "F",
@@ -6986,20 +6933,26 @@
             ]
         }
     },
-    "PP_SE_ADT_ACTS_SSHT": {
+    "PT_CHLD_INOTHER_FAMILY": {
         "SEX": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "_T"
+            ],
             "SEX": [
                 "_T"
             ]
         }
     },
-    "PP_SE_ADT_ACTS_TRFF": {
+    "PT_CHLD_INOTHER_FAMILY_PROP": {
         "SEX": {
             "SEX": [
                 "F",
