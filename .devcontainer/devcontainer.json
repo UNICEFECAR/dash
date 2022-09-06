@@ -32,7 +32,8 @@
 	"extensions": [
 		"ms-python.python",
 		"ms-azuretools.vscode-docker",
-		"github.copilot"
+		"github.copilot",
+		"njpwerner.autodoc"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [

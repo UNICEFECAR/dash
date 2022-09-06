@@ -19,16 +19,11 @@ sentry_sdk.init(
 # The Flask instance
 server = create_app()
 
-# The Dash instance
-app = create_dash(server)
-
 # Flask-Admin
 admin.add_view(PageView(Page, db.session))
 
-# Push an application context so we can use Flask's 'current_app'
-with server.app_context():
-    # load the rest of our Dash app
-    from . import index
+# The Dash instance
+app = create_dash(server)
 
-    # configure the Dash instance's layout
-    app.layout = main_default_layout()
+# configure the Dash instance's layout
+app.layout = main_default_layout()

@@ -19,13 +19,13 @@ SERVE_LOCALLY = False
 # Dash.__init__ keyword arguments
 #
 
-# URL prefix for client-side requests and client-side requests. If not None,
-# must begin and end with a '/'.
-REQUESTS_PATHNAME_PREFIX = None
+# # URL prefix for client-side requests and client-side requests. If not None,
+# # must begin and end with a '/'.
+# REQUESTS_PATHNAME_PREFIX = None
 
-# URL prefix for server-side routes. If not None, must begin and end with a
-# '/'.
-ROUTES_PATHNAME_PREFIX = "/"
+# # URL prefix for server-side routes. If not None, must begin and end with a
+# # '/'.
+# ROUTES_PATHNAME_PREFIX = "/"
 
 # Externally hosted CSS files go in here. If you want to use Bootstrap from a
 # CDN, Dash Bootstrap Components contains links to bootstrapcdn:
@@ -53,14 +53,14 @@ EXTERNAL_SCRIPTS = ["https://code.jquery.com/jquery-3.6.0.min.js"]
 # Layout config
 #
 
-# The ID of the dcc.Location component used for multi-page apps
-LOCATION_COMPONENT_ID = "dash-location"
+# # The ID of the dcc.Location component used for multi-page apps
+# LOCATION_COMPONENT_ID = "dash-location"
 
-# The ID of the element used to inject each page of the multi-page app into
-CONTENT_CONTAINER_ID = "page-content"
+# # The ID of the element used to inject each page of the multi-page app into
+# CONTENT_CONTAINER_ID = "page-content"
 
-# The ID of the element used to inject the navbar items into
-NAVBAR_CONTAINER_ID = "navbar-items"
+# # The ID of the element used to inject the navbar items into
+# NAVBAR_CONTAINER_ID = "navbar-items"
 
 FLASK_ADMIN_SWATCH = "cerulean"
 

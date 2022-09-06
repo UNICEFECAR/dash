@@ -10,6 +10,7 @@
             "request": "launch",
             "module": "dash_service.dev_cli",
             "cwd": "${workspaceFolder}",
+            "justMyCode": false,
             "args": [
                 "--debug"
             ]

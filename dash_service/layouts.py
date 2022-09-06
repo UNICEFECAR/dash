@@ -2,12 +2,11 @@
 Dash app instances.
 """
 
-from flask import current_app as server
-import dash_core_components as dcc
-import dash_html_components as html
+import dash
+from dash import dcc, html
 import dash_bootstrap_components as dbc
 
-from .components import make_footer, make_header, make_sidebar, make_header_nav
+from .components import make_brand, make_nav
 from .components import fa
 
 
@@ -15,11 +14,15 @@ def main_layout_header():
     """Dash layout with a top-header"""
     return html.Div(
         [
-            make_header(),
-            dbc.Container(
-                dbc.Row(dbc.Col(id=server.config["CONTENT_CONTAINER_ID"])), fluid=True
+            dbc.Row(
+                [
+                    dbc.Col(make_brand(), width="auto"),
+                    dbc.Col(make_nav(vertical=False), width="auto"),
+                ],
+                id="header",
+                className="bg-dark justify-content-between align-items-center",
             ),
-            dcc.Location(id=server.config["LOCATION_COMPONENT_ID"], refresh=False),
+            dbc.Container(dbc.Row(dbc.Col(dash.page_container)), fluid=True),
         ]
     )
 
@@ -33,13 +36,16 @@ def main_layout_sidebar():
                 children=dbc.Row(
                     [
                         dbc.Col(
-                            make_sidebar(className="px-2"), width=2, className="px-0"
+                            [make_brand(), make_nav(vertical=True)],
+                            width=2,
+                            className="px-0 bg-dark",
+                            style={"height": "100vh"},
+                            id="sidebar",
                         ),
-                        dbc.Col(id=server.config["CONTENT_CONTAINER_ID"], width=10),
+                        dbc.Col(dash.page_container, width=10),
                     ]
                 ),
             ),
-            dcc.Location(id=server.config["LOCATION_COMPONENT_ID"], refresh=False),
         ]
     )
 
@@ -48,16 +54,13 @@ def main_default_layout():
 
     return html.Div(
         [
-            make_header_nav(),
+            make_nav(),
             html.Br(),
             dcc.Store(id="store"),
             dbc.Container(
                 fluid=True,
                 children=[
-                    dbc.Col(id=server.config["CONTENT_CONTAINER_ID"]),
-                    dcc.Location(
-                        id=server.config["LOCATION_COMPONENT_ID"], refresh=False
-                    ),
+                    dbc.Col(dash.page_container),
                 ],
             ),
             # make_footer(),

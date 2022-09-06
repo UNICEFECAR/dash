@@ -45,6 +45,7 @@ def create_dash(server):
     app = Dash(
         name=__package__,
         server=server,
+        use_pages=True,
         suppress_callback_exceptions=True,
         **get_dash_args_from_flask_config(server.config),
     )

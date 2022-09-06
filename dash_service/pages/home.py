@@ -1,12 +1,11 @@
-import dash_core_components as dcc
-import dash_html_components as html
+import dash
+from dash import html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, State, Output
 
-from ..app import app
+dash.register_page(__name__, path="/")
 
 
-def get_layout(**kwargs):
+def layout(**kwargs):
     return html.Div(
         children=[
             html.Div(
@@ -40,7 +39,7 @@ def get_layout(**kwargs):
                             dbc.CardBody(
                                 [
                                     html.Img(
-                                        src="assets/home.png",
+                                        src="assets/architecture.png",
                                         className="rounded mx-auto d-block",
                                     ),
                                     html.Br(),

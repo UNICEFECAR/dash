@@ -2,20 +2,18 @@ import textwrap
 
 import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 import dash_treeview_antd
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
+from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
-from scipy.stats import zscore
-
-from ..app import app
-from ..components import fa
-from . import (
+from dash_labs import print_registry
+from dash_service.components import fa
+from dash_service.models import Page
+from dash_service.pages import (
     geo_json_countries,
     get_codelist,
     get_col_unique,
@@ -24,6 +22,7 @@ from . import (
     get_selection_tree,
     years,
 )
+from scipy.stats import zscore
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -48,7 +47,15 @@ colours = [
     "success",
     "danger",
 ]
-AREA_KEYS = ["MAIN", "AREA_1", "AREA_2", "AREA_3", "AREA_4", "AREA_5", "AREA_6"]
+AREA_KEYS = [
+    "MAIN",
+    "AREA_1",
+    "AREA_2",
+    "AREA_3",
+    "AREA_4",
+    "AREA_5",
+    "AREA_6",
+]
 
 CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
 
@@ -68,111 +75,53 @@ EMPTY_CHART = {
     }
 }
 
-
-def make_area(area_name):
-    area_id = {"type": "area", "index": area_name}
-    popover_id = {"type": "area_sources", "index": area_name}
-    historical_data_style = {"display": "none"}
-    breakdowns_style = {"display": "block"}
-
-    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
-    if area_name == "MAIN":
-        area_id = f"{area_name.lower()}_area"
-        popover_id = f"{area_name.lower()}_area_sources"
-        historical_data_style = {"display": "block"}
-        breakdowns_style = {"display": "none"}
-
-    area = dbc.Card(
-        [
-            dbc.CardHeader(
-                id={"type": "area_title", "index": area_name},
-                style={"fontWeight": "bold"},
-            ),
-            dbc.CardBody(
-                [
-                    dcc.Dropdown(
-                        id={"type": "area_options", "index": area_name},
-                        className="dcc_control",
-                    ),
-                    html.Br(),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Show historical data",
-                                "value": 1,
-                            }
-                        ],
-                        value=[],
-                        id={
-                            "type": "historical_data_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style=historical_data_style,
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_types", "index": area_name},
-                        inline=True,
-                    ),
-                    dcc.Loading([dcc.Graph(id=area_id)]),
-                    dbc.Checklist(
-                        options=[
-                            {
-                                "label": "Exclude outliers ",
-                                "value": 1,
-                            }
-                        ],
-                        value=[1],
-                        id={
-                            "type": "exclude_outliers_toggle",
-                            "index": area_name,
-                        },
-                        switch=True,
-                        style={"display": "none"},
-                    ),
-                    html.Br(),
-                    dbc.RadioItems(
-                        id={"type": "area_breakdowns", "index": area_name},
-                        inline=True,
-                        style=breakdowns_style,
-                    ),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{area_name.lower()}_area_info",
-                        className="float-right",
-                    ),
-                    dbc.Popover(
-                        [
-                            dbc.PopoverHeader("Sources"),
-                            dbc.PopoverBody(id=popover_id),
-                        ],
-                        id="hover",
-                        target=f"{area_name.lower()}_area_info",
-                        trigger="hover",
-                    ),
-                ]
-            ),
-        ],
-        id={"type": "area_parent", "index": area_name},
-    )
-    return area
+# This hooks into Dash's multipage functionality and allows us to specify the URL pattern
+# https://dash.plotly.com/urls
+def title(page_slug=None):
+    return f"{page_slug} Analysis"
 
 
-def get_base_layout(**kwargs):
-    # indicators_dict = kwargs.get("indicators")
-    cfg = kwargs.get("cfg")
-    main_title = cfg["main_title"]
-    selection_tree = get_selection_tree(cfg["ddl_ref_areas_cl"])
+def description(page_slug=None):
+    return f"News, financials and technical analysis for {page_slug}"
+
+
+dash.register_page(
+    __name__,
+    name="Pages",
+    path_template="/pages/<page_slug>",
+    title=title,
+    description=description,
+    path="/pages/child-eduction",
+)
+
+
+def layout(page_slug=None, **query_parmas):
+    """
+    Handler for Dash's multipage functionality.
+    This function is called with the URL parameters and returns the layout for that page.
+    TODO: This could also support query parameters if needed.
+
+    Args:
+        project_name (str): The name of the project in the admin
+        page_slug (str): The slug of the page in the admin
+
+    Returns:
+        html.Div: The rendered page
+    """
+    print_registry()
+
+    page = Page.query.filter_by(slug=page_slug).first_or_404()
+    config = page.content
+    main_title = config["main_title"]
+    selection_tree = get_selection_tree(config["ddl_ref_areas_cl"])
 
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
-    programme_toggle_style = {"display": "block"}
     main_area_style = {"display": "block"}
 
     return html.Div(
         [
-            dcc.Store(id="page_cfg", data=cfg),
+            dcc.Store(id="page_config", data=config),
             dcc.Location(id="theme"),
             html.Div(
                 className="heading",
@@ -315,6 +264,96 @@ def get_base_layout(**kwargs):
     )
 
 
+def make_area(area_name):
+    area_id = {"type": "area", "index": area_name}
+    popover_id = {"type": "area_sources", "index": area_name}
+    historical_data_style = {"display": "none"}
+    breakdowns_style = {"display": "block"}
+
+    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
+    if area_name == "MAIN":
+        area_id = f"{area_name.lower()}_area"
+        popover_id = f"{area_name.lower()}_area_sources"
+        historical_data_style = {"display": "block"}
+        breakdowns_style = {"display": "none"}
+
+    area = dbc.Card(
+        [
+            dbc.CardHeader(
+                id={"type": "area_title", "index": area_name},
+                style={"fontWeight": "bold"},
+            ),
+            dbc.CardBody(
+                [
+                    dcc.Dropdown(
+                        id={"type": "area_options", "index": area_name},
+                        className="dcc_control",
+                    ),
+                    html.Br(),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Show historical data",
+                                "value": 1,
+                            }
+                        ],
+                        value=[],
+                        id={
+                            "type": "historical_data_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
+                        style=historical_data_style,
+                    ),
+                    html.Br(),
+                    dbc.RadioItems(
+                        id={"type": "area_types", "index": area_name},
+                        inline=True,
+                    ),
+                    dcc.Loading([dcc.Graph(id=area_id)]),
+                    dbc.Checklist(
+                        options=[
+                            {
+                                "label": "Exclude outliers ",
+                                "value": 1,
+                            }
+                        ],
+                        value=[1],
+                        id={
+                            "type": "exclude_outliers_toggle",
+                            "index": area_name,
+                        },
+                        switch=True,
+                        style={"display": "none"},
+                    ),
+                    html.Br(),
+                    dbc.RadioItems(
+                        id={"type": "area_breakdowns", "index": area_name},
+                        inline=True,
+                        style=breakdowns_style,
+                    ),
+                    html.Div(
+                        fa("fas fa-info-circle"),
+                        id=f"{area_name.lower()}_area_info",
+                        className="float-right",
+                    ),
+                    dbc.Popover(
+                        [
+                            dbc.PopoverHeader("Sources"),
+                            dbc.PopoverBody(id=popover_id),
+                        ],
+                        id="hover",
+                        target=f"{area_name.lower()}_area_info",
+                        trigger="hover",
+                    ),
+                ]
+            ),
+        ],
+        id={"type": "area_parent", "index": area_name},
+    )
+    return area
+
+
 def make_card(
     card_id,
     name,
@@ -402,7 +441,7 @@ def get_card_popover_body(sources):
 
 
 # TODO: Move to client side call back
-@app.callback(
+@callback(
     Output("collapse-years", "is_open"),
     Output("collapse-countries", "is_open"),
     Output("collapse-engagements", "is_open"),
@@ -434,21 +473,21 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
     return False, False, False
 
 
-@app.callback(
+@callback(
     Output({"type": "area_parent", "index": MATCH}, "hidden"),
     Input("theme", "hash"),
     [
-        State("page_cfg", "data"),
+        State("page_config", "data"),
         State({"type": "area_parent", "index": MATCH}, "id"),
     ],
 )
-def display_areas(theme, page_cfg, id):
+def display_areas(theme, page_config, id):
     area = id["index"]
-    theme = theme[1:].upper() if theme else next(iter(page_cfg["THEMES"].keys()))
-    return area not in page_cfg["THEMES"][theme]
+    theme = theme[1:].upper() if theme else next(iter(page_config["THEMES"].keys()))
+    return area not in page_config["THEMES"][theme]
 
 
-@app.callback(
+@callback(
     Output("store", "data"),
     # Output("country_selector", "checked"),
     Output("collapse-years-button", "label"),
@@ -458,16 +497,18 @@ def display_areas(theme, page_cfg, id):
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
     ],
-    State("page_cfg", "data"),
+    State("page_config", "data"),
 )
 def apply_filters(
     theme,
     years_slider,
     country_selector,
-    store_page_cfg,
+    store_page_config,
 ):
 
-    theme = theme[1:].upper() if theme else next(iter(store_page_cfg["THEMES"].keys()))
+    theme = (
+        theme[1:].upper() if theme else next(iter(store_page_config["THEMES"].keys()))
+    )
 
     selected_years = years[years_slider[0] : years_slider[1] + 1]
     selected_country_codes = [
@@ -491,9 +532,9 @@ def indicator_card(
     card_id,
     name,
     suffix,
-    cfg,
+    config,
 ):
-    df_vals = get_dataset(cfg)
+    df_vals = get_dataset(config)
     card_value = ""
     if len(df_vals) > 0:
         card_value = df_vals.iloc[0]["OBS_VALUE"]
@@ -503,14 +544,14 @@ def indicator_card(
     )
 
 
-@app.callback(
+@callback(
     Output("cards_row", "children"),
     [
         Input("store", "data"),
     ],
-    [State("cards_row", "children"), State("page_cfg", "data")],
+    [State("cards_row", "children"), State("page_config", "data")],
 )
-def show_cards(selections, current_cards, page_cfg):
+def show_cards(selections, current_cards, page_config):
     cards = [
         indicator_card(
             f"card-{num}",
@@ -518,36 +559,36 @@ def show_cards(selections, current_cards, page_cfg):
             card["suffix"],
             card["data"],
         )
-        for num, card in enumerate(page_cfg["THEMES"][selections["theme"]]["CARDS"])
+        for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"])
     ]
 
     return cards
 
 
-@app.callback(
+@callback(
     Output("subtitle", "children"),
     Output("themes", "children"),
     [
         Input("store", "data"),
     ],
-    State("page_cfg", "data"),
+    State("page_config", "data"),
 )
-def show_themes(selections, cfg):
+def show_themes(selections, config):
     if (
         selections is None
         or selections["theme"] is None
         or selections["theme"].strip() == ""
     ):
-        theme_key = list(cfg["THEMES"].keys())[0]
-        theme = cfg["THEMES"][theme_key]
+        theme_key = list(config["THEMES"].keys())[0]
+        theme = config["THEMES"][theme_key]
     else:
         theme_key = selections["theme"]
-        theme = cfg["THEMES"][selections["theme"]]
+        theme = config["THEMES"][selections["theme"]]
 
     subtitle = theme.get("NAME")
 
     # hide the buttons when only one option is available
-    if len(cfg["THEMES"].items()) == 1:
+    if len(config["THEMES"].items()) == 1:
         return subtitle, []
 
     buttons = [
@@ -559,12 +600,12 @@ def show_themes(selections, cfg):
             href=f"#{key.lower()}",
             active=theme_key == key,
         )
-        for num, (key, value) in enumerate(cfg["THEMES"].items())
+        for num, (key, value) in enumerate(config["THEMES"].items())
     ]
     return subtitle, buttons
 
 
-@app.callback(
+@callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
     Output({"type": "area_options", "index": MATCH}, "options"),
     Output({"type": "area_types", "index": MATCH}, "options"),
@@ -572,11 +613,11 @@ def show_themes(selections, cfg):
     Output({"type": "area_types", "index": MATCH}, "value"),
     Input("store", "data"),
     [
-        State("page_cfg", "data"),
+        State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
     ],
 )
-def set_options(selection, cfg, id):
+def set_options(selection, config, id):
     area = id["index"]
 
     area_options = area_types = []
@@ -585,8 +626,8 @@ def set_options(selection, cfg, id):
     area_options = []
     default_option = ""
 
-    if area in cfg["THEMES"][selection["theme"]]:
-        api_params = cfg["THEMES"][selection["theme"]][area].get("data")
+    if area in config["THEMES"][selection["theme"]]:
+        api_params = config["THEMES"][selection["theme"]][area].get("data")
 
         area_options = []
 
@@ -610,25 +651,27 @@ def set_options(selection, cfg, id):
                 "label": name.capitalize(),
                 "value": name,
             }
-            for name in cfg["THEMES"][selection["theme"]][area].get("graphs", {}).keys()
+            for name in config["THEMES"][selection["theme"]][area]
+            .get("graphs", {})
+            .keys()
         ]
 
     name = (
-        cfg["THEMES"][selection["theme"]][area].get("name")
-        if area in cfg["THEMES"][selection["theme"]]
+        config["THEMES"][selection["theme"]][area].get("name")
+        if area in config["THEMES"][selection["theme"]]
         else ""
     )
 
     default_graph = (
-        cfg["THEMES"][selection["theme"]][area].get("default_graph")
-        if area in cfg["THEMES"][selection["theme"]]
+        config["THEMES"][selection["theme"]][area].get("default_graph")
+        if area in config["THEMES"][selection["theme"]]
         else ""
     )
 
     return name, area_options, area_types, default_option, default_graph
 
 
-@app.callback(
+@callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
     [
@@ -637,17 +680,17 @@ def set_options(selection, cfg, id):
         Input("store", "data"),
     ],
     [
-        State("page_cfg", "data"),
+        State("page_config", "data"),
     ],
 )
-def main_figure(indicator, show_historical_data, selections, cfg):
+def main_figure(indicator, show_historical_data, selections, config):
     latest_data = not show_historical_data
 
-    options = cfg["THEMES"][selections["theme"]]["MAIN"]["options"]
+    options = config["THEMES"][selections["theme"]]["MAIN"]["options"]
 
     series_id = indicator.split("|")
-    series = cfg["THEMES"][series_id[0]][series_id[1]]["data"][int(series_id[2])]
-    # series = cfg["THEMES"][selections["theme"]]["MAIN"]["data"]
+    series = config["THEMES"][series_id[0]][series_id[1]]["data"][int(series_id[2])]
+    # series = config["THEMES"][selections["theme"]]["MAIN"]["data"]
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
@@ -738,7 +781,7 @@ def main_figure(indicator, show_historical_data, selections, cfg):
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
 
-@app.callback(
+@callback(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
     [
@@ -749,7 +792,7 @@ def main_figure(indicator, show_historical_data, selections, cfg):
         Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
     ],
     [
-        State("page_cfg", "data"),
+        State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
     ],
 )
@@ -759,7 +802,7 @@ def area_figure(
     compare,
     selected_type,
     exclude_outliers,
-    cfg,
+    config,
     id,
 ):
     # only run if indicator not empty
@@ -770,15 +813,15 @@ def area_figure(
 
     area = id["index"]
     series_id = indicator.split("|")
-    series = cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
+    series = config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
-    default_graph = cfg["THEMES"][selections["theme"]][area].get(
+    default_graph = config["THEMES"][selections["theme"]][area].get(
         "default_graph", "line"
     )
     fig_type = selected_type if selected_type else default_graph
-    fig_config = cfg["THEMES"][selections["theme"]][area]["graphs"][fig_type]
+    fig_config = config["THEMES"][selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
     dimension = False if fig_type == "line" or compare == "TOTAL" else compare
@@ -866,8 +909,11 @@ def area_figure(
     options["labels"]["OBS_VALUE"] = "Value"
     options["labels"]["text"] = "OBS_VALUE"
 
-    if "label" in cfg["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]:
-        indicator_name = cfg["THEMES"][selections["theme"]][area]["data"][
+    if (
+        "label"
+        in config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
+    ):
+        indicator_name = config["THEMES"][selections["theme"]][area]["data"][
             int(series_id[2])
         ]["label"]
     else:
