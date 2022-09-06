@@ -102,11 +102,19 @@ def make_area(area_name):
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    dbc.ButtonGroup(
-                                        id={
-                                            "type": "area_options",
-                                            "index": area_name,
-                                        },
+                                    html.Div(
+                                        [
+                                            dbc.ButtonGroup(
+                                                id={
+                                                    "type": "area_options",
+                                                    "index": area_name,
+                                                },
+                                            ),
+                                            dbc.CardDeck(
+                                                id="indicator_card",
+                                                className="mt-3",
+                                            ),
+                                        ],
                                     ),
                                     width=4,
                                 ),
@@ -730,33 +738,47 @@ def indicator_card(
 
 
 @app.callback(
-    Output("cards_row", "children"),
+    Output("indicator_card", "children"),
     [
         Input("store", "data"),
+        Input({"type": "area_options", "index": "AREA_1"}, "children"),
     ],
-    [State("cards_row", "children"), State("indicators", "data")],
+    State("indicators", "data"),
 )
-def show_cards(selections, current_cards, indicators_dict):
+def show_cards(selections, buttons_properties, indicators_dict):
+
+    indicator = [
+        but_prop["props"]["id"]
+        for but_prop in buttons_properties["props"]["children"]
+        if but_prop["props"]["active"] is True
+    ][0]
+
+    card_config = [
+        elem
+        for elem in indicators_dict[selections["theme"]]["CARDS"]
+        if elem["indicator"] == indicator
+    ][0]
+
     cards = (
         [
             indicator_card(
                 selections,
-                f"card-{num}",
-                card["name"],
-                card["indicator"],
-                card["suffix"],
-                card.get("denominator"),
-                card.get("absolute"),
-                card.get("average"),
-                card.get("min_max"),
-                card.get("sex"),
-                card.get("age"),
+                "card-1",
+                card_config["name"],
+                card_config["indicator"],
+                card_config["suffix"],
+                card_config.get("denominator"),
+                card_config.get("absolute"),
+                card_config.get("average"),
+                card_config.get("min_max"),
+                card_config.get("sex"),
+                card_config.get("age"),
             )
-            for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
         ]
         if "CARDS" in indicators_dict[selections["theme"]]
         else []
     )
+
     return cards
 
 

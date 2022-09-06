@@ -5,6 +5,20 @@ from .base_page import get_base_layout
 indicators_dict = {
     "HSM": {
         "NAME": "Main Health System",
+        "CARDS": [
+            {
+                "name": "Current health expenditure as % of GDP",
+                "indicator": "HT_SH_XPD_CHEX_GD_ZS",
+                "suffix": "Percent range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "Out-of-pocket expenditure (OOPS), as % of current health expenditure",
+                "indicator": "HT_SH_XPD_OOPC_CH_ZS",
+                "suffix": "Percent range among countries",
+                "min_max": True,
+            },
+        ],
         # "MAIN": {
         #     "name": "Health System - coverage, expenditure, and insurance",
         #     "geo": "Country_name",
