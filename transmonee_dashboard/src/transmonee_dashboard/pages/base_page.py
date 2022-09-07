@@ -1075,6 +1075,7 @@ def area_figure(
     fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
+    layout_opt = fig_config.get("layout_options")
     dimension = False if fig_type == "line" or compare == "TOTAL" else compare
 
     indicator_name = str(indicator_names.get(indicator, ""))
@@ -1138,6 +1139,8 @@ def area_figure(
         legend=dict(x=1, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
+    if layout_opt:
+        layout.update(layout_opt)
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
     if fig_type == "line" or is_country_profile:
@@ -1157,6 +1160,8 @@ def area_figure(
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
 
+    # rename figure_type 'map': 'choropleth' (plotly express)
+    fig_type = "choropleth_mapbox" if fig_type == "map" else fig_type
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     if traces:

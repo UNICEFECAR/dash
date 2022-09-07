@@ -2,6 +2,8 @@ import plotly.express as px
 
 from .base_page import get_base_layout
 
+from . import geo_json_countries
+
 indicators_dict = {
     "HSM": {
         "NAME": "Main Health System",
@@ -100,6 +102,33 @@ indicators_dict = {
                         render_mode="svg",
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 62.995158, "lon": 88.048713},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                        },
+                        height=750,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 1, "l": 2, "b": 1}),
                 },
             },
             "indicators": [
