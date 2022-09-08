@@ -78,7 +78,7 @@ indicators_dict = {
         #     ],
         #     "default": "HT_SH_ACS_UNHC",
         # },
-        "AREA_1": {
+        "AIO_AREA": {
             "name": "Coverage index,  Expenditures, and Insurance",
             "graphs": {
                 "bar": {
@@ -135,17 +135,8 @@ indicators_dict = {
                 "HT_SH_XPD_CHEX_GD_ZS",
                 "HT_SH_XPD_GHED_GD_ZS",
                 "HT_SH_XPD_GHED_GE_ZS",
-                "HT_SH_XPD_GHED_CH_ZS",
                 "HT_SH_XPD_GHED_PP_CD",
-                "HT_SH_XPD_GHED_PC_CD",
-                "HT_SH_XPD_PVTD_CH_ZS",
-                "HT_SH_XPD_PVTD_PP_CD",
-                "HT_SH_XPD_PVTD_PC_CD",
-                "HT_SH_XPD_CHEX_PP_CD",
-                "HT_SH_XPD_CHEX_PC_CD",
                 "HT_SH_XPD_OOPC_CH_ZS",
-                "HT_SH_XPD_OOPC_PP_CD",
-                "HT_SH_XPD_OOPC_PC_CD",
                 "HT_INS_COV",
             ],
             "default_graph": "line",

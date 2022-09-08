@@ -9,7 +9,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
+from dash.dependencies import ALL, MATCH, ClientsideFunction, Input, Output, State
 from scipy.stats import zscore
 
 from ..app import app
@@ -72,133 +72,6 @@ EMPTY_CHART = {
         ],
     }
 }
-
-
-def make_area(area_name):
-    area_id = {"type": "area", "index": area_name}
-    popover_id = {"type": "area_sources", "index": area_name}
-    historical_data_style = {"display": "none"}
-    exclude_outliers_style = {"paddingLeft": 20, "display": "block"}
-    breakdowns_style = {"display": "block"}
-
-    # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
-    if area_name == "MAIN":
-        area_id = f"{area_name.lower()}_area"
-        popover_id = f"{area_name.lower()}_area_sources"
-        historical_data_style = {"display": "block"}
-        exclude_outliers_style = {"display": "none"}
-        breakdowns_style = {"display": "none"}
-
-    # lbassil: unifying both main and figure area generations by tweaking the ids and styles
-    area = dbc.Card(
-        [
-            dbc.CardHeader(
-                id={"type": "area_title", "index": area_name},
-                style={"fontWeight": "bold"},
-            ),
-            dbc.CardBody(
-                [
-                    dbc.Container(
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    html.Div(
-                                        [
-                                            dbc.ButtonGroup(
-                                                id={
-                                                    "type": "area_options",
-                                                    "index": area_name,
-                                                },
-                                            ),
-                                            dbc.CardDeck(
-                                                id="indicator_card",
-                                                className="mt-3",
-                                            ),
-                                        ],
-                                    ),
-                                    width=4,
-                                ),
-                                dbc.Col(
-                                    html.Div(
-                                        [
-                                            dbc.Checklist(
-                                                options=[
-                                                    {
-                                                        "label": "Show historical data",
-                                                        "value": 1,
-                                                    }
-                                                ],
-                                                value=[],
-                                                id={
-                                                    "type": "historical_data_toggle",
-                                                    "index": area_name,
-                                                },
-                                                switch=True,
-                                                style=historical_data_style,
-                                            ),
-                                            html.Br(),
-                                            dbc.RadioItems(
-                                                id={
-                                                    "type": "area_types",
-                                                    "index": area_name,
-                                                },
-                                                inline=True,
-                                            ),
-                                            dcc.Loading([dcc.Graph(id=area_id)]),
-                                            dbc.Checklist(
-                                                options=[
-                                                    {
-                                                        "label": "Exclude outliers ",
-                                                        "value": 1,
-                                                    }
-                                                ],
-                                                value=[1],
-                                                id={
-                                                    "type": "exclude_outliers_toggle",
-                                                    "index": area_name,
-                                                },
-                                                switch=True,
-                                                style=exclude_outliers_style,
-                                            ),
-                                            html.Br(),
-                                            dbc.RadioItems(
-                                                id={
-                                                    "type": "area_breakdowns",
-                                                    "index": area_name,
-                                                },
-                                                inline=True,
-                                                style=breakdowns_style,
-                                            ),
-                                            html.Div(
-                                                fa("fas fa-info-circle"),
-                                                id=f"{area_name.lower()}_area_info",
-                                                className="float-right",
-                                            ),
-                                            dbc.Popover(
-                                                [
-                                                    dbc.PopoverHeader("Sources"),
-                                                    dbc.PopoverBody(id=popover_id),
-                                                ],
-                                                id="hover",
-                                                target=f"{area_name.lower()}_area_info",
-                                                trigger="hover",
-                                            ),
-                                        ],
-                                    ),
-                                    width=8,
-                                ),
-                            ],
-                            justify="evenly",
-                            align="start",
-                        ),
-                        fluid=True,
-                    ),
-                ]
-            ),
-        ],
-        id={"type": "area_parent", "index": area_name},
-    )
-    return area
 
 
 def get_base_layout(**kwargs):
@@ -377,13 +250,135 @@ def get_base_layout(**kwargs):
                 justify="center",
             ),
             html.Br(),
-            # dbc.CardDeck(
-            #     [make_area(area) for area in ["MAIN"]],
-            #     style=main_area_style,
-            # ),
-            # html.Br(),
             dbc.CardDeck(
-                [make_area(area) for area in ["AREA_1"]],
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            id={"type": "area_title", "index": "AIO_AREA"},
+                            style={"fontWeight": "bold"},
+                        ),
+                        dbc.CardBody(
+                            [
+                                dbc.Container(
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                html.Div(
+                                                    [
+                                                        dbc.ButtonGroup(
+                                                            id={
+                                                                "type": "button_group",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            vertical=True,
+                                                        ),
+                                                        dbc.CardDeck(
+                                                            id="indicator_card",
+                                                            className="mt-3",
+                                                        ),
+                                                    ],
+                                                ),
+                                                width=4,
+                                            ),
+                                            dbc.Col(
+                                                html.Div(
+                                                    [
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Show historical data",
+                                                                    "value": 1,
+                                                                }
+                                                            ],
+                                                            value=[],
+                                                            id={
+                                                                "type": "historical_data_toggle",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            switch=True,
+                                                            style={"display": "none"},
+                                                        ),
+                                                        html.Br(),
+                                                        dbc.RadioItems(
+                                                            id={
+                                                                "type": "area_types",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            inline=True,
+                                                        ),
+                                                        dcc.Loading(
+                                                            [
+                                                                dcc.Graph(
+                                                                    id={
+                                                                        "type": "area",
+                                                                        "index": "AIO_AREA",
+                                                                    }
+                                                                )
+                                                            ]
+                                                        ),
+                                                        dbc.Checklist(
+                                                            options=[
+                                                                {
+                                                                    "label": "Exclude outliers ",
+                                                                    "value": 1,
+                                                                }
+                                                            ],
+                                                            value=[1],
+                                                            id={
+                                                                "type": "exclude_outliers_toggle",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            switch=True,
+                                                            style={
+                                                                "paddingLeft": 20,
+                                                                "display": "block",
+                                                            },
+                                                        ),
+                                                        html.Br(),
+                                                        dbc.RadioItems(
+                                                            id={
+                                                                "type": "area_breakdowns",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            inline=True,
+                                                            style={"display": "block"},
+                                                        ),
+                                                        html.Div(
+                                                            fa("fas fa-info-circle"),
+                                                            id="aio_area_area_info",
+                                                            className="float-right",
+                                                        ),
+                                                        dbc.Popover(
+                                                            [
+                                                                dbc.PopoverHeader(
+                                                                    "Sources"
+                                                                ),
+                                                                dbc.PopoverBody(
+                                                                    id={
+                                                                        "type": "area_sources",
+                                                                        "index": "AIO_AREA",
+                                                                    }
+                                                                ),
+                                                            ],
+                                                            id="hover",
+                                                            target="aio_area_area_info",
+                                                            trigger="hover",
+                                                        ),
+                                                    ],
+                                                ),
+                                                width=8,
+                                            ),
+                                        ],
+                                        justify="evenly",
+                                        align="start",
+                                    ),
+                                    fluid=True,
+                                ),
+                            ]
+                        ),
+                    ],
+                    id={"type": "area_parent", "index": "AIO_AREA"},
+                ),
             ),
             html.Br(),
         ],
@@ -507,20 +502,6 @@ def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
     elif button_id == "collapse-engagements-button" and n3:
         return False, False, not is_open3
     return False, False, False
-
-
-@app.callback(
-    Output({"type": "area_parent", "index": MATCH}, "hidden"),
-    Input("theme", "hash"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_parent", "index": MATCH}, "id"),
-    ],
-)
-def display_areas(theme, indicators_dict, id):
-    area = id["index"]
-    theme = theme[1:].upper() if theme else next(iter(indicators_dict.keys()))
-    return area not in indicators_dict[theme]
 
 
 @app.callback(
@@ -738,151 +719,87 @@ def indicator_card(
 
 
 @app.callback(
-    Output("indicator_card", "children"),
+    Output("cards_row", "children"),
     [
         Input("store", "data"),
-        Input({"type": "area_options", "index": "AREA_1"}, "children"),
     ],
-    State("indicators", "data"),
+    [State("cards_row", "children"), State("indicators", "data")],
 )
-def show_cards(selections, buttons_properties, indicators_dict):
-
-    indicator = [
-        but_prop["props"]["id"]
-        for but_prop in buttons_properties["props"]["children"]
-        if but_prop["props"]["active"] is True
-    ][0]
-
-    card_config = [
-        elem
-        for elem in indicators_dict[selections["theme"]]["CARDS"]
-        if elem["indicator"] == indicator
-    ][0]
-
+def show_cards(selections, current_cards, indicators_dict):
     cards = (
         [
             indicator_card(
                 selections,
-                "card-1",
-                card_config["name"],
-                card_config["indicator"],
-                card_config["suffix"],
-                card_config.get("denominator"),
-                card_config.get("absolute"),
-                card_config.get("average"),
-                card_config.get("min_max"),
-                card_config.get("sex"),
-                card_config.get("age"),
+                f"card-{num}",
+                card["name"],
+                card["indicator"],
+                card["suffix"],
+                card.get("denominator"),
+                card.get("absolute"),
+                card.get("average"),
+                card.get("min_max"),
+                card.get("sex"),
+                card.get("age"),
             )
+            for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
         ]
         if "CARDS" in indicators_dict[selections["theme"]]
         else []
     )
-
     return cards
 
 
 @app.callback(
-    Output("subtitle", "children"),
-    Output("themes", "children"),
-    [
-        Input("store", "data"),
-        Input("country_profile_selector", "value"),
-    ],
-    State("indicators", "data"),
+    Output({"type": "area_title", "index": "AIO_AREA"}, "children"),
+    Output({"type": "button_group", "index": "AIO_AREA"}, "children"),
+    Output({"type": "area_types", "index": "AIO_AREA"}, "options"),
+    Output({"type": "area_types", "index": "AIO_AREA"}, "value"),
+    Input("indicators", "data"),
 )
-def show_themes(selections, selected_country, indicators_dict):
-    # check if it is the country profile page
-    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
-    ctx = dash.callback_context
-    ctrl_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    # check if the countries dropdown is causing this callback in order to set the sub-title to the country's name
-    if is_country_profile or ctrl_id == "countries":
-        key_list = list(countries_iso3_dict.keys())
-        val_list = list(countries_iso3_dict.values())
-        subtitle = (
-            key_list[val_list.index(selected_country)]
-            if selected_country
-            else "Country Name"
-        )
-        return subtitle, []
+def set_aio_options(indicators_dict):
 
-    subtitle = indicators_dict[selections["theme"]].get("NAME")
-    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-    # hide the buttons when only one option is available
-    if len(indicators_dict.items()) == 1:
-        return subtitle, []
-    buttons = [
-        dbc.Button(
-            value["NAME"],
-            id=key,
-            color=colours[num],
-            className="theme mx-1",
-            href=f"#{key.lower()}",
-            active=url_hash == f"#{key.lower()}",
-        )
-        for num, (key, value) in enumerate(indicators_dict.items())
-    ]
-    return subtitle, buttons
+    area = "AIO_AREA"
+    theme = [*indicators_dict][0]
 
-
-@app.callback(
-    Output({"type": "area_title", "index": MATCH}, "children"),
-    Output({"type": "area_options", "index": MATCH}, "children"),
-    Output({"type": "area_types", "index": MATCH}, "options"),
-    Output({"type": "area_types", "index": MATCH}, "value"),
-    Input("store", "data"),
-    [
-        State("indicators", "data"),
-        State({"type": "area_options", "index": MATCH}, "id"),
-    ],
-)
-def set_options(theme, indicators_dict, id):
-
-    area = id["index"]
-
-    area_options = area_types = []
-    if area in indicators_dict[theme["theme"]]:
-        indicators = indicators_dict[theme["theme"]][area].get("indicators")
+    area_types = []
+    if area in indicators_dict[theme]:
+        indicators = indicators_dict[theme][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
 
         default_option = (
-            indicators_dict[theme["theme"]][area].get("default")
-            if area in indicators_dict[theme["theme"]]
+            indicators_dict[theme][area].get("default")
+            if area in indicators_dict[theme]
             else ""
         )
 
-        area_butons = dbc.ButtonGroup(
-            [
-                dbc.Button(
-                    indicator_names[code],
-                    id=code,
-                    color="info",
-                    className="theme mx-1",
-                    active=code == default_option if default_option != "" else num == 0,
-                )
-                for num, code in enumerate(area_indicators)
-            ],
-            vertical=True,
-        )
+        area_butons = [
+            dbc.Button(
+                indicator_names[code],
+                id={"type": "indicator_button", "index": code},
+                color="info",
+                className="theme mx-1",
+                active=code == default_option if default_option != "" else num == 0,
+            )
+            for num, code in enumerate(area_indicators)
+        ]
 
         area_types = [
             {
                 "label": name.capitalize(),
                 "value": name,
             }
-            for name in indicators_dict[theme["theme"]][area].get("graphs", {}).keys()
+            for name in indicators_dict[theme][area].get("graphs", {}).keys()
         ]
 
     name = (
-        indicators_dict[theme["theme"]][area].get("name")
-        if area in indicators_dict[theme["theme"]]
+        indicators_dict[theme][area].get("name")
+        if area in indicators_dict[theme]
         else ""
     )
 
     default_graph = (
-        indicators_dict[theme["theme"]][area].get("default_graph")
-        if area in indicators_dict[theme["theme"]]
+        indicators_dict[theme][area].get("default_graph")
+        if area in indicators_dict[theme]
         else ""
     )
 
@@ -890,16 +807,36 @@ def set_options(theme, indicators_dict, id):
 
 
 @app.callback(
-    Output({"type": "area_breakdowns", "index": MATCH}, "options"),
-    [
-        Input({"type": "area_options", "index": MATCH}, "value"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
-    ],
-    [
-        State({"type": "area_breakdowns", "index": MATCH}, "id"),
-    ],
+    Output({"type": "indicator_button", "index": ALL}, "active"),
+    Input({"type": "indicator_button", "index": ALL}, "n_clicks"),
+    State({"type": "indicator_button", "index": ALL}, "id"),
+    prevent_initial_call=True,
 )
-def breakdown_options(indicator, fig_type, id):
+def set_active_button(n_clicks, buttons_id):
+
+    # figure out which button was clicked
+    ctx = dash.callback_context
+    button_code = eval(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
+
+    # return active properties accordingly
+    return [button_code == id_button["index"] for id_button in buttons_id]
+
+
+@app.callback(
+    Output({"type": "area_breakdowns", "index": "AIO_AREA"}, "options"),
+    [
+        Input({"type": "indicator_button", "index": ALL}, "active"),
+        Input({"type": "area_types", "index": "AIO_AREA"}, "value"),
+    ],
+    State({"type": "indicator_button", "index": ALL}, "id"),
+)
+def breakdown_options(is_active_button, fig_type, buttons_id):
+
+    indicator = [
+        ind_code["index"]
+        for ind_code, truth in zip(buttons_id, is_active_button)
+        if truth
+    ][0]
 
     options = [{"label": "Total", "value": "TOTAL"}]
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
@@ -910,8 +847,8 @@ def breakdown_options(indicator, fig_type, id):
         {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
     ]
     dimensions = indicators_config.get(indicator, {}).keys()
-    # keep only TOTAL for line charts
-    if dimensions and fig_type != "line":
+    # disaggregate only bar charts
+    if dimensions and fig_type == "bar":
         for breakdown in all_breakdowns:
             if breakdown["value"] in dimensions:
                 options.append(breakdown)
@@ -919,176 +856,83 @@ def breakdown_options(indicator, fig_type, id):
 
 
 @app.callback(
-    Output({"type": "area_breakdowns", "index": MATCH}, "value"),
+    Output({"type": "area_breakdowns", "index": "AIO_AREA"}, "value"),
+    Input({"type": "area_breakdowns", "index": "AIO_AREA"}, "options"),
     [
-        Input("store", "data"),
-        Input({"type": "area_breakdowns", "index": MATCH}, "options"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
-    ],
-    [
-        State("indicators", "data"),
-        State({"type": "area_breakdowns", "index": MATCH}, "id"),
-    ],
-)
-def set_default_compare(
-    selections, compare_options, selected_type, indicators_dict, id
-):
-    area = id["index"]
-    # lbassil: add this condition to stop the exception for the main area
-    if area in indicators_dict[selections["theme"]] and area != "MAIN":
-        default = indicators_dict[selections["theme"]][area]["default_graph"]
-        fig_type = selected_type if selected_type else default
-        config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
-        default_compare = config.get("compare")
-
-        return (
-            "TOTAL"
-            if fig_type == "line" or default_compare is None
-            else default_compare
-            if default_compare in compare_options
-            else compare_options[1]["value"]
-            if len(compare_options) > 1
-            else compare_options[0]["value"]
-        )
-    return "TOTAL"
-
-
-@app.callback(
-    Output("main_area", "figure"),
-    Output("main_area_sources", "children"),
-    [
-        Input({"type": "area_options", "index": "MAIN"}, "value"),
-        Input({"type": "historical_data_toggle", "index": "MAIN"}, "value"),
-        Input("store", "data"),
-    ],
-    [
+        State({"type": "area_types", "index": "AIO_AREA"}, "value"),
         State("indicators", "data"),
     ],
 )
-def main_figure(indicator, show_historical_data, selections, indicators_dict):
-    latest_data = not show_historical_data
-    options = indicators_dict[selections["theme"]]["MAIN"]["options"]
+def set_default_compare(compare_options, selected_type, indicators_dict):
 
-    data = get_filtered_dataset(
-        [indicator],
-        selections["years"],
-        selections["countries"],
-        latest_data=latest_data,
+    area = "AIO_AREA"
+    theme = [*indicators_dict][0]
+
+    config = indicators_dict[theme][area]["graphs"][selected_type]
+    default_compare = config.get("compare")
+
+    return (
+        "TOTAL"
+        if selected_type != "bar" or default_compare is None
+        else default_compare
+        if default_compare in compare_options
+        else compare_options[1]["value"]
+        if len(compare_options) > 1
+        else compare_options[0]["value"]
     )
-
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, ""
-
-    # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
-    name = (
-        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
-        else ""
-    )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    source = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = name
-    options["labels"]["text"] = "OBS_VALUE"
-    options["geojson"] = geo_json_countries
-    if latest_data:
-        # remove the animation frame and show all countries at once
-        options.pop("animation_frame")
-        # add the year to show on hover
-        options["hover_name"] = "TIME_PERIOD"
-
-    main_figure = px.choropleth_mapbox(data, **options)
-    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    # check if this area's config has an animation frame and hence a slider
-    if len(main_figure.layout["sliders"]) > 0:
-        # set last frame as the active one; i.e. select the max year as the default displayed year
-        main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
-        # assign the data of the last year to the map; without this line the data will show the first year;
-        main_figure = go.Figure(
-            data=main_figure["frames"][-1]["data"],
-            frames=main_figure["frames"],
-            layout=main_figure.layout,
-        )
-    return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
 
 @app.callback(
     [
-        Output({"type": "area", "index": MATCH}, "figure"),
-        Output({"type": "area_sources", "index": MATCH}, "children"),
-        # TODO: make the active button true if possible
-        # Output({"type": "area_options", "index": MATCH}, "children"),
-        # *[Output(f"{code}", "active") for code in [1, 2, 3]]
+        Output({"type": "area", "index": "AIO_AREA"}, "figure"),
+        Output({"type": "area_sources", "index": "AIO_AREA"}, "children"),
     ],
     [
         Input("store", "data"),
-        # check if enough to trigger with children
-        Input({"type": "area_options", "index": MATCH}, "children"),
-        Input({"type": "area_breakdowns", "index": MATCH}, "value"),
-        Input({"type": "area_types", "index": MATCH}, "value"),
-        Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
+        Input({"type": "area_breakdowns", "index": "AIO_AREA"}, "value"),
+        Input({"type": "exclude_outliers_toggle", "index": "AIO_AREA"}, "value"),
     ],
     [
         State("indicators", "data"),
-        State({"type": "area_options", "index": MATCH}, "id"),
+        State({"type": "button_group", "index": "AIO_AREA"}, "children"),
+        State({"type": "area_types", "index": "AIO_AREA"}, "value"),
     ],
 )
-def area_figure(
+def aio_area_figure(
     selections,
-    buttons_properties,
     compare,
-    selected_type,
     exclude_outliers,
     indicators_dict,
-    id,
+    buttons_properties,
+    selected_type,
 ):
 
     # assumes indicator is not empty
     indicator = [
-        but_prop["props"]["id"]
-        for but_prop in buttons_properties["props"]["children"]
+        but_prop["props"]["id"]["index"]
+        for but_prop in buttons_properties
         if but_prop["props"]["active"] is True
     ][0]
 
-    # check if it is the country profile page
-    is_country_profile = selections["theme"] == "COUNTRYPROFILE"
-
-    area = id["index"]
-    indicators = indicators_dict[selections["theme"]][area]["indicators"]
+    area = "AIO_AREA"
     default_graph = indicators_dict[selections["theme"]][area].get(
         "default_graph", "line"
     )
+
     fig_type = selected_type if selected_type else default_graph
     fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
     layout_opt = fig_config.get("layout_options")
-    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
-
+    dimension = False if fig_type in ["line", "map"] or compare == "TOTAL" else compare
     indicator_name = str(indicator_names.get(indicator, ""))
-    # do we need `indicator_settings` below?
-    indicator_settings = (
-        indicators.get(indicator, {}) if type(indicators) is dict else {}
-    )
+
     data = get_filtered_dataset(
         [indicator],
         selections["years"],
         selections["countries"],
         compare,
-        latest_data=False if fig_type == "line" or is_country_profile else True,
+        latest_data=False if fig_type in ["line", "map"] else True,
     ).sort_values("OBS_VALUE", ascending=False)
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
@@ -1143,7 +987,7 @@ def area_figure(
         layout.update(layout_opt)
 
     # Add this code to avoid having decimal year on the x-axis for time series charts
-    if fig_type == "line" or is_country_profile:
+    if fig_type == "line":
         data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
         layout["xaxis"] = dict(
             tickmode="linear",
