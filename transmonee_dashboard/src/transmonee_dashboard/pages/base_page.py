@@ -715,37 +715,6 @@ def indicator_card(
     )
 
 
-# @app.callback(
-#     Output("cards_row", "children"),
-#     [
-#         Input("store", "data"),
-#     ],
-#     [State("cards_row", "children"), State("indicators", "data")],
-# )
-# def show_cards(selections, current_cards, indicators_dict):
-#     cards = (
-#         [
-#             indicator_card(
-#                 selections,
-#                 f"card-{num}",
-#                 card["name"],
-#                 card["indicator"],
-#                 card["suffix"],
-#                 card.get("denominator"),
-#                 card.get("absolute"),
-#                 card.get("average"),
-#                 card.get("min_max"),
-#                 card.get("sex"),
-#                 card.get("age"),
-#             )
-#             for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
-#         ]
-#         if "CARDS" in indicators_dict[selections["theme"]]
-#         else []
-#     )
-#     return cards
-
-
 @app.callback(
     Output({"type": "area_title", "index": "AIO_AREA"}, "children"),
     Output({"type": "button_group", "index": "AIO_AREA"}, "children"),
@@ -1032,25 +1001,5 @@ def aio_area_figure(
             card_config[0].get("age"),
         )
     )
-
-    # ind_card = (
-    #     [
-    #         indicator_card(
-    #             selections,
-    #             "indicator_card",
-    #             card_config["name"],
-    #             card_config["indicator"],
-    #             card_config["suffix"],
-    #             card_config.get("denominator"),
-    #             card_config.get("absolute"),
-    #             card_config.get("average"),
-    #             card_config.get("min_max"),
-    #             card_config.get("sex"),
-    #             card_config.get("age"),
-    #         )
-    #     ]
-    #     if "CARDS" in indicators_dict[selections["theme"]]
-    #     else []
-    # )
 
     return fig, html.A(html.P(source), href=source_link, target="_blank"), ind_card
