@@ -271,10 +271,15 @@ def get_base_layout(**kwargs):
                                                                 "index": "AIO_AREA",
                                                             },
                                                             vertical=True,
+                                                            style={
+                                                                "marginBottom": "20px"
+                                                            },
                                                         ),
-                                                        dbc.CardDeck(
+                                                        html.Br(),
+                                                        dbc.Card(
                                                             id="indicator_card",
-                                                            className="mt-3",
+                                                            color="primary",
+                                                            outline=True,
                                                         ),
                                                     ],
                                                 ),
@@ -386,7 +391,6 @@ def get_base_layout(**kwargs):
 
 
 def make_card(
-    card_id,
     name,
     suffix,
     indicator_sources,
@@ -394,59 +398,53 @@ def make_card(
     indicator_header,
     numerator_pairs,
 ):
-    card = dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H1(
-                        indicator_header,
-                        className="display-4",
-                        style={
-                            # "fontSize": 50,
-                            "textAlign": "center",
-                            "color": "#1cabe2",
-                        },
-                    ),
-                    html.H4(suffix, className="card-title"),
-                    html.P(name, className="lead"),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{card_id}_info",
-                        # className="float-right",
-                        style={
-                            "position": "absolute",
-                            "bottom": "10px",
-                            "right": "10px",
-                        },
-                    ),
-                ],
-                style={
-                    # "fontSize": 50,
-                    "textAlign": "center",
-                },
-            ),
-            dbc.Popover(
-                [
-                    dbc.PopoverHeader(
-                        html.A(
-                            html.P(f"Sources: {indicator_sources}"),
-                            href=source_link,
-                            target="_blank",
-                        )
-                    ),
-                    dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(numerator_pairs))
-                    ),
-                ],
-                id="hover",
-                target=f"{card_id}_info",
-                trigger="hover",
-            ),
-        ],
-        color="primary",
-        outline=True,
-        id=card_id,
-    )
+    card = [
+        dbc.CardBody(
+            [
+                html.H1(
+                    indicator_header,
+                    className="display-4",
+                    style={
+                        # "fontSize": 50,
+                        "textAlign": "center",
+                        "color": "#1cabe2",
+                    },
+                ),
+                html.H4(suffix, className="card-title"),
+                html.P(name, className="lead"),
+                html.Div(
+                    fa("fas fa-info-circle"),
+                    id="indicator_card_info",
+                    # className="float-right",
+                    style={
+                        "position": "absolute",
+                        "bottom": "10px",
+                        "right": "10px",
+                    },
+                ),
+            ],
+            style={
+                # "fontSize": 50,
+                "textAlign": "center",
+            },
+        ),
+        dbc.Popover(
+            [
+                dbc.PopoverHeader(
+                    html.A(
+                        html.P(f"Sources: {indicator_sources}"),
+                        href=source_link,
+                        target="_blank",
+                    )
+                ),
+                dbc.PopoverBody(dcc.Markdown(get_card_popover_body(numerator_pairs))),
+            ],
+            id="hover",
+            target="indicator_card_info",
+            trigger="hover",
+        ),
+    ]
+
     return card
 
 
@@ -587,7 +585,6 @@ def apply_filters(
 
 def indicator_card(
     selections,
-    card_id,
     name,
     numerator,
     suffix,
@@ -635,13 +632,14 @@ def indicator_card(
     if filtered_data.empty:
         indicator_header = "No data"
         indicator_sources = "NA"
+        suffix = ""
         numerator_pairs = []
         return make_card(
-            card_id,
             name,
-            indicator_header,
+            suffix,
             indicator_sources,
             source_link,
+            indicator_header,
             numerator_pairs,
         )
 
@@ -708,7 +706,6 @@ def indicator_card(
         indicator_header = "{:,.0f}".format(indicator_sum)
 
     return make_card(
-        card_id,
         name,
         suffix,
         indicator_sources,
@@ -718,35 +715,35 @@ def indicator_card(
     )
 
 
-@app.callback(
-    Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
-    [State("cards_row", "children"), State("indicators", "data")],
-)
-def show_cards(selections, current_cards, indicators_dict):
-    cards = (
-        [
-            indicator_card(
-                selections,
-                f"card-{num}",
-                card["name"],
-                card["indicator"],
-                card["suffix"],
-                card.get("denominator"),
-                card.get("absolute"),
-                card.get("average"),
-                card.get("min_max"),
-                card.get("sex"),
-                card.get("age"),
-            )
-            for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
-        ]
-        if "CARDS" in indicators_dict[selections["theme"]]
-        else []
-    )
-    return cards
+# @app.callback(
+#     Output("cards_row", "children"),
+#     [
+#         Input("store", "data"),
+#     ],
+#     [State("cards_row", "children"), State("indicators", "data")],
+# )
+# def show_cards(selections, current_cards, indicators_dict):
+#     cards = (
+#         [
+#             indicator_card(
+#                 selections,
+#                 f"card-{num}",
+#                 card["name"],
+#                 card["indicator"],
+#                 card["suffix"],
+#                 card.get("denominator"),
+#                 card.get("absolute"),
+#                 card.get("average"),
+#                 card.get("min_max"),
+#                 card.get("sex"),
+#                 card.get("age"),
+#             )
+#             for num, card in enumerate(indicators_dict[selections["theme"]]["CARDS"])
+#         ]
+#         if "CARDS" in indicators_dict[selections["theme"]]
+#         else []
+#     )
+#     return cards
 
 
 @app.callback(
@@ -886,6 +883,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict):
     [
         Output({"type": "area", "index": "AIO_AREA"}, "figure"),
         Output({"type": "area_sources", "index": "AIO_AREA"}, "children"),
+        Output("indicator_card", "children"),
     ],
     [
         Input("store", "data"),
@@ -1011,4 +1009,48 @@ def aio_area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, html.A(html.P(source), href=source_link, target="_blank")
+    # indicator card
+    card_config = [
+        elem
+        for elem in indicators_dict[selections["theme"]]["CARDS"]
+        if elem["indicator"] == indicator
+    ]
+
+    ind_card = (
+        []
+        if not card_config or "CARDS" not in indicators_dict[selections["theme"]]
+        else indicator_card(
+            selections,
+            card_config[0]["name"],
+            card_config[0]["indicator"],
+            card_config[0]["suffix"],
+            card_config[0].get("denominator"),
+            card_config[0].get("absolute"),
+            card_config[0].get("average"),
+            card_config[0].get("min_max"),
+            card_config[0].get("sex"),
+            card_config[0].get("age"),
+        )
+    )
+
+    # ind_card = (
+    #     [
+    #         indicator_card(
+    #             selections,
+    #             "indicator_card",
+    #             card_config["name"],
+    #             card_config["indicator"],
+    #             card_config["suffix"],
+    #             card_config.get("denominator"),
+    #             card_config.get("absolute"),
+    #             card_config.get("average"),
+    #             card_config.get("min_max"),
+    #             card_config.get("sex"),
+    #             card_config.get("age"),
+    #         )
+    #     ]
+    #     if "CARDS" in indicators_dict[selections["theme"]]
+    #     else []
+    # )
+
+    return fig, html.A(html.P(source), href=source_link, target="_blank"), ind_card

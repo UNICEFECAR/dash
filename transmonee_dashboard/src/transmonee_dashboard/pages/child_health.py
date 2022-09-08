@@ -9,14 +9,38 @@ indicators_dict = {
         "NAME": "Main Health System",
         "CARDS": [
             {
-                "name": "Current health expenditure as % of GDP",
+                "name": "",
                 "indicator": "HT_SH_XPD_CHEX_GD_ZS",
                 "suffix": "Percent range among countries",
                 "min_max": True,
             },
             {
-                "name": "Out-of-pocket expenditure (OOPS), as % of current health expenditure",
+                "name": "",
+                "indicator": "HT_SH_XPD_GHED_GD_ZS",
+                "suffix": "Percent range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "HT_SH_XPD_GHED_GE_ZS",
+                "suffix": "Percent range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "HT_SH_XPD_GHED_PP_CD",
+                "suffix": "Current PPP$ range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "HT_SH_XPD_OOPC_CH_ZS",
+                "suffix": "Percent range among countries",
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "HT_INS_COV",
                 "suffix": "Percent range among countries",
                 "min_max": True,
             },
