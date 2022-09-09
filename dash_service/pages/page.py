@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
-from dash_labs import print_registry
 from dash_service.components import fa
 from dash_service.models import Page
 from dash_service.pages import (
@@ -87,15 +86,14 @@ def description(page_slug=None):
 
 dash.register_page(
     __name__,
-    name="Pages",
-    path_template="/pages/<page_slug>",
+    path_template="/page/<page_slug>",
     title=title,
     description=description,
-    path="/pages/child-eduction",
+    path="/page/child-education",
 )
 
 
-def layout(page_slug=None, **query_parmas):
+def layout(page_slug="child-education", **query_parmas):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.
@@ -108,7 +106,6 @@ def layout(page_slug=None, **query_parmas):
     Returns:
         html.Div: The rendered page
     """
-    print_registry()
 
     page = Page.query.filter_by(slug=page_slug).first_or_404()
     config = page.content
@@ -224,14 +221,13 @@ def layout(page_slug=None, **query_parmas):
                                     ),
                                 ],
                                 id="filter-row",
-                                no_gutters=True,
                                 justify="center",
                             ),
                         ]
                     ),
                 ],
                 # sticky="top",
-                className="sticky-top bg-light",
+                className="bg-light",
             ),
             dbc.Row(
                 [

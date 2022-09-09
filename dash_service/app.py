@@ -1,7 +1,9 @@
 import sentry_sdk
+from dash import Dash
+from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from . import admin, create_dash, create_app
+from . import admin, default_settings, register_extensions
 from .extensions import admin, db
 from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
 from .models import Page
@@ -16,14 +18,22 @@ sentry_sdk.init(
 )
 
 
-# The Flask instance
-server = create_app()
+server = Flask(__package__)
+
+server.config.from_object(default_settings)
+
+# register extensions
+register_extensions(server)
 
 # Flask-Admin
 admin.add_view(PageView(Page, db.session))
 
-# The Dash instance
-app = create_dash(server)
+app = Dash(
+    server=server,
+    use_pages=True,
+    title=default_settings.TITLE,
+    external_stylesheets=default_settings.EXTERNAL_STYLESHEETS,
+)
 
 # configure the Dash instance's layout
 app.layout = main_default_layout()

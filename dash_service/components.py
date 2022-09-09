@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
-from . import settings
+from . import default_settings
 from .utils import component, get_url
 
 
@@ -27,10 +27,10 @@ def make_brand(**kwargs):
                 children=[
                     fa("far fa-chart-bar"),
                     html.Strong(
-                        settings.TITLE,
+                        default_settings.TITLE,
                         style={"fontSize": "medium"},
                     ),
-                    html.Span(settings.SUB_TITLE),
+                    html.Span(default_settings.SUB_TITLE),
                 ],
             ),
         ],
