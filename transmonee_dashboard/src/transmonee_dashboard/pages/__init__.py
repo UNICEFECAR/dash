@@ -6,7 +6,7 @@ from io import BytesIO
 from re import L
 import urllib
 
-import dash_html_components as html
+from dash import html
 import numpy as np
 import pandas as pd
 import requests
@@ -936,7 +936,7 @@ try:
 except urllib.error.HTTPError as e:
     raise e
 
-data = data.append(data_query_sdmx)
+data = pd.concat([data, data_query_sdmx])
 # no need to create column CODE, just rename indicator
 data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
 

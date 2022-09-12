@@ -3,8 +3,7 @@ Dash app instances.
 """
 
 from flask import current_app as server
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 import dash_bootstrap_components as dbc
 
 from .components import make_footer, make_header, make_sidebar

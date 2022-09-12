@@ -5,8 +5,7 @@ from urllib.parse import parse_qs
 
 import dash
 import dash_bootstrap_components as dbc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash import html, Input, Output, State
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
 from flask import current_app as server
@@ -82,13 +81,13 @@ class DashRouter:
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
-                        
+
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
-            
+
             # we just need the last part of the pathname to find the page
             # (parent paths might be added by the calling page if embedding etc)
-            pathname = "/"+os.path.basename(os.path.normpath(pathname))
+            pathname = "/" + os.path.basename(os.path.normpath(pathname))
             page = self.routes.get(pathname, None)
 
             if page is None:

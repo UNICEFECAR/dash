@@ -2,8 +2,7 @@ import textwrap
 
 import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 import dash_treeview_antd
 import numpy as np
 import plotly.express as px
@@ -211,27 +210,31 @@ def get_base_layout(**kwargs):
                                             ),
                                         ],
                                     ),
-                                    dbc.FormGroup(
+                                    dbc.Row(
                                         [
-                                            dbc.Checkbox(
-                                                id="programme-toggle",
-                                                className="custom-control-input",
+                                            dbc.Col(
+                                                dbc.Checkbox(
+                                                    id="programme-toggle",
+                                                    className="custom-control-input",
+                                                )
                                             ),
-                                            dbc.Label(
-                                                "UNICEF Country Programmes",
-                                                html_for="programme-toggle",
-                                                className="custom-control-label",
-                                                color="primary",
+                                            dbc.Col(
+                                                dbc.Label(
+                                                    "UNICEF Country Programmes",
+                                                    html_for="programme-toggle",
+                                                    className="custom-control-label",
+                                                    color="primary",
+                                                )
                                             ),
                                         ],
                                         className="custom-control custom-switch m-2",
-                                        check=True,
-                                        inline=True,
+                                        # check=True,
+                                        # inline=True,
                                         style=programme_toggle_style,
                                     ),
                                 ],
                                 id="filter-row",
-                                no_gutters=True,
+                                # no_gutters=True,
                                 justify="center",
                             ),
                         ]
@@ -242,7 +245,7 @@ def get_base_layout(**kwargs):
             ),
             dbc.Row(
                 [
-                    dbc.CardDeck(
+                    dbc.Col(
                         id="cards_row",
                         className="mt-3",
                     ),
@@ -250,140 +253,148 @@ def get_base_layout(**kwargs):
                 justify="center",
             ),
             html.Br(),
-            dbc.CardDeck(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(
-                            id={"type": "area_title", "index": "AIO_AREA"},
-                            style={"fontWeight": "bold"},
-                        ),
-                        dbc.CardBody(
-                            [
-                                dbc.Container(
-                                    dbc.Row(
-                                        [
-                                            dbc.Col(
-                                                html.Div(
-                                                    [
-                                                        dbc.ButtonGroup(
-                                                            id={
-                                                                "type": "button_group",
-                                                                "index": "AIO_AREA",
-                                                            },
-                                                            vertical=True,
-                                                            style={
-                                                                "marginBottom": "20px"
-                                                            },
-                                                        ),
-                                                        html.Br(),
-                                                        dbc.Card(
-                                                            id="indicator_card",
-                                                            color="primary",
-                                                            outline=True,
-                                                        ),
-                                                    ],
+            dbc.Row(
+                dbc.Col(
+                    dbc.Card(
+                        [
+                            dbc.CardHeader(
+                                id={"type": "area_title", "index": "AIO_AREA"},
+                                style={"fontWeight": "bold"},
+                            ),
+                            dbc.CardBody(
+                                [
+                                    dbc.Container(
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    html.Div(
+                                                        [
+                                                            dbc.ButtonGroup(
+                                                                id={
+                                                                    "type": "button_group",
+                                                                    "index": "AIO_AREA",
+                                                                },
+                                                                vertical=True,
+                                                                style={
+                                                                    "marginBottom": "20px"
+                                                                },
+                                                            ),
+                                                            html.Br(),
+                                                            dbc.Card(
+                                                                id="indicator_card",
+                                                                color="primary",
+                                                                outline=True,
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    width=4,
                                                 ),
-                                                width=4,
-                                            ),
-                                            dbc.Col(
-                                                html.Div(
-                                                    [
-                                                        dbc.Checklist(
-                                                            options=[
-                                                                {
-                                                                    "label": "Show historical data",
-                                                                    "value": 1,
-                                                                }
-                                                            ],
-                                                            value=[],
-                                                            id={
-                                                                "type": "historical_data_toggle",
-                                                                "index": "AIO_AREA",
-                                                            },
-                                                            switch=True,
-                                                            style={"display": "none"},
-                                                        ),
-                                                        html.Br(),
-                                                        dbc.RadioItems(
-                                                            id={
-                                                                "type": "area_types",
-                                                                "index": "AIO_AREA",
-                                                            },
-                                                            inline=True,
-                                                        ),
-                                                        dcc.Loading(
-                                                            [
-                                                                dcc.Graph(
-                                                                    id={
-                                                                        "type": "area",
-                                                                        "index": "AIO_AREA",
+                                                dbc.Col(
+                                                    html.Div(
+                                                        [
+                                                            dbc.Checklist(
+                                                                options=[
+                                                                    {
+                                                                        "label": "Show historical data",
+                                                                        "value": 1,
                                                                     }
-                                                                )
-                                                            ]
-                                                        ),
-                                                        dbc.Checklist(
-                                                            options=[
-                                                                {
-                                                                    "label": "Exclude outliers ",
-                                                                    "value": 1,
-                                                                }
-                                                            ],
-                                                            value=[1],
-                                                            id={
-                                                                "type": "exclude_outliers_toggle",
-                                                                "index": "AIO_AREA",
-                                                            },
-                                                            switch=True,
-                                                            style={
-                                                                "paddingLeft": 20,
-                                                                "display": "block",
-                                                            },
-                                                        ),
-                                                        html.Br(),
-                                                        dbc.RadioItems(
-                                                            id={
-                                                                "type": "area_breakdowns",
-                                                                "index": "AIO_AREA",
-                                                            },
-                                                            inline=True,
-                                                            style={"display": "block"},
-                                                        ),
-                                                        html.Div(
-                                                            fa("fas fa-info-circle"),
-                                                            id="aio_area_area_info",
-                                                            className="float-right",
-                                                        ),
-                                                        dbc.Popover(
-                                                            [
-                                                                dbc.PopoverHeader(
-                                                                    "Sources"
-                                                                ),
-                                                                dbc.PopoverBody(
-                                                                    id={
-                                                                        "type": "area_sources",
-                                                                        "index": "AIO_AREA",
+                                                                ],
+                                                                value=[],
+                                                                id={
+                                                                    "type": "historical_data_toggle",
+                                                                    "index": "AIO_AREA",
+                                                                },
+                                                                switch=True,
+                                                                style={
+                                                                    "display": "none"
+                                                                },
+                                                            ),
+                                                            html.Br(),
+                                                            dbc.RadioItems(
+                                                                id={
+                                                                    "type": "area_types",
+                                                                    "index": "AIO_AREA",
+                                                                },
+                                                                inline=True,
+                                                            ),
+                                                            dcc.Loading(
+                                                                [
+                                                                    dcc.Graph(
+                                                                        id={
+                                                                            "type": "area",
+                                                                            "index": "AIO_AREA",
+                                                                        }
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            dbc.Checklist(
+                                                                options=[
+                                                                    {
+                                                                        "label": "Exclude outliers ",
+                                                                        "value": 1,
                                                                     }
+                                                                ],
+                                                                value=[1],
+                                                                id={
+                                                                    "type": "exclude_outliers_toggle",
+                                                                    "index": "AIO_AREA",
+                                                                },
+                                                                switch=True,
+                                                                style={
+                                                                    "paddingLeft": 20,
+                                                                    "display": "block",
+                                                                },
+                                                            ),
+                                                            html.Br(),
+                                                            dbc.RadioItems(
+                                                                id={
+                                                                    "type": "area_breakdowns",
+                                                                    "index": "AIO_AREA",
+                                                                },
+                                                                inline=True,
+                                                                style={
+                                                                    "display": "block"
+                                                                },
+                                                            ),
+                                                            html.Div(
+                                                                fa(
+                                                                    "fas fa-info-circle"
                                                                 ),
-                                                            ],
-                                                            id="hover",
-                                                            target="aio_area_area_info",
-                                                            trigger="hover",
-                                                        ),
-                                                    ],
+                                                                id="aio_area_area_info",
+                                                                className="float-right",
+                                                            ),
+                                                            dbc.Popover(
+                                                                [
+                                                                    dbc.PopoverHeader(
+                                                                        "Sources"
+                                                                    ),
+                                                                    dbc.PopoverBody(
+                                                                        id={
+                                                                            "type": "area_sources",
+                                                                            "index": "AIO_AREA",
+                                                                        }
+                                                                    ),
+                                                                ],
+                                                                id="hover",
+                                                                target="aio_area_area_info",
+                                                                trigger="hover",
+                                                            ),
+                                                        ],
+                                                    ),
+                                                    width=8,
                                                 ),
-                                                width=8,
-                                            ),
-                                        ],
-                                        justify="evenly",
-                                        align="start",
+                                            ],
+                                            justify="evenly",
+                                            align="start",
+                                        ),
+                                        fluid=True,
                                     ),
-                                    fluid=True,
-                                ),
-                            ]
-                        ),
-                    ],
-                    id={"type": "area_parent", "index": "AIO_AREA"},
-                ),
+                                ]
+                            ),
+                        ],
+                        id={"type": "area_parent", "index": "AIO_AREA"},
+                    )
+                )
             ),
             html.Br(),
         ],
