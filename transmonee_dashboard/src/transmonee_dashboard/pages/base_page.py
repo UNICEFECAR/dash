@@ -743,7 +743,7 @@ def set_aio_options(indicators_dict):
                 indicator_names[code],
                 id={"type": "indicator_button", "index": code},
                 color="info",
-                className="theme mx-1",
+                className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
             )
             for num, code in enumerate(area_indicators)
