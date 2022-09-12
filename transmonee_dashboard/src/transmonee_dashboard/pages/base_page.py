@@ -8,7 +8,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from dash.dependencies import ALL, MATCH, ClientsideFunction, Input, Output, State
+from dash.dependencies import ALL, Input, Output, State
 from scipy.stats import zscore
 
 from ..app import app
@@ -18,7 +18,6 @@ from . import (
     countries_iso3_dict,
     df_sources,
     dimension_names,
-    geo_json_countries,
     get_filtered_dataset,
     indicator_names,
     indicators_config,
