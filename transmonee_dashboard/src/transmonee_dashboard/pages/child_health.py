@@ -163,8 +163,8 @@ indicators_dict = {
                 "HT_SH_XPD_OOPC_CH_ZS",
                 "HT_INS_COV",
             ],
-            "default_graph": "bar",
-            "default": "HT_SH_XPD_CHEX_GD_ZS",
+            "default_graph": "map",
+            "default": "HT_SH_XPD_GHED_PP_CD",
         },
     },
     # "HS": {
