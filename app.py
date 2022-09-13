@@ -56,7 +56,7 @@ app.layout = html.Div(
             },
         ),
     ],
-    id="mainContainer",
+    # id="mainContainer",
 )
 
 # Run app
