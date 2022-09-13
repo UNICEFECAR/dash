@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, page_container
 import dash_bootstrap_components as dbc
-from .components import fa
+from components import fa
 
 # create Dash application
 

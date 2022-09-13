@@ -603,54 +603,6 @@ programme_country_indexes = [
     for item in unicef_country_prog
 ]
 
-data = pd.DataFrame()
-
-# column data types coerced
-col_types = {
-    "COVERAGE_TIME": str,
-    "OBS_FOOTNOTE": str,
-    "OBS_VALUE": str,
-    "Frequency": str,
-    "Unit multiplier": str,
-    "OBS_STATUS": str,
-    "Observation Status": str,
-    "TIME_PERIOD": int,
-}
-
-# avoid a loop to query SDMX
-try:
-    data_query_sdmx = pd.read_csv(
-        sdmx_url.format("+".join(data_query_inds), years[0], years[-1]),
-        dtype=col_types,
-        storage_options={"Accept-Encoding": "gzip"},
-        low_memory=False,
-    )
-except urllib.error.HTTPError as e:
-    raise e
-
-data = pd.concat([data, data_query_sdmx])
-# no need to create column CODE, just rename indicator
-data.rename(columns={"INDICATOR": "CODE"}, inplace=True)
-
-# replace Yes by 1 and No by 0
-data.OBS_VALUE.replace({"Yes": "1", "No": "0"}, inplace=True)
-
-
-# check and drop non-numeric observations, eg: SDMX accepts > 95 as an OBS_VALUE
-filter_non_num = pd.to_numeric(data.OBS_VALUE, errors="coerce").isnull()
-if filter_non_num.any():
-    not_num_code_val = data[["CODE", "OBS_VALUE"]][filter_non_num]
-    f"Non-numeric observations in {not_num_code_val.CODE.unique()}\ndiscarded: {not_num_code_val.OBS_VALUE.unique()}"
-    data.drop(data[filter_non_num].index, inplace=True)
-
-# convert to numeric
-data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE)
-data = data.round({"OBS_VALUE": 2})
-# print(data.shape)
-
-# TODO: calculations for children age population
-indicators = data["Indicator"].unique()
-
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
