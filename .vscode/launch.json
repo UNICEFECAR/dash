@@ -5,14 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Flask",
+            "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "module": "dev_cli",
-            "cwd": "${workspaceFolder}/transmonee_dashboard/src/transmonee_dashboard/",
-            "args": [
-                "--debug"
-            ]
-        },
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}"
+        }
     ]
 }
