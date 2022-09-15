@@ -814,18 +814,17 @@ def get_base_layout(**kwargs):
                                     dbc.Row(
                                         [
                                             dbc.Col(
-                                                dbc.Checkbox(
+                                                dbc.Checklist(
+                                                    options=[
+                                                        {
+                                                            "label": "UNICEF Country Programmes",
+                                                            "value": 1,
+                                                        }
+                                                    ],
+                                                    value=[],
                                                     id="programme-toggle",
-                                                    className="custom-control-input",
-                                                )
-                                            ),
-                                            dbc.Col(
-                                                dbc.Label(
-                                                    "UNICEF Country Programmes",
-                                                    html_for="programme-toggle",
-                                                    className="custom-control-label",
-                                                    color="primary",
-                                                )
+                                                    switch=True,
+                                                ),
                                             ),
                                         ],
                                         className="custom-control custom-switch m-2",
@@ -1143,7 +1142,6 @@ app.layout = html.Div(
             fluid=True,
             children=get_base_layout(indicators=indicators_dict, main_title=main_title),
         ),
-        # make_footer(),
         html.Button(
             id="btnScroll",
             title="Scroll to top",
@@ -1152,11 +1150,9 @@ app.layout = html.Div(
                 fa("fas fa-chevron-up"),
             ],
             style={
-                "border-radius": 50,
                 "position": "fixed",
                 "right": 20,
                 "bottom": 20,
-                "z-index": 1101,
                 "width": 50,
                 "height": 50,
                 "padding": 12,
@@ -1184,7 +1180,6 @@ def make_card(
                     indicator_header,
                     className="display-4",
                     style={
-                        # "fontSize": 50,
                         "textAlign": "center",
                         "color": "#1cabe2",
                     },
@@ -1194,7 +1189,6 @@ def make_card(
                 html.Div(
                     fa("fas fa-info-circle"),
                     id="indicator_card_info",
-                    # className="float-right",
                     style={
                         "position": "absolute",
                         "bottom": "10px",
@@ -1203,7 +1197,6 @@ def make_card(
                 ),
             ],
             style={
-                # "fontSize": 50,
                 "textAlign": "center",
             },
         ),
@@ -1248,43 +1241,9 @@ def get_card_popover_body(sources):
         return "NA"
 
 
-# TODO: Move to client side call back
-@app.callback(
-    Output("collapse-years", "is_open"),
-    Output("collapse-countries", "is_open"),
-    Output("collapse-engagements", "is_open"),
-    [
-        Input("collapse-years-button", "n_clicks"),
-        Input("collapse-countries-button", "n_clicks"),
-        Input("collapse-engagements-button", "n_clicks"),
-    ],
-    [
-        State("collapse-years-button", "is_open"),
-        State("collapse-countries-button", "is_open"),
-        State("collapse-engagements-button", "is_open"),
-    ],
-)
-def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
-    ctx = callback_context
-
-    if not ctx.triggered:
-        return False, False, False
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "collapse-years-button" and n1:
-        return not is_open1, False, False
-    elif button_id == "collapse-countries-button" and n2:
-        return False, not is_open2, False
-    elif button_id == "collapse-engagements-button" and n3:
-        return False, False, not is_open3
-    return False, False, False
-
-
 @app.callback(
     Output("store", "data"),
     Output("country_selector", "checked"),
-    Output("programme-toggle", "value"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
@@ -1305,18 +1264,7 @@ def apply_filters(
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
-    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
-    # check if it is the country profile page
-    is_country_profile = current_theme == "COUNTRYPROFILE"
-    # check if the user clicked on the generate button in the country profile page
-    if is_country_profile:
-        key_list = list(countries_iso3_dict.keys())
-        val_list = list(countries_iso3_dict.values())
-        # get the name of the selected country in the dropdown to filter the data accordingly
-        countries_selected = (
-            [key_list[val_list.index(selected_country)]] if selected_country else []
-        )
-    elif programme_toggle and selected == "programme-toggle":
+    if programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
     # Add the condition to know when the user unchecks the UNICEF country programs!
@@ -1337,24 +1285,23 @@ def apply_filters(
     country_text = f"{len(countries_selected)} Selected"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
-    # selected_years = years[slice(*years_slider)]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected_codes = [
         countries_iso3_dict[country] for country in countries_selected
     ]
+    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
     selections = dict(
         theme=current_theme,
         indicators_dict=indicators,
         years=selected_years,
         countries=countries_selected_codes,
-        is_adolescent=("ADOLESCENT" in indicators),
     )
 
     return (
         selections,
         country_selector,
-        countries_selected == unicef_country_prog,
+        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -1555,7 +1502,7 @@ def set_aio_options(indicators_dict):
     State({"type": "indicator_button", "index": ALL}, "id"),
     prevent_initial_call=True,
 )
-def set_active_button(n_clicks, buttons_id):
+def set_active_button(_, buttons_id):
 
     # figure out which button was clicked
     ctx = callback_context
