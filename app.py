@@ -702,9 +702,10 @@ df_sources_summary_groups = df_sources.groupby("Source_Full")
 def get_base_layout(**kwargs):
     indicators_conf = kwargs.get("indicators")
     title_main = kwargs.get("main_title")
+    theme = [*indicators_conf][0]
+    subtitle_main = indicators_conf[theme].get("NAME")
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
-    programme_toggle_style = {"display": "block"}
 
     return html.Div(
         [
@@ -727,6 +728,7 @@ def get_base_layout(**kwargs):
                                         className="heading-title",
                                     ),
                                     html.P(
+                                        subtitle_main,
                                         id="subtitle",
                                         className="heading-subtitle",
                                     ),
@@ -747,110 +749,90 @@ def get_base_layout(**kwargs):
                                     ),
                                 ],
                                 id="theme-row",
-                                # width=4,
                                 className="my-2",
-                                # no_gutters=True,
                                 justify="center",
                                 style=themes_row_style,
                             ),
                             dbc.Row(
                                 [
-                                    dbc.DropdownMenu(
-                                        label=f"Years: {years[0]} - {years[-1]}",
-                                        id="collapse-years-button",
-                                        className="m-2",
-                                        color="info",
-                                        # block=True,
-                                        children=[
-                                            dbc.Card(
-                                                dcc.RangeSlider(
-                                                    id="year_slider",
-                                                    min=0,
-                                                    max=len(years) - 1,
-                                                    step=None,
-                                                    marks={
-                                                        index: str(year)
-                                                        for index, year in enumerate(
-                                                            years
-                                                        )
-                                                    },
-                                                    value=[0, len(years) - 1],
+                                    dbc.Col(
+                                        dbc.DropdownMenu(
+                                            label=f"Years: {years[0]} - {years[-1]}",
+                                            id="collapse-years-button",
+                                            className="m-2",
+                                            color="info",
+                                            # block=True,
+                                            children=[
+                                                dbc.Card(
+                                                    dcc.RangeSlider(
+                                                        id="year_slider",
+                                                        min=0,
+                                                        max=len(years) - 1,
+                                                        step=None,
+                                                        marks={
+                                                            index: str(year)
+                                                            for index, year in enumerate(
+                                                                years
+                                                            )
+                                                        },
+                                                        value=[0, len(years) - 1],
+                                                    ),
+                                                    className="overflow-auto",
+                                                    body=True,
                                                 ),
-                                                style={
-                                                    "maxHeight": "250px",
-                                                    "minWidth": "500px",
-                                                },
-                                                className="overflow-auto",
-                                                body=True,
-                                            ),
-                                        ],
+                                            ],
+                                        ),
+                                        width="auto",
                                     ),
-                                    dbc.DropdownMenu(
-                                        label=f"Countries: {len(countries)}",
-                                        id="collapse-countries-button",
-                                        className="m-2",
-                                        color="info",
-                                        style=countries_filter_style,
-                                        children=[
-                                            dbc.Card(
-                                                dash_treeview_antd.TreeView(
-                                                    id="country_selector",
-                                                    multiple=True,
-                                                    checkable=True,
-                                                    checked=["0"],
-                                                    # selected=[],
-                                                    expanded=["0"],
-                                                    data=selection_tree,
+                                    dbc.Col(
+                                        dbc.DropdownMenu(
+                                            label=f"Countries: {len(countries)}",
+                                            id="collapse-countries-button",
+                                            className="m-2",
+                                            color="info",
+                                            style=countries_filter_style,
+                                            children=[
+                                                dbc.Card(
+                                                    dash_treeview_antd.TreeView(
+                                                        id="country_selector",
+                                                        multiple=True,
+                                                        checkable=True,
+                                                        checked=["0"],
+                                                        expanded=["0"],
+                                                        data=selection_tree,
+                                                    ),
+                                                    className="overflow-auto",
+                                                    body=True,
                                                 ),
-                                                style={
-                                                    "maxHeight": "250px",
-                                                    # "maxWidth": "300px",
-                                                },
-                                                className="overflow-auto",
-                                                body=True,
-                                            ),
-                                        ],
+                                            ],
+                                        ),
+                                        width="auto",
                                     ),
-                                    dbc.Row(
-                                        [
-                                            dbc.Col(
-                                                dbc.Checklist(
-                                                    options=[
-                                                        {
-                                                            "label": "UNICEF Country Programmes",
-                                                            "value": 1,
-                                                        }
-                                                    ],
-                                                    value=[],
-                                                    id="programme-toggle",
-                                                    switch=True,
-                                                ),
-                                            ),
-                                        ],
-                                        className="custom-control custom-switch m-2",
-                                        # check=True,
-                                        # inline=True,
-                                        style=programme_toggle_style,
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            options=[
+                                                {"label": "UNICEF Country Programmes"}
+                                            ],
+                                            style={"color": "DeepSkyBlue"},
+                                            value=[],
+                                            id="programme-toggle",
+                                            switch=True,
+                                        ),
+                                        width="auto",
                                     ),
                                 ],
                                 id="filter-row",
-                                # no_gutters=True,
                                 justify="center",
+                                align="center",
                             ),
                         ]
                     ),
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        id="cards_row",
-                        className="mt-3",
-                    ),
-                ],
-                justify="center",
+                style={
+                    "paddingBottom": 15,
+                },
             ),
             html.Br(),
             dbc.Row(
@@ -892,30 +874,54 @@ def get_base_layout(**kwargs):
                                                 dbc.Col(
                                                     html.Div(
                                                         [
-                                                            dbc.Checklist(
-                                                                options=[
-                                                                    {
-                                                                        "label": "Show historical data",
-                                                                        "value": 1,
-                                                                    }
+                                                            html.Div(
+                                                                [
+                                                                    dbc.Row(
+                                                                        [
+                                                                            dbc.Col(
+                                                                                dbc.RadioItems(
+                                                                                    id={
+                                                                                        "type": "area_types",
+                                                                                        "index": "AIO_AREA",
+                                                                                    },
+                                                                                    inline=True,
+                                                                                ),
+                                                                                width="auto",
+                                                                            ),
+                                                                            dbc.Col(
+                                                                                dbc.Checklist(
+                                                                                    options=[
+                                                                                        {
+                                                                                            "label": "Exclude outliers "
+                                                                                        }
+                                                                                    ],
+                                                                                    value=[],
+                                                                                    id={
+                                                                                        "type": "exclude_outliers_toggle",
+                                                                                        "index": "AIO_AREA",
+                                                                                    },
+                                                                                    switch=True,
+                                                                                ),
+                                                                                width="auto",
+                                                                            ),
+                                                                            dbc.Col(
+                                                                                dbc.RadioItems(
+                                                                                    id={
+                                                                                        "type": "area_breakdowns",
+                                                                                        "index": "AIO_AREA",
+                                                                                    },
+                                                                                    inline=True,
+                                                                                ),
+                                                                                width="auto",
+                                                                            ),
+                                                                        ],
+                                                                        justify="around",
+                                                                        align="center",
+                                                                    )
                                                                 ],
-                                                                value=[],
-                                                                id={
-                                                                    "type": "historical_data_toggle",
-                                                                    "index": "AIO_AREA",
-                                                                },
-                                                                switch=True,
                                                                 style={
-                                                                    "display": "none"
+                                                                    "paddingBottom": 10
                                                                 },
-                                                            ),
-                                                            html.Br(),
-                                                            dbc.RadioItems(
-                                                                id={
-                                                                    "type": "area_types",
-                                                                    "index": "AIO_AREA",
-                                                                },
-                                                                inline=True,
                                                             ),
                                                             dcc.Loading(
                                                                 [
@@ -926,35 +932,6 @@ def get_base_layout(**kwargs):
                                                                         }
                                                                     )
                                                                 ]
-                                                            ),
-                                                            dbc.Checklist(
-                                                                options=[
-                                                                    {
-                                                                        "label": "Exclude outliers ",
-                                                                        "value": 1,
-                                                                    }
-                                                                ],
-                                                                value=[1],
-                                                                id={
-                                                                    "type": "exclude_outliers_toggle",
-                                                                    "index": "AIO_AREA",
-                                                                },
-                                                                switch=True,
-                                                                style={
-                                                                    "paddingLeft": 20,
-                                                                    "display": "block",
-                                                                },
-                                                            ),
-                                                            html.Br(),
-                                                            dbc.RadioItems(
-                                                                id={
-                                                                    "type": "area_breakdowns",
-                                                                    "index": "AIO_AREA",
-                                                                },
-                                                                inline=True,
-                                                                style={
-                                                                    "display": "block"
-                                                                },
                                                             ),
                                                             html.Div(
                                                                 fa(
@@ -1076,6 +1053,7 @@ indicators_dict = {
                         # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
+                        height=500,
                     ),
                     # "compare": "Sex",
                 },
@@ -1087,6 +1065,7 @@ indicators_dict = {
                         hover_name="Country_name",
                         line_shape="spline",
                         render_mode="svg",
+                        height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
                 },
@@ -1099,7 +1078,7 @@ indicators_dict = {
                         mapbox_style="carto-positron",
                         geojson=geo_json_countries,
                         zoom=2,
-                        center={"lat": 62.995158, "lon": 88.048713},
+                        center={"lat": 59.5381, "lon": 32.3200},
                         opacity=0.5,
                         labels={
                             "OBS_VALUE": "Value",
@@ -1113,9 +1092,9 @@ indicators_dict = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                         },
-                        height=750,
+                        height=500,
                     ),
-                    "layout_options": dict(margin={"r": 0, "t": 1, "l": 2, "b": 1}),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
                 },
             },
             "indicators": [
@@ -1126,7 +1105,7 @@ indicators_dict = {
                 "HT_SH_XPD_OOPC_CH_ZS",
                 "HT_INS_COV",
             ],
-            "default_graph": "bar",
+            "default_graph": "map",
             "default": "HT_SH_XPD_CHEX_GD_ZS",
         },
     },
@@ -1178,7 +1157,7 @@ def make_card(
             [
                 html.H1(
                     indicator_header,
-                    className="display-4",
+                    className="display-5",
                     style={
                         "textAlign": "center",
                         "color": "#1cabe2",
@@ -1731,4 +1710,4 @@ def aio_area_figure(
 
 # Run app
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)
