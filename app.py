@@ -74,7 +74,7 @@ with open(geo_json_file) as shapes_file:
 with open("./assets/indicator_config.json") as config_file:
     indicators_config = json.load(config_file)
 
-unicef = sdmx.Request("UNICEF")
+unicef = sdmx.Request("UNICEF", timeout=5)
 
 metadata = unicef.dataflow("TRANSMONEE", provider="ECARO", version="1.0")
 dsd = metadata.structure["DSD_ECARO_TRANSMONEE"]
@@ -710,7 +710,6 @@ def get_base_layout(**kwargs):
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_conf),
-            dcc.Location(id="theme"),
             html.Div(
                 className="heading",
                 style={"padding": 36},
@@ -1226,7 +1225,6 @@ def get_card_popover_body(sources):
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
-        Input("theme", "hash"),
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
         Input("programme-toggle", "value"),
@@ -1234,7 +1232,6 @@ def get_card_popover_body(sources):
     State("indicators", "data"),
 )
 def apply_filters(
-    theme,
     years_slider,
     country_selector,
     programme_toggle,
@@ -1269,7 +1266,7 @@ def apply_filters(
     countries_selected_codes = [
         countries_iso3_dict[country] for country in countries_selected
     ]
-    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
+    current_theme = [*indicators][0]
     selections = dict(
         theme=current_theme,
         indicators_dict=indicators,
@@ -1604,9 +1601,34 @@ def aio_area_figure(
         compare,
         latest_data=False if fig_type in ["line", "map"] else True,
     ).sort_values("OBS_VALUE", ascending=False)
+
+    # indicator card
+    card_config = [
+        elem
+        for elem in indicators_dict[selections["theme"]]["CARDS"]
+        if elem["indicator"] == indicator
+    ]
+
+    ind_card = (
+        []
+        if not card_config or "CARDS" not in indicators_dict[selections["theme"]]
+        else indicator_card(
+            selections,
+            card_config[0]["name"],
+            card_config[0]["indicator"],
+            card_config[0]["suffix"],
+            card_config[0].get("denominator"),
+            card_config[0].get("absolute"),
+            card_config[0].get("average"),
+            card_config[0].get("min_max"),
+            card_config[0].get("sex"),
+            card_config[0].get("age"),
+        )
+    )
+
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return EMPTY_CHART, ""
+        return EMPTY_CHART, "", ind_card
 
     # check if the exclude outliers checkbox is checked
     if exclude_outliers:
@@ -1681,33 +1703,9 @@ def aio_area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    # indicator card
-    card_config = [
-        elem
-        for elem in indicators_dict[selections["theme"]]["CARDS"]
-        if elem["indicator"] == indicator
-    ]
-
-    ind_card = (
-        []
-        if not card_config or "CARDS" not in indicators_dict[selections["theme"]]
-        else indicator_card(
-            selections,
-            card_config[0]["name"],
-            card_config[0]["indicator"],
-            card_config[0]["suffix"],
-            card_config[0].get("denominator"),
-            card_config[0].get("absolute"),
-            card_config[0].get("average"),
-            card_config[0].get("min_max"),
-            card_config[0].get("sex"),
-            card_config[0].get("age"),
-        )
-    )
-
     return fig, html.A(html.P(source), href=source_link, target="_blank"), ind_card
 
 
 # Run app
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
