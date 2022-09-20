@@ -20,7 +20,7 @@
 			],
 			"dockerRun": {
 				"env": {
-					"FLASK_APP": "transmonee_dashboard/src/transmonee_dashboard/dev_cli.py"
+					"FLASK_APP": "src/dev_cli.py"
 				}
 			},
 			"python": {

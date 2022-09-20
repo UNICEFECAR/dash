@@ -11,10 +11,10 @@ on:
 # For help, go to https://github.com/Azure/Actions
 # See this in-depth article on CI for Python applications: https://azure.github.io/AppService/2020/12/11/cicd-for-python-apps.html
 env:
-  AZURE_WEBAPP_NAME: "tm-dash" # set this to your application's name
+  AZURE_WEBAPP_NAME: "dash-service" # set this to your application's name
   WORKING_DIRECTORY: "." # set this to the path to your path of working directory inside github repository, defaults to the repository root
-  PYTHON_VERSION: "3.8"
-  STARTUP_COMMAND: "run-transmonee_dashboard-dev" # set this to the startup command required to start the gunicorn server. default it is empty
+  PYTHON_VERSION: "3.9"
+  STARTUP_COMMAND: "python dash_service.dev_cli" # set this to the startup command required to start the gunicorn server. default it is empty
 
 jobs:
   build-and-deploy:
