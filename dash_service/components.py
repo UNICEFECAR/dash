@@ -51,18 +51,22 @@ def make_nav(vertical=False, **kwargs):
                         children=[
                             dbc.Nav(
                                 [
-                                    dbc.NavLink(
+                                    dbc.NavItem(
                                         [
-                                            html.Div(page["name"], className="ms-2"),
+                                            dbc.NavLink(
+                                                page["name"],
+                                                className="ms-2",
+                                                href=page["path"],
+                                                active="exact",
+                                            ),
                                         ],
-                                        href=page["path"],
-                                        active="exact",
                                     )
                                     for page in dash.page_registry.values()
                                 ],
                                 vertical=vertical,
                                 pills=True,
-                                className="nav bg-dark navbar-dark",
+                                justified=True,
+                                className="col-12",
                             )
                         ],
                     )

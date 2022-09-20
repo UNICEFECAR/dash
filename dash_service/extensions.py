@@ -20,6 +20,6 @@ from flask_cors import CORS
 # flask_static_digest = FlaskStaticDigest()
 
 cors = CORS()
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={"autocommit": True})
 migrate = Migrate()
 admin = Admin(name="Dash Service", template_mode="bootstrap3")

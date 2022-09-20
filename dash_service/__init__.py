@@ -21,4 +21,3 @@ def register_extensions(app):
     # debug_toolbar.init_app(app)
     # migrate.init_app(app, db)
     # flask_static_digest.init_app(app)
-

@@ -11,7 +11,7 @@ import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from dash_service.components import fa
-from dash_service.models import Page
+from dash_service.models import Page, Project
 from dash_service.pages import (
     geo_json_countries,
     get_codelist,
@@ -76,28 +76,18 @@ EMPTY_CHART = {
 
 # This hooks into Dash's multipage functionality and allows us to specify the URL pattern
 # https://dash.plotly.com/urls
-def title(page_slug=None):
-    return f"{page_slug} Analysis"
-
-
-def description(page_slug=None):
-    return f"News, financials and technical analysis for {page_slug}"
-
-
 dash.register_page(
     __name__,
-    path_template="/page/<page_slug>",
-    title=title,
-    description=description,
-    path="/page/child-education",
+    path_template="/<project_slug>/<page_slug>",
+    path="/brazil/child-education",  # this is the default path and working example
 )
 
 
-def layout(page_slug="child-education", **query_parmas):
+def layout(project_slug=None, page_slug=None, **query_parmas):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.
-    TODO: This could also support query parameters if needed.
+    TODO: This could also support query parameters if needed for addtional SDMX filters.
 
     Args:
         project_name (str): The name of the project in the admin
@@ -106,19 +96,40 @@ def layout(page_slug="child-education", **query_parmas):
     Returns:
         html.Div: The rendered page
     """
+    if project_slug is None and page_slug is None:
+        # project_slug and page_slug are None when this is called for validation
+        # create a dummy page
+        return render_page_template(
+            {},
+            "Validation Page",
+            {"data": dict(title="Select All", key="0", children=[]), "checked": [0]},
+        )
 
-    page = Page.query.filter_by(slug=page_slug).first_or_404()
+    # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
+    page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
     config = page.content
     main_title = config["main_title"]
     selection_tree = get_selection_tree(config["ddl_ref_areas_cl"])
 
-    themes_row_style = {"verticalAlign": "center", "display": "flex"}
-    countries_filter_style = {"display": "block"}
-    main_area_style = {"display": "block"}
+    return render_page_template(config, main_title, selection_tree)
 
-    return html.Div(
+
+def render_page_template(
+    page_config: dict, main_title: str, selection_tree: dict, **kwargs
+) -> html.Div:
+    """Renders the page template based on the page config and other parameters
+
+    Args:
+        page_config (dict): page config from the database
+        main_title (_type_): main title of the page
+        selection_tree (_type_): Geographical selection tree the user can select
+
+    Returns:
+        html.Div: The dash Div representing the redenderd page against the config
+    """
+    template = html.Div(
         [
-            dcc.Store(id="page_config", data=config),
+            dcc.Store(id="page_config", data=page_config),
             dcc.Location(id="theme"),
             html.Div(
                 className="heading",
@@ -161,7 +172,7 @@ def layout(page_slug="child-education", **query_parmas):
                                 className="my-2",
                                 # no_gutters=True,
                                 justify="center",
-                                style=themes_row_style,
+                                style={"verticalAlign": "center", "display": "flex"},
                             ),
                             dbc.Row(
                                 [
@@ -200,7 +211,7 @@ def layout(page_slug="child-education", **query_parmas):
                                         id="collapse-countries-button",
                                         className="m-2",
                                         color="info",
-                                        style=countries_filter_style,
+                                        style={"display": "block"},
                                         children=[
                                             dbc.Card(
                                                 dash_treeview_antd.TreeView(
@@ -241,7 +252,7 @@ def layout(page_slug="child-education", **query_parmas):
             html.Br(),
             dbc.CardDeck(
                 [make_area(area) for area in ["MAIN"]],
-                style=main_area_style,
+                style={"display": "block"},
             ),
             html.Br(),
             dbc.CardDeck(
@@ -258,9 +269,21 @@ def layout(page_slug="child-education", **query_parmas):
             html.Br(),
         ],
     )
+    return template
 
 
-def make_area(area_name):
+def make_area(area_name: str) -> dbc.Card:
+    """Generates a single graph area "card" with a title and a graph
+       with a menu for the graph type and indicators selection
+    TODO: migrate to dash AIO component
+
+    Args:
+        area_name (str): Name fo this area tile
+
+    Returns:
+        dbc.Card: Returns a bootstrap card with the area title and graph
+    """
+
     area_id = {"type": "area", "index": area_name}
     popover_id = {"type": "area_sources", "index": area_name}
     historical_data_style = {"display": "none"}
@@ -358,7 +381,21 @@ def make_card(
     source_link,
     indicator_header,
     numerator_pairs,
-):
+) -> dbc.Card:
+    """Generates a single card with a title, a value and a suffix
+
+    Args:
+        card_id (_type_): _description_
+        name (_type_): _description_
+        suffix (_type_): _description_
+        indicator_sources (_type_): _description_
+        source_link (_type_): _description_
+        indicator_header (_type_): _description_
+        numerator_pairs (_type_): _description_
+
+    Returns:
+        dbc.Card: The rendered static card
+    """
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -434,39 +471,6 @@ def get_card_popover_body(sources):
         return card_countries
 
     return "NA"
-
-
-# TODO: Move to client side call back
-@callback(
-    Output("collapse-years", "is_open"),
-    Output("collapse-countries", "is_open"),
-    Output("collapse-engagements", "is_open"),
-    [
-        Input("collapse-years-button", "n_clicks"),
-        Input("collapse-countries-button", "n_clicks"),
-        Input("collapse-engagements-button", "n_clicks"),
-    ],
-    [
-        State("collapse-years-button", "is_open"),
-        State("collapse-countries-button", "is_open"),
-        State("collapse-engagements-button", "is_open"),
-    ],
-)
-def toggle_collapse(n1, n2, n3, is_open1, is_open2, is_open3):
-    ctx = dash.callback_context
-
-    if not ctx.triggered:
-        return False, False, False
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "collapse-years-button" and n1:
-        return not is_open1, False, False
-    elif button_id == "collapse-countries-button" and n2:
-        return False, not is_open2, False
-    elif button_id == "collapse-engagements-button" and n3:
-        return False, False, not is_open3
-    return False, False, False
 
 
 @callback(
@@ -723,55 +727,14 @@ def main_figure(indicator, show_historical_data, selections, config):
     options["labels"]["text"] = "OBS_VALUE"
     options["geojson"] = geo_json_countries
 
-    # lbassil: replace UNIT_MEASURE by Unit_name to use the name of the unit instead of the code
-    # name = (
-    #     data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-    #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
-    #     else ""
-    # )
-
     # TODO this code seems to be duplicated in area_figure, merge the code
     source = ""
     sources = get_col_unique(data, "DATA_SOURCE")
     if len(sources) > 0:
         source = ", ".join(sources)
 
-    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    # source = (
-    #     "; ".join(list(unique_indicator_sources))
-    #     if len(unique_indicator_sources) > 0
-    #     else ""
-    # )
-    # source_link = (
-    #     df_indicator_sources["Source_Link"].unique()[0]
-    #     if len(unique_indicator_sources) > 0
-    #     else ""
-    # )
-    #
-    # options["labels"] = DEFAULT_LABELS.copy()
-    # options["labels"]["OBS_VALUE"] = name
-    # options["labels"]["text"] = "OBS_VALUE"
-    # options["geojson"] = geo_json_countries
-    # if latest_data:
-    #     # remove the animation frame and show all countries at once
-    #     options.pop("animation_frame")
-    #     # add the year to show on hover
-    #     options["hover_name"] = "TIME_PERIOD"
-
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    # check if this area's config has an animation frame and hence a slider
-    # if len(main_figure.layout["sliders"]) > 0:
-    #     # set last frame as the active one; i.e. select the max year as the default displayed year
-    #     main_figure.layout["sliders"][0]["active"] = len(main_figure.frames) - 1
-    #     # assign the data of the last year to the map; without this line the data will show the first year;
-    #     main_figure = go.Figure(
-    #         data=main_figure["frames"][-1]["data"],
-    #         frames=main_figure["frames"],
-    #         layout=main_figure.layout,
-    #     )
 
     source_link = ""
     return main_figure, html.A(html.P(source), href=source_link, target="_blank")
@@ -804,8 +767,6 @@ def area_figure(
     # only run if indicator not empty
     if not indicator:
         return {}, {}
-    # check if it is the country profile page
-    # is_country_profile = selections["theme"] == "COUNTRYPROFILE"
 
     area = id["index"]
     series_id = indicator.split("|")
@@ -837,60 +798,17 @@ def area_figure(
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
 
-    # indicator_name = str(indicator_names.get(indicator, ""))
-    # # do we need `indicator_settings` below?
-    # indicator_settings = (
-    #     indicators.get(indicator, {}) if type(indicators) is dict else {}
-    # )
-    # data = get_filtered_dataset(
-    #     [indicator],
-    #     selections["years"],
-    #     selections["countries"],
-    #     compare,
-    #     latest_data=False if fig_type == "line" or is_country_profile else True,
-    # )
-
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
-
-    # check if the exclude outliers checkbox is checked
-    # if exclude_outliers:
-    #     # filter the data to the remove the outliers
-    #     # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-    #     data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
-    #     # filter the data entries to remove the outliers
-    #     data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
-
-    # lbassil: was UNIT_MEASURE
-    # name = (
-    #     data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-    #     if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
-    #     else ""
-    # )
 
     # TODO this code seems to be duplicated in main_figure, merge the code
     source = ""
     sources = get_col_unique(data, "DATA_SOURCE")
     if len(sources) > 0:
         source = ", ".join(sources)
-    # df_indicator_sources = df_sources[df_sources["Code"] == indicator]
-    # unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    # source = (
-    #     "; ".join(list(unique_indicator_sources))
-    #     if len(unique_indicator_sources) > 0
-    #     else ""
-    # )
-    # source_link = (
-    #     df_indicator_sources["Source_Link"].unique()[0]
-    #     if len(unique_indicator_sources) > 0
-    #     else ""
-    # )
 
     source_link = ""
-
-    # options["labels"] = DEFAULT_LABELS.copy()
-    # options["labels"]["OBS_VALUE"] = name
 
     DEFAULT_LABELS = {
         "REF_AREA": "Geographic area",
@@ -934,36 +852,6 @@ def area_figure(
         legend=dict(x=0.9, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
-
-    # Add this code to avoid having decimal year on the x-axis for time series charts
-    # if fig_type == "line" or is_country_profile:
-    #     data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
-    #     layout["xaxis"] = dict(
-    #         tickmode="linear",
-    #         tick0=selections["years"][0],
-    #         dtick=1,
-    #         categoryorder="total ascending",
-    #     )
-    #     layout["legend"] = dict(y=0.5, x=1)
-
-    # if dimension:
-    #     # lbassil: use the dimension name instead of the code
-    #     dimension_name = str(dimension_names.get(dimension, ""))
-    #     options["color"] = dimension_name
-    #     if compare == "WEALTH_QUINTILE":
-    #         wealth_dict = {
-    #             "Lowest": 0,
-    #             "Second": 1,
-    #             "Middle": 2,
-    #             "Fourth": 3,
-    #             "Highest": 4,
-    #         }
-    #         data.sort_values(
-    #             by=[dimension], key=lambda x: x.map(wealth_dict), inplace=True
-    #         )
-    #     else:
-    #         # sort by the compare value to have the legend in the right ascending order
-    #         data.sort_values(by=[dimension], inplace=True)
 
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)

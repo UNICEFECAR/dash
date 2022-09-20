@@ -1,12 +1,38 @@
 from slugify import slugify
+from sqlalchemy_mixins import AllFeaturesMixin
 
 from .extensions import db
 
 
-class Page(db.Model):
+class Project(db.Model, AllFeaturesMixin):
+    __tablename__ = "projects"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    slug = db.Column(db.String(255), unique=True)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    pages = db.relationship("Page")
+
+    def __init__(self, name, description):
+        self.name = name
+        self.slug = slugify(name)
+        self.description = description
+
+    def __repr__(self):
+        return f"<Project {self.name}>"
+
+    def __str__(self):
+        return self.name
+
+
+class Page(db.Model, AllFeaturesMixin):
     __tablename__ = "pages"
 
     id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
+    project = db.relationship("Project")
     title = db.Column(db.String(80), nullable=False)
     slug = db.Column(db.String(80), unique=True, nullable=False)
     content = db.Column(db.JSON, nullable=False)
