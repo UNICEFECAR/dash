@@ -395,6 +395,7 @@ data_sources = {
     "OECD": "Organisation for Economic Co-operation and Development",
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
+    "NEW_UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
     "TMEE": "Transformative Monitoring for Enhanced Equity",
 }
@@ -701,9 +702,8 @@ df_sources_summary_groups = df_sources.groupby("Source_Full")
 
 def get_base_layout(**kwargs):
     indicators_conf = kwargs.get("indicators")
-    title_main = kwargs.get("main_title")
     theme = [*indicators_conf][0]
-    subtitle_main = indicators_conf[theme].get("NAME")
+    title_main = indicators_conf[theme].get("NAME")
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
 
@@ -725,11 +725,6 @@ def get_base_layout(**kwargs):
                                         title_main,
                                         id="main_title",
                                         className="heading-title",
-                                    ),
-                                    html.P(
-                                        subtitle_main,
-                                        id="subtitle",
-                                        className="heading-subtitle",
                                     ),
                                 ],
                             ),
@@ -776,6 +771,10 @@ def get_base_layout(**kwargs):
                                                         },
                                                         value=[0, len(years) - 1],
                                                     ),
+                                                    style={
+                                                        "maxHeight": "250px",
+                                                        "minWidth": "500px",
+                                                    },
                                                     className="overflow-auto",
                                                     body=True,
                                                 ),
@@ -838,10 +837,6 @@ def get_base_layout(**kwargs):
                 dbc.Col(
                     dbc.Card(
                         [
-                            dbc.CardHeader(
-                                id={"type": "area_title", "index": "AIO_AREA"},
-                                style={"fontWeight": "bold"},
-                            ),
                             dbc.CardBody(
                                 [
                                     dbc.Container(
@@ -998,11 +993,9 @@ app.sub_title = (
     "Monitoring the situation of children and women in Europe and Central Asia"
 )
 
-main_title = "Child Health"
-
 indicators_dict = {
     "HSM": {
-        "NAME": "Main Health System",
+        "NAME": "Health System",
         "CARDS": [
             {
                 "name": "",
@@ -1104,7 +1097,7 @@ indicators_dict = {
                 "HT_SH_XPD_OOPC_CH_ZS",
                 "HT_INS_COV",
             ],
-            "default_graph": "map",
+            "default_graph": "bar",
             "default": "HT_SH_XPD_CHEX_GD_ZS",
         },
     },
@@ -1113,12 +1106,11 @@ indicators_dict = {
 # configure the Dash instance's layout
 app.layout = html.Div(
     [
-        # make_header(),
         html.Br(),
         dcc.Store(id="store"),
         dbc.Container(
             fluid=True,
-            children=get_base_layout(indicators=indicators_dict, main_title=main_title),
+            children=get_base_layout(indicators=indicators_dict),
         ),
         html.Button(
             id="btnScroll",
@@ -1401,7 +1393,7 @@ def indicator_card(
     if min_max and len(sources) > 1:
         indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
         indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
-        indicator_header = f"[{indicator_min} - {indicator_max}]"
+        indicator_header = f"{indicator_min} - {indicator_max}"
     else:
         indicator_header = "{:,.0f}".format(indicator_sum)
 
@@ -1416,7 +1408,6 @@ def indicator_card(
 
 
 @app.callback(
-    Output({"type": "area_title", "index": "AIO_AREA"}, "children"),
     Output({"type": "button_group", "index": "AIO_AREA"}, "children"),
     Output({"type": "area_types", "index": "AIO_AREA"}, "options"),
     Output({"type": "area_types", "index": "AIO_AREA"}, "value"),
@@ -1457,19 +1448,13 @@ def set_aio_options(indicators_dict):
             for name in indicators_dict[theme][area].get("graphs", {}).keys()
         ]
 
-    name = (
-        indicators_dict[theme][area].get("name")
-        if area in indicators_dict[theme]
-        else ""
-    )
-
     default_graph = (
         indicators_dict[theme][area].get("default_graph")
         if area in indicators_dict[theme]
         else ""
     )
 
-    return name, area_butons, area_types, default_graph
+    return area_butons, area_types, default_graph
 
 
 @app.callback(
