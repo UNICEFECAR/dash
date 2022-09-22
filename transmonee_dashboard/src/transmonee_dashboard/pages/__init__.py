@@ -695,6 +695,7 @@ data_sources = {
     "UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
     "TMEE": "Transformative Monitoring for Enhanced Equity",
+    "NEW_UIS": "UNESCO Institute for Statistics",
 }
 
 topics_subtopics = {
