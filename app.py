@@ -1374,11 +1374,13 @@ def indicator_card(
 
     # define indicator header text: the resultant number except for the min-max range
     if min_max and len(sources) > 1:
-        indicator_min = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].min())
-        indicator_max = "{:,.1f}".format(numerator_pairs["OBS_VALUE"].max())
+        # use string general format
+        indicator_min = "{:g}".format(numerator_pairs["OBS_VALUE"].min())
+        indicator_max = "{:g}".format(numerator_pairs["OBS_VALUE"].max())
         indicator_header = f"{indicator_min} - {indicator_max}"
     else:
-        indicator_header = "{:,.0f}".format(indicator_sum)
+        # use string general format
+        indicator_header = "{:g}".format(indicator_sum)
 
     return make_card(
         name,
