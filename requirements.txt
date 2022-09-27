@@ -15,7 +15,6 @@ slugify
 
 pandasdmx
 pandasdmx[cache]
-scipy
 openpyxl
 
 sentry-sdk[flask]

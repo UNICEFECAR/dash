@@ -17,7 +17,6 @@ import pandasdmx as sdmx
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-from scipy.stats import zscore
 import textwrap
 
 from components import fa
@@ -883,22 +882,6 @@ def get_base_layout(**kwargs):
                                                                                 width="auto",
                                                                             ),
                                                                             dbc.Col(
-                                                                                dbc.Checklist(
-                                                                                    options=[
-                                                                                        {
-                                                                                            "label": "Exclude outliers "
-                                                                                        }
-                                                                                    ],
-                                                                                    value=[],
-                                                                                    id={
-                                                                                        "type": "exclude_outliers_toggle",
-                                                                                        "index": "AIO_AREA",
-                                                                                    },
-                                                                                    switch=True,
-                                                                                ),
-                                                                                width="auto",
-                                                                            ),
-                                                                            dbc.Col(
                                                                                 dbc.RadioItems(
                                                                                     id={
                                                                                         "type": "area_breakdowns",
@@ -1542,7 +1525,6 @@ def set_default_compare(compare_options, selected_type, indicators_dict):
     [
         Input("store", "data"),
         Input({"type": "area_breakdowns", "index": "AIO_AREA"}, "value"),
-        Input({"type": "exclude_outliers_toggle", "index": "AIO_AREA"}, "value"),
     ],
     [
         State("indicators", "data"),
@@ -1553,7 +1535,6 @@ def set_default_compare(compare_options, selected_type, indicators_dict):
 def aio_area_figure(
     selections,
     compare,
-    exclude_outliers,
     indicators_dict,
     buttons_properties,
     selected_type,
@@ -1614,14 +1595,6 @@ def aio_area_figure(
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, "", ind_card
-
-    # check if the exclude outliers checkbox is checked
-    if exclude_outliers:
-        # filter the data to the remove the outliers
-        # (df < df.quantile(0.1)).any() (df > df.quantile(0.9)).any()
-        data["z_scores"] = np.abs(zscore(data["OBS_VALUE"]))  # calculate z-scores of df
-        # filter the data entries to remove the outliers
-        data = data[(data["z_scores"] < 3) | (data["z_scores"].isnull())]
 
     # lbassil: was UNIT_MEASURE
     name = (
@@ -1693,4 +1666,4 @@ def aio_area_figure(
 
 # Run app
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
