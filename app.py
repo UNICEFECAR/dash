@@ -1,6 +1,5 @@
 from dash import Dash, html, dcc, callback_context, ALL, Input, Output, State
 import dash_bootstrap_components as dbc
-import dash_treeview_antd
 
 import json
 import logging
@@ -180,205 +179,32 @@ countries_iso3_dict = {
     "Uzbekistan": "UZB",
 }
 
-# create a list of country names in the same order as the countries_iso3_dict
-countries = list(countries_iso3_dict.keys())
-
 unicef_country_prog = [
-    "Albania",
-    "Armenia",
-    "Azerbaijan",
-    "Belarus",
-    "Bosnia and Herzegovina",
-    "Bulgaria",
-    "Croatia",
-    "Georgia",
-    "Greece",
-    "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)",
-    "Kyrgyzstan",
-    "Montenegro",
-    "North Macedonia",
-    "Republic of Moldova",
-    "Romania",
-    "Serbia",
-    "Tajikistan",
-    "Turkey",
-    "Turkmenistan",
-    "Ukraine",
-    "Uzbekistan",
-]
-
-country_selections = [
-    {
-        "label": "Eastern Europe and Central Asia",
-        "value": [
-            {"label": "Caucasus", "value": ["Armenia", "Azerbaijan", "Georgia"]},
-            {
-                "label": "Western Balkans",
-                "value": [
-                    "Albania",
-                    "Bosnia and Herzegovina",
-                    "Croatia",
-                    "Kosovo (UN SC resolution 1244)",
-                    "North Macedonia",
-                    "Montenegro",
-                    "Serbia",
-                ],
-            },
-            {
-                "label": "Central Asia",
-                "value": [
-                    "Kazakhstan",
-                    "Kyrgyzstan",
-                    "Tajikistan",
-                    "Turkmenistan",
-                    "Uzbekistan",
-                ],
-            },
-            {
-                "label": "Eastern Europe",
-                "value": [
-                    "Bulgaria",
-                    "Belarus",
-                    "Republic of Moldova",
-                    "Romania",
-                    "Russian Federation",
-                    "Turkey",
-                    "Ukraine",
-                ],
-            },
-        ],
-    },
-    {
-        "label": "Western Europe",
-        "value": [
-            "Andorra",
-            "Austria",
-            "Belgium",
-            "Cyprus",
-            "Czech Republic",
-            "Denmark",
-            "Estonia",
-            "Finland",
-            "France",
-            "Germany",
-            "Greece",
-            "Holy See",
-            "Hungary",
-            "Iceland",
-            "Ireland",
-            "Italy",
-            "Latvia",
-            "Liechtenstein",
-            "Lithuania",
-            "Luxembourg",
-            "Malta",
-            "Monaco",
-            "Netherlands",
-            "Norway",
-            "Poland",
-            "Portugal",
-            "San Marino",
-            "Slovakia",
-            "Slovenia",
-            "Spain",
-            "Sweden",
-            "Switzerland",
-            "United Kingdom",
-        ],
-    },
-    {
-        "label": "By EU Engagement",
-        "value": [
-            {
-                "label": "Central Asia",
-                "value": [
-                    "Kazakhstan",
-                    "Kyrgyzstan",
-                    "Tajikistan",
-                    "Turkmenistan",
-                    "Uzbekistan",
-                ],
-            },
-            {
-                "label": "Eastern Partnership",
-                "value": [
-                    "Armenia",
-                    "Azerbaijan",
-                    "Belarus",
-                    "Georgia",
-                    "Republic of Moldova",
-                    "Ukraine",
-                ],
-            },
-            {
-                "label": "EFTA",
-                "value": ["Iceland", "Liechtenstein", "Norway", "Switzerland"],
-            },
-            {
-                "label": "EU Member States",
-                "value": [
-                    "Andorra",
-                    "Austria",
-                    "Belgium",
-                    "Bulgaria",
-                    "Croatia",
-                    "Cyprus",
-                    "Czech Republic",
-                    "Denmark",
-                    "Estonia",
-                    "Finland",
-                    "France",
-                    "Germany",
-                    "Greece",
-                    "Hungary",
-                    "Ireland",
-                    "Italy",
-                    "Latvia",
-                    "Lithuania",
-                    "Luxembourg",
-                    "Malta",
-                    "Netherlands",
-                    "Poland",
-                    "Portugal",
-                    "Romania",
-                    "Slovakia",
-                    "Slovenia",
-                    "Spain",
-                    "Sweden",
-                ],
-            },
-            {
-                "label": "Other",
-                "value": [
-                    "Andorra",
-                    "Monaco",
-                    "Holy See",
-                    "San Marino",
-                ],
-            },
-            {
-                "label": "Pre-accession countries",
-                "value": [
-                    "Albania",
-                    "Bosnia and Herzegovina",
-                    "Kosovo (UN SC resolution 1244)",
-                    "North Macedonia",
-                    "Montenegro",
-                    "Serbia",
-                    "Turkey",
-                ],
-            },
-            {
-                "label": "Russian Federation",
-                "value": ["Russian Federation"],
-            },
-            {
-                "label": "United Kingdom (left EU on January 31, 2020)",
-                "value": ["United Kingdom"],
-            },
-        ],
-    },
+    countries_iso3_dict[k]
+    for k in [
+        "Albania",
+        "Armenia",
+        "Azerbaijan",
+        "Belarus",
+        "Bosnia and Herzegovina",
+        "Bulgaria",
+        "Croatia",
+        "Georgia",
+        "Greece",
+        "Kazakhstan",
+        "Kosovo (UN SC resolution 1244)",
+        "Kyrgyzstan",
+        "Montenegro",
+        "North Macedonia",
+        "Republic of Moldova",
+        "Romania",
+        "Serbia",
+        "Tajikistan",
+        "Turkey",
+        "Turkmenistan",
+        "Ukraine",
+        "Uzbekistan",
+    ]
 ]
 
 data_sources = {
@@ -509,6 +335,12 @@ def only_dtype(config):
     return list(config.keys()) == ["DTYPE"]
 
 
+# lbassil: add the code to fill the country names
+countries_val_list = list(countries_iso3_dict.values())
+# create a list of country names in the same order as the countries_iso3_dict
+countries = list(countries_iso3_dict.keys())
+
+
 def get_filtered_dataset(
     indicators: list,
     years: list,
@@ -588,9 +420,6 @@ def get_filtered_dataset(
     # converting TIME_PERIOD to numeric: we should get integers by default
     data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
 
-    # lbassil: add the code to fill the country names
-    countries_val_list = list(countries_iso3_dict.values())
-
     def create_labels(row):
         row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
@@ -604,49 +433,6 @@ def get_filtered_dataset(
 
     return data
 
-
-# create two dicts, one for display tree and one with the index of all possible selections
-selection_index = collections.OrderedDict({"0": countries})
-selection_tree = dict(title="Select All", key="0", children=[])
-for num1, group in enumerate(country_selections):
-    parent = dict(title=group["label"], key=f"0-{num1}", children=[])
-    group_countries = []
-
-    for num2, region in enumerate(group["value"]):
-        child_region = dict(
-            title=region["label"] if "label" in region else region,
-            key=f"0-{num1}-{num2}",
-            children=[],
-        )
-        parent.get("children").append(child_region)
-        if "value" in region:
-            selection_index[f"0-{num1}-{num2}"] = (
-                region["value"]
-                if isinstance(region["value"], list)
-                else [region["value"]]
-            )
-            for num3, country in enumerate(region["value"]):
-                child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
-                if len(region["value"]) > 1:
-                    # only create child nodes for more then one child
-                    child_region.get("children").append(child_country)
-                    selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
-                group_countries.append(country)
-        else:
-            selection_index[f"0-{num1}-{num2}"] = [region]
-            group_countries.append(region)
-
-    selection_index[f"0-{num1}"] = group_countries
-    selection_tree.get("children").append(parent)
-
-programme_country_indexes = [
-    next(
-        key
-        for key, value in selection_index.items()
-        if value[0] == item and len(value) == 1
-    )
-    for item in unicef_country_prog
-]
 
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
@@ -754,7 +540,6 @@ def get_base_layout(**kwargs):
                                             id="collapse-years-button",
                                             className="m-2",
                                             color="info",
-                                            # block=True,
                                             children=[
                                                 dbc.Card(
                                                     dcc.RangeSlider(
@@ -789,18 +574,17 @@ def get_base_layout(**kwargs):
                                             color="info",
                                             style=countries_filter_style,
                                             children=[
-                                                dbc.Card(
-                                                    dash_treeview_antd.TreeView(
-                                                        id="country_selector",
-                                                        multiple=True,
-                                                        checkable=True,
-                                                        checked=["0"],
-                                                        expanded=["0"],
-                                                        data=selection_tree,
-                                                    ),
-                                                    className="overflow-auto",
-                                                    body=True,
-                                                ),
+                                                dcc.Dropdown(
+                                                    id="countries_selected",
+                                                    options=[
+                                                        {"label": k, "value": v}
+                                                        for k, v in countries_iso3_dict.items()
+                                                    ],
+                                                    value=countries_val_list,
+                                                    multi=True,
+                                                    persistence=True,
+                                                    persistence_type="session",
+                                                )
                                             ],
                                         ),
                                         width="auto",
@@ -1196,63 +980,43 @@ def get_card_popover_body(sources):
 
 @app.callback(
     Output("store", "data"),
-    Output("country_selector", "checked"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
         Input("year_slider", "value"),
-        Input("country_selector", "checked"),
+        Input("countries_selected", "value"),
         Input("programme-toggle", "value"),
     ],
     State("indicators", "data"),
 )
 def apply_filters(
     years_slider,
-    country_selector,
+    countries_selected,
     programme_toggle,
     indicators,
 ):
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
-    countries_selected = set()
     if programme_toggle and selected == "programme-toggle":
         countries_selected = unicef_country_prog
-        country_selector = programme_country_indexes
     # Add the condition to know when the user unchecks the UNICEF country programs!
-    elif not country_selector or (
-        not programme_toggle and selected == "programme-toggle"
-    ):
-        countries_selected = countries
-        # Add this to check all the items in the selection tree
-        country_selector = ["0"]
-    else:
-        for index in country_selector:
-            countries_selected.update(selection_index[index])
-            if countries_selected == countries:
-                # if all countries are all selected then stop
-                break
+    elif not programme_toggle and selected == "programme-toggle":
+        countries_selected = countries_val_list
 
-    countries_selected = list(countries_selected)
     country_text = f"{len(countries_selected)} Selected"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
 
-    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
-    countries_selected_codes = [
-        countries_iso3_dict[country] for country in countries_selected
-    ]
     current_theme = [*indicators][0]
     selections = dict(
         theme=current_theme,
         indicators_dict=indicators,
         years=selected_years,
-        countries=countries_selected_codes,
+        countries=countries_selected,
     )
 
     return (
         selections,
-        country_selector,
-        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )

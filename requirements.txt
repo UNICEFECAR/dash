@@ -1,5 +1,4 @@
 orjson
-dash_treeview_antd
 dash==2.6.1
 dash-bootstrap-components==0.13.1
 dash-core-components==2.0.0
