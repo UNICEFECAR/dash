@@ -1,4 +1,6 @@
 import inspect
+import json
+
 from functools import wraps
 from urllib.parse import parse_qs
 
@@ -15,6 +17,17 @@ from .pages import page_not_found
 from .exceptions import InvalidLayoutError
 
 import itertools
+
+from pathlib import Path
+
+parent = Path(__file__).resolve().parent
+
+
+def get_geo_file(name):
+    """Get a geojson file from the assets folder"""
+    path = parent / "static/{}".format(name)
+    with open(path) as shapes_file:
+        return json.load(shapes_file)
 
 
 def fa(className):
@@ -83,9 +96,9 @@ class DashRouter:
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
-            
+
             print(f"pathname: {pathname}")
-            
+
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
