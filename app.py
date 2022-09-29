@@ -451,7 +451,8 @@ def get_filtered_dataset(
             dsd=dsd,
         )
         logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
-    except HTTPError as e:
+    except Exception as e:
+        print(f"Requests error: {e}")
         logging.exception(f"URL: {e.response}", e)
         # TODO: Maybe do something better here
         return pd.DataFrame()
