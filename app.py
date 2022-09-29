@@ -1,7 +1,6 @@
 from dash import Dash, html, dcc, page_container, page_registry
 import dash_bootstrap_components as dbc
 
-
 # create Dash application
 app = Dash(
     __name__,
