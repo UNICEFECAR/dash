@@ -799,7 +799,7 @@ def layout(page_slug=None, **query_parmas):
                                             children=[
                                                 dbc.Card(
                                                     dash_treeview_antd.TreeView(
-                                                        id="aio-country_selector",
+                                                        id="aio_country_selector",
                                                         multiple=True,
                                                         checkable=True,
                                                         checked=["0"],
@@ -820,7 +820,7 @@ def layout(page_slug=None, **query_parmas):
                                             ],
                                             style={"color": "DeepSkyBlue"},
                                             value=[],
-                                            id="programme-toggle",
+                                            id="aio_programme_toggle",
                                             switch=True,
                                         ),
                                         width="auto",
@@ -1152,13 +1152,13 @@ def get_card_popover_body(sources):
 
 @callback(
     Output("aio-store", "data"),
-    Output("aio-country_selector", "checked"),
+    Output("aio_country_selector", "checked"),
     Output("aio-collapse-years-button", "label"),
     Output("aio-collapse-countries-button", "label"),
     [
-        Input("year_slider", "value"),
-        Input("country_selector", "checked"),
-        Input("programme-toggle", "value"),
+        Input("aio_year_slider", "value"),
+        Input("aio_country_selector", "checked"),
+        Input("aio_programme_toggle", "value"),
     ],
     State("indicators", "data"),
 )
@@ -1171,12 +1171,12 @@ def apply_filters(
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
-    if programme_toggle and selected == "programme-toggle":
+    if programme_toggle and selected == "aio_programme_toggle":
         countries_selected = unicef_country_prog
         country_selector = programme_country_indexes
     # Add the condition to know when the user unchecks the UNICEF country programs!
     elif not country_selector or (
-        not programme_toggle and selected == "programme-toggle"
+        not programme_toggle and selected == "aio_programme_toggle"
     ):
         countries_selected = countries
         # Add this to check all the items in the selection tree

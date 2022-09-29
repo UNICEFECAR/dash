@@ -2,7 +2,7 @@ import dash
 from dash import html
 import dash_bootstrap_components as dbc
 
-dash.register_page(__name__, path="/")
+dash.register_page(__name__, path="/", order=0)
 
 
 def layout(**kwargs):
