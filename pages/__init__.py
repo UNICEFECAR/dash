@@ -590,27 +590,31 @@ def get_base_layout(**kwargs):
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_conf),
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
+            dbc.Row(
+                dbc.Col(
                     html.Div(
-                        className="heading-content",
+                        className="heading",
+                        style={"padding": 36},
                         children=[
                             html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
+                                className="heading-content",
                                 children=[
-                                    html.H1(
-                                        title_main,
-                                        id="main_title",
-                                        className="heading-title",
+                                    html.Div(
+                                        className="heading-panel",
+                                        style={"padding": 20},
+                                        children=[
+                                            html.H1(
+                                                title_main,
+                                                id="main_title",
+                                                className="heading-title",
+                                            ),
+                                        ],
                                     ),
                                 ],
-                            ),
+                            )
                         ],
-                    )
-                ],
+                    ),
+                )
             ),
             dbc.Row(
                 children=[
@@ -629,6 +633,12 @@ def get_base_layout(**kwargs):
                             ),
                             dbc.Row(
                                 [
+                                    dbc.Col(
+                                        html.A(
+                                            html.Img(src="./assets/home.svg"), href="/"
+                                        ),
+                                        width=1,
+                                    ),
                                     dbc.Col(
                                         dbc.DropdownMenu(
                                             label=f"Years: {years[0]} - {years[-1]}",

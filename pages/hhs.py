@@ -244,12 +244,12 @@ def get_card_popover_body(sources):
     Returns:
         _type_: _description_
     """
-    countries = []
+    country_list = []
     # lbassil: added this condition to stop the exception when sources is empty
     if len(sources) > 0:
         for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(countries)
+            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+        card_countries = "\n".join(country_list)
         return card_countries
     else:
         return "NA"
