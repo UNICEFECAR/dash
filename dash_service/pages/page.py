@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
-from dash_service.components import fa
+from dash_service.components import fa, make_nav
 from dash_service.models import Page, Project
 from dash_service.pages import (
     geo_json_countries,
@@ -22,6 +22,7 @@ from dash_service.pages import (
     years,
 )
 from scipy.stats import zscore
+
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -96,6 +97,9 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     Returns:
         html.Div: The rendered page
     """
+    all_pages = Page.where(project___slug=project_slug).all()
+    all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
+
     if project_slug is None and page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
@@ -103,19 +107,21 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
             {},
             "Validation Page",
             {"data": dict(title="Select All", key="0", children=[]), "checked": [0]},
+            [],
         )
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
+
     config = page.content
     main_title = config["main_title"]
     selection_tree = get_selection_tree(config["ddl_ref_areas_cl"])
 
-    return render_page_template(config, main_title, selection_tree)
+    return render_page_template(config, main_title, selection_tree, all_pages)
 
 
 def render_page_template(
-    page_config: dict, main_title: str, selection_tree: dict, **kwargs
+    page_config: dict, main_title: str, selection_tree: dict, all_pages: dict, **kwargs
 ) -> html.Div:
     """Renders the page template based on the page config and other parameters
 
@@ -123,6 +129,7 @@ def render_page_template(
         page_config (dict): page config from the database
         main_title (_type_): main title of the page
         selection_tree (_type_): Geographical selection tree the user can select
+        all_pages (_dict_): the links to the page to add to the navbar
 
     Returns:
         html.Div: The dash Div representing the redenderd page against the config
@@ -131,142 +138,162 @@ def render_page_template(
         [
             dcc.Store(id="page_config", data=page_config),
             dcc.Location(id="theme"),
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
-                    html.Div(
-                        className="heading-content",
-                        children=[
-                            html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
-                                children=[
-                                    html.H1(
-                                        main_title,
-                                        id="main_title",
-                                        className="heading-title",
-                                    ),
-                                    html.P(
-                                        id="subtitle",
-                                        className="heading-subtitle",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    )
-                ],
-            ),
-            dbc.Row(
-                children=[
-                    dbc.Col(
-                        [
-                            dbc.Row(
-                                [
-                                    dbc.ButtonGroup(
-                                        id="themes",
-                                    ),
-                                ],
-                                id="theme-row",
-                                # width=4,
-                                className="my-2",
-                                # no_gutters=True,
-                                justify="center",
-                                style={"verticalAlign": "center", "display": "flex"},
-                            ),
-                            dbc.Row(
-                                [
-                                    dbc.DropdownMenu(
-                                        label=f"Years: {years[0]} - {years[-1]}",
-                                        id="collapse-years-button",
-                                        className="m-2",
-                                        color="info",
-                                        # block=True,
-                                        children=[
-                                            dbc.Card(
-                                                dcc.RangeSlider(
-                                                    id="year_slider",
-                                                    min=0,
-                                                    max=len(years) - 1,
-                                                    step=None,
-                                                    marks={
-                                                        index: str(year)
-                                                        for index, year in enumerate(
-                                                            years
-                                                        )
-                                                    },
-                                                    value=[0, len(years) - 1],
+            make_nav(all_pages),
+            html.Br(),
+            dbc.Col(
+                html.Div(
+                    [
+                        html.Div(
+                            className="heading",
+                            style={"padding": 36},
+                            children=[
+                                html.Div(
+                                    className="heading-content",
+                                    children=[
+                                        html.Div(
+                                            className="heading-panel",
+                                            style={"padding": 20},
+                                            children=[
+                                                html.H1(
+                                                    main_title,
+                                                    id="main_title",
+                                                    className="heading-title",
                                                 ),
-                                                style={
-                                                    "maxHeight": "250px",
-                                                    "minWidth": "500px",
-                                                },
-                                                className="overflow-auto",
-                                                body=True,
-                                            ),
-                                        ],
-                                    ),
-                                    dbc.DropdownMenu(
-                                        label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
-                                        id="collapse-countries-button",
-                                        className="m-2",
-                                        color="info",
-                                        style={"display": "block"},
-                                        children=[
-                                            dbc.Card(
-                                                dash_treeview_antd.TreeView(
-                                                    id="country_selector",
-                                                    multiple=True,
-                                                    checkable=True,
-                                                    checked=selection_tree["checked"],
-                                                    expanded=selection_tree["checked"],
-                                                    data=selection_tree["data"],
+                                                html.P(
+                                                    id="subtitle",
+                                                    className="heading-subtitle",
                                                 ),
-                                                style={
-                                                    "maxHeight": "250px",
-                                                },
-                                                className="overflow-auto",
-                                                body=True,
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                                id="filter-row",
-                                justify="center",
-                            ),
-                        ]
-                    ),
-                ],
-                # sticky="top",
-                className="bg-light",
+                                            ],
+                                        ),
+                                    ],
+                                )
+                            ],
+                        ),
+                        dbc.Row(
+                            children=[
+                                dbc.Col(
+                                    [
+                                        dbc.Row(
+                                            [
+                                                dbc.ButtonGroup(
+                                                    id="themes",
+                                                ),
+                                            ],
+                                            id="theme-row",
+                                            # width=4,
+                                            className="my-2",
+                                            # no_gutters=True,
+                                            justify="center",
+                                            style={
+                                                "verticalAlign": "center",
+                                                "display": "flex",
+                                            },
+                                        ),
+                                        dbc.Row(
+                                            [
+                                                dbc.DropdownMenu(
+                                                    label=f"Years: {years[0]} - {years[-1]}",
+                                                    id="collapse-years-button",
+                                                    className="m-2",
+                                                    color="info",
+                                                    # block=True,
+                                                    children=[
+                                                        dbc.Card(
+                                                            dcc.RangeSlider(
+                                                                id="year_slider",
+                                                                min=0,
+                                                                max=len(years) - 1,
+                                                                step=None,
+                                                                marks={
+                                                                    index: str(year)
+                                                                    for index, year in enumerate(
+                                                                        years
+                                                                    )
+                                                                },
+                                                                value=[
+                                                                    0,
+                                                                    len(years) - 1,
+                                                                ],
+                                                            ),
+                                                            style={
+                                                                "maxHeight": "250px",
+                                                                "minWidth": "500px",
+                                                            },
+                                                            className="overflow-auto",
+                                                            body=True,
+                                                        ),
+                                                    ],
+                                                ),
+                                                dbc.DropdownMenu(
+                                                    label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
+                                                    id="collapse-countries-button",
+                                                    className="m-2",
+                                                    color="info",
+                                                    style={"display": "block"},
+                                                    children=[
+                                                        dbc.Card(
+                                                            dash_treeview_antd.TreeView(
+                                                                id="country_selector",
+                                                                multiple=True,
+                                                                checkable=True,
+                                                                checked=selection_tree[
+                                                                    "checked"
+                                                                ],
+                                                                expanded=selection_tree[
+                                                                    "checked"
+                                                                ],
+                                                                data=selection_tree[
+                                                                    "data"
+                                                                ],
+                                                            ),
+                                                            style={
+                                                                "maxHeight": "250px",
+                                                            },
+                                                            className="overflow-auto",
+                                                            body=True,
+                                                        ),
+                                                    ],
+                                                ),
+                                            ],
+                                            id="filter-row",
+                                            justify="center",
+                                        ),
+                                    ]
+                                ),
+                            ],
+                            # sticky="top",
+                            className="bg-light",
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.CardDeck(
+                                    id="cards_row",
+                                    className="mt-3",
+                                ),
+                            ],
+                            justify="center",
+                        ),
+                        html.Br(),
+                        dbc.CardDeck(
+                            [make_area(area) for area in ["MAIN"]],
+                            style={"display": "block"},
+                        ),
+                        html.Br(),
+                        dbc.CardDeck(
+                            [make_area(area) for area in ["AREA_1", "AREA_2"]],
+                        ),
+                        html.Br(),
+                        dbc.CardDeck(
+                            [make_area(area) for area in ["AREA_3", "AREA_4"]],
+                        ),
+                        html.Br(),
+                        dbc.CardDeck(
+                            [make_area(area) for area in ["AREA_5", "AREA_6"]],
+                        ),
+                        html.Br(),
+                    ]
+                )
             ),
-            dbc.Row(
-                [
-                    dbc.CardDeck(
-                        id="cards_row",
-                        className="mt-3",
-                    ),
-                ],
-                justify="center",
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["MAIN"]],
-                style={"display": "block"},
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_1", "AREA_2"]],
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_3", "AREA_4"]],
-            ),
-            html.Br(),
-            dbc.CardDeck(
-                [make_area(area) for area in ["AREA_5", "AREA_6"]],
-            ),
-            html.Br(),
         ],
     )
     return template

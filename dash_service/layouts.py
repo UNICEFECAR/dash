@@ -54,13 +54,11 @@ def main_default_layout():
 
     return html.Div(
         [
-            make_nav(),
-            html.Br(),
             dcc.Store(id="store"),
             dbc.Container(
                 fluid=True,
                 children=[
-                    dbc.Col(dash.page_container),
+                    dash.page_container,
                 ],
             ),
             # make_footer(),

@@ -38,7 +38,7 @@ def make_brand(**kwargs):
 
 
 @component
-def make_nav(vertical=False, **kwargs):
+def make_nav(pages, vertical=False, **kwargs):
     return html.Header(
         id="header",
         className="header",
@@ -61,7 +61,7 @@ def make_nav(vertical=False, **kwargs):
                                             ),
                                         ],
                                     )
-                                    for page in dash.page_registry.values()
+                                    for page in pages
                                 ],
                                 vertical=vertical,
                                 pills=True,
