@@ -1,3 +1,4 @@
+from cProfile import label
 from dash import (
     html,
     dcc,
@@ -34,62 +35,62 @@ from . import (
     dimension_names,
 )
 
+min_max_card_suffix = "min - max values"
 
-indicators_dict = {
+page_config = {
     "HSM": {
         "NAME": "Health System",
         "CARDS": [
             {
                 "name": "",
                 "indicator": "HT_SH_XPD_CHEX_GD_ZS",
-                "suffix": "Percent range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
                 "indicator": "HT_SH_XPD_GHED_GD_ZS",
-                "suffix": "Percent range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
                 "indicator": "HT_SH_XPD_GHED_GE_ZS",
-                "suffix": "Percent range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
                 "indicator": "HT_SH_XPD_GHED_PP_CD",
-                "suffix": "Current PPP$ range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
                 "indicator": "HT_SH_XPD_OOPC_CH_ZS",
-                "suffix": "Percent range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
                 "indicator": "HT_INS_COV",
-                "suffix": "Percent range among countries",
+                "suffix": min_max_card_suffix,
                 "min_max": True,
             },
         ],
         "AIO_AREA": {
-            "name": "Coverage index,  Expenditures, and Insurance",
             "graphs": {
                 "bar": {
                     "options": dict(
                         x="Country_name",
                         y="OBS_VALUE",
                         barmode="group",
-                        # text="TIME_PERIOD",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
-                    # "compare": "Sex",
                 },
                 "line": {
                     "options": dict(
@@ -97,6 +98,8 @@ indicators_dict = {
                         y="OBS_VALUE",
                         color="Country_name",
                         hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -119,12 +122,14 @@ indicators_dict = {
                             "Country_name": "Country",
                             "TIME_PERIOD": "Year",
                             "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
                         },
                         hover_data={
                             "OBS_VALUE": True,
                             "REF_AREA": False,
                             "Country_name": True,
                             "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
                         },
                         height=500,
                     ),
@@ -139,13 +144,123 @@ indicators_dict = {
                 "HT_SH_XPD_OOPC_CH_ZS",
                 "HT_INS_COV",
             ],
-            "default_graph": "bar",
+            "default_graph": "line",
             "default": "HT_SH_XPD_CHEX_GD_ZS",
+        },
+    },
+    "MNH": {
+        "NAME": "Maternal, newborn and child health",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "CME_MRM0",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CME_MRY0T4",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CME_TMY0T4",
+                "suffix": "number of deaths",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "CME_SBR",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "MNCH_SAB",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "MNCH_CSEC",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Country_name",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        height=500,
+                    ),
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Country_name",
+                        hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        line_shape="spline",
+                        render_mode="svg",
+                        height=500,
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 59.5381, "lon": 32.3200},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
+                        },
+                        height=500,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+                },
+            },
+            "indicators": [
+                "CME_MRM0",
+                "CME_MRY0T4",
+                "CME_TMY0T4",
+                "CME_SBR",
+                "MNCH_SAB",
+                "MNCH_CSEC",
+            ],
+            "default_graph": "bar",
+            "default": "CME_MRM0",
         },
     },
 }
 
-register_page(__name__, path="/hhs", title="Health System")
+register_page(__name__, path="/child-health", title="Health and Nutrition")
 
 # configure the Dash instance's layout
 layout = html.Div(
@@ -154,7 +269,9 @@ layout = html.Div(
         dcc.Store(id="store"),
         dbc.Container(
             fluid=True,
-            children=get_base_layout(indicators=indicators_dict),
+            children=get_base_layout(
+                indicators=page_config, main_subtitle="Health and Nutrition"
+            ),
         ),
         html.Button(
             id="btnScroll",
@@ -324,7 +441,6 @@ def indicator_card(
     name,
     numerator,
     suffix,
-    denominator=None,
     absolute=False,
     average=False,
     min_max=False,
@@ -646,7 +762,6 @@ def aio_area_figure(
             card_config[0]["name"],
             card_config[0]["indicator"],
             card_config[0]["suffix"],
-            card_config[0].get("denominator"),
             card_config[0].get("absolute"),
             card_config[0].get("average"),
             card_config[0].get("min_max"),

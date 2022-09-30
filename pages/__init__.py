@@ -30,6 +30,7 @@ DEFAULT_LABELS = {
     "Residence_name": "Residence",
     "Age_name": "Age",
     "Wealth_name": "Wealth Quintile",
+    "OBS_FOOTNOTE": "Footnote",
 }
 
 EMPTY_CHART = {
@@ -450,6 +451,7 @@ def get_filtered_dataset(
         data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
         .sort_values(by=["TIME_PERIOD"])
         .reset_index()
+        .astype({"DATA_SOURCE": str, "OBS_FOOTNOTE": str})
     )
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
@@ -582,6 +584,7 @@ df_sources_summary_groups = df_sources.groupby("Source_Full")
 
 def get_base_layout(**kwargs):
     indicators_conf = kwargs.get("indicators")
+    main_subtitle = kwargs.get("main_subtitle")
     theme = [*indicators_conf][0]
     title_main = indicators_conf[theme].get("NAME")
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
@@ -590,6 +593,7 @@ def get_base_layout(**kwargs):
     return html.Div(
         [
             dcc.Store(id="indicators", data=indicators_conf),
+            dcc.Location(id="theme"),
             dbc.Row(
                 dbc.Col(
                     html.Div(
@@ -604,9 +608,13 @@ def get_base_layout(**kwargs):
                                         style={"padding": 20},
                                         children=[
                                             html.H1(
-                                                title_main,
                                                 id="main_title",
                                                 className="heading-title",
+                                            ),
+                                            html.P(
+                                                main_subtitle,
+                                                id="subtitle",
+                                                className="heading-subtitle",
                                             ),
                                         ],
                                     ),

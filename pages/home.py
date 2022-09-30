@@ -78,7 +78,7 @@ layout = dbc.Container(
                         [
                             html.Img(src="./assets/hhs.svg"),
                         ],
-                        href="/hhs",
+                        href="/child-health",
                     ),
                     width="auto",
                 ),
