@@ -1,4 +1,3 @@
-from cProfile import label
 from dash import (
     html,
     dcc,
@@ -144,7 +143,7 @@ page_config = {
                 "HT_SH_XPD_OOPC_CH_ZS",
                 "HT_INS_COV",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "HT_SH_XPD_CHEX_GD_ZS",
         },
     },
@@ -698,7 +697,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict):
 @callback(
     [
         Output({"type": "area", "index": "AIO_AREA"}, "figure"),
-        Output({"type": "area_sources", "index": "AIO_AREA"}, "children"),
+        Output("aio_area_area_info", "children"),
         Output("indicator_card", "children"),
     ],
     [
@@ -839,4 +838,20 @@ def aio_area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, html.A(html.P(source), href=source_link, target="_blank"), ind_card
+    return (
+        fig,
+        [
+            "Source: ",
+            html.A(
+                source,
+                href=source_link,
+                target="_blank",
+                id={
+                    "type": "area_sources",
+                    "index": "AIO_AREA",
+                },
+                className="alert-link",
+            ),
+        ],
+        ind_card,
+    )

@@ -810,27 +810,11 @@ def get_base_layout(**kwargs):
                                                                 ]
                                                             ),
                                                             html.Div(
-                                                                fa(
-                                                                    "fas fa-info-circle"
+                                                                dbc.Alert(
+                                                                    color="secondary",
                                                                 ),
                                                                 id="aio_area_area_info",
                                                                 className="float-right",
-                                                            ),
-                                                            dbc.Popover(
-                                                                [
-                                                                    dbc.PopoverHeader(
-                                                                        "Sources"
-                                                                    ),
-                                                                    dbc.PopoverBody(
-                                                                        id={
-                                                                            "type": "area_sources",
-                                                                            "index": "AIO_AREA",
-                                                                        }
-                                                                    ),
-                                                                ],
-                                                                id="hover",
-                                                                target="aio_area_area_info",
-                                                                trigger="hover",
                                                             ),
                                                         ],
                                                     ),
@@ -849,6 +833,5 @@ def get_base_layout(**kwargs):
                     )
                 )
             ),
-            html.Br(),
         ],
     )
