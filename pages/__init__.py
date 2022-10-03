@@ -585,8 +585,6 @@ df_sources_summary_groups = df_sources.groupby("Source_Full")
 def get_base_layout(**kwargs):
     indicators_conf = kwargs.get("indicators")
     main_subtitle = kwargs.get("main_subtitle")
-    theme = [*indicators_conf][0]
-    title_main = indicators_conf[theme].get("NAME")
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
 
@@ -627,26 +625,14 @@ def get_base_layout(**kwargs):
             dbc.Row(
                 children=[
                     dbc.Col(
+                        html.A(html.Img(src="./assets/home.svg"), href="/"),
+                        width={"size": 1, "offset": 1},
+                        style={"paddingTop": 15},
+                    ),
+                    dbc.Col(
                         [
                             dbc.Row(
                                 [
-                                    dbc.ButtonGroup(
-                                        id="themes",
-                                    ),
-                                ],
-                                id="theme-row",
-                                className="my-2",
-                                justify="center",
-                                style=themes_row_style,
-                            ),
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        html.A(
-                                            html.Img(src="./assets/home.svg"), href="/"
-                                        ),
-                                        width=1,
-                                    ),
                                     dbc.Col(
                                         dbc.DropdownMenu(
                                             label=f"Years: {years[0]} - {years[-1]}",
@@ -720,12 +706,33 @@ def get_base_layout(**kwargs):
                                 id="filter-row",
                                 justify="center",
                                 align="center",
+                                style={
+                                    "paddingTop": 15,
+                                },
                             ),
-                        ]
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.ButtonGroup(
+                                            id="themes",
+                                        ),
+                                    ],
+                                    width="auto",
+                                ),
+                                id="theme-row",
+                                className="my-2",
+                                justify="center",
+                                align="center",
+                                style=themes_row_style,
+                            ),
+                        ],
+                        width={"size": "auto", "offset": 2},
                     ),
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
+                justify="start",
+                align="center",
                 style={
                     "paddingBottom": 15,
                 },

@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, page_container, page_registry
+from dash import Dash, page_container
 import dash_bootstrap_components as dbc
 
 # create Dash application

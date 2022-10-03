@@ -34,6 +34,17 @@ from . import (
     dimension_names,
 )
 
+colours = [
+    "primary",
+    "success",
+    "warning",
+    "danger",
+    "secondary",
+    "info",
+    "success",
+    "danger",
+]
+
 min_max_card_suffix = "min - max values"
 
 page_config = {
@@ -377,6 +388,7 @@ def get_card_popover_body(sources):
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
+        Input("theme", "hash"),
         Input("year_slider", "value"),
         Input("country_selector", "checked"),
         Input("programme-toggle", "value"),
@@ -384,6 +396,7 @@ def get_card_popover_body(sources):
     State("indicators", "data"),
 )
 def apply_filters(
+    theme,
     years_slider,
     country_selector,
     programme_toggle,
@@ -418,7 +431,7 @@ def apply_filters(
     countries_selected_codes = [
         countries_iso3_dict[country] for country in countries_selected
     ]
-    current_theme = [*indicators][0]
+    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
     selections = dict(
         theme=current_theme,
         indicators_dict=indicators,
@@ -569,24 +582,53 @@ def indicator_card(
 
 
 @callback(
+    Output("main_title", "children"),
+    Output("themes", "children"),
+    Input("store", "data"),
+    State("indicators", "data"),
+    prevent_initial_call=True,
+)
+def show_themes(selections, indicators_dict):
+
+    subtitle = indicators_dict[selections["theme"]].get("NAME")
+    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
+    # hide the buttons when only one option is available
+    if len(indicators_dict.items()) == 1:
+        return subtitle, []
+    buttons = [
+        dbc.Button(
+            value["NAME"],
+            id=key,
+            color=colours[num],
+            className="theme mx-1",
+            href=f"#{key.lower()}",
+            active=url_hash == f"#{key.lower()}",
+        )
+        for num, (key, value) in enumerate(indicators_dict.items())
+    ]
+    return subtitle, buttons
+
+
+@callback(
     Output({"type": "button_group", "index": "AIO_AREA"}, "children"),
     Output({"type": "area_types", "index": "AIO_AREA"}, "options"),
     Output({"type": "area_types", "index": "AIO_AREA"}, "value"),
-    Input("indicators", "data"),
+    Input("store", "data"),
+    State("indicators", "data"),
+    prevent_initial_call=True,
 )
-def set_aio_options(indicators_dict):
+def set_aio_options(theme, indicators_dict):
 
     area = "AIO_AREA"
-    theme = [*indicators_dict][0]
-
     area_types = []
-    if area in indicators_dict[theme]:
-        indicators = indicators_dict[theme][area].get("indicators")
+    current_theme = theme["theme"]
+    if area in indicators_dict[current_theme]:
+        indicators = indicators_dict[current_theme][area].get("indicators")
         area_indicators = indicators.keys() if indicators is dict else indicators
 
         default_option = (
-            indicators_dict[theme][area].get("default")
-            if area in indicators_dict[theme]
+            indicators_dict[current_theme][area].get("default")
+            if area in indicators_dict[current_theme]
             else ""
         )
 
@@ -606,12 +648,12 @@ def set_aio_options(indicators_dict):
                 "label": name.capitalize(),
                 "value": name,
             }
-            for name in indicators_dict[theme][area].get("graphs", {}).keys()
+            for name in indicators_dict[current_theme][area].get("graphs", {}).keys()
         ]
 
     default_graph = (
-        indicators_dict[theme][area].get("default_graph")
-        if area in indicators_dict[theme]
+        indicators_dict[current_theme][area].get("default_graph")
+        if area in indicators_dict[current_theme]
         else ""
     )
 
@@ -641,6 +683,7 @@ def set_active_button(_, buttons_id):
         Input({"type": "area_types", "index": "AIO_AREA"}, "value"),
     ],
     State({"type": "indicator_button", "index": ALL}, "id"),
+    prevent_initial_call=True,
 )
 def breakdown_options(is_active_button, fig_type, buttons_id):
 
@@ -673,14 +716,16 @@ def breakdown_options(is_active_button, fig_type, buttons_id):
     [
         State({"type": "area_types", "index": "AIO_AREA"}, "value"),
         State("indicators", "data"),
+        State("store", "data"),
     ],
+    prevent_initial_call=True,
 )
-def set_default_compare(compare_options, selected_type, indicators_dict):
+def set_default_compare(compare_options, selected_type, indicators_dict, theme):
 
     area = "AIO_AREA"
-    theme = [*indicators_dict][0]
+    current_theme = theme["theme"]
 
-    config = indicators_dict[theme][area]["graphs"][selected_type]
+    config = indicators_dict[current_theme][area]["graphs"][selected_type]
     default_compare = config.get("compare")
 
     return (
@@ -709,6 +754,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict):
         State({"type": "button_group", "index": "AIO_AREA"}, "children"),
         State({"type": "area_types", "index": "AIO_AREA"}, "value"),
     ],
+    prevent_initial_call=True,
 )
 def aio_area_figure(
     selections,
