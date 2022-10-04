@@ -826,7 +826,6 @@ def apply_filters(
     return (
         selections,
         country_selector,
-        # countries_selected == unicef_country_prog,
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
@@ -1128,6 +1127,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
         Output({"type": "area", "index": "AIO_AREA"}, "figure"),
         Output("aio_area_area_info", "children"),
         Output("indicator_card", "children"),
+        Output("aio_area_data_info", "children"),
     ],
     Input({"type": "area_breakdowns", "index": "AIO_AREA"}, "value"),
     [
@@ -1199,7 +1199,7 @@ def aio_area_figure(
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return EMPTY_CHART, "", ind_card
+        return EMPTY_CHART, "", ind_card, []
 
     # lbassil: was UNIT_MEASURE
     name = (
@@ -1266,20 +1266,59 @@ def aio_area_figure(
     if traces:
         fig.update_traces(**traces)
 
+    # number of countries reporting data
+    count_rep = len(data.Country_name.unique())
+    # number of countries from selection
+    count_sel = len(selections["countries"])
+
     return (
         fig,
         [
-            "Source: ",
-            html.A(
-                source,
-                href=source_link,
-                target="_blank",
-                id={
-                    "type": "area_sources",
-                    "index": "AIO_AREA",
-                },
-                className="alert-link",
-            ),
+            html.Div(
+                [
+                    html.P(
+                        "Source: ",
+                        style={
+                            "display": "inline-block",
+                            "textDecoration": "underline",
+                            "fontWeight": "bold",
+                        },
+                    ),
+                    html.A(
+                        f" {source}",
+                        href=source_link,
+                        target="_blank",
+                        id={
+                            "type": "area_sources",
+                            "index": "AIO_AREA",
+                        },
+                        className="alert-link",
+                    ),
+                ],
+            )
         ],
         ind_card,
+        [
+            html.Div(
+                [
+                    html.P(
+                        "Selected countries reporting data: ",
+                        style={
+                            "display": "inline-block",
+                            "textDecoration": "underline",
+                            "fontWeight": "bold",
+                        },
+                    ),
+                    html.P(
+                        f" {count_rep} / {count_sel}",
+                        style={
+                            "display": "inline-block",
+                            "fontWeight": "bold",
+                            "color": "#1cabe2",
+                            "whiteSpace": "pre",
+                        },
+                    ),
+                ]
+            )
+        ],
     )

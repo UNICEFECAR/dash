@@ -823,6 +823,13 @@ def get_base_layout(**kwargs):
                                                                 dbc.Alert(
                                                                     color="secondary",
                                                                 ),
+                                                                id="aio_area_data_info",
+                                                                className="float-left",
+                                                            ),
+                                                            html.Div(
+                                                                dbc.Alert(
+                                                                    color="secondary",
+                                                                ),
                                                                 id="aio_area_area_info",
                                                                 className="float-right",
                                                             ),
