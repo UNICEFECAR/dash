@@ -55,15 +55,20 @@ layout = dbc.Container(
             [
                 html.Div(
                     [
-                        html.H6(
-                            "Health and Nutrition",
-                            style={
-                                "fontWeight": "bold",
-                                "textAlign": "center",
-                                "paddingTop": "25px",
-                                "color": "#2c5996ff",
-                                "fontSize": "32px",
-                            },
+                        html.A(
+                            [
+                                html.H6(
+                                    "Health and Nutrition",
+                                    style={
+                                        "fontWeight": "bold",
+                                        "textAlign": "center",
+                                        "paddingTop": "25px",
+                                        "color": "#2c5996ff",
+                                        "fontSize": "32px",
+                                    },
+                                ),
+                            ],
+                            href="/child-health",
                         ),
                     ]
                 ),
@@ -92,7 +97,39 @@ layout = dbc.Container(
                     width="auto",
                 ),
                 dbc.Col(
-                    html.Img(src="./assets/imm.svg"),
+                    html.A(
+                        [
+                            html.Img(src="./assets/imm.svg"),
+                        ],
+                        href="/child-health#imm",
+                    ),
+                    width="auto",
+                ),
+                dbc.Col(
+                    html.A(
+                        [
+                            html.Img(src="./assets/nut.svg"),
+                        ],
+                        href="/child-health#nut",
+                    ),
+                    width="auto",
+                ),
+                dbc.Col(
+                    html.A(
+                        [
+                            html.Img(src="./assets/ado.svg"),
+                        ],
+                        href="/child-health#ado",
+                    ),
+                    width="auto",
+                ),
+                dbc.Col(
+                    html.A(
+                        [
+                            html.Img(src="./assets/hiv.svg"),
+                        ],
+                        href="/child-health#hiv",
+                    ),
                     width="auto",
                 ),
             ],

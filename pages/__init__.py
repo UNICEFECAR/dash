@@ -631,7 +631,7 @@ def get_base_layout(**kwargs):
                 children=[
                     dbc.Col(
                         html.A(html.Img(src="./assets/home.svg"), href="/"),
-                        width={"size": 1, "offset": 1},
+                        width={"size": 1, "offset": 0},
                         style={"paddingTop": 15},
                     ),
                     dbc.Col(
@@ -722,7 +722,7 @@ def get_base_layout(**kwargs):
                                             id="themes",
                                         ),
                                     ],
-                                    width="auto",
+                                    width=11,
                                 ),
                                 id="theme-row",
                                 className="my-2",
@@ -731,7 +731,7 @@ def get_base_layout(**kwargs):
                                 style=themes_row_style,
                             ),
                         ],
-                        width={"size": "auto", "offset": 2},
+                        width={"size": 11, "offset": 0},
                     ),
                 ],
                 # sticky="top",
@@ -753,27 +753,25 @@ def get_base_layout(**kwargs):
                                         dbc.Row(
                                             [
                                                 dbc.Col(
-                                                    html.Div(
-                                                        [
-                                                            dbc.ButtonGroup(
-                                                                id={
-                                                                    "type": "button_group",
-                                                                    "index": "AIO_AREA",
-                                                                },
-                                                                vertical=True,
-                                                                style={
-                                                                    "marginBottom": "20px"
-                                                                },
-                                                            ),
-                                                            html.Br(),
-                                                            dbc.Card(
-                                                                id="indicator_card",
-                                                                color="primary",
-                                                                outline=True,
-                                                            ),
-                                                        ],
-                                                    ),
-                                                    width="auto",
+                                                    [
+                                                        dbc.ButtonGroup(
+                                                            id={
+                                                                "type": "button_group",
+                                                                "index": "AIO_AREA",
+                                                            },
+                                                            vertical=True,
+                                                            style={
+                                                                "marginBottom": "20px"
+                                                            },
+                                                        ),
+                                                        html.Br(),
+                                                        dbc.Card(
+                                                            id="indicator_card",
+                                                            color="primary",
+                                                            outline=True,
+                                                        ),
+                                                    ],
+                                                    width=4,
                                                 ),
                                                 dbc.Col(
                                                     html.Div(
