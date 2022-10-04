@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
-from dash_service.components import fa, make_nav
+from dash_service.components import fa
 from dash_service.models import Page, Project
 from dash_service.pages import (
     geo_json_countries,
@@ -21,7 +21,7 @@ from dash_service.pages import (
     get_selection_tree,
     years,
 )
-from scipy.stats import zscore
+from flask import abort
 
 
 # set defaults
@@ -84,6 +84,45 @@ dash.register_page(
 )
 
 
+def make_page_nav(pages, vertical=False, **kwargs):
+    return html.Header(
+        id="header",
+        className="header",
+        children=[
+            html.Div(
+                className="container-fluid",
+                children=[
+                    html.Div(
+                        className="row",
+                        children=[
+                            dbc.Nav(
+                                [
+                                    dbc.NavItem(
+                                        [
+                                            dbc.NavLink(
+                                                page["name"],
+                                                className="ms-2",
+                                                href=page["path"],
+                                                active="exact",
+                                            ),
+                                        ],
+                                    )
+                                    for page in pages
+                                ],
+                                vertical=vertical,
+                                pills=True,
+                                justified=True,
+                                className="col-12",
+                            )
+                        ],
+                    )
+                ],
+            ),
+        ],
+        **kwargs,
+    )
+
+
 def layout(project_slug=None, page_slug=None, **query_parmas):
     """
     Handler for Dash's multipage functionality.
@@ -97,10 +136,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     Returns:
         html.Div: The rendered page
     """
-    all_pages = Page.where(project___slug=project_slug).all()
-    all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
-
-    if project_slug is None and page_slug is None:
+    if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
         return render_page_template(
@@ -109,6 +145,11 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
             {"data": dict(title="Select All", key="0", children=[]), "checked": [0]},
             [],
         )
+
+    all_pages = Page.where(project___slug=project_slug).all()
+    if all_pages is None or len(all_pages)==0:
+        abort(404, description="No pages found for project")
+    all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
@@ -138,7 +179,7 @@ def render_page_template(
         [
             dcc.Store(id="page_config", data=page_config),
             dcc.Location(id="theme"),
-            make_nav(all_pages),
+            make_page_nav(all_pages),
             html.Br(),
             dbc.Col(
                 html.Div(
