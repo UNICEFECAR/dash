@@ -78,12 +78,17 @@ layout = dbc.Container(
                         [
                             html.Img(src="./assets/hhs.svg"),
                         ],
-                        href="/child-health",
+                        href="/child-health#hsm",
                     ),
                     width="auto",
                 ),
                 dbc.Col(
-                    html.Img(src="./assets/mnh.svg"),
+                    html.A(
+                        [
+                            html.Img(src="./assets/mnh.svg"),
+                        ],
+                        href="/child-health#mnh",
+                    ),
                     width="auto",
                 ),
                 dbc.Col(

@@ -590,11 +590,11 @@ def indicator_card(
 )
 def show_themes(selections, indicators_dict):
 
-    subtitle = indicators_dict[selections["theme"]].get("NAME")
+    title = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one option is available
     if len(indicators_dict.items()) == 1:
-        return subtitle, []
+        return title, []
     buttons = [
         dbc.Button(
             value["NAME"],
@@ -606,7 +606,7 @@ def show_themes(selections, indicators_dict):
         )
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
-    return subtitle, buttons
+    return title, buttons
 
 
 @callback(

@@ -451,8 +451,13 @@ def get_filtered_dataset(
         data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
         .sort_values(by=["TIME_PERIOD"])
         .reset_index()
-        .astype({"DATA_SOURCE": str, "OBS_FOOTNOTE": str})
+        .astype({"DATA_SOURCE": str})
     )
+    # if data has no footnotes then pdsdmx erases column
+    if "OBS_FOOTNOTE" in data.columns:
+        data = data.astype({"OBS_FOOTNOTE": str})
+    else:
+        data["OBS_FOOTNOTE"] = "NA"
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
@@ -768,7 +773,7 @@ def get_base_layout(**kwargs):
                                                             ),
                                                         ],
                                                     ),
-                                                    width=4,
+                                                    width="auto",
                                                 ),
                                                 dbc.Col(
                                                     html.Div(
