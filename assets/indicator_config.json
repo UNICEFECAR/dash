@@ -972,10 +972,74 @@
             "SEX": [
                 "F",
                 "M"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
             ]
         },
         "TOTAL": {
             "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ]
+        },
+        "AGE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15",
+                "Y_GE25",
+                "Y15T24"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ]
+        },
+        "RESIDENCE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "U",
+                "R"
+            ]
+        },
+        "WEALTH_QUINTILE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "B40",
+                "R60"
+            ],
+            "RESIDENCE": [
                 "_T"
             ]
         }
