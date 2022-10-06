@@ -464,6 +464,15 @@ def make_card(
     Returns:
         dbc.Card: The rendered static card
     """
+    popover_head = html.P(f"Sources: {indicator_sources}")
+    
+    if source_link:
+        popover_head = html.A(
+                                html.P(f"Sources: {indicator_sources}"),
+                                href=source_link,
+                                target="_blank",
+                            )
+    
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -495,14 +504,11 @@ def make_card(
                     "textAlign": "center",
                 },
             ),
+            
             dbc.Popover(
                 [
                     dbc.PopoverHeader(
-                        html.A(
-                            html.P(f"Sources: {indicator_sources}"),
-                            href=source_link,
-                            target="_blank",
-                        )
+                        popover_head
                     ),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
@@ -517,6 +523,7 @@ def make_card(
         outline=True,
         id=card_id,
     )
+    
     return card
 
 
@@ -606,9 +613,11 @@ def indicator_card(
     card_value = ""
     if len(df_vals) > 0:
         card_value = df_vals.iloc[0]["OBS_VALUE"]
+    
+    source_link=""
 
     return make_card(
-        card_id, name, suffix, "Indicator sources", "Source link", card_value, []
+        card_id, name, suffix, "Indicator sources", source_link, card_value, []
     )
 
 
@@ -805,7 +814,12 @@ def main_figure(indicator, show_historical_data, selections, config):
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
     source_link = ""
-    return main_figure, html.A(html.P(source), href=source_link, target="_blank")
+    
+    if not source_link: #is it none or empty?
+        return main_figure, html.P(source)
+    else:
+        return main_figure, html.A(html.P(source), href=source_link, target="_blank")
+    
 
 
 @callback(
@@ -926,4 +940,9 @@ def area_figure(
     if traces:
         fig.update_traces(**traces)
 
-    return fig, html.A(html.P(source), href=source_link, target="_blank")
+    if not source_link: #is it none or empty?
+        return fig, html.P(source)
+    else:
+        return fig, html.A(html.P(source), href=source_link, target="_blank")
+
+    
