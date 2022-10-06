@@ -458,6 +458,7 @@ def get_filtered_dataset(
         data = data.astype({"OBS_FOOTNOTE": str})
     else:
         data["OBS_FOOTNOTE"] = "NA"
+    
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
