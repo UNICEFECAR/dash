@@ -37,6 +37,17 @@ translations = {
     "pt": {"REF_AREA": "Geographic areas [PT]"},
 }
 
+#the configuration of the "Download plot" button in the charts
+cfg_download_plot = {
+  'toImageButtonOptions': {
+    'format': 'png', # one of png, svg, jpeg, webp
+    'filename': 'plot',
+    'width': 1200,
+    'height': 800,
+    'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
+  }
+}
+
 colours = [
     "primary",
     "success",
@@ -147,7 +158,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
         )
 
     all_pages = Page.where(project___slug=project_slug).all()
-    if all_pages is None or len(all_pages)==0:
+    if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
     all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
 
@@ -397,7 +408,7 @@ def make_area(area_name: str) -> dbc.Card:
                         id={"type": "area_types", "index": area_name},
                         inline=True,
                     ),
-                    dcc.Loading([dcc.Graph(id=area_id)]),
+                    dcc.Loading([dcc.Graph(id=area_id, config=cfg_download_plot)]),
                     dbc.Checklist(
                         options=[
                             {
@@ -465,14 +476,14 @@ def make_card(
         dbc.Card: The rendered static card
     """
     popover_head = html.P(f"Sources: {indicator_sources}")
-    
+
     if source_link:
         popover_head = html.A(
-                                html.P(f"Sources: {indicator_sources}"),
-                                href=source_link,
-                                target="_blank",
-                            )
-    
+            html.P(f"Sources: {indicator_sources}"),
+            href=source_link,
+            target="_blank",
+        )
+
     card = dbc.Card(
         [
             dbc.CardBody(
@@ -504,12 +515,9 @@ def make_card(
                     "textAlign": "center",
                 },
             ),
-            
             dbc.Popover(
                 [
-                    dbc.PopoverHeader(
-                        popover_head
-                    ),
+                    dbc.PopoverHeader(popover_head),
                     dbc.PopoverBody(
                         dcc.Markdown(get_card_popover_body(numerator_pairs))
                     ),
@@ -523,7 +531,7 @@ def make_card(
         outline=True,
         id=card_id,
     )
-    
+
     return card
 
 
@@ -613,8 +621,8 @@ def indicator_card(
     card_value = ""
     if len(df_vals) > 0:
         card_value = df_vals.iloc[0]["OBS_VALUE"]
-    
-    source_link=""
+
+    source_link = ""
 
     return make_card(
         card_id, name, suffix, "Indicator sources", source_link, card_value, []
@@ -814,12 +822,11 @@ def main_figure(indicator, show_historical_data, selections, config):
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
     source_link = ""
-    
-    if not source_link: #is it none or empty?
+
+    if not source_link:  # is it none or empty?
         return main_figure, html.P(source)
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
-    
 
 
 @callback(
@@ -934,15 +941,16 @@ def area_figure(
         legend=dict(x=0.9, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
-
+    
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
+    
     if traces:
         fig.update_traces(**traces)
 
-    if not source_link: #is it none or empty?
+    # fig.show(config=cfg)
+
+    if not source_link:  # is it none or empty?
         return fig, html.P(source)
     else:
         return fig, html.A(html.P(source), href=source_link, target="_blank")
-
-    
