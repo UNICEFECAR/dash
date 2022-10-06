@@ -763,7 +763,13 @@ def aio_area_figure(
         selections["countries"],
         compare,
         latest_data=False if fig_type in ["line", "map"] else True,
-    ).sort_values("OBS_VALUE", ascending=False)
+    )
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return EMPTY_CHART, "", [], []
+    else:
+        data.sort_values("OBS_VALUE", ascending=False, inplace=True)
 
     # indicator card
     card_config = [
@@ -787,10 +793,6 @@ def aio_area_figure(
             card_config[0].get("age"),
         )
     )
-
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, "", ind_card, []
 
     # lbassil: was UNIT_MEASURE
     name = (

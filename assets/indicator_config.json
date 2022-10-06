@@ -7355,7 +7355,8 @@
         },
         "RESIDENCE": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "R",
@@ -7370,7 +7371,8 @@
         },
         "SEX": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "_T"
@@ -7400,7 +7402,8 @@
         },
         "WEALTH_QUINTILE": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "_T"
