@@ -592,11 +592,12 @@ def get_base_layout(**kwargs):
     main_subtitle = kwargs.get("main_subtitle")
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
+    page_prefix = kwargs.get("page_prefix")
 
     return html.Div(
         [
-            dcc.Store(id="indicators", data=indicators_conf),
-            dcc.Location(id="theme"),
+            dcc.Store(id=f"{page_prefix}-indicators", data=indicators_conf),
+            dcc.Location(id=f"{page_prefix}-theme"),
             dbc.Row(
                 dbc.Col(
                     html.Div(
@@ -611,12 +612,12 @@ def get_base_layout(**kwargs):
                                         style={"padding": 20},
                                         children=[
                                             html.H1(
-                                                id="main_title",
+                                                id=f"{page_prefix}-main_title",
                                                 className="heading-title",
                                             ),
                                             html.P(
                                                 main_subtitle,
-                                                id="subtitle",
+                                                id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle",
                                             ),
                                         ],
@@ -641,14 +642,14 @@ def get_base_layout(**kwargs):
                                     dbc.Col(
                                         dbc.DropdownMenu(
                                             label=f"Years: {years[0]} - {years[-1]}",
-                                            id="collapse-years-button",
+                                            id=f"{page_prefix}-collapse-years-button",
                                             className="m-2",
                                             color="info",
                                             # block=True,
                                             children=[
                                                 dbc.Card(
                                                     dcc.RangeSlider(
-                                                        id="year_slider",
+                                                        id=f"{page_prefix}-year_slider",
                                                         min=0,
                                                         max=len(years) - 1,
                                                         step=None,
@@ -674,14 +675,14 @@ def get_base_layout(**kwargs):
                                     dbc.Col(
                                         dbc.DropdownMenu(
                                             label=f"Countries: {len(countries)}",
-                                            id="collapse-countries-button",
+                                            id=f"{page_prefix}-collapse-countries-button",
                                             className="m-2",
                                             color="info",
                                             style=countries_filter_style,
                                             children=[
                                                 dbc.Card(
                                                     dash_treeview_antd.TreeView(
-                                                        id="country_selector",
+                                                        id=f"{page_prefix}-country_selector",
                                                         multiple=True,
                                                         checkable=True,
                                                         checked=["0"],
@@ -702,13 +703,13 @@ def get_base_layout(**kwargs):
                                             ],
                                             style={"color": "DeepSkyBlue"},
                                             value=[],
-                                            id="programme-toggle",
+                                            id=f"{page_prefix}-programme-toggle",
                                             switch=True,
                                         ),
                                         width="auto",
                                     ),
                                 ],
-                                id="filter-row",
+                                id=f"{page_prefix}-filter-row",
                                 justify="center",
                                 align="center",
                                 style={
@@ -719,14 +720,14 @@ def get_base_layout(**kwargs):
                                 dbc.Col(
                                     [
                                         dbc.ButtonGroup(
-                                            id="themes",
+                                            id=f"{page_prefix}-themes",
                                         ),
                                     ],
                                     width=11,
                                 ),
-                                id="theme-row",
+                                id=f"{page_prefix}-theme-row",
                                 className="my-2",
-                                justify="center",
+                                justify="end",
                                 align="center",
                                 style=themes_row_style,
                             ),
@@ -736,7 +737,7 @@ def get_base_layout(**kwargs):
                 ],
                 # sticky="top",
                 className="sticky-top bg-light",
-                justify="start",
+                justify="center",
                 align="center",
                 style={
                     "paddingBottom": 15,
@@ -757,7 +758,7 @@ def get_base_layout(**kwargs):
                                                         dbc.ButtonGroup(
                                                             id={
                                                                 "type": "button_group",
-                                                                "index": "AIO_AREA",
+                                                                "index": f"{page_prefix}-AIO_AREA",
                                                             },
                                                             vertical=True,
                                                             style={
@@ -766,7 +767,7 @@ def get_base_layout(**kwargs):
                                                         ),
                                                         html.Br(),
                                                         dbc.Card(
-                                                            id="indicator_card",
+                                                            id=f"{page_prefix}-indicator_card",
                                                             color="primary",
                                                             outline=True,
                                                         ),
@@ -784,7 +785,7 @@ def get_base_layout(**kwargs):
                                                                                 dbc.RadioItems(
                                                                                     id={
                                                                                         "type": "area_types",
-                                                                                        "index": "AIO_AREA",
+                                                                                        "index": f"{page_prefix}-AIO_AREA",
                                                                                     },
                                                                                     inline=True,
                                                                                 ),
@@ -794,7 +795,7 @@ def get_base_layout(**kwargs):
                                                                                 dbc.RadioItems(
                                                                                     id={
                                                                                         "type": "area_breakdowns",
-                                                                                        "index": "AIO_AREA",
+                                                                                        "index": f"{page_prefix}-AIO_AREA",
                                                                                     },
                                                                                     inline=True,
                                                                                 ),
@@ -814,7 +815,7 @@ def get_base_layout(**kwargs):
                                                                     dcc.Graph(
                                                                         id={
                                                                             "type": "area",
-                                                                            "index": "AIO_AREA",
+                                                                            "index": f"{page_prefix}-AIO_AREA",
                                                                         }
                                                                     )
                                                                 ]
@@ -823,14 +824,14 @@ def get_base_layout(**kwargs):
                                                                 dbc.Alert(
                                                                     color="secondary",
                                                                 ),
-                                                                id="aio_area_data_info",
+                                                                id=f"{page_prefix}-aio_area_data_info",
                                                                 className="float-left",
                                                             ),
                                                             html.Div(
                                                                 dbc.Alert(
                                                                     color="secondary",
                                                                 ),
-                                                                id="aio_area_area_info",
+                                                                id=f"{page_prefix}-aio_area_area_info",
                                                                 className="float-right",
                                                             ),
                                                         ],
@@ -846,7 +847,7 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id={"type": "area_parent", "index": "AIO_AREA"},
+                        id={"type": "area_parent", "index": f"{page_prefix}-AIO_AREA"},
                     )
                 )
             ),
