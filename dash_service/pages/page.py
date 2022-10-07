@@ -2,6 +2,7 @@ import textwrap
 
 import dash
 import dash_bootstrap_components as dbc
+from dash.exceptions import PreventUpdate
 import dash_treeview_antd
 import numpy as np
 import pandas as pd
@@ -37,15 +38,15 @@ translations = {
     "pt": {"REF_AREA": "Geographic areas [PT]"},
 }
 
-#the configuration of the "Download plot" button in the charts
+# the configuration of the "Download plot" button in the charts
 cfg_download_plot = {
-  'toImageButtonOptions': {
-    'format': 'png', # one of png, svg, jpeg, webp
-    'filename': 'plot',
-    'width': 1200,
-    'height': 800,
-    'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
-  }
+    "toImageButtonOptions": {
+        "format": "png",  # one of png, svg, jpeg, webp
+        "filename": "plot",
+        "width": 1200,
+        "height": 800,
+        "scale": 1,  # Multiply title/legend/axis/canvas sizes by this factor
+    }
 }
 
 colours = [
@@ -367,6 +368,8 @@ def make_area(area_name: str) -> dbc.Card:
     popover_id = {"type": "area_sources", "index": area_name}
     historical_data_style = {"display": "none"}
     breakdowns_style = {"display": "block"}
+    down_csv_id = {"type": "down_csv", "index": area_name}
+    down_csv_btn_id = {"type": "btn_down_csv", "index": area_name}
 
     # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
@@ -430,6 +433,12 @@ def make_area(area_name: str) -> dbc.Card:
                         inline=True,
                         style=breakdowns_style,
                     ),
+                    dbc.Button(
+                        "Download CSV",
+                        id=down_csv_btn_id,
+                        className="float-left theme mx-1 btn-sm",
+                    ),
+                    dcc.Download(id=down_csv_id),
                     html.Div(
                         fa("fas fa-info-circle"),
                         id=f"{area_name.lower()}_area_info",
@@ -887,10 +896,6 @@ def area_figure(
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
 
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, ""
-
     # TODO this code seems to be duplicated in main_figure, merge the code
     source = ""
     sources = get_col_unique(data, "DATA_SOURCE")
@@ -941,16 +946,72 @@ def area_figure(
         legend=dict(x=0.9, y=0.5),
         xaxis={"categoryorder": "total descending"},
     )
-    
+
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
-    
+
     if traces:
         fig.update_traces(**traces)
-
-    # fig.show(config=cfg)
 
     if not source_link:  # is it none or empty?
         return fig, html.P(source)
     else:
         return fig, html.A(html.P(source), href=source_link, target="_blank")
+
+
+# There is a lot of code shared with the area_figure function. Merge it!
+# This callback is used to return data when the user clicks on the download CSV button
+@callback(
+    Output({"type": "down_csv", "index": MATCH}, "data"),
+    [
+        Input("store", "data"),
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "btn_down_csv", "index": MATCH}, "n_clicks"),
+    ],
+    [
+        State("page_config", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
+    ],
+)
+def down_csv(
+    selections,
+    indicator,
+    selected_type,
+    n_clicks,
+    config,
+    id,
+):
+
+    # First render, do not trigger!
+    if n_clicks is None:
+        raise PreventUpdate
+
+    area = id["index"]
+    series_id = indicator.split("|")
+    series = config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
+    time_period = [min(selections["years"]), max(selections["years"])]
+    ref_areas = selections["countries"]
+
+    default_graph = config["THEMES"][selections["theme"]][area].get(
+        "default_graph", "line"
+    )
+
+    fig_type = selected_type if selected_type else default_graph
+
+    if fig_type == "line":
+        data = get_dataset(series, years=time_period, countries=ref_areas)
+    else:
+        data = get_dataset(series, recent_data=True, countries=ref_areas)
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return dcc.send_data_frame(data.to_csv, "no_data.csv")
+
+    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
+    df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
+
+    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
+
+    return dcc.send_data_frame(data.to_csv, "data.csv")
