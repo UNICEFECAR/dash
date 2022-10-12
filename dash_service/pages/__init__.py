@@ -104,7 +104,7 @@ def get_selection_tree(ref_area_cl):
     }
 
 
-def get_dataset(cfg_data, years=None, countries=[], recent_data=False):
+def get_dataset(cfg_data, years=None, countries=[], recent_data=False, labels="id"):
     """_summary_
 
     Args:
@@ -135,6 +135,7 @@ def get_dataset(cfg_data, years=None, countries=[], recent_data=False):
         dataquery=dq,
         lastnobservations=lastnobservations,
         time_period=years,
+        labels=labels
     )
     return df
 

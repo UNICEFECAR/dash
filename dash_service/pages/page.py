@@ -370,6 +370,8 @@ def make_area(area_name: str) -> dbc.Card:
     breakdowns_style = {"display": "block"}
     down_csv_id = {"type": "down_csv", "index": area_name}
     down_csv_btn_id = {"type": "btn_down_csv", "index": area_name}
+    down_exc_id = {"type": "down_exc", "index": area_name}
+    down_exc_btn_id = {"type": "btn_down_exc", "index": area_name}
 
     # TODO: still differentiating main area id from other areas ids because the call backs are still not unified
     if area_name == "MAIN":
@@ -433,12 +435,23 @@ def make_area(area_name: str) -> dbc.Card:
                         inline=True,
                         style=breakdowns_style,
                     ),
-                    dbc.Button(
-                        "Download CSV",
-                        id=down_csv_btn_id,
-                        className="float-left theme mx-1 btn-sm",
+                    dbc.ButtonGroup(
+                        className="float_left",
+                        children=[
+                            dbc.Button(
+                                "Download Excel",
+                                id=down_exc_btn_id,
+                                className="btn-sm",
+                            ),
+                            dbc.Button(
+                                "Download CSV",
+                                id=down_csv_btn_id,
+                                className="btn-sm",
+                            ),
+                        ],
                     ),
                     dcc.Download(id=down_csv_id),
+                    dcc.Download(id=down_exc_id),
                     html.Div(
                         fa("fas fa-info-circle"),
                         id=f"{area_name.lower()}_area_info",
@@ -987,6 +1000,53 @@ def down_csv(
     if n_clicks is None:
         raise PreventUpdate
 
+    data = download_data(selections, indicator, selected_type, config, id)
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return dcc.send_data_frame(data.to_csv, "no_data.csv", index=False)
+
+    return dcc.send_data_frame(data.to_csv, "data.csv", index=False)
+
+
+# There is a lot of code shared with the area_figure function. Merge it!
+# This callback is used to return data when the user clicks on the download CSV button
+@callback(
+    Output({"type": "down_exc", "index": MATCH}, "data"),
+    [
+        Input("store", "data"),
+        Input({"type": "area_options", "index": MATCH}, "value"),
+        Input({"type": "area_types", "index": MATCH}, "value"),
+        Input({"type": "btn_down_exc", "index": MATCH}, "n_clicks"),
+    ],
+    [
+        State("page_config", "data"),
+        State({"type": "area_options", "index": MATCH}, "id"),
+    ],
+)
+def down_exc(
+    selections,
+    indicator,
+    selected_type,
+    n_clicks,
+    config,
+    id,
+):
+    # First render, do not trigger!
+    if n_clicks is None:
+        raise PreventUpdate
+
+    data = download_data(selections, indicator, selected_type, config, id)
+
+    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if data.empty:
+        return dcc.send_data_frame(data.to_excel, "no_data.xlsx", index=False)
+
+    return dcc.send_data_frame(data.to_excel, "data.xlsx", index=False)
+
+
+def download_data(selections, indicator, selected_type, config, id):
+
     area = id["index"]
     series_id = indicator.split("|")
     series = config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
@@ -1000,18 +1060,10 @@ def down_csv(
     fig_type = selected_type if selected_type else default_graph
 
     if fig_type == "line":
-        data = get_dataset(series, years=time_period, countries=ref_areas)
+        data = get_dataset(
+            series, years=time_period, countries=ref_areas, labels="both"
+        )
     else:
-        data = get_dataset(series, recent_data=True, countries=ref_areas)
+        data = get_dataset(series, recent_data=True, countries=ref_areas, labels="both")
 
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return dcc.send_data_frame(data.to_csv, "no_data.csv")
-
-    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
-    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
-    df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
-
-    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
-
-    return dcc.send_data_frame(data.to_csv, "data.csv")
+    return data
