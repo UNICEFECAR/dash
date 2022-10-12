@@ -48,42 +48,36 @@ colours = [
 min_max_card_suffix = "min - max values"
 
 page_config = {
-    "MAT": {
-        "NAME": "Child poverty and material deprivation",
+    "VIO": {
+        "NAME": "Violence against children and women",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PV_SI_POV_UMIC",
+                "indicator": "PT_CHLD_1-14_PS-PSY-V_CGVR",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SDG_SI_POV_NAHC",
+                "indicator": "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_AROPE",
+                "indicator": "PT_F_18-29_SX-V_AGE-18",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SD_MDP_CSMP",
+                "indicator": "PT_ADLT_PS_NEC",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SEV_MAT_DPRT",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SEV_MAT_SOC_DPRT",
+                "indicator": "PT_ST_13-15_BUL_30-DYS",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -157,49 +151,36 @@ page_config = {
                 },
             },
             "indicators": [
-                "PV_SI_POV_UMIC",
-                "PV_SDG_SI_POV_NAHC",
-                "PV_AROPE",
-                "PV_SD_MDP_CSMP",
-                "PV_SEV_MAT_DPRT",
-                "PV_SEV_MAT_SOC_DPRT",
+                "PT_CHLD_1-14_PS-PSY-V_CGVR",
+                "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
+                "PT_F_18-29_SX-V_AGE-18",
+                "PT_ADLT_PS_NEC",
+                "PT_ST_13-15_BUL_30-DYS",
             ],
             "default_graph": "bar",
-            "default": "PV_SI_POV_UMIC",
+            "default": "PT_CHLD_1-14_PS-PSY-V_CGVR",
         },
     },
-    "SPS": {
-        "NAME": "Social protection system",
+    "CPC": {
+        "NAME": "Children without parental care",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PV_SI_COV_BENFTS",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
+                "indicator": "PT_CHLD_INRESIDENTIAL",
+                "suffix": "children",
+                "min_max": False,
             },
             {
                 "name": "",
-                "indicator": "PV_SI_COV_CHLD",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
+                "indicator": "PT_CHLD_ADOPTION",
+                "suffix": "adoptions",
+                "min_max": False,
             },
             {
                 "name": "",
-                "indicator": "PV_SI_COV_DISAB",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SI_COV_MATNL",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SI_COV_VULN",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
+                "indicator": "PT_CHLD_CARED_BY_FOSTER",
+                "suffix": "children",
+                "min_max": False,
             },
         ],
         "AIO_AREA": {
@@ -271,34 +252,38 @@ page_config = {
                 },
             },
             "indicators": [
-                "PV_SI_COV_BENFTS",
-                "PV_SI_COV_CHLD",
-                "PV_SI_COV_DISAB",
-                "PV_SI_COV_MATNL",
-                "PV_SI_COV_VULN",
+                "PT_CHLD_INRESIDENTIAL",
+                "PT_CHLD_ADOPTION",
+                "PT_CHLD_CARED_BY_FOSTER",
             ],
             "default_graph": "bar",
-            "default": "PV_SI_COV_BENFTS",
+            "default": "PT_CHLD_INRESIDENTIAL",
         },
     },
-    "WSH": {
-        "NAME": "Water, sanitation and hygiene",
+    "JUS": {
+        "NAME": "Justice for children",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "WS_PPL_W-SM",
+                "indicator": "JJ_CHLD_DETENTION_RATE",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "WS_PPL_S-SM",
+                "indicator": "JJ_CHLD_PRE_SENTENCE_DETENTION_RATE",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "HT_NO_BTH_SHW_FLSH",
+                "indicator": "JJ_CHLD_POST_SENTENCE_DETENTION_RATE",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "JJ_VC_PRS_UNSNT",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -372,18 +357,217 @@ page_config = {
                 },
             },
             "indicators": [
-                "WS_PPL_W-SM",
-                "WS_PPL_S-SM",
-                "HT_NO_BTH_SHW_FLSH",
+                "JJ_CHLD_DETENTION_RATE",
+                "JJ_CHLD_PRE_SENTENCE_DETENTION_RATE",
+                "JJ_CHLD_POST_SENTENCE_DETENTION_RATE",
+                "JJ_VC_PRS_UNSNT",
             ],
             "default_graph": "bar",
-            "default": "WS_PPL_W-SM",
+            "default": "JJ_CHLD_DETENTION_RATE",
+        },
+    },
+    "MAR": {
+        "NAME": "Child marriage and other harmful practices",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "PT_F_15-19_MRD",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_M_15-19_MRD",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_F_20-24_MRD_U18",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_M_20-24_MRD_U18",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Country_name",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        height=500,
+                    ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Country_name",
+                        hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        line_shape="spline",
+                        render_mode="svg",
+                        height=500,
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 59.5381, "lon": 32.3200},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
+                        },
+                        height=500,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+                },
+            },
+            "indicators": [
+                "PT_F_15-19_MRD",
+                "PT_M_15-19_MRD",
+                "PT_F_20-24_MRD_U18",
+                "PT_M_20-24_MRD_U18",
+            ],
+            "default_graph": "bar",
+            "default": "PT_F_15-19_MRD",
+        },
+    },
+    "LAB": {
+        "NAME": "Child labour and other forms of exploitation",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "PT_CHLD_5-17_LBR_ECON",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Country_name",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        height=500,
+                    ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Country_name",
+                        hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        line_shape="spline",
+                        render_mode="svg",
+                        height=500,
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 59.5381, "lon": 32.3200},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
+                        },
+                        height=500,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+                },
+            },
+            "indicators": [
+                "PT_CHLD_5-17_LBR_ECON",
+                "PT_CHLD_5-17_LBR_ECON-HC",
+            ],
+            "default_graph": "bar",
+            "default": "PT_CHLD_5-17_LBR_ECON",
         },
     },
 }
 
-register_page(__name__, path="/child-poverty", title="Poverty")
-page_prefix = "pov"
+register_page(__name__, path="/child-protection", title="Child Protection")
+page_prefix = "chp"
 
 # configure the Dash instance's layout
 layout = html.Div(
@@ -394,7 +578,7 @@ layout = html.Div(
             fluid=True,
             children=get_base_layout(
                 indicators=page_config,
-                main_subtitle="Poverty and Adequate Standards of Living",
+                main_subtitle="Family Environment and Protection",
                 page_prefix=page_prefix,
             ),
         ),
@@ -647,7 +831,7 @@ def indicator_card(
 
     if suffix.lower() == "countries":
         # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator:
+        if "FREE" in numerator or "COMP" in numerator:
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()

@@ -101,6 +101,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -115,6 +120,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -176,7 +186,7 @@ page_config = {
             {
                 "name": "",
                 "indicator": "CME_TMY0T4",
-                "suffix": "number of deaths",
+                "suffix": "deaths",
                 "min_max": False,
             },
             {
@@ -211,6 +221,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -225,6 +240,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -303,6 +323,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -317,6 +342,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -404,6 +434,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -418,6 +453,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -501,6 +541,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -515,6 +560,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -580,7 +630,7 @@ page_config = {
             {
                 "name": "",
                 "indicator": "HVA_EPI_INF_ANN_15-24",
-                "suffix": "estimated adolescents/young people new infections",
+                "suffix": "estimated new infections",
                 "min_max": False,
             },
         ],
@@ -597,6 +647,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -611,6 +666,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -737,7 +797,14 @@ def make_card(
                         target="_blank",
                     )
                 ),
-                dbc.PopoverBody(dcc.Markdown(get_card_popover_body(numerator_pairs))),
+                dbc.PopoverBody(
+                    dcc.Markdown(get_card_popover_body(numerator_pairs)),
+                    style={
+                        "height": "200px",
+                        "overflowY": "auto",
+                        "whiteSpace": "pre-wrap",
+                    },
+                ),
             ],
             id=f"{page_prefix}-hover",
             target=f"{page_prefix}-indicator_card_info",
@@ -1241,7 +1308,7 @@ def aio_area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=1, y=0.5),
-        xaxis={"categoryorder": "total descending"},
+        xaxis={"categoryorder": "total descending", "tickangle": -45},
     )
     if layout_opt:
         layout.update(layout_opt)

@@ -452,6 +452,9 @@ def get_filtered_dataset(
     # if data has no footnotes then pdsdmx erases column
     if "OBS_FOOTNOTE" in data.columns:
         data = data.astype({"OBS_FOOTNOTE": str})
+        data.loc[:, "OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
+            lambda x: x.replace("\n", "<br>")
+        )
     else:
         data["OBS_FOOTNOTE"] = "NA"
 
@@ -752,14 +755,22 @@ def get_base_layout(**kwargs):
                                             [
                                                 dbc.Col(
                                                     [
-                                                        dbc.ButtonGroup(
-                                                            id={
-                                                                "type": "button_group",
-                                                                "index": f"{page_prefix}-AIO_AREA",
-                                                            },
-                                                            vertical=True,
+                                                        html.Div(
+                                                            [
+                                                                dbc.ButtonGroup(
+                                                                    id={
+                                                                        "type": "button_group",
+                                                                        "index": f"{page_prefix}-AIO_AREA",
+                                                                    },
+                                                                    vertical=True,
+                                                                    style={
+                                                                        "marginBottom": "20px"
+                                                                    },
+                                                                ),
+                                                            ],
                                                             style={
-                                                                "marginBottom": "20px"
+                                                                "maxHeight": "400px",
+                                                                "overflowY": "scroll",
                                                             },
                                                         ),
                                                         html.Br(),
