@@ -39,7 +39,7 @@ EMPTY_CHART = {
         "yaxis": {"visible": False},
         "annotations": [
             {
-                "text": "No data is available for the selected filters",
+                "text": "Data request failed, retry selected filters.<br>If this message keeps appearing,<br>then no data is available for the selected filters.",
                 "xref": "paper",
                 "yref": "paper",
                 "showarrow": False,
@@ -72,11 +72,7 @@ indicator_names = {
 cl_age = unicef.codelist("CL_AGE", version="1.0")
 age_groups = sdmx.to_pandas(cl_age)
 dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
-age_groups_names = {
-    age["CL_AGE"]: age["name"]
-    for index, age in dict_age_groups.iterrows()
-    if age["CL_AGE"] != "_T"
-}
+age_groups_names = {age["CL_AGE"]: age["name"] for _, age in dict_age_groups.iterrows()}
 
 units_names = {
     unit.id: str(unit.name)
@@ -456,9 +452,12 @@ def get_filtered_dataset(
     # if data has no footnotes then pdsdmx erases column
     if "OBS_FOOTNOTE" in data.columns:
         data = data.astype({"OBS_FOOTNOTE": str})
+        data.loc[:, "OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
+            lambda x: x.replace("\n", "<br>")
+        )
     else:
         data["OBS_FOOTNOTE"] = "NA"
-    
+
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
@@ -756,14 +755,22 @@ def get_base_layout(**kwargs):
                                             [
                                                 dbc.Col(
                                                     [
-                                                        dbc.ButtonGroup(
-                                                            id={
-                                                                "type": "button_group",
-                                                                "index": f"{page_prefix}-AIO_AREA",
-                                                            },
-                                                            vertical=True,
+                                                        html.Div(
+                                                            [
+                                                                dbc.ButtonGroup(
+                                                                    id={
+                                                                        "type": "button_group",
+                                                                        "index": f"{page_prefix}-AIO_AREA",
+                                                                    },
+                                                                    vertical=True,
+                                                                    style={
+                                                                        "marginBottom": "20px"
+                                                                    },
+                                                                ),
+                                                            ],
                                                             style={
-                                                                "marginBottom": "20px"
+                                                                "maxHeight": "400px",
+                                                                "overflowY": "scroll",
                                                             },
                                                         ),
                                                         html.Br(),
@@ -788,6 +795,10 @@ def get_base_layout(**kwargs):
                                                                                         "type": "area_types",
                                                                                         "index": f"{page_prefix}-AIO_AREA",
                                                                                     },
+                                                                                    labelStyle={
+                                                                                        "paddingLeft": 0,
+                                                                                        "marginLeft": "-20px",
+                                                                                    },
                                                                                     inline=True,
                                                                                 ),
                                                                                 width="auto",
@@ -797,6 +808,10 @@ def get_base_layout(**kwargs):
                                                                                     id={
                                                                                         "type": "area_breakdowns",
                                                                                         "index": f"{page_prefix}-AIO_AREA",
+                                                                                    },
+                                                                                    labelStyle={
+                                                                                        "paddingLeft": 0,
+                                                                                        "marginLeft": "-20px",
                                                                                     },
                                                                                     inline=True,
                                                                                 ),

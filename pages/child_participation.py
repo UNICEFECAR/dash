@@ -60,14 +60,14 @@ page_config = {
             {
                 "name": "",
                 "indicator": "PP_SG_REG_BRTH90N",
-                "suffix": "number of countries",
-                "min_max": True,
+                "suffix": "countries",
+                "min_max": False,
             },
             {
                 "name": "",
                 "indicator": "PP_SG_REG_DETH75N",
-                "suffix": "number of countries",
-                "min_max": True,
+                "suffix": "countries",
+                "min_max": False,
             },
         ],
         "AIO_AREA": {
@@ -83,6 +83,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -97,6 +102,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -148,7 +158,7 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "PP_SE_ADT_ACTS_CMF",
+                "indicator": "PP_SE_ADT_ACTS_CMFL",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -184,6 +194,11 @@ page_config = {
                         hover_data=["OBS_FOOTNOTE"],
                         height=500,
                     ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
                 },
                 "line": {
                     "options": dict(
@@ -198,6 +213,11 @@ page_config = {
                         height=500,
                     ),
                     "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
                 },
                 "map": {
                     "options": dict(
@@ -325,7 +345,14 @@ def make_card(
                         target="_blank",
                     )
                 ),
-                dbc.PopoverBody(dcc.Markdown(get_card_popover_body(numerator_pairs))),
+                dbc.PopoverBody(
+                    dcc.Markdown(get_card_popover_body(numerator_pairs)),
+                    style={
+                        "height": "200px",
+                        "overflowY": "auto",
+                        "whiteSpace": "pre-wrap",
+                    },
+                ),
             ],
             id=f"{page_prefix}-hover",
             target=f"{page_prefix}-indicator_card_info",
@@ -829,7 +856,7 @@ def aio_area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=1, y=0.5),
-        xaxis={"categoryorder": "total descending"},
+        xaxis={"categoryorder": "total descending", "tickangle": -45},
     )
     if layout_opt:
         layout.update(layout_opt)

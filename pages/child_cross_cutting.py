@@ -46,44 +46,33 @@ colours = [
 ]
 
 min_max_card_suffix = "min - max values"
+min_max_girls_suffix = "min - max values for Girls"
 
 page_config = {
-    "MAT": {
-        "NAME": "Child poverty and material deprivation",
+    "ECD": {
+        "NAME": "Early childhood development",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PV_SI_POV_UMIC",
+                "indicator": "ECD_CHLD_36-59M_LMPSL",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SDG_SI_POV_NAHC",
+                "indicator": "EDUNF_NERA_L1_UNDER1",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_AROPE",
+                "indicator": "NT_BF_EXBF",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SD_MDP_CSMP",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SEV_MAT_DPRT",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SEV_MAT_SOC_DPRT",
+                "indicator": "CME_MRM0",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -157,47 +146,40 @@ page_config = {
                 },
             },
             "indicators": [
-                "PV_SI_POV_UMIC",
-                "PV_SDG_SI_POV_NAHC",
-                "PV_AROPE",
-                "PV_SD_MDP_CSMP",
-                "PV_SEV_MAT_DPRT",
-                "PV_SEV_MAT_SOC_DPRT",
+                "ECD_CHLD_36-59M_LMPSL",
+                "EDUNF_NERA_L1_UNDER1",
+                "NT_BF_EXBF",
+                "CME_MRM0",
             ],
             "default_graph": "bar",
-            "default": "PV_SI_POV_UMIC",
+            "default": "ECD_CHLD_36-59M_LMPSL",
         },
     },
-    "SPS": {
-        "NAME": "Social protection system",
+    "GND": {
+        "NAME": "Gender",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PV_SI_COV_BENFTS",
+                "indicator": "EDUNF_CR_L3",
+                "suffix": min_max_girls_suffix,
+                "sex": "F",
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_SE_AGP_CPRA_L3",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SI_COV_CHLD",
+                "indicator": "EC_GDI",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SI_COV_DISAB",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SI_COV_MATNL",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SI_COV_VULN",
+                "indicator": "EC_GII",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -271,34 +253,39 @@ page_config = {
                 },
             },
             "indicators": [
-                "PV_SI_COV_BENFTS",
-                "PV_SI_COV_CHLD",
-                "PV_SI_COV_DISAB",
-                "PV_SI_COV_MATNL",
-                "PV_SI_COV_VULN",
+                "EDUNF_CR_L3",
+                "EDU_SE_AGP_CPRA_L3",
+                "EC_GDI",
+                "EC_GII",
             ],
             "default_graph": "bar",
-            "default": "PV_SI_COV_BENFTS",
+            "default": "EDUNF_CR_L3",
         },
     },
-    "WSH": {
-        "NAME": "Water, sanitation and hygiene",
+    "ODA": {
+        "NAME": "Adolescents",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "WS_PPL_W-SM",
+                "indicator": "FT_SP_DYN_ADKL",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "WS_PPL_S-SM",
+                "indicator": "EDU_SDG_YOUTH_NEET",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "HT_NO_BTH_SHW_FLSH",
+                "indicator": "EDU_SDG_STU_L2_GLAST_MAT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_SDG_STU_L2_GLAST_REA",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -372,18 +359,266 @@ page_config = {
                 },
             },
             "indicators": [
-                "WS_PPL_W-SM",
-                "WS_PPL_S-SM",
-                "HT_NO_BTH_SHW_FLSH",
+                "FT_SP_DYN_ADKL",
+                "EDU_SDG_YOUTH_NEET",
+                "EDU_SDG_STU_L2_GLAST_MAT",
+                "EDU_SDG_STU_L2_GLAST_REA",
             ],
             "default_graph": "bar",
-            "default": "WS_PPL_W-SM",
+            "default": "FT_SP_DYN_ADKL",
+        },
+    },
+    "ENV": {
+        "NAME": "Environment and climate change",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "CR_EG_EGY_CLEAN",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_CCRI_VUL_ES",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_CCRI",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_CCRI_EXP_CESS",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Country_name",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        height=500,
+                    ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Country_name",
+                        hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        line_shape="spline",
+                        render_mode="svg",
+                        height=500,
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 59.5381, "lon": 32.3200},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
+                        },
+                        height=500,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+                },
+            },
+            "indicators": [
+                "CR_EG_EGY_CLEAN",
+                "CR_CCRI_VUL_ES",
+                "CR_CCRI",
+                "CR_CCRI_EXP_CESS",
+            ],
+            "default_graph": "bar",
+            "default": "CR_EG_EGY_CLEAN",
+        },
+    },
+    "RSK": {
+        "NAME": "Risks and humanitarian situation",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "CR_VC_DSR_MTMP",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_VC_DSR_DAFF",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_STA_AIRP",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_HAP_MORT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_AAP_MORT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_STA_ASAIRP",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_HAP_ASMORT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SH_AAP_ASMORT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CR_SG_DSR_LGRGSR",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": {
+                "bar": {
+                    "options": dict(
+                        x="Country_name",
+                        y="OBS_VALUE",
+                        barmode="group",
+                        text="OBS_VALUE",
+                        hover_name="TIME_PERIOD",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        height=500,
+                    ),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 0},
+                        margin_t=30,
+                        margin_b=0,
+                    ),
+                },
+                "line": {
+                    "options": dict(
+                        x="TIME_PERIOD",
+                        y="OBS_VALUE",
+                        color="Country_name",
+                        hover_name="Country_name",
+                        labels={"OBS_FOOTNOTE": "Footnote"},
+                        hover_data=["OBS_FOOTNOTE"],
+                        line_shape="spline",
+                        render_mode="svg",
+                        height=500,
+                    ),
+                    "trace_options": dict(mode="lines+markers"),
+                    "layout_options": dict(
+                        xaxis_title={"standoff": 10},
+                        margin_t=40,
+                        margin_b=0,
+                    ),
+                },
+                "map": {
+                    "options": dict(
+                        locations="REF_AREA",
+                        featureidkey="id",
+                        color="OBS_VALUE",
+                        color_continuous_scale=px.colors.sequential.GnBu,
+                        mapbox_style="carto-positron",
+                        geojson=geo_json_countries,
+                        zoom=2,
+                        center={"lat": 59.5381, "lon": 32.3200},
+                        opacity=0.5,
+                        labels={
+                            "OBS_VALUE": "Value",
+                            "Country_name": "Country",
+                            "TIME_PERIOD": "Year",
+                            "REF_AREA": "ISO3 Code",
+                            "OBS_FOOTNOTE": "Footnote",
+                        },
+                        hover_data={
+                            "OBS_VALUE": True,
+                            "REF_AREA": False,
+                            "Country_name": True,
+                            "TIME_PERIOD": True,
+                            "OBS_FOOTNOTE": True,
+                        },
+                        height=500,
+                    ),
+                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+                },
+            },
+            "indicators": [
+                "CR_VC_DSR_MTMP",
+                "CR_VC_DSR_DAFF",
+                "CR_SH_STA_AIRP",
+                "CR_SH_HAP_MORT",
+                "CR_SH_AAP_MORT",
+                "CR_SH_STA_ASAIRP",
+                "CR_SH_HAP_ASMORT",
+                "CR_SH_AAP_ASMORT",
+                "CR_SG_DSR_LGRGSR",
+            ],
+            "default_graph": "bar",
+            "default": "CR_VC_DSR_MTMP",
         },
     },
 }
 
-register_page(__name__, path="/child-poverty", title="Poverty")
-page_prefix = "pov"
+register_page(__name__, path="/child-cross-cutting", title="Cross-Cutting Issues")
+page_prefix = "cci"
 
 # configure the Dash instance's layout
 layout = html.Div(
@@ -394,7 +629,7 @@ layout = html.Div(
             fluid=True,
             children=get_base_layout(
                 indicators=page_config,
-                main_subtitle="Poverty and Adequate Standards of Living",
+                main_subtitle="Cross-Cutting",
                 page_prefix=page_prefix,
             ),
         ),
@@ -647,7 +882,7 @@ def indicator_card(
 
     if suffix.lower() == "countries":
         # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator:
+        if "FREE" in numerator or "COMP" in numerator:
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
