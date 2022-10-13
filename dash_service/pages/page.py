@@ -24,6 +24,8 @@ from dash_service.pages import (
 )
 from flask import abort
 
+# The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
+
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -168,7 +170,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
 
     config = page.content
     main_title = config["main_title"]
-    selection_tree = get_selection_tree(config["ddl_ref_areas_cl"])
+    selection_tree = get_selection_tree(config["ref_areas_cl"])
 
     return render_page_template(config, main_title, selection_tree, all_pages)
 
@@ -196,121 +198,13 @@ def render_page_template(
             dbc.Col(
                 html.Div(
                     [
-                        html.Div(
-                            className="heading",
-                            style={"padding": 36},
-                            children=[
-                                html.Div(
-                                    className="heading-content",
-                                    children=[
-                                        html.Div(
-                                            className="heading-panel",
-                                            style={"padding": 20},
-                                            children=[
-                                                html.H1(
-                                                    main_title,
-                                                    id="main_title",
-                                                    className="heading-title",
-                                                ),
-                                                html.P(
-                                                    id="subtitle",
-                                                    className="heading-subtitle",
-                                                ),
-                                            ],
-                                        ),
-                                    ],
-                                )
-                            ],
-                        ),
+                        render_heading(main_title),
                         dbc.Row(
                             children=[
                                 dbc.Col(
                                     [
-                                        dbc.Row(
-                                            [
-                                                dbc.ButtonGroup(
-                                                    id="themes",
-                                                ),
-                                            ],
-                                            id="theme-row",
-                                            # width=4,
-                                            className="my-2",
-                                            # no_gutters=True,
-                                            justify="center",
-                                            style={
-                                                "verticalAlign": "center",
-                                                "display": "flex",
-                                            },
-                                        ),
-                                        dbc.Row(
-                                            [
-                                                dbc.DropdownMenu(
-                                                    label=f"Years: {years[0]} - {years[-1]}",
-                                                    id="collapse-years-button",
-                                                    className="m-2",
-                                                    color="info",
-                                                    # block=True,
-                                                    children=[
-                                                        dbc.Card(
-                                                            dcc.RangeSlider(
-                                                                id="year_slider",
-                                                                min=0,
-                                                                max=len(years) - 1,
-                                                                step=None,
-                                                                marks={
-                                                                    index: str(year)
-                                                                    for index, year in enumerate(
-                                                                        years
-                                                                    )
-                                                                },
-                                                                value=[
-                                                                    0,
-                                                                    len(years) - 1,
-                                                                ],
-                                                            ),
-                                                            style={
-                                                                "maxHeight": "250px",
-                                                                "minWidth": "500px",
-                                                            },
-                                                            className="overflow-auto",
-                                                            body=True,
-                                                        ),
-                                                    ],
-                                                ),
-                                                dbc.DropdownMenu(
-                                                    label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
-                                                    id="collapse-countries-button",
-                                                    className="m-2",
-                                                    color="info",
-                                                    style={"display": "block"},
-                                                    children=[
-                                                        dbc.Card(
-                                                            dash_treeview_antd.TreeView(
-                                                                id="country_selector",
-                                                                multiple=True,
-                                                                checkable=True,
-                                                                checked=selection_tree[
-                                                                    "checked"
-                                                                ],
-                                                                expanded=selection_tree[
-                                                                    "checked"
-                                                                ],
-                                                                data=selection_tree[
-                                                                    "data"
-                                                                ],
-                                                            ),
-                                                            style={
-                                                                "maxHeight": "250px",
-                                                            },
-                                                            className="overflow-auto",
-                                                            body=True,
-                                                        ),
-                                                    ],
-                                                ),
-                                            ],
-                                            id="filter-row",
-                                            justify="center",
-                                        ),
+                                        render_themes(),
+                                        render_years_areas(selection_tree),
                                     ]
                                 ),
                             ],
@@ -350,6 +244,117 @@ def render_page_template(
         ],
     )
     return template
+
+
+def render_heading(main_title) -> html.Div:
+    return html.Div(
+        className="heading",
+        style={"padding": 36},
+        children=[
+            html.Div(
+                className="heading-content",
+                children=[
+                    html.Div(
+                        className="heading-panel",
+                        style={"padding": 20},
+                        children=[
+                            html.H1(
+                                main_title,
+                                id="main_title",
+                                className="heading-title",
+                            ),
+                            html.P(
+                                id="subtitle",
+                                className="heading-subtitle",
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+
+def render_themes() -> html.Div:
+    return dbc.Row(
+        [
+            dbc.ButtonGroup(
+                id="themes",
+            ),
+        ],
+        id="theme-row",
+        # width=4,
+        className="my-2",
+        # no_gutters=True,
+        justify="center",
+        style={
+            "verticalAlign": "center",
+            "display": "flex",
+        },
+    )
+
+
+def render_years_areas(selection_tree) -> html.Div:
+    return dbc.Row(
+        [
+            dbc.DropdownMenu(
+                label=f"Years: {years[0]} - {years[-1]}",
+                id="collapse-years-button",
+                className="m-2",
+                color="info",
+                # block=True,
+                children=[
+                    dbc.Card(
+                        dcc.RangeSlider(
+                            id="year_slider",
+                            min=0,
+                            max=len(years) - 1,
+                            step=None,
+                            marks={
+                                index: str(year) for index, year in enumerate(years)
+                            },
+                            value=[
+                                0,
+                                len(years) - 1,
+                            ],
+                        ),
+                        style={
+                            "maxHeight": "250px",
+                            "minWidth": "500px",
+                        },
+                        className="overflow-auto",
+                        body=True,
+                    ),
+                ],
+            ),
+            dbc.DropdownMenu(
+                label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
+                id="collapse-countries-button",
+                className="m-2",
+                color="info",
+                style={"display": "block"},
+                children=[
+                    dbc.Card(
+                        dash_treeview_antd.TreeView(
+                            id="country_selector",
+                            multiple=True,
+                            checkable=True,
+                            checked=selection_tree["checked"],
+                            expanded=selection_tree["checked"],
+                            data=selection_tree["data"],
+                        ),
+                        style={
+                            "maxHeight": "250px",
+                        },
+                        className="overflow-auto",
+                        body=True,
+                    ),
+                ],
+            ),
+        ],
+        id="filter-row",
+        justify="center",
+    )
 
 
 def make_area(area_name: str) -> dbc.Card:
@@ -578,6 +583,8 @@ def get_card_popover_body(sources):
     return "NA"
 
 
+# This callback is triggered on a "hash" change in the URL
+# It hides areas when not defined: e.g. we have two areas in the cfg: hide area 3 and 4
 @callback(
     Output({"type": "area_parent", "index": MATCH}, "hidden"),
     Input("theme", "hash"),
@@ -592,9 +599,9 @@ def display_areas(theme, page_config, id):
     return area not in page_config["THEMES"][theme]
 
 
+# Triggered when the theme, year slider or country change
 @callback(
     Output("store", "data"),
-    # Output("country_selector", "checked"),
     Output("collapse-years-button", "label"),
     Output("collapse-countries-button", "label"),
     [
@@ -633,6 +640,7 @@ def apply_filters(
     )
 
 
+# this function and the show_cards callback update the cards
 def indicator_card(
     card_id,
     name,
@@ -656,9 +664,9 @@ def indicator_card(
     [
         Input("store", "data"),
     ],
-    [State("cards_row", "children"), State("page_config", "data")],
+    [State("page_config", "data")],
 )
-def show_cards(selections, current_cards, page_config):
+def show_cards(selections, page_config):
     cards = [
         indicator_card(
             f"card-{num}",
@@ -672,6 +680,7 @@ def show_cards(selections, current_cards, page_config):
     return cards
 
 
+# this callback updates the selection changed? It shouldn't be connected to the data but to the config load?
 @callback(
     Output("subtitle", "children"),
     Output("themes", "children"),
@@ -712,6 +721,8 @@ def show_themes(selections, config):
     return subtitle, buttons
 
 
+# Triggered when the selection changes. Updates the main area ddl, the area types?
+# Todo: What is area_type?
 @callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
     Output({"type": "area_options", "index": MATCH}, "options"),
@@ -725,12 +736,13 @@ def show_themes(selections, config):
     ],
 )
 def set_options(selection, config, id):
+
     area = id["index"]
 
     area_options = area_types = []
 
-    cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
-    area_options = []
+    indicators_cl_id = sel_cfg_indicators_cl(config)
+    cl_indicators = get_codelist(indicators_cl_id["agency"], indicators_cl_id["id"])
     default_option = ""
 
     if area in config["THEMES"][selection["theme"]]:
@@ -778,6 +790,7 @@ def set_options(selection, config, id):
     return name, area_options, area_types, default_option, default_graph
 
 
+# Triggered when the selection changes. Updates the main area graph
 @callback(
     Output("main_area", "figure"),
     Output("main_area_sources", "children"),
@@ -801,7 +814,9 @@ def main_figure(indicator, show_historical_data, selections, config):
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
-    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+
+    ref_areas_cl_id = sel_cfg_ref_areas_cl(config)
+    cl_countries = get_codelist(ref_areas_cl_id["agency"], ref_areas_cl_id["id"])
     cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
 
     if latest_data:
@@ -850,7 +865,7 @@ def main_figure(indicator, show_historical_data, selections, config):
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
-
+#triggered on selection change. Updates the areas
 @callback(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
@@ -899,11 +914,13 @@ def area_figure(
     else:
         data = get_dataset(series, recent_data=True, countries=ref_areas)
 
+
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
 
-    cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
+    cl_countries_id = sel_cfg_ref_areas_cl(config)
+    cl_countries = get_codelist(cl_countries_id["agency"],cl_countries_id["id"])
     df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
     df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
 
@@ -938,7 +955,8 @@ def area_figure(
             int(series_id[2])
         ]["label"]
     else:
-        cl_indicators = get_codelist("BRAZIL_CO", "CL_BRAZILCO_INDICATORS")
+        cl_indicators_id = sel_cfg_indicators_cl(config)
+        cl_indicators = get_codelist(cl_indicators_id["agency"],cl_indicators_id["id"])
         ind = list(data["INDICATOR"].unique())[0]
         indicator_name = next(item for item in cl_indicators if item["id"] == ind)
         indicator_name = indicator_name["name"]
@@ -1067,3 +1085,13 @@ def download_data(selections, indicator, selected_type, config, id):
         data = get_dataset(series, recent_data=True, countries=ref_areas, labels="both")
 
     return data
+
+
+# A few selectors
+def sel_cfg_ref_areas_cl(cfg):
+    return cfg["ref_areas_cl"]
+
+
+# Todo: THIS IS AN ERROR, must pull from the dataflow's dsd, fix that
+def sel_cfg_indicators_cl(cfg):
+    return cfg["indicators_cl"]
