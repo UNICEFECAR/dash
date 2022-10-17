@@ -814,7 +814,6 @@ def main_figure(indicator, show_historical_data, selections, config):
     time_period = [min(selections["years"]), max(selections["years"])]
     ref_areas = selections["countries"]
 
-
     ref_areas_cl_id = sel_cfg_ref_areas_cl(config)
     cl_countries = get_codelist(ref_areas_cl_id["agency"], ref_areas_cl_id["id"])
     cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
@@ -865,7 +864,8 @@ def main_figure(indicator, show_historical_data, selections, config):
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
-#triggered on selection change. Updates the areas
+
+# triggered on selection change. Updates the areas
 @callback(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
@@ -914,13 +914,12 @@ def area_figure(
     else:
         data = get_dataset(series, recent_data=True, countries=ref_areas)
 
-
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
 
     cl_countries_id = sel_cfg_ref_areas_cl(config)
-    cl_countries = get_codelist(cl_countries_id["agency"],cl_countries_id["id"])
+    cl_countries = get_codelist(cl_countries_id["agency"], cl_countries_id["id"])
     df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
     df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
 
@@ -956,7 +955,7 @@ def area_figure(
         ]["label"]
     else:
         cl_indicators_id = sel_cfg_indicators_cl(config)
-        cl_indicators = get_codelist(cl_indicators_id["agency"],cl_indicators_id["id"])
+        cl_indicators = get_codelist(cl_indicators_id["agency"], cl_indicators_id["id"])
         ind = list(data["INDICATOR"].unique())[0]
         indicator_name = next(item for item in cl_indicators if item["id"] == ind)
         indicator_name = indicator_name["name"]
