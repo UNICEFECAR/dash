@@ -14,16 +14,19 @@ from dash import callback, dcc, html
 from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from dash_service.components import fa
 from dash_service.models import Page, Project
-from dash_service.pages import (
-    get_codelist,
-    get_col_unique,
-    get_dataset,
-    get_search_countries,
-    get_selection_tree,
-    years,
-)
+
+# from dash_service.pages import (
+#     get_codelist,
+#     get_col_unique,
+#     get_dataset,
+#     get_search_countries,
+#     get_selection_tree,
+#     years,
+# )
+from dash_service.pages import get_data, years
 from flask import abort
 import json
+
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
 
@@ -154,13 +157,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
-        return render_page_template(
-            {},
-            "Validation Page",
-            {"data": dict(title="Select All", key="0", children=[]), "checked": [0]},
-            [],
-            "",
-        )
+        return render_page_template({}, "Validation Page", [], "")
 
     all_pages = Page.where(project___slug=project_slug).all()
     if all_pages is None or len(all_pages) == 0:
@@ -172,17 +169,13 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
 
     config = page.content
     main_title = config["main_title"]
-    selection_tree = get_selection_tree(config["ref_areas_cl"])
 
-    return render_page_template(
-        config, main_title, selection_tree, all_pages, page.geography
-    )
+    return render_page_template(config, main_title, all_pages, page.geography)
 
 
 def render_page_template(
     page_config: dict,
     main_title: str,
-    selection_tree: dict,
     all_pages: dict,
     geoj: str,
     **kwargs,
@@ -192,7 +185,6 @@ def render_page_template(
     Args:
         page_config (dict): page config from the database
         main_title (_type_): main title of the page
-        selection_tree (_type_): Geographical selection tree the user can select
         all_pages (_dict_): the links to the page to add to the navbar
 
     Returns:
@@ -214,7 +206,7 @@ def render_page_template(
                                 dbc.Col(
                                     [
                                         render_themes(),
-                                        render_years_areas(selection_tree),
+                                        render_years(),
                                     ]
                                 ),
                             ],
@@ -304,7 +296,7 @@ def render_themes() -> html.Div:
     )
 
 
-def render_years_areas(selection_tree) -> html.Div:
+def render_years() -> html.Div:
     return dbc.Row(
         [
             dbc.DropdownMenu(
@@ -336,31 +328,7 @@ def render_years_areas(selection_tree) -> html.Div:
                         body=True,
                     ),
                 ],
-            ),
-            dbc.DropdownMenu(
-                label=f"{translations[lang]['REF_AREA']}: {'len(countries)'}",
-                id="collapse-countries-button",
-                className="m-2",
-                color="info",
-                style={"display": "block"},
-                children=[
-                    dbc.Card(
-                        dash_treeview_antd.TreeView(
-                            id="country_selector",
-                            multiple=True,
-                            checkable=True,
-                            checked=selection_tree["checked"],
-                            expanded=selection_tree["checked"],
-                            data=selection_tree["data"],
-                        ),
-                        style={
-                            "maxHeight": "250px",
-                        },
-                        className="overflow-auto",
-                        body=True,
-                    ),
-                ],
-            ),
+            )
         ],
         id="filter-row",
         justify="center",
@@ -512,14 +480,16 @@ def make_card(
     Returns:
         dbc.Card: The rendered static card
     """
-    popover_head = html.P(f"Sources: {indicator_sources}")
+    # popover_head = html.P(f"Sources: {indicator_sources}")
 
-    if source_link:
-        popover_head = html.A(
-            html.P(f"Sources: {indicator_sources}"),
-            href=source_link,
-            target="_blank",
-        )
+    # if source_link:
+    #     popover_head = html.A(
+    #         html.P(f"Sources: {indicator_sources}"),
+    #         href=source_link,
+    #         target="_blank",
+    #     )
+
+    popover_head = html.P("Sources")
 
     card = dbc.Card(
         [
@@ -555,9 +525,7 @@ def make_card(
             dbc.Popover(
                 [
                     dbc.PopoverHeader(popover_head),
-                    dbc.PopoverBody(
-                        dcc.Markdown(get_card_popover_body(numerator_pairs))
-                    ),
+                    dbc.PopoverBody(indicator_sources),
                 ],
                 id="hover",
                 target=f"{card_id}_info",
@@ -610,21 +578,19 @@ def display_areas(theme, page_config, id):
 
 
 # Triggered when the theme, year slider or country change
+# It only updates the state of the selection: theme and year
 @callback(
     Output("store", "data"),
     Output("collapse-years-button", "label"),
-    Output("collapse-countries-button", "label"),
     [
         Input("theme", "hash"),
         Input("year_slider", "value"),
-        Input("country_selector", "checked"),
     ],
     State("page_config", "data"),
 )
 def apply_filters(
     theme,
     years_slider,
-    country_selector,
     store_page_config,
 ):
 
@@ -633,21 +599,10 @@ def apply_filters(
     )
 
     selected_years = years[years_slider[0] : years_slider[1] + 1]
-    selected_country_codes = [
-        code for code in country_selector if code != "0"
-    ]  # Exclude the Select all code
 
-    selections = dict(
-        theme=theme,
-        years=selected_years,
-        countries=selected_country_codes,
-    )
+    selections = dict(theme=theme, years=selected_years)
 
-    return (
-        selections,
-        f"Years: {selected_years[0]} - {selected_years[-1]}",
-        f"{translations[lang]['REF_AREA']}: {str(len(selected_country_codes))} selected",
-    )
+    return (selections, f"Years: {selected_years[0]} - {selected_years[-1]}")
 
 
 # this function and the show_cards callback update the cards
@@ -657,16 +612,19 @@ def indicator_card(
     suffix,
     config,
 ):
-    df_vals = get_dataset(config)
+    df = get_data(config)
     card_value = ""
-    if len(df_vals) > 0:
-        card_value = df_vals.iloc[0]["OBS_VALUE"]
+    if len(df) > 0:
+        card_value = df.iloc[0]["OBS_VALUE"]
+        # if suffix has not been overridden pull it from the indicator
+        if suffix is None:
+            suffix = df.iloc[0]["INDICATOR"]
+        if "DATA_SOURCE" in df.columns:
+            data_source = df.iloc[0]["DATA_SOURCE"]
 
     source_link = ""
 
-    return make_card(
-        card_id, name, suffix, "Indicator sources", source_link, card_value, []
-    )
+    return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
 
 
 @callback(
@@ -677,19 +635,30 @@ def indicator_card(
     [State("page_config", "data")],
 )
 def show_cards(selections, page_config):
-    cards = [
-        indicator_card(
-            f"card-{num}",
-            card["name"],
-            card["suffix"],
-            card["data"],
-        )
-        for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"])
-    ]
-
+    cards = []
+    for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"]):
+        name = None
+        suffix = None
+        if "name" in card and card["name"] != "":
+            name = card["name"]
+        if "suffix" in card and card["suffix"] != "":
+            suffix = card["suffix"]
+        to_add = indicator_card(f"card-{num}", name, suffix, card["data"])
+        cards.append(to_add)
     return cards
 
+    # cards = [
+    #     indicator_card(
+    #         f"card-{num}",
+    #         card["name"],
+    #         card["suffix"],
+    #         card["data"],
+    #     )
+    #     for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"])
+    # ]
 
+
+"""
 # this callback updates the selection changed? It shouldn't be connected to the data but to the config load?
 @callback(
     Output("subtitle", "children"),
@@ -729,8 +698,8 @@ def show_themes(selections, config):
         for num, (key, value) in enumerate(config["THEMES"].items())
     ]
     return subtitle, buttons
-
-
+"""
+"""
 # Triggered when the selection changes. Updates the main area ddl, the area types?
 # Todo: What is area_type?
 @callback(
@@ -798,8 +767,8 @@ def set_options(selection, config, id):
     )
 
     return name, area_options, area_types, default_option, default_graph
-
-
+"""
+"""
 # Triggered when the selection changes. Updates the main area graph
 @callback(
     Output("main_area", "figure"),
@@ -878,8 +847,8 @@ def main_figure(indicator, show_historical_data, selections, config, geoj):
         return main_figure, html.P(source)
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
-
-
+"""
+"""
 # triggered on selection change. Updates the areas
 @callback(
     Output({"type": "area", "index": MATCH}, "figure"),
@@ -1002,8 +971,8 @@ def area_figure(
         return fig, html.P(source)
     else:
         return fig, html.A(html.P(source), href=source_link, target="_blank")
-
-
+"""
+"""
 # There is a lot of code shared with the area_figure function. Merge it!
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
@@ -1039,8 +1008,8 @@ def down_csv(
         return dcc.send_data_frame(data.to_csv, "no_data.csv", index=False)
 
     return dcc.send_data_frame(data.to_csv, "data.csv", index=False)
-
-
+"""
+"""
 # There is a lot of code shared with the area_figure function. Merge it!
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
@@ -1109,3 +1078,4 @@ def sel_cfg_ref_areas_cl(cfg):
 # Todo: THIS IS AN ERROR, must pull from the dataflow's dsd, fix that
 def sel_cfg_indicators_cl(cfg):
     return cfg["indicators_cl"]
+"""
