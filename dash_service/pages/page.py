@@ -1,3 +1,4 @@
+import pathlib
 import textwrap
 
 import dash
@@ -14,7 +15,6 @@ from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
 from dash_service.components import fa
 from dash_service.models import Page, Project
 from dash_service.pages import (
-    geo_json_countries,
     get_codelist,
     get_col_unique,
     get_dataset,
@@ -23,6 +23,7 @@ from dash_service.pages import (
     years,
 )
 from flask import abort
+import json
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
 
@@ -158,6 +159,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
             "Validation Page",
             {"data": dict(title="Select All", key="0", children=[]), "checked": [0]},
             [],
+            "",
         )
 
     all_pages = Page.where(project___slug=project_slug).all()
@@ -172,11 +174,18 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     main_title = config["main_title"]
     selection_tree = get_selection_tree(config["ref_areas_cl"])
 
-    return render_page_template(config, main_title, selection_tree, all_pages)
+    return render_page_template(
+        config, main_title, selection_tree, all_pages, page.geography
+    )
 
 
 def render_page_template(
-    page_config: dict, main_title: str, selection_tree: dict, all_pages: dict, **kwargs
+    page_config: dict,
+    main_title: str,
+    selection_tree: dict,
+    all_pages: dict,
+    geoj: str,
+    **kwargs,
 ) -> html.Div:
     """Renders the page template based on the page config and other parameters
 
@@ -192,6 +201,7 @@ def render_page_template(
     template = html.Div(
         [
             dcc.Store(id="page_config", data=page_config),
+            dcc.Store(id="geoj", data=geoj),
             dcc.Location(id="theme"),
             make_page_nav(all_pages),
             html.Br(),
@@ -801,9 +811,10 @@ def set_options(selection, config, id):
     ],
     [
         State("page_config", "data"),
+        Input("geoj", "data"),
     ],
 )
-def main_figure(indicator, show_historical_data, selections, config):
+def main_figure(indicator, show_historical_data, selections, config, geoj):
     latest_data = not show_historical_data
 
     options = config["THEMES"][selections["theme"]]["MAIN"]["options"]
@@ -843,10 +854,14 @@ def main_figure(indicator, show_historical_data, selections, config):
         "TIME_PERIOD": "Time period",
     }
 
+    geojson_path = f"{pathlib.Path(__file__).parent.parent.absolute()}/assets/{geoj}"
+    with open(geojson_path) as shapes_file:
+        geo_json_data = json.load(shapes_file)
+
     options["labels"] = DEFAULT_LABELS.copy()
     options["labels"]["OBS_VALUE"] = "Value"
     options["labels"]["text"] = "OBS_VALUE"
-    options["geojson"] = geo_json_countries
+    options["geojson"] = geo_json_data
 
     # TODO this code seems to be duplicated in area_figure, merge the code
     source = ""

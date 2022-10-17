@@ -20,12 +20,6 @@ def get_endpoint(endpoint_id="UNICEF"):
 years = list(range(2007, 2022))
 
 
-geo_json_file = (
-    pathlib.Path(__file__).parent.parent.absolute() / "assets/countries.geo.json"
-)
-with open(geo_json_file) as shapes_file:
-    geo_json_countries = json.load(shapes_file)
-
 codelists = {}
 
 
@@ -135,7 +129,7 @@ def get_dataset(cfg_data, years=None, countries=[], recent_data=False, labels="i
         dataquery=dq,
         lastnobservations=lastnobservations,
         time_period=years,
-        labels=labels
+        labels=labels,
     )
     return df
 
