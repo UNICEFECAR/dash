@@ -103,9 +103,9 @@ class DataAccess_SDMX(data_access.Data_access):
         self, agency: str, id: str, ver: str, print_stats=False
     ) -> dict:
         start_time = time.time()
-        unicef = psdmx.Request(agency, **_CACHE_CONFIG)
+        unicef = psdmx.Request(self.data_endpoint_id, **_CACHE_CONFIG)
         unicef.default_locale = "en"
-        sdmx_msg = unicef.dataflow(id)
+        sdmx_msg = unicef.dataflow(id, provider=agency)
         if print_stats:
             print("get_dsd: %s seconds" % (time.time() - start_time))
 

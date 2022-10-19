@@ -11,7 +11,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
-from dash.dependencies import MATCH, ClientsideFunction, Input, Output, State
+from dash.dependencies import MATCH, ALL, ClientsideFunction, Input, Output, State
 from dash_service.components import fa
 from dash_service.models import Page, Project
 
@@ -23,7 +23,7 @@ from dash_service.models import Page, Project
 #     get_selection_tree,
 #     years,
 # )
-from dash_service.pages import get_data, years
+from dash_service.pages import get_structure, get_data, years
 from flask import abort
 import json
 
@@ -194,6 +194,7 @@ def render_page_template(
         [
             dcc.Store(id="page_config", data=page_config),
             dcc.Store(id="geoj", data=geoj),
+            dcc.Store(id="data_structures", data={}, storage_type="session"),
             dcc.Location(id="theme"),
             make_page_nav(all_pages),
             html.Br(),
@@ -606,12 +607,8 @@ def apply_filters(
 
 
 # this function and the show_cards callback update the cards
-def indicator_card(
-    card_id,
-    name,
-    suffix,
-    config,
-):
+def indicator_card(card_id, name, suffix, config):
+
     df = get_data(config)
     card_value = ""
     if len(df) > 0:
@@ -627,11 +624,85 @@ def indicator_card(
     return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
 
 
+def get_structure_id(data_node):
+    return f"{data_node['agency']}|{data_node['id']}|{data_node['version']}"
+
+
+def add_structure(data_node, structs):
+    struct_id = get_structure_id(data_node)
+    if not struct_id in structs:
+        print("GETTING " + struct_id)
+        structs[struct_id] = get_structure(data_node)
+    else:
+        print("SKIPPED " + struct_id)
+
+
+def get_codelist_from_struct(struct_id, codelist_id, structs):
+    cl = next(
+        dim for dim in structs[struct_id]["dsd"]["dims"] if dim["id"] == codelist_id
+    )
+
+    return cl
+
+
+def get_code_from_codelist(codelist, code_id):
+    return next(c for c in codelist if c["id"] == code_id)
+
+
+def get_code_from_structure(struct_id, structs, codelist_id, code_id):
+    cl = get_codelist_from_struct(struct_id, codelist_id, structs)
+    return get_code_from_codelist(cl["codes"], code_id)
+
+
+def get_dim_position(structs, struct_id, dim_id):
+    for idx, d in enumerate(structs[struct_id]["dsd"]["dims"]):
+        if d["id"] == dim_id:
+            return idx
+    return -1
+
+
+@callback(
+    Output("data_structures", "data"),
+    [Input("store", "data")],
+    [State("page_config", "data")],
+)
+def download_structures(selections, page_config):
+    data_structures = {}
+
+    # struct_id = f"{ap['agency']}|{ap['id']}|{ap['version']}"
+    #         if not struct_id in data_structures:
+    #             print("First get ", struct_id)
+    #             data_structures[struct_id] = get_structure(ap)
+    #         else:
+    #             print("No get " + struct_id)
+
+    # cards
+    for card in page_config["THEMES"][selections["theme"]]["CARDS"]:
+        add_structure(card["data"], data_structures)
+
+    # Main
+    if (
+        "MAIN" in page_config["THEMES"][selections["theme"]]
+        and "data" in page_config["THEMES"][selections["theme"]]["MAIN"]
+    ):
+        for data_node in page_config["THEMES"][selections["theme"]]["MAIN"]["data"]:
+            add_structure(data_node, data_structures)
+
+    # areas
+    for area in AREA_KEYS:
+        if (
+            area in page_config["THEMES"][selections["theme"]]
+            and "data" in page_config["THEMES"][selections["theme"]][area]
+        ):
+            for data_node in page_config["THEMES"][selections["theme"]][area]["data"]:
+                add_structure(data_node, data_structures)
+
+    return data_structures
+
+
 @callback(
     Output("cards_row", "children"),
-    [
-        Input("store", "data"),
-    ],
+    [Input("store", "data")],
     [State("page_config", "data")],
 )
 def show_cards(selections, page_config):
@@ -645,20 +716,10 @@ def show_cards(selections, page_config):
             suffix = card["suffix"]
         to_add = indicator_card(f"card-{num}", name, suffix, card["data"])
         cards.append(to_add)
+
     return cards
 
-    # cards = [
-    #     indicator_card(
-    #         f"card-{num}",
-    #         card["name"],
-    #         card["suffix"],
-    #         card["data"],
-    #     )
-    #     for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"])
-    # ]
 
-
-"""
 # this callback updates the selection changed? It shouldn't be connected to the data but to the config load?
 @callback(
     Output("subtitle", "children"),
@@ -698,10 +759,12 @@ def show_themes(selections, config):
         for num, (key, value) in enumerate(config["THEMES"].items())
     ]
     return subtitle, buttons
-"""
-"""
+
+
 # Triggered when the selection changes. Updates the main area ddl, the area types?
 # Todo: What is area_type?
+
+
 @callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
     Output({"type": "area_options", "index": MATCH}, "options"),
@@ -712,33 +775,39 @@ def show_themes(selections, config):
     [
         State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
+        State("data_structures", "data"),
     ],
 )
-def set_options(selection, config, id):
+def set_options(selection, config, id, data_structures):
 
     area = id["index"]
-
     area_options = area_types = []
 
-    indicators_cl_id = sel_cfg_indicators_cl(config)
-    cl_indicators = get_codelist(indicators_cl_id["agency"], indicators_cl_id["id"])
     default_option = ""
 
+    # Find the data nodes (can be more than one) in the current theme and area(area id is aparam)
     if area in config["THEMES"][selection["theme"]]:
         api_params = config["THEMES"][selection["theme"]][area].get("data")
 
         area_options = []
 
+        # Loop all the data calls for the area (it can contain multiple)
         for idx, ap in enumerate(api_params):
+
+            # Is it there a label? Then override the title contained in the codelist
             if "label" in ap:
                 lbl = ap["label"]
             else:
-                indic = next(
-                    item
-                    for item in cl_indicators
-                    if item["id"] == ap["dq"]["INDICATOR"]
+                struct_id = get_structure_id(ap)
+                indic_position = get_dim_position(
+                    data_structures, struct_id, "INDICATOR"
                 )
-                lbl = indic["name"]
+                code_id = ap["dq"].split(".")[indic_position]
+
+                lbl = get_code_from_structure(
+                    struct_id, data_structures, "INDICATOR", code_id
+                )["name"]
+
             key = selection["theme"] + "|" + area + "|" + str(idx)
             if idx == 0:
                 default_option = key
@@ -767,7 +836,8 @@ def set_options(selection, config, id):
     )
 
     return name, area_options, area_types, default_option, default_graph
-"""
+
+
 """
 # Triggered when the selection changes. Updates the main area graph
 @callback(

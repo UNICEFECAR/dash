@@ -2,8 +2,8 @@ from ..sdmx import data_access, data_access_sdmx
 from datetime import datetime
 import pandas as pd
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+pd.set_option("display.max_columns", None)
+pd.set_option("display.max_rows", None)
 
 years = list(range(2007, datetime.now().year))
 
@@ -17,6 +17,16 @@ def page_not_found(pathname):
 
 
 # def get_data(cfg_data, years=None, countries=[], last_n_obs=False, labels="id"):
+def get_structure(cfg_data):
+    api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
+
+    ret = api_access.get_dataflow_info(
+        cfg_data["agency"], cfg_data["id"], cfg_data["version"]
+    )
+
+    return ret
+
+
 def get_data(cfg_data, years=None):
     api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
 
@@ -36,7 +46,7 @@ def get_data(cfg_data, years=None):
         lastnobs=lastnobs,
         startperiod=startperiod,
         endperiod=endperiod,
-        labels="name"
+        labels="name",
     )
 
     return df
