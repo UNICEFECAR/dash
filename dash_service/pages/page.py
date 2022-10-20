@@ -650,12 +650,14 @@ def download_structures(selections, page_config):
 
 
 # this function and the show_cards callback update the cards
+# TODO: INDICATOR's label must be pulled!
 def indicator_card(card_id, name, suffix, config):
     df = get_data(config, lastnobservations=1, labels="id")
     card_value = ""
     if len(df) > 0:
         card_value = df.iloc[0]["OBS_VALUE"]
         # if suffix has not been overridden pull it from the indicator
+        print("This must be pulled from the structure")
         if suffix is None:
             suffix = df.iloc[0]["INDICATOR"]
         if "DATA_SOURCE" in df.columns:
@@ -849,59 +851,29 @@ def main_figure(
 
     source_link = ""
     source = ""
-    if "DATA_SOURCE" in data.columns:
-        source = ", ".join(list(data["DATA_SOURCE"].unique()))
+    if "_L_DATA_SOURCE" in data.columns:
+        source = ", ".join(list(data["_L_DATA_SOURCE"].unique()))
 
     print("EDIT THE OPTIONS IN THE CFG")
     options["hover_data"]["_L_REF_AREA"] = True
     del options["hover_data"]["name"]
     del options["labels"]
 
+    # Add the labels for all the dimensions
     options["labels"] = {"OBS_VALUE": "Value"}
-
-    # print(data_structs)
-
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
         dim_lbl = get_col_name(struct_id, dim_id, data_structs)
         lbl_dim_id = dim_id
+        # Is the column coded? Than get the label column (just ref_area)
         if "_L_" + dim_id in data.columns:
             lbl_dim_id = "_L_" + dim_id
             options["labels"][lbl_dim_id] = dim_lbl
 
-    # options["labels"] = {
-    #     "OBS_VALUE": "Value",
-    #     "REF_AREA": get_col_name(struct_id, "REF_AREA",data_structs),
-    #     "TIME_PERIOD": get_col_name("TIME_PERIOD"),
-    # }
-
-    print(options)
-
-    # options["labels"] = DEFAULT_LABELS.copy()
-    # options["labels"]["OBS_VALUE"] = "Value"
-    # options["labels"]["text"] = "OBS_VALUE"
     options["geojson"] = geo_json_data
-
-    """
-    {'locations': 'REF_AREA'
-     'featureidkey': 'id', 
-     'color': 'OBS_VALUE', 'color_continuous_scale': 'gnbu', 'mapbox_style': 'carto-positron', 'zoom': 3, 'center': {'lat': -11.7462, 'lon': -53.222}, 'opacity': 0.5, 'labels': {'OBS_VALUE': 'Value', 'REF_AREA': 'ISO3 Code', 'TIME_PERIOD': 'Year', 'name': 'Country'}, 'hover_data': {'OBS_VALUE': True, 'REF_AREA': False, 'name': True, 'TIME_PERIOD': True}, 'animation_frame': 'TIME_PERIOD', 'height': 750}
-    """
 
     data["OBS_VALUE"] = pd.to_numeric(data["OBS_VALUE"])
 
-    # main_figure = px.choropleth_mapbox(data, **options)
-    # o = {
-    #     "geojson": geo_json_data,
-    #     "locations": "REF_AREA",
-    #     "featureidkey": "id",
-    #     "color": "OBS_VALUE",
-    #     "mapbox_style": "carto-positron",
-    #     "color_continuous_scale": "gnbu",
-    #     "zoom": 3,
-    #     "center": {"lat": -11.7462, "lon": -53.222},
-    #     "opacity": 0.5,
-    # }
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
@@ -910,61 +882,7 @@ def main_figure(
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
 
-    """
-    ref_areas_cl_id = sel_cfg_ref_areas_cl(config)
-    cl_countries = get_codelist(ref_areas_cl_id["agency"], ref_areas_cl_id["id"])
-    cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
 
-    if latest_data:
-        data = get_dataset(series, recent_data=True, countries=ref_areas)
-    else:
-        data = get_dataset(series, years=time_period, countries=ref_areas)
-
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, ""
-
-    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
-    df_units = pd.DataFrame(columns=["name", "id"], data=cl_units)
-
-    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
-
-    DEFAULT_LABELS = {
-        "REF_AREA": "Geographic area",
-        "INDICATOR": "Indicator",
-        "AGE": "Current age",
-        "EDUCATION_LEVEL": "Education level",
-        "TIME_PERIOD": "Time period",
-    }
-
-    geojson_path = f"{pathlib.Path(__file__).parent.parent.absolute()}/assets/{geoj}"
-    with open(geojson_path) as shapes_file:
-        geo_json_data = json.load(shapes_file)
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = "Value"
-    options["labels"]["text"] = "OBS_VALUE"
-    options["geojson"] = geo_json_data
-
-    # TODO this code seems to be duplicated in area_figure, merge the code
-    source = ""
-    sources = get_col_unique(data, "DATA_SOURCE")
-    if len(sources) > 0:
-        source = ", ".join(sources)
-
-    main_figure = px.choropleth_mapbox(data, **options)
-    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    source_link = ""
-
-    if not source_link:  # is it none or empty?
-        return main_figure, html.P(source)
-    else:
-        return main_figure, html.A(html.P(source), href=source_link, target="_blank")
-    """
-
-
-"""
 # triggered on selection change. Updates the areas
 @callback(
     Output({"type": "area", "index": MATCH}, "figure"),
@@ -979,6 +897,7 @@ def main_figure(
     [
         State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
+        State("data_structures", "data"),
     ],
 )
 def area_figure(
@@ -989,6 +908,7 @@ def area_figure(
     exclude_outliers,
     config,
     id,
+    data_structs,
 ):
     # only run if indicator not empty
     if not indicator:
@@ -998,7 +918,8 @@ def area_figure(
     series_id = indicator.split("|")
     series = config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
     time_period = [min(selections["years"]), max(selections["years"])]
-    ref_areas = selections["countries"]
+    # ref_areas = selections["countries"]
+    struct_id = get_structure_id(series)
 
     default_graph = config["THEMES"][selections["theme"]][area].get(
         "default_graph", "line"
@@ -1007,44 +928,46 @@ def area_figure(
     fig_config = config["THEMES"][selections["theme"]][area]["graphs"][fig_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
-    dimension = False if fig_type == "line" or compare == "TOTAL" else compare
+    # dimension = False if fig_type == "line" or compare == "TOTAL" else compare
 
     if fig_type == "line":
-        data = get_dataset(series, years=time_period, countries=ref_areas)
+        data = get_data(series, years=time_period)
     else:
-        data = get_dataset(series, recent_data=True, countries=ref_areas)
+        data = data = get_data(series, years=time_period, lastnobservations=1)
+
+    data["OBS_VALUE"] = pd.to_numeric(data["OBS_VALUE"], errors="coerce")
+    data["TIME_PERIOD"] = pd.to_numeric(data["TIME_PERIOD"], errors="coerce")
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, ""
 
-    cl_countries_id = sel_cfg_ref_areas_cl(config)
-    cl_countries = get_codelist(cl_countries_id["agency"], cl_countries_id["id"])
-    df_countries = pd.DataFrame(columns=["name", "id"], data=cl_countries)
-    df_countries = df_countries.rename(columns={"name": "REF_AREA_l"})
+    data = merge_with_codelist(data, data_structs, struct_id, "REF_AREA")
+    data = merge_with_codelist(data, data_structs, struct_id, "DATA_SOURCE")
 
-    data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
-
-    # TODO this code seems to be duplicated in main_figure, merge the code
     source = ""
-    sources = get_col_unique(data, "DATA_SOURCE")
-    if len(sources) > 0:
-        source = ", ".join(sources)
+    if "_L_DATA_SOURCE" in data.columns:
+        source = ", ".join(list(data["_L_DATA_SOURCE"].unique()))
+
+    print("EDIT THE OPTIONS IN THE CFG OF AREAS")
+
+    if fig_type == "bar":
+        options["x"] = "_L_REF_AREA"
+    elif fig_type == "line":
+        options["color"] = "_L_REF_AREA"
+
+    # TODO: Same code in MAIN: fix that
+    options["labels"] = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
+    for dim in data_structs[struct_id]["dsd"]["dims"]:
+        dim_id = dim["id"]
+        dim_lbl = get_col_name(struct_id, dim_id, data_structs)
+        lbl_dim_id = dim_id
+        # Is the column coded? Than get the label column (just ref_area)
+        if "_L_" + dim_id in data.columns:
+            lbl_dim_id = "_L_" + dim_id
+            options["labels"][lbl_dim_id] = dim_lbl
 
     source_link = ""
-
-    DEFAULT_LABELS = {
-        "REF_AREA": "Geographic area",
-        "INDICATOR": "Indicator",
-        "AGE": "Current age",
-        "EDUCATION_LEVEL": "Education level",
-        "TIME_PERIOD": "Time period",
-        "REF_AREA_l": "Geographic area",
-    }
-
-    options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"]["OBS_VALUE"] = "Value"
-    options["labels"]["text"] = "OBS_VALUE"
 
     if (
         "label"
@@ -1054,13 +977,15 @@ def area_figure(
             int(series_id[2])
         ]["label"]
     else:
-        cl_indicators_id = sel_cfg_indicators_cl(config)
-        cl_indicators = get_codelist(cl_indicators_id["agency"], cl_indicators_id["id"])
-        ind = list(data["INDICATOR"].unique())[0]
-        indicator_name = next(item for item in cl_indicators if item["id"] == ind)
+
+        indic_position = get_dim_position(data_structs, struct_id, "INDICATOR")
+        code_id = series["dq"].split(".")[indic_position]
+
+        indicator_name = get_code_from_structure(
+            struct_id, data_structs, "INDICATOR", code_id
+        )
         indicator_name = indicator_name["name"]
 
-    # cl_countries = get_codelist("BRAZIL_CO", "CL_BRAZIL_REF_AREAS")
     # set the chart title, wrap the text when the indicator name is too long
     chart_title = textwrap.wrap(
         indicator_name,
@@ -1068,13 +993,17 @@ def area_figure(
     )
     chart_title = "<br>".join(chart_title)
 
+    xaxis = {"categoryorder": "total descending"}
+    if fig_type == "line":
+        xaxis["tickformat"] = "d"
+        # xaxis["dtick"]: 0
     # set the layout to center the chart title and change its font size and color
     layout = go.Layout(
         title=chart_title,
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
-        xaxis={"categoryorder": "total descending"},
+        xaxis=xaxis,
     )
 
     fig = getattr(px, fig_type)(data, **options)
@@ -1087,8 +1016,8 @@ def area_figure(
         return fig, html.P(source)
     else:
         return fig, html.A(html.P(source), href=source_link, target="_blank")
-"""
-"""
+
+
 # There is a lot of code shared with the area_figure function. Merge it!
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
@@ -1124,6 +1053,8 @@ def down_csv(
         return dcc.send_data_frame(data.to_csv, "no_data.csv", index=False)
 
     return dcc.send_data_frame(data.to_csv, "data.csv", index=False)
+
+
 """
 """
 # There is a lot of code shared with the area_figure function. Merge it!
@@ -1168,7 +1099,6 @@ def download_data(selections, indicator, selected_type, config, id):
     series_id = indicator.split("|")
     series = config["THEMES"][selections["theme"]][area]["data"][int(series_id[2])]
     time_period = [min(selections["years"]), max(selections["years"])]
-    ref_areas = selections["countries"]
 
     default_graph = config["THEMES"][selections["theme"]][area].get(
         "default_graph", "line"
@@ -1176,22 +1106,11 @@ def download_data(selections, indicator, selected_type, config, id):
 
     fig_type = selected_type if selected_type else default_graph
 
-    if fig_type == "line":
-        data = get_dataset(
-            series, years=time_period, countries=ref_areas, labels="both"
-        )
-    else:
-        data = get_dataset(series, recent_data=True, countries=ref_areas, labels="both")
+    lastnobs = None
+    if fig_type == "bar":
+        lastnobs = True
+    data = get_data(
+        series, years=time_period, labels="both", lastnobservations=lastnobs
+    )
 
     return data
-
-
-# A few selectors
-def sel_cfg_ref_areas_cl(cfg):
-    return cfg["ref_areas_cl"]
-
-
-# Todo: THIS IS AN ERROR, must pull from the dataflow's dsd, fix that
-def sel_cfg_indicators_cl(cfg):
-    return cfg["indicators_cl"]
-"""
