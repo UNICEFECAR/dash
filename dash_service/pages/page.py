@@ -1,4 +1,3 @@
-import pathlib
 import textwrap
 
 import dash
@@ -23,9 +22,21 @@ from dash_service.models import Page, Project
 #     get_selection_tree,
 #     years,
 # )
-from dash_service.pages import get_structure, get_data, years
+from dash_service.pages import get_structure, get_data, years, get_geojson
+from dash_service.pages import (
+    add_structure,
+    get_structure_id,
+    get_dim_position,
+    get_code_from_structure,
+    get_col_name,
+    merge_with_codelist,
+)
+
 from flask import abort
-import json
+
+pd.set_option("display.max_columns", None)
+pd.set_option("display.max_rows", None)
+pd.set_option("display.width", 0)
 
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
@@ -606,61 +617,6 @@ def apply_filters(
     return (selections, f"Years: {selected_years[0]} - {selected_years[-1]}")
 
 
-# this function and the show_cards callback update the cards
-def indicator_card(card_id, name, suffix, config):
-
-    df = get_data(config)
-    card_value = ""
-    if len(df) > 0:
-        card_value = df.iloc[0]["OBS_VALUE"]
-        # if suffix has not been overridden pull it from the indicator
-        if suffix is None:
-            suffix = df.iloc[0]["INDICATOR"]
-        if "DATA_SOURCE" in df.columns:
-            data_source = df.iloc[0]["DATA_SOURCE"]
-
-    source_link = ""
-
-    return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
-
-
-def get_structure_id(data_node):
-    return f"{data_node['agency']}|{data_node['id']}|{data_node['version']}"
-
-
-def add_structure(data_node, structs):
-    struct_id = get_structure_id(data_node)
-    if not struct_id in structs:
-        print("GETTING " + struct_id)
-        structs[struct_id] = get_structure(data_node)
-    else:
-        print("SKIPPED " + struct_id)
-
-
-def get_codelist_from_struct(struct_id, codelist_id, structs):
-    cl = next(
-        dim for dim in structs[struct_id]["dsd"]["dims"] if dim["id"] == codelist_id
-    )
-
-    return cl
-
-
-def get_code_from_codelist(codelist, code_id):
-    return next(c for c in codelist if c["id"] == code_id)
-
-
-def get_code_from_structure(struct_id, structs, codelist_id, code_id):
-    cl = get_codelist_from_struct(struct_id, codelist_id, structs)
-    return get_code_from_codelist(cl["codes"], code_id)
-
-
-def get_dim_position(structs, struct_id, dim_id):
-    for idx, d in enumerate(structs[struct_id]["dsd"]["dims"]):
-        if d["id"] == dim_id:
-            return idx
-    return -1
-
-
 @callback(
     Output("data_structures", "data"),
     [Input("store", "data")],
@@ -668,13 +624,6 @@ def get_dim_position(structs, struct_id, dim_id):
 )
 def download_structures(selections, page_config):
     data_structures = {}
-
-    # struct_id = f"{ap['agency']}|{ap['id']}|{ap['version']}"
-    #         if not struct_id in data_structures:
-    #             print("First get ", struct_id)
-    #             data_structures[struct_id] = get_structure(ap)
-    #         else:
-    #             print("No get " + struct_id)
 
     # cards
     for card in page_config["THEMES"][selections["theme"]]["CARDS"]:
@@ -698,6 +647,23 @@ def download_structures(selections, page_config):
                 add_structure(data_node, data_structures)
 
     return data_structures
+
+
+# this function and the show_cards callback update the cards
+def indicator_card(card_id, name, suffix, config):
+    df = get_data(config, lastnobservations=1, labels="id")
+    card_value = ""
+    if len(df) > 0:
+        card_value = df.iloc[0]["OBS_VALUE"]
+        # if suffix has not been overridden pull it from the indicator
+        if suffix is None:
+            suffix = df.iloc[0]["INDICATOR"]
+        if "DATA_SOURCE" in df.columns:
+            data_source = df.iloc[0]["DATA_SOURCE"]
+
+    source_link = ""
+
+    return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
 
 
 @callback(
@@ -838,7 +804,6 @@ def set_options(selection, config, id, data_structures):
     return name, area_options, area_types, default_option, default_graph
 
 
-"""
 # Triggered when the selection changes. Updates the main area graph
 @callback(
     Output("main_area", "figure"),
@@ -851,19 +816,101 @@ def set_options(selection, config, id, data_structures):
     [
         State("page_config", "data"),
         Input("geoj", "data"),
+        State("data_structures", "data"),
     ],
 )
-def main_figure(indicator, show_historical_data, selections, config, geoj):
+def main_figure(
+    indicator, show_historical_data, selections, config, geoj, data_structs
+):
     latest_data = not show_historical_data
 
     options = config["THEMES"][selections["theme"]]["MAIN"]["options"]
 
     series_id = indicator.split("|")
-    series = config["THEMES"][series_id[0]][series_id[1]]["data"][int(series_id[2])]
+    cfg_data = config["THEMES"][series_id[0]][series_id[1]]["data"][int(series_id[2])]
+    struct_id = get_structure_id(cfg_data)
     # series = config["THEMES"][selections["theme"]]["MAIN"]["data"]
     time_period = [min(selections["years"]), max(selections["years"])]
-    ref_areas = selections["countries"]
 
+    lastnobs = None
+    if latest_data:
+        lastnobs = 1
+    data = get_data(cfg_data, years=time_period, lastnobservations=lastnobs)
+
+    if data.empty:
+        return EMPTY_CHART, ""
+
+    geo_json_data = get_geojson(geoj)
+
+    # we need the ref_area and data source codelists (DATA_SOURCE can be coded)
+    # get and merge the ref area labels
+    data = merge_with_codelist(data, data_structs, struct_id, "REF_AREA")
+    data = merge_with_codelist(data, data_structs, struct_id, "DATA_SOURCE")
+
+    source_link = ""
+    source = ""
+    if "DATA_SOURCE" in data.columns:
+        source = ", ".join(list(data["DATA_SOURCE"].unique()))
+
+    print("EDIT THE OPTIONS IN THE CFG")
+    options["hover_data"]["_L_REF_AREA"] = True
+    del options["hover_data"]["name"]
+    del options["labels"]
+
+    options["labels"] = {"OBS_VALUE": "Value"}
+
+    # print(data_structs)
+
+    for dim in data_structs[struct_id]["dsd"]["dims"]:
+        dim_id = dim["id"]
+        dim_lbl = get_col_name(struct_id, dim_id, data_structs)
+        lbl_dim_id = dim_id
+        if "_L_" + dim_id in data.columns:
+            lbl_dim_id = "_L_" + dim_id
+            options["labels"][lbl_dim_id] = dim_lbl
+
+    # options["labels"] = {
+    #     "OBS_VALUE": "Value",
+    #     "REF_AREA": get_col_name(struct_id, "REF_AREA",data_structs),
+    #     "TIME_PERIOD": get_col_name("TIME_PERIOD"),
+    # }
+
+    print(options)
+
+    # options["labels"] = DEFAULT_LABELS.copy()
+    # options["labels"]["OBS_VALUE"] = "Value"
+    # options["labels"]["text"] = "OBS_VALUE"
+    options["geojson"] = geo_json_data
+
+    """
+    {'locations': 'REF_AREA'
+     'featureidkey': 'id', 
+     'color': 'OBS_VALUE', 'color_continuous_scale': 'gnbu', 'mapbox_style': 'carto-positron', 'zoom': 3, 'center': {'lat': -11.7462, 'lon': -53.222}, 'opacity': 0.5, 'labels': {'OBS_VALUE': 'Value', 'REF_AREA': 'ISO3 Code', 'TIME_PERIOD': 'Year', 'name': 'Country'}, 'hover_data': {'OBS_VALUE': True, 'REF_AREA': False, 'name': True, 'TIME_PERIOD': True}, 'animation_frame': 'TIME_PERIOD', 'height': 750}
+    """
+
+    data["OBS_VALUE"] = pd.to_numeric(data["OBS_VALUE"])
+
+    # main_figure = px.choropleth_mapbox(data, **options)
+    # o = {
+    #     "geojson": geo_json_data,
+    #     "locations": "REF_AREA",
+    #     "featureidkey": "id",
+    #     "color": "OBS_VALUE",
+    #     "mapbox_style": "carto-positron",
+    #     "color_continuous_scale": "gnbu",
+    #     "zoom": 3,
+    #     "center": {"lat": -11.7462, "lon": -53.222},
+    #     "opacity": 0.5,
+    # }
+    main_figure = px.choropleth_mapbox(data, **options)
+    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
+
+    if not source_link:  # is it none or empty?
+        return main_figure, html.P(source)
+    else:
+        return main_figure, html.A(html.P(source), href=source_link, target="_blank")
+
+    """
     ref_areas_cl_id = sel_cfg_ref_areas_cl(config)
     cl_countries = get_codelist(ref_areas_cl_id["agency"], ref_areas_cl_id["id"])
     cl_units = get_codelist("UNICEF", "CL_UNIT_MEASURE")
@@ -881,9 +928,6 @@ def main_figure(indicator, show_historical_data, selections, config, geoj):
     df_units = pd.DataFrame(columns=["name", "id"], data=cl_units)
 
     data = data.merge(df_countries, how="left", left_on="REF_AREA", right_on="id")
-    # data = data.drop(columns=["id"])
-    # data = data.rename(columns={"name":"REF_AREA_NAME"})
-    # data = data.merge(cl_units, how="left", left_on="UNIT_MEASURE", right_on="id")
 
     DEFAULT_LABELS = {
         "REF_AREA": "Geographic area",
@@ -917,7 +961,9 @@ def main_figure(indicator, show_historical_data, selections, config, geoj):
         return main_figure, html.P(source)
     else:
         return main_figure, html.A(html.P(source), href=source_link, target="_blank")
-"""
+    """
+
+
 """
 # triggered on selection change. Updates the areas
 @callback(

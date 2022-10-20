@@ -1,9 +1,8 @@
+import json
+import pathlib
 from ..sdmx import data_access, data_access_sdmx
 from datetime import datetime
 import pandas as pd
-
-pd.set_option("display.max_columns", None)
-pd.set_option("display.max_rows", None)
 
 years = list(range(2007, datetime.now().year))
 
@@ -27,12 +26,9 @@ def get_structure(cfg_data):
     return ret
 
 
-def get_data(cfg_data, years=None):
+def get_data(cfg_data, years=None, lastnobservations=None, labels="id"):
     api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
 
-    lastnobs = None
-    if "lastnobservations" in cfg_data:
-        lastnobs = cfg_data["lastnobservations"]
     startperiod = None
     endperiod = None
     if years is not None:
@@ -43,12 +39,105 @@ def get_data(cfg_data, years=None):
         cfg_data["id"],
         cfg_data["version"],
         dq=cfg_data["dq"],
-        lastnobs=lastnobs,
+        lastnobs=lastnobservations,
         startperiod=startperiod,
         endperiod=endperiod,
-        labels="name",
+        labels=labels,
     )
 
+    return df
+
+
+# Get geoJson
+def get_geojson(geoj_filename: str):
+    geojson_path = (
+        f"{pathlib.Path(__file__).parent.parent.absolute()}/assets/{geoj_filename}"
+    )
+    with open(geojson_path) as shapes_file:
+        geo_json_data = json.load(shapes_file)
+    return geo_json_data
+
+
+"""
+SDMX structure and data utils
+"""
+
+# composes the structure id as agency|id|version
+def get_structure_id(data_node):
+    return f"{data_node['agency']}|{data_node['id']}|{data_node['version']}"
+
+
+# Downloads and adds the structure to the struct object if it doesn't exist, skips otherwise
+def add_structure(data_node, structs):
+    struct_id = get_structure_id(data_node)
+    if not struct_id in structs:
+        print("GETTING " + struct_id)
+        structs[struct_id] = get_structure(data_node)
+    else:
+        print(">>SKIPPED " + struct_id)
+
+
+# returns the codelist attached to a dataflow's column (dimension or attribute)
+def get_dim_or_attrib_from_struct(struct_id, dim_or_attrib_id, structs):
+
+    cl = next(
+        (
+            dim
+            for dim in structs[struct_id]["dsd"]["dims"]
+            if dim["id"] == dim_or_attrib_id
+        ),
+        None,
+    )
+    if cl is None:
+        cl = next(
+            (
+                dim
+                for dim in structs[struct_id]["dsd"]["attribs"]
+                if dim["id"] == dim_or_attrib_id
+            ),
+            None,
+        )
+
+    return cl
+
+
+def get_col_name(struct_id, dim_or_attrib_id, structs):
+    item = get_dim_or_attrib_from_struct(struct_id, dim_or_attrib_id, structs)
+    if item is None:
+        return dim_or_attrib_id
+    return item["name"]
+
+# returns a single code from a codelist
+def get_code_from_codelist(codelist, code_id):
+    return next(c for c in codelist if c["id"] == code_id)
+
+
+# returns a single code from a structure
+def get_code_from_structure(struct_id, structs, dim_or_attrib_id, code_id):
+    cl = get_dim_or_attrib_from_struct(struct_id, dim_or_attrib_id, structs)
+    return get_code_from_codelist(cl["codes"], code_id)
+
+
+# returns the position of a dimension, used to compose/decompose the data query
+def get_dim_position(structs, struct_id, dim_id):
+    for idx, d in enumerate(structs[struct_id]["dsd"]["dims"]):
+        if d["id"] == dim_id:
+            return idx
+    return -1
+
+
+# merge a codes-only dataflow with the codelist
+def merge_with_codelist(df, structs, struct_id, column_id):
+    if not column_id in df.columns:
+        return
+    cl = get_dim_or_attrib_from_struct(struct_id, column_id, structs)
+    if "codes" in cl:  # it is coded
+        df_cl = pd.DataFrame(cl["codes"])
+        df = df.merge(df_cl, how="left", left_on=column_id, right_on="id")
+        df = df.drop(columns=["id", "parent"])
+        df = df.rename(columns={"name": "_L_" + column_id})
+    else:
+        df["_L_" + column_id] = df[column_id]
     return df
 
 

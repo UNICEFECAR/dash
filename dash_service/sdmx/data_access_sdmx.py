@@ -165,6 +165,11 @@ class DataAccess_SDMX(data_access.Data_access):
                     dim_val = struct["dimensions"]["series"][idx]["values"][int(k)][
                         "name"
                     ]
+                elif labels == "id":
+                    dim_val = struct["dimensions"]["series"][idx]["values"][int(k)][
+                        "id"
+                    ]
+
                 series_vals[struct["dimensions"]["series"][idx]["id"]] = dim_val
             # loop through the observation nodes getting the key (e.g. 1,2...) and the val, the val is another set of keys
             for ser_obs_k, ser_obs_v in ser_v["observations"].items():
