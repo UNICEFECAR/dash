@@ -14,20 +14,11 @@ from dash.dependencies import MATCH, ALL, ClientsideFunction, Input, Output, Sta
 from dash_service.components import fa
 from dash_service.models import Page, Project
 
-# from dash_service.pages import (
-#     get_codelist,
-#     get_col_unique,
-#     get_dataset,
-#     get_search_countries,
-#     get_selection_tree,
-#     years,
-# )
-from dash_service.pages import get_structure, get_data, years, get_geojson
+from dash_service.pages import get_data, years, get_geojson
 from dash_service.pages import (
     add_structure,
     get_structure_id,
-    get_dim_position,
-    get_code_from_structure,
+    get_code_from_structure_and_dq,
     get_col_name,
     merge_with_codelist,
 )
@@ -37,6 +28,10 @@ from flask import abort
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
 pd.set_option("display.width", 0)
+
+ID_INDICATOR = "INDICATOR"
+ID_REF_AREA = "REF_AREA"
+ID_DATA_SOURCE = "DATA_SOURCE"
 
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
@@ -492,15 +487,6 @@ def make_card(
     Returns:
         dbc.Card: The rendered static card
     """
-    # popover_head = html.P(f"Sources: {indicator_sources}")
-
-    # if source_link:
-    #     popover_head = html.A(
-    #         html.P(f"Sources: {indicator_sources}"),
-    #         href=source_link,
-    #         target="_blank",
-    #     )
-
     popover_head = html.P("Sources")
 
     card = dbc.Card(
@@ -570,7 +556,7 @@ def get_card_popover_body(sources):
         card_countries = "\n".join(countries)
         return card_countries
 
-    return "NA"
+    return ""
 
 
 # This callback is triggered on a "hash" change in the URL
@@ -622,12 +608,14 @@ def apply_filters(
     [Input("store", "data")],
     [State("page_config", "data")],
 )
+# Downloads all the DSD for the data.
+# Tipically 1 dataflow per page but can handle data from multiple Dataflows in 1 page
 def download_structures(selections, page_config):
     data_structures = {}
 
     # cards
     for card in page_config["THEMES"][selections["theme"]]["CARDS"]:
-        add_structure(card["data"], data_structures)
+        add_structure(data_structures, card["data"])
 
     # Main
     if (
@@ -635,7 +623,7 @@ def download_structures(selections, page_config):
         and "data" in page_config["THEMES"][selections["theme"]]["MAIN"]
     ):
         for data_node in page_config["THEMES"][selections["theme"]]["MAIN"]["data"]:
-            add_structure(data_node, data_structures)
+            add_structure(data_structures, data_node)
 
     # areas
     for area in AREA_KEYS:
@@ -644,36 +632,43 @@ def download_structures(selections, page_config):
             and "data" in page_config["THEMES"][selections["theme"]][area]
         ):
             for data_node in page_config["THEMES"][selections["theme"]][area]["data"]:
-                add_structure(data_node, data_structures)
+                add_structure(data_structures, data_node)
 
     return data_structures
 
 
 # this function and the show_cards callback update the cards
 # TODO: INDICATOR's label must be pulled!
-def indicator_card(card_id, name, suffix, config):
+def indicator_card(card_id, name, suffix, config, data_structures):
     df = get_data(config, lastnobservations=1, labels="id")
     card_value = ""
     if len(df) > 0:
         card_value = df.iloc[0]["OBS_VALUE"]
         # if suffix has not been overridden pull it from the indicator
-        print("This must be pulled from the structure")
         if suffix is None:
-            suffix = df.iloc[0]["INDICATOR"]
-        if "DATA_SOURCE" in df.columns:
-            data_source = df.iloc[0]["DATA_SOURCE"]
+            suffix = get_code_from_structure_and_dq(
+                data_structures, config, ID_INDICATOR
+            )["name"]
+            print(suffix)
+        if ID_DATA_SOURCE in df.columns:
+            data_source = df.iloc[0][ID_DATA_SOURCE]
 
     source_link = ""
 
     return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
 
 
+# @callback(
+#     Output("cards_row", "children"),
+#     [Input("store", "data")],
+#     [State("page_config", "data")],
+# )
 @callback(
     Output("cards_row", "children"),
-    [Input("store", "data")],
-    [State("page_config", "data")],
+    [Input("data_structures", "data")],
+    [State("store", "data"), State("page_config", "data")],
 )
-def show_cards(selections, page_config):
+def show_cards(data_struct, selections, page_config):
     cards = []
     for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"]):
         name = None
@@ -682,13 +677,13 @@ def show_cards(selections, page_config):
             name = card["name"]
         if "suffix" in card and card["suffix"] != "":
             suffix = card["suffix"]
-        to_add = indicator_card(f"card-{num}", name, suffix, card["data"])
+        to_add = indicator_card(f"card-{num}", name, suffix, card["data"], data_struct)
         cards.append(to_add)
 
     return cards
 
 
-# this callback updates the selection changed? It shouldn't be connected to the data but to the config load?
+# this callback updates on selection changed: it needs the selected page
 @callback(
     Output("subtitle", "children"),
     Output("themes", "children"),
@@ -766,15 +761,9 @@ def set_options(selection, config, id, data_structures):
             if "label" in ap:
                 lbl = ap["label"]
             else:
-                struct_id = get_structure_id(ap)
-                indic_position = get_dim_position(
-                    data_structures, struct_id, "INDICATOR"
-                )
-                code_id = ap["dq"].split(".")[indic_position]
-
-                lbl = get_code_from_structure(
-                    struct_id, data_structures, "INDICATOR", code_id
-                )["name"]
+                lbl = get_code_from_structure_and_dq(data_structures, ap, ID_INDICATOR)[
+                    "name"
+                ]
 
             key = selection["theme"] + "|" + area + "|" + str(idx)
             if idx == 0:
@@ -846,8 +835,8 @@ def main_figure(
 
     # we need the ref_area and data source codelists (DATA_SOURCE can be coded)
     # get and merge the ref area labels
-    data = merge_with_codelist(data, data_structs, struct_id, "REF_AREA")
-    data = merge_with_codelist(data, data_structs, struct_id, "DATA_SOURCE")
+    data = merge_with_codelist(data, data_structs, struct_id, ID_REF_AREA)
+    data = merge_with_codelist(data, data_structs, struct_id, ID_DATA_SOURCE)
 
     source_link = ""
     source = ""
@@ -863,7 +852,7 @@ def main_figure(
     options["labels"] = {"OBS_VALUE": "Value"}
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
-        dim_lbl = get_col_name(struct_id, dim_id, data_structs)
+        dim_lbl = get_col_name(data_structs, struct_id, dim_id)
         lbl_dim_id = dim_id
         # Is the column coded? Than get the label column (just ref_area)
         if "_L_" + dim_id in data.columns:
@@ -942,8 +931,8 @@ def area_figure(
     if data.empty:
         return EMPTY_CHART, ""
 
-    data = merge_with_codelist(data, data_structs, struct_id, "REF_AREA")
-    data = merge_with_codelist(data, data_structs, struct_id, "DATA_SOURCE")
+    data = merge_with_codelist(data, data_structs, struct_id, ID_REF_AREA)
+    data = merge_with_codelist(data, data_structs, struct_id, ID_DATA_SOURCE)
 
     source = ""
     if "_L_DATA_SOURCE" in data.columns:
@@ -960,7 +949,7 @@ def area_figure(
     options["labels"] = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
-        dim_lbl = get_col_name(struct_id, dim_id, data_structs)
+        dim_lbl = get_col_name(data_structs, struct_id, dim_id)
         lbl_dim_id = dim_id
         # Is the column coded? Than get the label column (just ref_area)
         if "_L_" + dim_id in data.columns:
@@ -977,14 +966,9 @@ def area_figure(
             int(series_id[2])
         ]["label"]
     else:
-
-        indic_position = get_dim_position(data_structs, struct_id, "INDICATOR")
-        code_id = series["dq"].split(".")[indic_position]
-
-        indicator_name = get_code_from_structure(
-            struct_id, data_structs, "INDICATOR", code_id
-        )
-        indicator_name = indicator_name["name"]
+        indicator_name = get_code_from_structure_and_dq(
+            data_structs, series, ID_INDICATOR
+        )["name"]
 
     # set the chart title, wrap the text when the indicator name is too long
     chart_title = textwrap.wrap(
@@ -1055,9 +1039,7 @@ def down_csv(
     return dcc.send_data_frame(data.to_csv, "data.csv", index=False)
 
 
-"""
-"""
-# There is a lot of code shared with the area_figure function. Merge it!
+# TODO There is a lot of code shared with the area_figure function. Merge it!
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
     Output({"type": "down_exc", "index": MATCH}, "data"),

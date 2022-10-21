@@ -18,7 +18,6 @@ _CACHE_CONFIG = {
 
 KEY_OBS_VALUE = "OBS_VALUE"
 
-
 # dsd query, parsing helpers
 def _code_to_dict(code: psdmx.model.Code) -> dict:
     ret = {"id": code.id, "name": str(code.name)}
@@ -78,25 +77,12 @@ class DataAccess_SDMX(data_access.Data_access):
             keys = data_content_keys.keys
 
             for data_key in keys:
-                # print(data_key.included)
-                # print(data_key)
-                # print(str(data_key))
                 if data_key.included:
                     key_value = data_key.key_value
-                    # print("key_value")
-                    # kk= key_value.keys()
-                    # print(key_value.keys())
-                    # print((key_value.keys())[0])
                     for kv in key_value:
                         if not kv in ret:
                             ret[str(kv)] = []
                         ret[str(kv)].append(key_value[kv].value)
-                        # #
-                        # print("kv", kv)
-                        # print(key_value[kv])
-                        # print(key_value[kv].value)
-
-        # print(ret)
         return ret
 
     def get_dataflow_info(
