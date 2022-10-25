@@ -1,0 +1,1 @@
+python -m dash_service.dev_cli --debug

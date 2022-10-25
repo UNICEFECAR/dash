@@ -30,7 +30,7 @@ from .app import app
     help="Toggles whether the Dash app is run in debug mode. Defaults to True",
 )
 def main(port, host, debug):
-    app.run_server(port=port, debug=debug, host=host)
+    app.run_server(port=port, debug=debug, host=host, use_reloader=True)
 
 
 if __name__ == "__main__":

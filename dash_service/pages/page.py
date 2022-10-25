@@ -31,7 +31,14 @@ pd.set_option("display.width", 0)
 
 ID_INDICATOR = "INDICATOR"
 ID_REF_AREA = "REF_AREA"
+ID_OBS_VALUE = "OBS_VALUE"
 ID_DATA_SOURCE = "DATA_SOURCE"
+ID_TIME_PERIOD = "TIME_PERIOD"
+LABEL_COL_PREFIX = "_L_"
+DEFAULT_LABELS = {
+    "OBS_VALUE":"Value",
+    "TIME_PERIOD":"Time"
+}
 
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
@@ -551,7 +558,7 @@ def get_card_popover_body(sources):
     countries = []
     # lbassil: added this condition to stop the exception when sources is empty
     if len(sources) > 0:
-        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
+        for index, source_info in sources.sort_values(by=ID_OBS_VALUE).iterrows():
             countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
         card_countries = "\n".join(countries)
         return card_countries
@@ -643,13 +650,12 @@ def indicator_card(card_id, name, suffix, config, data_structures):
     df = get_data(config, lastnobservations=1, labels="id")
     card_value = ""
     if len(df) > 0:
-        card_value = df.iloc[0]["OBS_VALUE"]
+        card_value = df.iloc[0][ID_OBS_VALUE]
         # if suffix has not been overridden pull it from the indicator
         if suffix is None:
             suffix = get_code_from_structure_and_dq(
                 data_structures, config, ID_INDICATOR
             )["name"]
-            print(suffix)
         if ID_DATA_SOURCE in df.columns:
             data_source = df.iloc[0][ID_DATA_SOURCE]
 
@@ -658,11 +664,6 @@ def indicator_card(card_id, name, suffix, config, data_structures):
     return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
 
 
-# @callback(
-#     Output("cards_row", "children"),
-#     [Input("store", "data")],
-#     [State("page_config", "data")],
-# )
 @callback(
     Output("cards_row", "children"),
     [Input("data_structures", "data")],
@@ -726,23 +727,20 @@ def show_themes(selections, config):
 
 # Triggered when the selection changes. Updates the main area ddl, the area types?
 # Todo: What is area_type?
-
-
 @callback(
     Output({"type": "area_title", "index": MATCH}, "children"),
     Output({"type": "area_options", "index": MATCH}, "options"),
     Output({"type": "area_types", "index": MATCH}, "options"),
     Output({"type": "area_options", "index": MATCH}, "value"),
     Output({"type": "area_types", "index": MATCH}, "value"),
-    Input("store", "data"),
+    Input("data_structures", "data"),
     [
+        State("store", "data"),
         State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
-        State("data_structures", "data"),
     ],
 )
-def set_options(selection, config, id, data_structures):
-
+def set_options(data_structures,selection, config, id ):
     area = id["index"]
     area_options = area_types = []
 
@@ -802,16 +800,16 @@ def set_options(selection, config, id, data_structures):
     [
         Input({"type": "area_options", "index": "MAIN"}, "value"),
         Input({"type": "historical_data_toggle", "index": "MAIN"}, "value"),
-        Input("store", "data"),
+        Input("data_structures", "data"),
     ],
     [
+        State("store", "data"),
         State("page_config", "data"),
-        Input("geoj", "data"),
-        State("data_structures", "data"),
+        State("geoj", "data"),
     ],
 )
 def main_figure(
-    indicator, show_historical_data, selections, config, geoj, data_structs
+    indicator, show_historical_data, data_structs, selections, config, geoj, 
 ):
     latest_data = not show_historical_data
 
@@ -840,28 +838,27 @@ def main_figure(
 
     source_link = ""
     source = ""
-    if "_L_DATA_SOURCE" in data.columns:
-        source = ", ".join(list(data["_L_DATA_SOURCE"].unique()))
+    if LABEL_COL_PREFIX + ID_DATA_SOURCE in data.columns:
+        source = ", ".join(list(data[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
 
-    print("EDIT THE OPTIONS IN THE CFG")
-    options["hover_data"]["_L_REF_AREA"] = True
-    del options["hover_data"]["name"]
-    del options["labels"]
+    options["hover_data"][LABEL_COL_PREFIX + ID_REF_AREA] = True
+    # del options["hover_data"]["name"]
+    # del options["labels"]
 
     # Add the labels for all the dimensions
-    options["labels"] = {"OBS_VALUE": "Value"}
+    options["labels"] = DEFAULT_LABELS.copy()
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
         dim_lbl = get_col_name(data_structs, struct_id, dim_id)
         lbl_dim_id = dim_id
         # Is the column coded? Than get the label column (just ref_area)
-        if "_L_" + dim_id in data.columns:
-            lbl_dim_id = "_L_" + dim_id
+        if LABEL_COL_PREFIX + dim_id in data.columns:
+            lbl_dim_id = LABEL_COL_PREFIX + dim_id
             options["labels"][lbl_dim_id] = dim_lbl
 
     options["geojson"] = geo_json_data
 
-    data["OBS_VALUE"] = pd.to_numeric(data["OBS_VALUE"])
+    data[ID_OBS_VALUE] = pd.to_numeric(data[ID_OBS_VALUE])
 
     main_figure = px.choropleth_mapbox(data, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
@@ -877,27 +874,28 @@ def main_figure(
     Output({"type": "area", "index": MATCH}, "figure"),
     Output({"type": "area_sources", "index": MATCH}, "children"),
     [
-        Input("store", "data"),
+        Input("data_structures", "data"),
         Input({"type": "area_options", "index": MATCH}, "value"),
         Input({"type": "area_breakdowns", "index": MATCH}, "value"),
         Input({"type": "area_types", "index": MATCH}, "value"),
         Input({"type": "exclude_outliers_toggle", "index": MATCH}, "value"),
     ],
     [
+        State("store", "data"),
         State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
-        State("data_structures", "data"),
+        
     ],
 )
 def area_figure(
-    selections,
+    data_structs,
     indicator,
     compare,
     selected_type,
     exclude_outliers,
+    selections,
     config,
     id,
-    data_structs,
 ):
     # only run if indicator not empty
     if not indicator:
@@ -924,8 +922,8 @@ def area_figure(
     else:
         data = data = get_data(series, years=time_period, lastnobservations=1)
 
-    data["OBS_VALUE"] = pd.to_numeric(data["OBS_VALUE"], errors="coerce")
-    data["TIME_PERIOD"] = pd.to_numeric(data["TIME_PERIOD"], errors="coerce")
+    data[ID_OBS_VALUE] = pd.to_numeric(data[ID_OBS_VALUE], errors="coerce")
+    data[ID_TIME_PERIOD] = pd.to_numeric(data[ID_TIME_PERIOD], errors="coerce")
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
@@ -935,27 +933,24 @@ def area_figure(
     data = merge_with_codelist(data, data_structs, struct_id, ID_DATA_SOURCE)
 
     source = ""
-    if "_L_DATA_SOURCE" in data.columns:
-        source = ", ".join(list(data["_L_DATA_SOURCE"].unique()))
+    if LABEL_COL_PREFIX + ID_DATA_SOURCE in data.columns:
+        source = ", ".join(list(data[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
 
-    print("EDIT THE OPTIONS IN THE CFG OF AREAS")
+    options_to_check_for_label = ["x", "y", "text", "color", "hover_name"]
+    for o in options_to_check_for_label:
+        if o in options and LABEL_COL_PREFIX + options[o] in data.columns:
+            options[o] = LABEL_COL_PREFIX + options[o]
 
-    if fig_type == "bar":
-        options["x"] = "_L_REF_AREA"
-    elif fig_type == "line":
-        options["color"] = "_L_REF_AREA"
-
-    # TODO: Same code in MAIN: fix that
-    options["labels"] = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
+    options["labels"] = options["labels"] = DEFAULT_LABELS.copy()
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
         dim_lbl = get_col_name(data_structs, struct_id, dim_id)
         lbl_dim_id = dim_id
         # Is the column coded? Than get the label column (just ref_area)
-        if "_L_" + dim_id in data.columns:
-            lbl_dim_id = "_L_" + dim_id
+        if LABEL_COL_PREFIX + dim_id in data.columns:
+            lbl_dim_id = LABEL_COL_PREFIX + dim_id
             options["labels"][lbl_dim_id] = dim_lbl
-
+    
     source_link = ""
 
     if (
@@ -1063,6 +1058,7 @@ def down_exc(
     id,
 ):
     # First render, do not trigger!
+    print(n_clicks)
     if n_clicks is None:
         raise PreventUpdate
 

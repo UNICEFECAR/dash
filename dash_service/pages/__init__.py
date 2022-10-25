@@ -145,7 +145,10 @@ def merge_with_codelist(df, data_structures, struct_id, column_id):
     if "codes" in cl:  # it is coded
         df_cl = pd.DataFrame(cl["codes"])
         df = df.merge(df_cl, how="left", left_on=column_id, right_on="id")
-        df = df.drop(columns=["id", "parent"])
+        dims_to_drop = ["id"]
+        if "parent" in df_cl.columns:
+            dims_to_drop.append("parent")
+        df = df.drop(columns=dims_to_drop)
         df = df.rename(columns={"name": "_L_" + column_id})
     else:
         df["_L_" + column_id] = df[column_id]
