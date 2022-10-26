@@ -35,10 +35,7 @@ ID_OBS_VALUE = "OBS_VALUE"
 ID_DATA_SOURCE = "DATA_SOURCE"
 ID_TIME_PERIOD = "TIME_PERIOD"
 LABEL_COL_PREFIX = "_L_"
-DEFAULT_LABELS = {
-    "OBS_VALUE":"Value",
-    "TIME_PERIOD":"Time"
-}
+DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
 
 
 # The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
@@ -67,7 +64,7 @@ cfg_plot = {
         "scale": 1,  # Multiply title/legend/axis/canvas sizes by this factor
     },
     "displayModeBar": True,
-    "displaylogo":False
+    "displaylogo": False,
 }
 
 colours = [
@@ -256,6 +253,7 @@ def render_page_template(
                             [make_area(area) for area in ["AREA_5", "AREA_6"]],
                         ),
                         html.Br(),
+                        html.Div(id="_page_load", children=[], style={"display":"none"}),
                     ]
                 )
             ),
@@ -742,7 +740,7 @@ def show_themes(selections, config):
         State({"type": "area_options", "index": MATCH}, "id"),
     ],
 )
-def set_options(data_structures,selection, config, id ):
+def set_options(data_structures, selection, config, id):
     area = id["index"]
     area_options = area_types = []
 
@@ -811,7 +809,12 @@ def set_options(data_structures,selection, config, id ):
     ],
 )
 def main_figure(
-    indicator, show_historical_data, data_structs, selections, config, geoj, 
+    indicator,
+    show_historical_data,
+    data_structs,
+    selections,
+    config,
+    geoj,
 ):
     latest_data = not show_historical_data
 
@@ -886,7 +889,6 @@ def main_figure(
         State("store", "data"),
         State("page_config", "data"),
         State({"type": "area_options", "index": MATCH}, "id"),
-        
     ],
 )
 def area_figure(
@@ -952,7 +954,7 @@ def area_figure(
         if LABEL_COL_PREFIX + dim_id in data.columns:
             lbl_dim_id = LABEL_COL_PREFIX + dim_id
             options["labels"][lbl_dim_id] = dim_lbl
-    
+
     source_link = ""
 
     if (
@@ -985,7 +987,7 @@ def area_figure(
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
         xaxis=xaxis,
-        modebar={"orientation":"v"}
+        modebar={"orientation": "v"},
     )
 
     fig = getattr(px, fig_type)(data, **options)
@@ -1004,6 +1006,8 @@ def area_figure(
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
     Output({"type": "down_csv", "index": MATCH}, "data"),
+    # reset the n_clicks after each click to prevent triggering at each theme change
+    Output({"type": "btn_down_csv", "index": MATCH}, "n_clicks"),
     [
         Input("store", "data"),
         Input({"type": "area_options", "index": MATCH}, "value"),
@@ -1032,15 +1036,17 @@ def down_csv(
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return dcc.send_data_frame(data.to_csv, "no_data.csv", index=False)
+        return dcc.send_data_frame(data.to_csv, "no_data.csv", index=False), None
 
-    return dcc.send_data_frame(data.to_csv, "data.csv", index=False)
+    return dcc.send_data_frame(data.to_csv, "data.csv", index=False), None
 
 
 # TODO There is a lot of code shared with the area_figure function. Merge it!
 # This callback is used to return data when the user clicks on the download CSV button
 @callback(
     Output({"type": "down_exc", "index": MATCH}, "data"),
+    # reset the n_clicks after each click to prevent triggering at each theme change
+    Output({"type": "btn_down_exc", "index": MATCH}, "n_clicks"),
     [
         Input("store", "data"),
         Input({"type": "area_options", "index": MATCH}, "value"),
@@ -1061,7 +1067,6 @@ def down_exc(
     id,
 ):
     # First render, do not trigger!
-    print(n_clicks)
     if n_clicks is None:
         raise PreventUpdate
 
@@ -1069,9 +1074,9 @@ def down_exc(
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return dcc.send_data_frame(data.to_excel, "no_data.xlsx", index=False)
+        return dcc.send_data_frame(data.to_excel, "no_data.xlsx", index=False), None
 
-    return dcc.send_data_frame(data.to_excel, "data.xlsx", index=False)
+    return dcc.send_data_frame(data.to_excel, "data.xlsx", index=False), None
 
 
 def download_data(selections, indicator, selected_type, config, id):
@@ -1095,3 +1100,11 @@ def download_data(selections, indicator, selected_type, config, id):
     )
 
     return data
+
+
+@callback(
+    Output("_page_load", "children"),
+    [Input("data_structures", "data")],
+)
+def show_cards(data_struct):
+    return [html.Div(id="_page_load_ok")]
