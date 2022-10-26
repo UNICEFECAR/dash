@@ -71,10 +71,10 @@ def get_structure_id(data_node):
 def add_structure(structs, data_cfg):
     struct_id = get_structure_id(data_cfg)
     if not struct_id in structs:
-        print("GETTING " + struct_id)
+        # print("GETTING " + struct_id)
         structs[struct_id] = get_structure(data_cfg)
-    else:
-        print(">>SKIPPED " + struct_id)
+    # else:
+        # print(">>SKIPPED " + struct_id)
 
 
 # returns the codelist attached to a dataflow's column (dimension or attribute)

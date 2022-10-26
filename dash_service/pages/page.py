@@ -3,7 +3,6 @@ import textwrap
 import dash
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-import dash_treeview_antd
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -24,6 +23,9 @@ from dash_service.pages import (
 )
 
 from flask import abort
+
+# from ..components.card_aio import CardAIO
+from dash_service.components_aio.card_aio import CardAIO
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -50,8 +52,8 @@ px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 lang = "en"
 # move this elsewhere
 translations = {
-    "en": {"REF_AREA": "Geographic areas"},
-    "pt": {"REF_AREA": "Geographic areas [PT]"},
+    "en": {"sources": "sources"},
+    "pt": {"sources": "sources [PT]"},
 }
 
 # the configuration of the "Download plot" button in the charts
@@ -253,7 +255,10 @@ def render_page_template(
                             [make_area(area) for area in ["AREA_5", "AREA_6"]],
                         ),
                         html.Br(),
-                        html.Div(id="_page_load", children=[], style={"display":"none"}),
+                        # Test automation (Selenium) handle
+                        html.Div(
+                            id="_page_load", children=[], style={"display": "none"}
+                        ),
                     ]
                 )
             ),
@@ -470,102 +475,6 @@ def make_area(area_name: str) -> dbc.Card:
     )
     return area
 
-
-def make_card(
-    card_id,
-    name,
-    suffix,
-    indicator_sources,
-    source_link,
-    indicator_header,
-    numerator_pairs,
-) -> dbc.Card:
-    """Generates a single card with a title, a value and a suffix
-
-    Args:
-        card_id (_type_): _description_
-        name (_type_): _description_
-        suffix (_type_): _description_
-        indicator_sources (_type_): _description_
-        source_link (_type_): _description_
-        indicator_header (_type_): _description_
-        numerator_pairs (_type_): _description_
-
-    Returns:
-        dbc.Card: The rendered static card
-    """
-    popover_head = html.P("Sources")
-
-    card = dbc.Card(
-        [
-            dbc.CardBody(
-                [
-                    html.H1(
-                        indicator_header,
-                        className="display-4",
-                        style={
-                            # "fontSize": 50,
-                            "textAlign": "center",
-                            "color": "#1cabe2",
-                        },
-                    ),
-                    html.H4(suffix, className="card-title"),
-                    html.P(name, className="lead"),
-                    html.Div(
-                        fa("fas fa-info-circle"),
-                        id=f"{card_id}_info",
-                        # className="float-right",
-                        style={
-                            "position": "absolute",
-                            "bottom": "10px",
-                            "right": "10px",
-                        },
-                    ),
-                ],
-                style={
-                    # "fontSize": 50,
-                    "textAlign": "center",
-                },
-            ),
-            dbc.Popover(
-                [
-                    dbc.PopoverHeader(popover_head),
-                    dbc.PopoverBody(indicator_sources),
-                ],
-                id="hover",
-                target=f"{card_id}_info",
-                trigger="hover",
-            ),
-        ],
-        color="primary",
-        outline=True,
-        id=card_id,
-    )
-
-    return card
-
-
-def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's
-        displayed result; it displays the countries as a list, each on a separate line
-
-    Args:
-        sources (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    countries = []
-    # lbassil: added this condition to stop the exception when sources is empty
-    if len(sources) > 0:
-        for index, source_info in sources.sort_values(by=ID_OBS_VALUE).iterrows():
-            countries.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(countries)
-        return card_countries
-
-    return ""
-
-
 # This callback is triggered on a "hash" change in the URL
 # It hides areas when not defined: e.g. we have two areas in the cfg: hide area 3 and 4
 @callback(
@@ -644,26 +553,6 @@ def download_structures(selections, page_config):
     return data_structures
 
 
-# this function and the show_cards callback update the cards
-# TODO: INDICATOR's label must be pulled!
-def indicator_card(card_id, name, suffix, config, data_structures):
-    df = get_data(config, lastnobservations=1, labels="id")
-    card_value = ""
-    if len(df) > 0:
-        card_value = df.iloc[0][ID_OBS_VALUE]
-        # if suffix has not been overridden pull it from the indicator
-        if suffix is None:
-            suffix = get_code_from_structure_and_dq(
-                data_structures, config, ID_INDICATOR
-            )["name"]
-        if ID_DATA_SOURCE in df.columns:
-            data_source = df.iloc[0][ID_DATA_SOURCE]
-
-    source_link = ""
-
-    return make_card(card_id, name, suffix, data_source, source_link, card_value, [])
-
-
 @callback(
     Output("cards_row", "children"),
     [Input("data_structures", "data")],
@@ -672,14 +561,35 @@ def indicator_card(card_id, name, suffix, config, data_structures):
 def show_cards(data_struct, selections, page_config):
     cards = []
     for num, card in enumerate(page_config["THEMES"][selections["theme"]]["CARDS"]):
-        name = None
-        suffix = None
-        if "name" in card and card["name"] != "":
-            name = card["name"]
-        if "suffix" in card and card["suffix"] != "":
+        config = card["data"]
+        value = "-"
+        data_source = ""
+
+        # if suffix has not been overridden pull it from the indicator
+        if card["suffix"] is None:
+            suffix = get_code_from_structure_and_dq(data_struct, config, ID_INDICATOR)[
+                "name"
+            ]
+        else:
             suffix = card["suffix"]
-        to_add = indicator_card(f"card-{num}", name, suffix, card["data"], data_struct)
-        cards.append(to_add)
+
+        # we jsut need the most recent datapoint, no labels, just the value
+        df = get_data(config, lastnobservations=1, labels="id")
+        if len(df) > 0:
+            value = df.iloc[0][ID_OBS_VALUE]
+            if ID_DATA_SOURCE in df.columns:
+                data_source = df.iloc[0][ID_DATA_SOURCE]
+
+        info_head = translations[lang]["sources"]
+        cards.append(
+            CardAIO(
+                aio_id=f"card-{num}",
+                value=value,
+                suffix=suffix,
+                info_head=info_head,
+                info_body=data_source,
+            )
+        )
 
     return cards
 
