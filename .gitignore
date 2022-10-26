@@ -114,3 +114,8 @@ ENV/
 /cache-directory/
 .DS_Store
 .idea/
+
+activate.bat
+go.bat
+data_cache.sqlite
+pandasmx_cache.sqlite

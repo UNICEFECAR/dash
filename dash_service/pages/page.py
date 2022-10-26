@@ -58,14 +58,16 @@ translations = {
 }
 
 # the configuration of the "Download plot" button in the charts
-cfg_download_plot = {
+cfg_plot = {
     "toImageButtonOptions": {
         "format": "png",  # one of png, svg, jpeg, webp
         "filename": "plot",
         "width": 1200,
         "height": 800,
         "scale": 1,  # Multiply title/legend/axis/canvas sizes by this factor
-    }
+    },
+    "displayModeBar": True,
+    "displaylogo":False
 }
 
 colours = [
@@ -410,7 +412,7 @@ def make_area(area_name: str) -> dbc.Card:
                         id={"type": "area_types", "index": area_name},
                         inline=True,
                     ),
-                    dcc.Loading([dcc.Graph(id=area_id, config=cfg_download_plot)]),
+                    dcc.Loading([dcc.Graph(id=area_id, config=cfg_plot)]),
                     dbc.Checklist(
                         options=[
                             {
@@ -983,6 +985,7 @@ def area_figure(
         font=dict(family="Arial", size=12),
         legend=dict(x=0.9, y=0.5),
         xaxis=xaxis,
+        modebar={"orientation":"v"}
     )
 
     fig = getattr(px, fig_type)(data, **options)
