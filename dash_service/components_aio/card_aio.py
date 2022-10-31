@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc
+from dash import html
 import uuid
 import dash_bootstrap_components as dbc
 
@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 
 
 class CardAIO(dbc.Card):
+    _value_style = {"textAlign": "center", "color": "#1cabe2"}
     # A set of functions that create pattern-matching callbacks of the subcomponents
     class ids:
         card = lambda aio_id: {
@@ -32,7 +33,7 @@ class CardAIO(dbc.Card):
                 html.H1(
                     value,
                     className="display-4",
-                    style={"textAlign": "center", "color": "#1cabe2"},
+                    style=CardAIO._value_style,
                 ),
                 html.H4(suffix, className="card-title"),
             ],
