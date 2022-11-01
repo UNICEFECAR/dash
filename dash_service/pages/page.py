@@ -24,16 +24,16 @@ from dash_service.pages import (
 
 from flask import abort
 
-# from ..components.card_aio import CardAIO
 from dash_service.components_aio.card_aio import CardAIO
 from dash_service.components_aio.map_aio import MapAIO
 from dash_service.components_aio.chart_aio import ChartAIO
 from dash_service.components_aio.downloads_aio import DownloadsAIO
 
-pd.set_option("display.max_columns", None)
-pd.set_option("display.max_rows", None)
-pd.set_option("display.width", 0)
+# pd.set_option("display.max_columns", None)
+# pd.set_option("display.max_rows", None)
+# pd.set_option("display.width", 0)
 
+# A few constant values
 ID_INDICATOR = "INDICATOR"
 ID_REF_AREA = "REF_AREA"
 ID_OBS_VALUE = "OBS_VALUE"
@@ -42,12 +42,11 @@ ID_TIME_PERIOD = "TIME_PERIOD"
 LABEL_COL_PREFIX = "_L_"
 DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
 
+ELEM_ID_CARDS = "CARDS"
 ELEM_ID_MAIN = "MAIN"
+ELEM_ID_CHARTS = "CHARTS"
 
 CFG_N_THEMES = "THEMES"
-
-
-# The store, data input/output used in callbacks is defined in "layouts.py", it holds the selection: years, country...
 
 
 # set defaults
@@ -87,8 +86,6 @@ colours = [
     "danger",
 ]
 
-CARD_TEXT_STYLE = {"textAlign": "center", "color": "#0074D9"}
-
 EMPTY_CHART = {
     "layout": {
         "xaxis": {"visible": False},
@@ -114,6 +111,7 @@ dash.register_page(
 )
 
 
+# Creates the top menu (pages) html elements
 def make_page_nav(pages, vertical=False, **kwargs):
     return html.Header(
         id="header",
@@ -386,24 +384,24 @@ def apply_filters(
     [State("page_config", "data")],
 )
 # Downloads all the DSD for the data.
-# Tipically 1 dataflow per page but can handle data from multiple Dataflows in 1 page
+# Typically 1 dataflow per page but can handle data from multiple Dataflows in 1 page
 def download_structures(selections, page_config):
     data_structures = {}
 
     theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
     # cards
-    for card in theme_node["CARDS"]:
+    for card in theme_node[ELEM_ID_CARDS]:
         add_structure(data_structures, card["data"])
 
     # Main
-    if "MAIN" in theme_node and "data" in theme_node["MAIN"]:
-        for data_node in theme_node["MAIN"]["data"]:
+    if ELEM_ID_MAIN in theme_node and "data" in theme_node[ELEM_ID_MAIN]:
+        for data_node in theme_node[ELEM_ID_MAIN]["data"]:
             add_structure(data_structures, data_node)
 
     # areas
-    if "CHARTS" in theme_node:
-        for chart in theme_node["CHARTS"]:
+    if ELEM_ID_CHARTS in theme_node:
+        for chart in theme_node[ELEM_ID_CHARTS]:
             if "data" in chart:
                 for data_node in chart["data"]:
                     add_structure(data_structures, data_node)
@@ -460,7 +458,9 @@ def show_themes(selections, config):
 def show_cards(data_struct, selections, page_config):
     selected_theme = selections["theme"]
     cards = []
-    for num, card in enumerate(page_config[CFG_N_THEMES][selected_theme]["CARDS"]):
+    for num, card in enumerate(
+        page_config[CFG_N_THEMES][selected_theme][ELEM_ID_CARDS]
+    ):
         config = card["data"]
         value = "-"
         data_source = ""
@@ -494,16 +494,17 @@ def show_cards(data_struct, selections, page_config):
     return cards
 
 
+# Creates the charts placeholders, triggered after the page config has been created
 @callback(
     Output("div_charts", "children"),
-    [Input("data_structures", "data")],
-    [State("store", "data"), State("page_config", "data")],
+    [Input("store", "data")],
+    [State("page_config", "data")],
 )
-def show_charts(data_struct, selections, page_config):
+def show_charts(selections, page_config):
     charts_count = 0
     selected_theme = selections["theme"]
-    if "CHARTS" in page_config[CFG_N_THEMES][selected_theme]:
-        charts_count = len(page_config[CFG_N_THEMES][selected_theme]["CHARTS"])
+    if ELEM_ID_CHARTS in page_config[CFG_N_THEMES][selected_theme]:
+        charts_count = len(page_config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS])
 
     charts = [
         ChartAIO(
@@ -517,7 +518,25 @@ def show_charts(data_struct, selections, page_config):
     return charts
 
 
-# Triggered when the selection changes. Updates the main area ddl.
+# loops the data node and returns the options for the dropdownlists: options + default value
+def get_ddl_values(data_node, data_structures, column_id):
+    items = []
+    default_item = ""
+    for idx, data_cfg in enumerate(data_node):
+        # is it there a label? Override the one read from the data
+        if "label" in data_cfg:
+            lbl = data_cfg["label"]
+        else:
+            lbl = get_code_from_structure_and_dq(data_structures, data_cfg, column_id)[
+                "name"
+            ]
+        items.append({"label": lbl, "value": str(idx)})
+        if idx == 0:
+            default_item = str(idx)
+    return items, default_item
+
+
+# Triggered when the selection changes. Updates the main area dropdown list.
 @callback(
     Output(MapAIO.ids.card_title(ELEM_ID_MAIN), "children"),
     Output(MapAIO.ids.ddl(ELEM_ID_MAIN), "options"),
@@ -540,24 +559,10 @@ def set_options_main(data_structures, selection, config):
     # Find the data nodes to fill the ddl
     ddl_items = []
     default_item = ""
-    if (
-        ELEM_ID_MAIN in config[CFG_N_THEMES][selected_theme]
-        and "data" in config[CFG_N_THEMES][selected_theme][ELEM_ID_MAIN]
-    ):
-        data_configs = config[CFG_N_THEMES][selected_theme][ELEM_ID_MAIN]["data"]
-        for idx, data_cfg in enumerate(data_configs):
-            # Is it there a label? Then override the title contained in the codelist
-            if "label" in data_cfg:
-                lbl = data_cfg["label"]
-            else:
-                lbl = get_code_from_structure_and_dq(
-                    data_structures, data_cfg, ID_INDICATOR
-                )["name"]
-            # key = f"{selected_theme}|MAIN|{str(idx)}"
-            key = str(idx)
-            if idx == 0:
-                default_item = key
-            ddl_items.append({"label": lbl, "value": key})
+    if main_node is not None and "data" in main_node:
+        ddl_items, default_item = get_ddl_values(
+            main_node["data"], data_structures, ID_INDICATOR
+        )
 
     # return name, area_options, area_types, default_option, default_graph
     return name, ddl_items, default_item
@@ -651,26 +656,14 @@ def set_options_charts(data_structures, selection, config, component_id):
 
     # The card index
     chart_idx = int(component_id["aio_id"].split("_")[1])
-    chart_cfg = config[CFG_N_THEMES][selected_theme]["CHARTS"][chart_idx]
-    card_title = chart_cfg["name"]
+    chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
+    card_title = chart_cfg.get("name", "")
 
-    # Find the data nodes to fill the ddl
+    # Find the data nodes to fill the ddl   
     ddl_items = []
     default_item = ""
-    if "data" in chart_cfg:
-        data_configs = chart_cfg["data"]
-        for idx, data_cfg in enumerate(data_configs):
-            # Is it there a label? Then override the title contained in the codelist
-            if "label" in data_cfg:
-                lbl = data_cfg["label"]
-            else:
-                lbl = get_code_from_structure_and_dq(
-                    data_structures, data_cfg, ID_INDICATOR
-                )["name"]
-            key = str(idx)
-            if idx == 0:
-                default_item = key
-            ddl_items.append({"label": lbl, "value": key})
+    ddl_items, default_item = get_ddl_values(chart_cfg["data"], data_structures, ID_INDICATOR)
+
     # the chart types
     chart_types = []
 
@@ -705,7 +698,7 @@ def update_charts(
 ):
     selected_theme = selection["theme"]
     chart_idx = int(component_id["aio_id"].split("_")[1])
-    chart_cfg = config[CFG_N_THEMES][selected_theme]["CHARTS"][chart_idx]
+    chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
 
     # find the data node in the configuration for the user's selection
     data_cfg = chart_cfg["data"][int(ddl_value)]
@@ -834,26 +827,21 @@ def download_data(
     df = download_data(
         selections, page_cfg, source_id, map_selection, chart_selection, chart_type
     )
-    print("n_clicks_excel")
-    print(n_clicks_excel)
-    print("n_clicks_csv")
-    print(n_clicks_csv)
 
-    #Excel clicked
+    # Excel clicked
     if n_clicks_excel is not None:
         return dcc.send_data_frame(df.to_excel, "data.xlsx", index=False), None, None
     elif n_clicks_csv is not None:
         return dcc.send_data_frame(df.to_csv, "data.csv", index=False), None, None
-    
 
-
-# def download_data(selections, indicator, selected_type, config, id):
 def download_data(selections, page_cfg, source_id, map_sel, chart_sel, chart_type):
 
     data_node = None
     if source_id.startswith("CHART_"):
         chart_idx = int(source_id.split("_")[1])
-        theme_node = page_cfg[CFG_N_THEMES][selections["theme"]]["CHARTS"][chart_idx]
+        theme_node = page_cfg[CFG_N_THEMES][selections["theme"]][ELEM_ID_CHARTS][
+            chart_idx
+        ]
         data_node_idx = int(chart_sel[chart_idx])
         data_node = theme_node["data"][data_node_idx]
         chart_type = chart_type[chart_idx]
