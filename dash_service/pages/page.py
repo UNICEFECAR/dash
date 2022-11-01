@@ -20,6 +20,8 @@ from dash_service.pages import (
     get_code_from_structure_and_dq,
     get_col_name,
     merge_with_codelist,
+    get_multilang_value,
+    is_string_empty,
 )
 
 from flask import abort
@@ -54,12 +56,11 @@ pio.templates.default = "plotly_white"
 px.defaults.color_continuous_scale = px.colors.sequential.BuGn
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 
-# TODO: language shouold be read from a param if forced or from the browser
-lang = "en"
+
 # move this elsewhere
 translations = {
-    "en": {"sources": "sources"},
-    "pt": {"sources": "sources [PT]"},
+    "sources": {"en": "Sources", "pt": "[PT] Sources"},
+    "years": {"en": "Years", "pt": "Anos"},
 }
 
 # the configuration of the "Download plot" button in the charts
@@ -151,7 +152,7 @@ def make_page_nav(pages, vertical=False, **kwargs):
     )
 
 
-def layout(project_slug=None, page_slug=None, **query_parmas):
+def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.
@@ -164,15 +165,22 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     Returns:
         html.Div: The rendered page
     """
+
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
-        return render_page_template({}, "Validation Page", [], "")
+        return render_page_template({}, "Validation Page", [], "", lang)
 
     all_pages = Page.where(project___slug=project_slug).all()
     if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
-    all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
+
+    if lang == "en":
+        all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
+    else:
+        all_pages = [
+            {"name": p.title, "path": p.slug + "?lang=" + lang} for p in all_pages
+        ]
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
@@ -180,7 +188,7 @@ def layout(project_slug=None, page_slug=None, **query_parmas):
     config = page.content
     main_title = config["main_title"]
 
-    return render_page_template(config, main_title, all_pages, page.geography)
+    return render_page_template(config, main_title, all_pages, page.geography, lang)
 
 
 def render_page_template(
@@ -188,6 +196,7 @@ def render_page_template(
     main_title: str,
     all_pages: dict,
     geoj: str,
+    lang,
     **kwargs,
 ) -> html.Div:
     """Renders the page template based on the page config and other parameters
@@ -203,6 +212,7 @@ def render_page_template(
 
     template = html.Div(
         [
+            dcc.Store(id="lang", data=lang),
             dcc.Store(id="page_config", data=page_config),
             dcc.Store(id="geoj", data=geoj),
             dcc.Store(id="data_structures", data={}, storage_type="session"),
@@ -218,7 +228,7 @@ def render_page_template(
                                 dbc.Col(
                                     [
                                         render_themes(),
-                                        render_years(),
+                                        render_years(lang),
                                     ]
                                 ),
                             ],
@@ -240,7 +250,9 @@ def render_page_template(
                                 MapAIO(
                                     ELEM_ID_MAIN,
                                     plot_cfg=cfg_plot,
-                                    info_title=translations[lang]["sources"],
+                                    info_title=get_multilang_value(
+                                        translations["sources"], lang
+                                    ),
                                 )
                             ],
                             style={"display": "block"},
@@ -309,11 +321,11 @@ def render_themes() -> html.Div:
     )
 
 
-def render_years() -> html.Div:
+def render_years(lang) -> html.Div:
     return dbc.Row(
         [
             dbc.DropdownMenu(
-                label=f"Years: {years[0]} - {years[-1]}",
+                label=f"{get_multilang_value(translations['years'], lang)}: {years[0]} - {years[-1]}",
                 id="collapse-years-button",
                 className="m-2",
                 color="info",
@@ -357,13 +369,9 @@ def render_years() -> html.Div:
         Input("theme", "hash"),
         Input("year_slider", "value"),
     ],
-    State("page_config", "data"),
+    [State("page_config", "data"), State("lang", "data")],
 )
-def apply_filters(
-    theme,
-    years_slider,
-    store_page_config,
-):
+def apply_filters(theme, years_slider, store_page_config, lang):
 
     theme = (
         theme[1:].upper()
@@ -375,36 +383,39 @@ def apply_filters(
 
     selections = dict(theme=theme, years=selected_years)
 
-    return (selections, f"Years: {selected_years[0]} - {selected_years[-1]}")
+    return (
+        selections,
+        f"{get_multilang_value(translations['years'], lang)}: {selected_years[0]} - {selected_years[-1]}",
+    )
 
 
 @callback(
     Output("data_structures", "data"),
     [Input("store", "data")],
-    [State("page_config", "data")],
+    [State("page_config", "data"), State("lang", "data")],
 )
 # Downloads all the DSD for the data.
 # Typically 1 dataflow per page but can handle data from multiple Dataflows in 1 page
-def download_structures(selections, page_config):
+def download_structures(selections, page_config, lang):
     data_structures = {}
 
     theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
     # cards
     for card in theme_node[ELEM_ID_CARDS]:
-        add_structure(data_structures, card["data"])
+        add_structure(data_structures, card["data"], lang)
 
     # Main
     if ELEM_ID_MAIN in theme_node and "data" in theme_node[ELEM_ID_MAIN]:
         for data_node in theme_node[ELEM_ID_MAIN]["data"]:
-            add_structure(data_structures, data_node)
+            add_structure(data_structures, data_node, lang)
 
     # areas
     if ELEM_ID_CHARTS in theme_node:
         for chart in theme_node[ELEM_ID_CHARTS]:
             if "data" in chart:
                 for data_node in chart["data"]:
-                    add_structure(data_structures, data_node)
+                    add_structure(data_structures, data_node, lang)
 
     return data_structures
 
@@ -453,9 +464,9 @@ def show_themes(selections, config):
 @callback(
     Output("cards_row", "children"),
     [Input("data_structures", "data")],
-    [State("store", "data"), State("page_config", "data")],
+    [State("store", "data"), State("page_config", "data"), State("lang", "data")],
 )
-def show_cards(data_struct, selections, page_config):
+def show_cards(data_struct, selections, page_config, lang):
     selected_theme = selections["theme"]
     cards = []
     for num, card in enumerate(
@@ -466,12 +477,12 @@ def show_cards(data_struct, selections, page_config):
         data_source = ""
 
         # if suffix has not been overridden pull it from the indicator
-        if card["suffix"] is None:
-            suffix = get_code_from_structure_and_dq(data_struct, config, ID_INDICATOR)[
+        if is_string_empty(card):
+            label = get_code_from_structure_and_dq(data_struct, config, ID_INDICATOR)[
                 "name"
             ]
         else:
-            suffix = card["suffix"]
+            label = get_multilang_value(card["label"], lang)
 
         # we jsut need the most recent datapoint, no labels, just the value
         df = get_data(config, lastnobservations=1, labels="id")
@@ -480,12 +491,12 @@ def show_cards(data_struct, selections, page_config):
             if ID_DATA_SOURCE in df.columns:
                 data_source = df.iloc[0][ID_DATA_SOURCE]
 
-        info_head = translations[lang]["sources"]
+        info_head = get_multilang_value(translations["sources"], lang)
         cards.append(
             CardAIO(
                 aio_id=f"card-{num}",
                 value=value,
-                suffix=suffix,
+                suffix=label,
                 info_head=info_head,
                 info_body=data_source,
             )
@@ -498,9 +509,9 @@ def show_cards(data_struct, selections, page_config):
 @callback(
     Output("div_charts", "children"),
     [Input("store", "data")],
-    [State("page_config", "data")],
+    [State("page_config", "data"), State("lang", "data")],
 )
-def show_charts(selections, page_config):
+def show_charts(selections, page_config, lang):
     charts_count = 0
     selected_theme = selections["theme"]
     if ELEM_ID_CHARTS in page_config[CFG_N_THEMES][selected_theme]:
@@ -510,7 +521,7 @@ def show_charts(selections, page_config):
         ChartAIO(
             aio_id=f"CHART_{i}",
             plot_cfg=cfg_plot,
-            info_title=translations[lang]["sources"],
+            info_title=get_multilang_value(translations["sources"], lang),
         )
         for i in range(charts_count)
     ]
@@ -524,8 +535,8 @@ def get_ddl_values(data_node, data_structures, column_id):
     default_item = ""
     for idx, data_cfg in enumerate(data_node):
         # is it there a label? Override the one read from the data
-        if "label" in data_cfg:
-            lbl = data_cfg["label"]
+        if not is_string_empty(data_cfg):
+            lbl = get_multilang_value(data_cfg["label"])
         else:
             lbl = get_code_from_structure_and_dq(data_structures, data_cfg, column_id)[
                 "name"
@@ -553,8 +564,9 @@ def set_options_main(data_structures, selection, config):
     # The main area title
     name = ""
     main_node = config[CFG_N_THEMES][selected_theme].get(ELEM_ID_MAIN, None)
-    if main_node is not None and "name" in main_node:
-        name = main_node["name"]
+
+    if not is_string_empty(main_node):
+        name = get_multilang_value(main_node["label"])
 
     # Find the data nodes to fill the ddl
     ddl_items = []
@@ -657,12 +669,16 @@ def set_options_charts(data_structures, selection, config, component_id):
     # The card index
     chart_idx = int(component_id["aio_id"].split("_")[1])
     chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
-    card_title = chart_cfg.get("name", "")
+    card_label = ""
+    if not is_string_empty(chart_cfg):
+        card_label = get_multilang_value(chart_cfg["label"])
 
-    # Find the data nodes to fill the ddl   
+    # Find the data nodes to fill the ddl
     ddl_items = []
     default_item = ""
-    ddl_items, default_item = get_ddl_values(chart_cfg["data"], data_structures, ID_INDICATOR)
+    ddl_items, default_item = get_ddl_values(
+        chart_cfg["data"], data_structures, ID_INDICATOR
+    )
 
     # the chart types
     chart_types = []
@@ -674,7 +690,7 @@ def set_options_charts(data_structures, selection, config, component_id):
         ]
     default_graph = chart_cfg.get("default_graph", "")
 
-    return card_title, ddl_items, default_item, chart_types, default_graph
+    return card_label, ddl_items, default_item, chart_types, default_graph
 
 
 # Triggered when the selection changes. Updates the charts.
@@ -833,6 +849,7 @@ def download_data(
         return dcc.send_data_frame(df.to_excel, "data.xlsx", index=False), None, None
     elif n_clicks_csv is not None:
         return dcc.send_data_frame(df.to_csv, "data.csv", index=False), None, None
+
 
 def download_data(selections, page_cfg, source_id, map_sel, chart_sel, chart_type):
 

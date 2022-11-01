@@ -106,4 +106,5 @@ class ChartAIO(html.Div):
         # Define the component's layout
         super().__init__(id=self.ids.card(aio_id), 
         className="col",
+        style={"margin-bottom":"20px"},
         children=[card])

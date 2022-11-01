@@ -16,11 +16,11 @@ def page_not_found(pathname):
 
 
 # def get_data(cfg_data, years=None, countries=[], last_n_obs=False, labels="id"):
-def get_structure(cfg_data):
+def get_structure(cfg_data, lang):
     api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
 
     ret = api_access.get_dataflow_info(
-        cfg_data["agency"], cfg_data["id"], cfg_data["version"]
+        cfg_data["agency"], cfg_data["id"], cfg_data["version"], lang
     )
 
     return ret
@@ -68,13 +68,13 @@ def get_structure_id(data_node):
 
 
 # Downloads and adds the structure to the struct object if it doesn't exist, skips otherwise
-def add_structure(structs, data_cfg):
+def add_structure(structs, data_cfg, lang):
     struct_id = get_structure_id(data_cfg)
     if not struct_id in structs:
         # print("GETTING " + struct_id)
-        structs[struct_id] = get_structure(data_cfg)
+        structs[struct_id] = get_structure(data_cfg, lang)
     # else:
-        # print(">>SKIPPED " + struct_id)
+    # print(">>SKIPPED " + struct_id)
 
 
 # returns the codelist attached to a dataflow's column (dimension or attribute)
@@ -153,3 +153,31 @@ def merge_with_codelist(df, data_structures, struct_id, column_id):
     else:
         df["_L_" + column_id] = df[column_id]
     return df
+
+
+# Multilanguage strings utils
+
+
+def is_string_empty(container_node, label_id="label"):
+    if not label_id in container_node:
+        return True
+    if isinstance(container_node[label_id], str) and container_node[label_id] == "":
+        return True
+    if (
+        isinstance(container_node[label_id], dict) and not container_node[label_id]
+    ):  # is dict empty?
+        return True
+
+    return False
+
+
+def get_multilang_value(label_node, preferred_language="en"):
+    if isinstance(label_node, str):
+        return label_node
+    if isinstance(label_node, dict):
+        if preferred_language in label_node:
+            return label_node[preferred_language]
+        elif "en" in label_node:
+            return label_node["en"]
+            
+    return list(label_node.values())[0]
