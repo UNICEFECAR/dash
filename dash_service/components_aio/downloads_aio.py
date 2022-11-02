@@ -37,13 +37,11 @@ class DownloadsAIO(dbc.ButtonGroup):
             "aio_id": aio_id,
         }
 
-
-
     # Make the ids class a public class
     ids = ids
 
     # Define the arguments of the All-in-One component
-    def __init__(self, aio_id=None):
+    def __init__(self, aio_id=None, lbl_excel="Download Excel", lbl_csv="Download CSV"):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
             aio_id = str(uuid.uuid4())
@@ -51,11 +49,9 @@ class DownloadsAIO(dbc.ButtonGroup):
         # Create the card body
         ret = [
             dbc.Button(
-                "Download Excel", id=self.ids.btn_down_excel(aio_id), className="btn-sm"
+                lbl_excel, id=self.ids.btn_down_excel(aio_id), className="btn-sm"
             ),
-            dbc.Button(
-                "Download CSV", id=self.ids.btn_down_csv(aio_id), className="btn-sm"
-            ),
+            dbc.Button(lbl_csv, id=self.ids.btn_down_csv(aio_id), className="btn-sm"),
             dcc.Download(id=self.ids.dcc_down_excel(aio_id)),
             dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
         ]

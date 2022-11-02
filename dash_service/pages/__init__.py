@@ -107,7 +107,10 @@ def _get_struct_id(structid_or_data_cfg):
     return structid_or_data_cfg
 
 
-def get_col_name(data_structures, structid_or_data_cfg, dim_or_attrib_id):
+def get_col_name(data_structures, structid_or_data_cfg, dim_or_attrib_id, lang="en", lbl_override=None):
+    if lbl_override is not None and dim_or_attrib_id in lbl_override and lang in lbl_override[dim_or_attrib_id]:
+        return lbl_override[dim_or_attrib_id][lang]
+
     struct_id = _get_struct_id(structid_or_data_cfg)
 
     item = _get_dim_or_attrib_from_struct(data_structures, struct_id, dim_or_attrib_id)

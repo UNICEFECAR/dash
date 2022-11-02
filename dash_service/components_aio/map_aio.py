@@ -64,7 +64,7 @@ class MapAIO(html.Div):
     ids = ids
 
     # Define the arguments of the All-in-One component
-    def __init__(self, aio_id=None, plot_cfg=None, info_title=""):
+    def __init__(self, aio_id=None, plot_cfg=None, info_title="", lbl_show_hist = "Show historical data", lbl_excel="Download Excel", lbl_csv="Download CSV"):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
             aio_id = str(uuid.uuid4())
@@ -87,8 +87,8 @@ class MapAIO(html.Div):
                 dbc.Checklist(
                     options=[
                         {
-                            "label": "Show historical data",
-                            "value": 1,
+                            "label": lbl_show_hist,
+                            "value": 1
                         }
                     ],
                     value=[],
@@ -101,7 +101,7 @@ class MapAIO(html.Div):
                 html.Br(),
                 html.Div(
                     className="fload_left",
-                    children=[DownloadsAIO(aio_id)],
+                    children=[DownloadsAIO(aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv)],
                 ),
                 # Icon wrapper: a workaround to link the popover that wouldn't work with aio created IDs
                 html.Div(

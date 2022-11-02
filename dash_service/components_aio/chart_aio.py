@@ -52,7 +52,14 @@ class ChartAIO(html.Div):
     # Make the ids class a public class
     ids = ids
 
-    def __init__(self, aio_id=None, plot_cfg=None,info_title=""):
+    def __init__(
+        self,
+        aio_id=None,
+        plot_cfg=None,
+        info_title="",
+        lbl_excel="Download Excel",
+        lbl_csv="Download CSV",
+    ):
 
         if aio_id is None:
             aio_id = str(uuid.uuid4())
@@ -68,14 +75,14 @@ class ChartAIO(html.Div):
                 dcc.Dropdown(id=self.ids.ddl(aio_id), className="dcc_control"),
                 html.Br(),
                 dbc.RadioItems(
-                    id=self.ids.chart_types(aio_id),
-                    inline=True,
-                    options=[]
+                    id=self.ids.chart_types(aio_id), inline=True, options=[]
                 ),
                 dcc.Loading([dcc.Graph(id=self.ids.chart(aio_id), config=plot_cfg)]),
                 html.Div(
                     className="fload_left",
-                    children=[DownloadsAIO(aio_id)],
+                    children=[
+                        DownloadsAIO(aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv)
+                    ],
                 ),
                 # Icon wrapper: a workaround to link the popover that wouldn't work with aio created IDs
                 html.Div(
@@ -101,10 +108,12 @@ class ChartAIO(html.Div):
             ]
         )
 
-        card =dbc.Card(children=[card_header, card_body])
+        card = dbc.Card(children=[card_header, card_body])
 
         # Define the component's layout
-        super().__init__(id=self.ids.card(aio_id), 
-        className="col",
-        style={"margin-bottom":"20px"},
-        children=[card])
+        super().__init__(
+            id=self.ids.card(aio_id),
+            className="col",
+            style={"margin-bottom": "20px"},
+            children=[card],
+        )

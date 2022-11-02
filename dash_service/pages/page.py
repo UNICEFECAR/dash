@@ -1,3 +1,4 @@
+from msilib import type_key
 import textwrap
 
 import dash
@@ -42,13 +43,15 @@ ID_OBS_VALUE = "OBS_VALUE"
 ID_DATA_SOURCE = "DATA_SOURCE"
 ID_TIME_PERIOD = "TIME_PERIOD"
 LABEL_COL_PREFIX = "_L_"
-DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
+# DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
+DEFAULT_LABELS = ["OBS_VALUE", "TIME_PERIOD"]
 
 ELEM_ID_CARDS = "CARDS"
 ELEM_ID_MAIN = "MAIN"
 ELEM_ID_CHARTS = "CHARTS"
 
 CFG_N_THEMES = "THEMES"
+CFG_N_DSD_LBL_OVERR = "dsd_labels_override"
 
 
 # set defaults
@@ -61,6 +64,13 @@ px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 translations = {
     "sources": {"en": "Sources", "pt": "[PT] Sources"},
     "years": {"en": "Years", "pt": "Anos"},
+    "show_historical": {"en": "Show historical data", "pt": "Mostrar série histórica"},
+    "bar": {"en": "Bar", "pt": "Gráfico em colunas"},
+    "line": {"en": "Line", "pt": "Gráfico em linhas"},
+    "download_excel": {"en": "Download Excel", "pt": "[PT] Download Excel"},
+    "download_csv": {"en": "Download CSV", "pt": "[PT] Download CSV"},
+    "OBS_VALUE": {"en": "Value", "pt": "Valores"},
+    "TIME_PERIOD": {"en": "Time", "pt": "[PT] Time"},
 }
 
 # the configuration of the "Download plot" button in the charts
@@ -252,6 +262,15 @@ def render_page_template(
                                     plot_cfg=cfg_plot,
                                     info_title=get_multilang_value(
                                         translations["sources"], lang
+                                    ),
+                                    lbl_show_hist=get_multilang_value(
+                                        translations["show_historical"], lang
+                                    ),
+                                    lbl_excel=get_multilang_value(
+                                        translations["download_excel"], lang
+                                    ),
+                                    lbl_csv=get_multilang_value(
+                                        translations["download_csv"], lang
                                     ),
                                 )
                             ],
@@ -522,6 +541,8 @@ def show_charts(selections, page_config, lang):
             aio_id=f"CHART_{i}",
             plot_cfg=cfg_plot,
             info_title=get_multilang_value(translations["sources"], lang),
+            lbl_excel=get_multilang_value(translations["download_excel"], lang),
+            lbl_csv=get_multilang_value(translations["download_csv"], lang),
         )
         for i in range(charts_count)
     ]
@@ -594,10 +615,11 @@ def set_options_main(data_structures, selection, config):
         State("store", "data"),
         State("page_config", "data"),
         State("geoj", "data"),
+        State("lang", "data"),
     ],
 )
 def main_figure(
-    ddl_value, show_historical_data, data_structs, selections, config, geoj
+    ddl_value, show_historical_data, data_structs, selections, config, geoj, lang
 ):
 
     # find the data node in the configuration for the user's selection
@@ -631,7 +653,11 @@ def main_figure(
 
     # Add the labels for all the dimensions
     options = config[CFG_N_THEMES][current_theme][ELEM_ID_MAIN]["options"]
-    options["labels"] = DEFAULT_LABELS.copy()
+
+    options["labels"] = {}
+    for lbl in DEFAULT_LABELS:
+        options["labels"][lbl] = get_multilang_value(translations[lbl], lang)
+
     for dim in data_structs[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
         dim_lbl = get_col_name(data_structs, struct_id, dim_id)
@@ -656,14 +682,16 @@ def main_figure(
     Output(ChartAIO.ids.ddl(MATCH), "value"),
     Output(ChartAIO.ids.chart_types(MATCH), "options"),
     Output(ChartAIO.ids.chart_types(MATCH), "value"),
+    Output(ChartAIO.ids.chart_types(MATCH), "style"),
     Input("data_structures", "data"),
     [
         State("store", "data"),
         State("page_config", "data"),
         State(ChartAIO.ids.card_title(MATCH), "id"),
+        State("lang", "data"),
     ],
 )
-def set_options_charts(data_structures, selection, config, component_id):
+def set_options_charts(data_structures, selection, config, component_id, lang):
     selected_theme = selection["theme"]
 
     # The card index
@@ -685,12 +713,19 @@ def set_options_charts(data_structures, selection, config, component_id):
 
     if "graphs" in chart_cfg:
         chart_types = [
-            {"label": type_key.capitalize(), "value": type_key}
+            {
+                "label": get_multilang_value(translations[type_key.lower()], lang),
+                "value": type_key,
+            }
             for type_key in chart_cfg["graphs"].keys()
         ]
     default_graph = chart_cfg.get("default_graph", "")
+    if len(chart_types) == 1:
+        chart_style = {"visibility": "hidden"}
+    else:
+        chart_style = {"visibility": "visible"}
 
-    return card_label, ddl_items, default_item, chart_types, default_graph
+    return card_label, ddl_items, default_item, chart_types, default_graph, chart_style
 
 
 # Triggered when the selection changes. Updates the charts.
@@ -707,10 +742,11 @@ def set_options_charts(data_structures, selection, config, component_id):
         State("store", "data"),
         State("page_config", "data"),
         State(ChartAIO.ids.card_title(MATCH), "id"),
+        State("lang", "data"),
     ],
 )
 def update_charts(
-    ddl_value, chart_type, data_structures, selection, config, component_id
+    ddl_value, chart_type, data_structures, selection, config, component_id, lang
 ):
     selected_theme = selection["theme"]
     chart_idx = int(component_id["aio_id"].split("_")[1])
@@ -754,10 +790,23 @@ def update_charts(
         if o in options and LABEL_COL_PREFIX + options[o] in df.columns:
             options[o] = LABEL_COL_PREFIX + options[o]
 
-    options["labels"] = options["labels"] = DEFAULT_LABELS.copy()
+    # options["labels"] = options["labels"] = DEFAULT_LABELS.copy()
+    options["labels"] = {}
+    for lbl in DEFAULT_LABELS:
+        options["labels"][lbl] = get_multilang_value(translations[lbl], lang)
+    node_lbl_override = None
+    if CFG_N_DSD_LBL_OVERR in config:
+        node_lbl_override = config[CFG_N_DSD_LBL_OVERR]
+
     for dim in data_structures[struct_id]["dsd"]["dims"]:
         dim_id = dim["id"]
-        dim_lbl = get_col_name(data_structures, struct_id, dim_id)
+        dim_lbl = get_col_name(
+            data_structures,
+            struct_id,
+            dim_id,
+            lang=lang,
+            lbl_override=node_lbl_override,
+        )
         lbl_dim_id = dim_id
         # Is the column coded? Than get the label column (just ref_area)
         if LABEL_COL_PREFIX + dim_id in df.columns:
