@@ -2,6 +2,7 @@ import json
 import pathlib
 from ..sdmx import data_access, data_access_sdmx
 from datetime import datetime
+from dash import html
 import pandas as pd
 
 years = list(range(2007, datetime.now().year))
@@ -107,8 +108,18 @@ def _get_struct_id(structid_or_data_cfg):
     return structid_or_data_cfg
 
 
-def get_col_name(data_structures, structid_or_data_cfg, dim_or_attrib_id, lang="en", lbl_override=None):
-    if lbl_override is not None and dim_or_attrib_id in lbl_override and lang in lbl_override[dim_or_attrib_id]:
+def get_col_name(
+    data_structures,
+    structid_or_data_cfg,
+    dim_or_attrib_id,
+    lang="en",
+    lbl_override=None,
+):
+    if (
+        lbl_override is not None
+        and dim_or_attrib_id in lbl_override
+        and lang in lbl_override[dim_or_attrib_id]
+    ):
         return lbl_override[dim_or_attrib_id][lang]
 
     struct_id = _get_struct_id(structid_or_data_cfg)
@@ -182,5 +193,5 @@ def get_multilang_value(label_node, preferred_language="en"):
             return label_node[preferred_language]
         elif "en" in label_node:
             return label_node["en"]
-            
+
     return list(label_node.values())[0]
