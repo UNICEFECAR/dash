@@ -11,6 +11,7 @@ from dash import (
 )
 import dash_bootstrap_components as dbc
 
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
@@ -32,8 +33,10 @@ from . import (
     EMPTY_CHART,
     DEFAULT_LABELS,
     dimension_names,
+    get_card_popover_body,
 )
 
+# "#37568fff" --> proper hexa SOCR design required
 colours = [
     "primary",
     "success",
@@ -83,6 +86,12 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "EDU_FIN_EXP_L02",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "EDU_FIN_EXP_L1",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -121,8 +130,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -138,7 +150,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -174,6 +186,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -186,6 +199,7 @@ page_config = {
                 "EDUNF_ADMIN_L2_MAT",
                 "EDUNF_ADMIN_L2_REA",
                 "EDU_FIN_EXP_PT_GDP",
+                "EDU_FIN_EXP_L02",
                 "EDU_FIN_EXP_L1",
                 "EDU_FIN_EXP_L2",
                 "EDU_FIN_EXP_L3",
@@ -219,27 +233,27 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "EDUNF_OFST_L1_UNDER1",
-                "suffix": "out-of-school children",
-                "min_max": False,
+                "indicator": "EDUNF_ROFST_L1_UNDER1",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "EDUNF_OFST_L1",
-                "suffix": "out-of-school children",
-                "min_max": False,
+                "indicator": "EDUNF_ROFST_L1",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "EDUNF_OFST_L2",
-                "suffix": "out-of-school adolescents",
-                "min_max": False,
+                "indicator": "EDUNF_ROFST_L2",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "EDUNF_OFST_L3",
-                "suffix": "out-of-school youth",
-                "min_max": False,
+                "indicator": "EDUNF_ROFST_L3",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
             },
             {
                 "name": "",
@@ -275,8 +289,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -292,7 +309,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -328,6 +345,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -338,10 +356,10 @@ page_config = {
                 "EDUNF_CR_L1",
                 "EDUNF_CR_L2",
                 "EDUNF_CR_L3",
-                "EDUNF_OFST_L1_UNDER1",
-                "EDUNF_OFST_L1",
-                "EDUNF_OFST_L2",
-                "EDUNF_OFST_L3",
+                "EDUNF_ROFST_L1_UNDER1",
+                "EDUNF_ROFST_L1",
+                "EDUNF_ROFST_L2",
+                "EDUNF_ROFST_L3",
                 "EDUNF_NERA_L1_UNDER1",
                 "EDU_SDG_SCH_L1",
                 "EDU_SDG_SCH_L2",
@@ -402,12 +420,6 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
-            {
-                "name": "",
-                "indicator": "ECD_CHLD_36-59M_LMPSL",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
         ],
         "AIO_AREA": {
             "graphs": {
@@ -418,8 +430,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -435,7 +450,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -471,6 +486,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -486,7 +502,6 @@ page_config = {
                 "EDU_PISA_LOW_ACHIEVE_SCI",
                 "EDU_SDG_STU_L2_GLAST_MAT",
                 "EDU_SDG_STU_L2_GLAST_REA",
-                "ECD_CHLD_36-59M_LMPSL",
             ],
             "default_graph": "bar",
             "default": "EDUNF_ESL_L1",
@@ -517,8 +532,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -534,7 +552,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -570,6 +588,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -586,7 +605,40 @@ page_config = {
     },
 }
 
-register_page(__name__, path="/child-education", title="Education")
+# customization of plots requested by Siraj
+packed_config = {
+    "packed_EXP": {
+        "indicators": [
+            "EDU_FIN_EXP_L02",
+            "EDU_FIN_EXP_L1",
+            "EDU_FIN_EXP_L2",
+            "EDU_FIN_EXP_L3",
+            "EDU_FIN_EXP_L4",
+            "EDU_FIN_EXP_L5T8",
+        ],
+        "card_key": "EDU_FIN_EXP_L02",
+        "mapping": {
+            "CODE": {
+                "CODE": {
+                    "EDU_FIN_EXP_L02": "Pre-primary",
+                    "EDU_FIN_EXP_L1": "Primary",
+                    "EDU_FIN_EXP_L2": "Lower-secondary",
+                    "EDU_FIN_EXP_L3": "Upper-secondary",
+                    "EDU_FIN_EXP_L4": "Post-secondary",
+                    "EDU_FIN_EXP_L5T8": "Tertiary",
+                }
+            },
+        },
+        "options": {
+            "bar": {
+                "color": "CODE",
+                "barmode": "relative",
+            }
+        },
+    }
+}
+
+register_page(__name__, path="/child-education", title="Education and Leisure")
 page_prefix = "edu"
 
 # configure the Dash instance's layout
@@ -598,7 +650,7 @@ layout = html.Div(
             fluid=True,
             children=get_base_layout(
                 indicators=page_config,
-                main_subtitle="Education",
+                main_subtitle="Education and Leisure",
                 page_prefix=page_prefix,
             ),
         ),
@@ -687,27 +739,6 @@ def make_card(
     return card
 
 
-def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's
-        displayed result; it displays the countries as a list, each on a separate line
-
-    Args:
-        sources (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    country_list = []
-    # lbassil: added this condition to stop the exception when sources is empty
-    if len(sources) > 0:
-        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(country_list)
-        return card_countries
-    else:
-        return "NA"
-
-
 @callback(
     Output(f"{page_prefix}-store", "data"),
     Output(f"{page_prefix}-country_selector", "checked"),
@@ -763,6 +794,7 @@ def apply_filters(
         indicators_dict=indicators,
         years=selected_years,
         countries=countries_selected_codes,
+        count_names=countries_selected,
     )
 
     return (
@@ -783,6 +815,7 @@ def indicator_card(
     min_max=False,
     sex_code=None,
     age_group=None,
+    data_provided=None,
 ):
     indicators = numerator.split(",")
 
@@ -796,13 +829,17 @@ def indicator_card(
     if sex_code is not None:
         dimensions["SEX"] = [sex_code]
 
-    filtered_data = get_filtered_dataset(
-        indicators,
-        selections["years"],
-        selections["countries"],
-        breakdown,
-        dimensions,
-        latest_data=True,
+    filtered_data = (
+        get_filtered_dataset(
+            indicators,
+            selections["years"],
+            selections["countries"],
+            breakdown,
+            dimensions,
+            latest_data=True,
+        )
+        if data_provided is None
+        else data_provided
     )
 
     df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
@@ -849,7 +886,7 @@ def indicator_card(
         .set_index(["Country_name", "TIME_PERIOD"])
     )
 
-    if suffix.lower() == "countries":
+    if "countries" in suffix.lower():
         # this is a hack to accomodate small cases (to discuss with James)
         if "FREE" in numerator or "COMP" in numerator:
             # trick to filter number of years of free education
@@ -888,13 +925,54 @@ def indicator_card(
 
     # define indicator header text: the resultant number except for the min-max range
     if min_max and len(sources) > 1:
-        # use string general format
-        indicator_min = "{:g}".format(numerator_pairs["OBS_VALUE"].min())
-        indicator_max = "{:g}".format(numerator_pairs["OBS_VALUE"].max())
+        min_val = numerator_pairs["OBS_VALUE"].min()
+        max_val = numerator_pairs["OBS_VALUE"].max()
+        # string format for cards: thousands separator and number of decimals
+        min_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(min_val) or "." not in str(min_val)
+                else (
+                    "0"
+                    if str(min_val)[::-1][0] == "0"
+                    else str(str(min_val)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        max_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(max_val) or "." not in str(max_val)
+                else (
+                    "0"
+                    if str(max_val)[::-1][0] == "0"
+                    else str(str(max_val)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        indicator_min = min_format.format(min_val)
+        indicator_max = max_format.format(max_val)
         indicator_header = f"{indicator_min} - {indicator_max}"
     else:
-        # use string general format
-        indicator_header = "{:g}".format(indicator_sum)
+        # string format for cards: thousands separator and number of decimals
+        sum_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(indicator_sum) or "." not in str(indicator_sum)
+                else (
+                    "0"
+                    if str(indicator_sum)[::-1][0] == "0"
+                    else str(str(indicator_sum)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        indicator_header = sum_format.format(indicator_sum)
 
     return make_card(
         name,
@@ -1018,6 +1096,13 @@ def breakdown_options(is_active_button, fig_type, buttons_id):
         if truth
     ][0]
 
+    # check if indicator is a packed config
+    indicator = (
+        indicator
+        if indicator not in packed_config
+        else packed_config[indicator]["card_key"]
+    )
+
     options = [{"label": "Total", "value": "TOTAL"}]
     # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
     all_breakdowns = [
@@ -1070,6 +1155,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
         Output(f"{page_prefix}-aio_area_data_info", "children"),
+        Output(f"{page_prefix}-no-data-hover-body", "children"),
     ],
     Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
     [
@@ -1101,32 +1187,66 @@ def aio_area_figure(
     )
 
     fig_type = selected_type if selected_type else default_graph
-    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type].copy()
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
     layout_opt = fig_config.get("layout_options")
     dimension = False if fig_type in ["line", "map"] or compare == "TOTAL" else compare
     indicator_name = str(indicator_names.get(indicator, ""))
 
-    data = get_filtered_dataset(
-        [indicator],
-        selections["years"],
-        selections["countries"],
-        compare,
-        latest_data=False if fig_type in ["line", "map"] else True,
-    )
+    if indicator not in packed_config:
+
+        # query one indicator
+        data = get_filtered_dataset(
+            [indicator],
+            selections["years"],
+            selections["countries"],
+            compare,
+            latest_data=False if fig_type == "line" else True,
+        )
+
+    else:
+
+        # query packed indicators
+        data = get_filtered_dataset(
+            packed_config[indicator]["indicators"],
+            selections["years"],
+            selections["countries"],
+            compare,
+            latest_data=False if fig_type == "line" else True,
+        )
+        # map columns
+        if "mapping" in packed_config[indicator]:
+            for key_col in packed_config[indicator]["mapping"]:
+                map_col = next(iter(packed_config[indicator]["mapping"][key_col]))
+                data[map_col] = data[key_col].map(
+                    packed_config[indicator]["mapping"][key_col][map_col]
+                )
+        if "agg" in packed_config[indicator]:
+            # aggregation depends in different plot types
+            if fig_type in packed_config[indicator]["agg"]:
+                data = eval(packed_config[indicator]["agg"][fig_type])
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
         return EMPTY_CHART, "", [], []
     else:
-        data.sort_values("OBS_VALUE", ascending=False, inplace=True)
+        data.sort_values(
+            "OBS_VALUE",
+            ascending=False if data.OBS_VALUE.dtype.kind in "iufc" else True,
+            inplace=True,
+        )
 
     # indicator card
+    card_key = (
+        indicator
+        if indicator not in packed_config
+        else packed_config[indicator]["card_key"]
+    )
     card_config = [
         elem
         for elem in indicators_dict[selections["theme"]]["CARDS"]
-        if elem["indicator"] == indicator
+        if elem["indicator"] == card_key
     ]
 
     ind_card = (
@@ -1142,16 +1262,17 @@ def aio_area_figure(
             card_config[0].get("min_max"),
             card_config[0].get("sex"),
             card_config[0].get("age"),
+            data if card_config[0].get("data_provided") else None,
         )
     )
 
     # lbassil: was UNIT_MEASURE
     name = (
-        data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()[0]
-        if len(data[data["CODE"] == indicator]["Unit_name"].astype(str).unique()) > 0
+        data[data["CODE"] == card_key]["Unit_name"].astype(str).unique()[0]
+        if len(data[data["CODE"] == card_key]["Unit_name"].astype(str).unique()) > 0
         else ""
     )
-    df_indicator_sources = df_sources[df_sources["Code"] == indicator]
+    df_indicator_sources = df_sources[df_sources["Code"] == card_key]
     unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
     source = (
         "; ".join(list(unique_indicator_sources))
@@ -1180,7 +1301,12 @@ def aio_area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=1, y=0.5),
-        xaxis={"categoryorder": "total descending", "tickangle": -45},
+        xaxis={
+            "categoryorder": "total descending",
+            "tickangle": -45,
+            "tickmode": "linear",
+            "tickfont_size": 10,
+        },
     )
     if layout_opt:
         layout.update(layout_opt)
@@ -1194,6 +1320,10 @@ def aio_area_figure(
             dtick=1,
             categoryorder="total ascending",
         )
+        if data.OBS_VALUE.dtype.kind not in "iufc":
+            layout["yaxis"] = dict(
+                categoryorder="array", categoryarray=packed_config[indicator]["yaxis"]
+            )
 
     if dimension:
         # lbassil: use the dimension name instead of the code
@@ -1204,14 +1334,21 @@ def aio_area_figure(
         data.sort_values(by=[dimension], inplace=True)
 
     # rename figure_type 'map': 'choropleth' (plotly express)
-    fig_type = "choropleth_mapbox" if fig_type == "map" else fig_type
+    if fig_type == "map":
+        fig_type = "choropleth_mapbox"
+        options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
+    # update options if packed plot
+    if indicator in packed_config:
+        if "options" in packed_config[indicator]:
+            if fig_type in packed_config[indicator]["options"]:
+                options.update(packed_config[indicator]["options"][fig_type])
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
 
-    # number of countries reporting data
-    count_rep = len(data.Country_name.unique())
+    # countries not reporting
+    not_rep_count = np.setdiff1d(selections["count_names"], data.Country_name.unique())
     # number of countries from selection
     count_sel = len(selections["countries"])
 
@@ -1246,7 +1383,7 @@ def aio_area_figure(
             html.Div(
                 [
                     html.P(
-                        "Selected countries reporting data: ",
+                        "Countries without data: ",
                         style={
                             "display": "inline-block",
                             "textDecoration": "underline",
@@ -1254,7 +1391,7 @@ def aio_area_figure(
                         },
                     ),
                     html.P(
-                        f" {count_rep} / {count_sel}",
+                        f" {len(not_rep_count)} / {count_sel}",
                         style={
                             "display": "inline-block",
                             "fontWeight": "bold",
@@ -1265,4 +1402,5 @@ def aio_area_figure(
                 ]
             )
         ],
+        dcc.Markdown(["- " + "\n- ".join(sorted(not_rep_count, key=str.lower))]),
     )

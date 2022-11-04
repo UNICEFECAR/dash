@@ -11,6 +11,7 @@ from dash import (
 )
 import dash_bootstrap_components as dbc
 
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
@@ -32,8 +33,10 @@ from . import (
     EMPTY_CHART,
     DEFAULT_LABELS,
     dimension_names,
+    get_card_popover_body,
 )
 
+# "#3e7c49ff" --> proper hexa SOCR design required
 colours = [
     "primary",
     "success",
@@ -97,8 +100,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -114,7 +120,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -150,6 +156,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -185,12 +192,6 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "CME_TMY0T4",
-                "suffix": "deaths",
-                "min_max": False,
-            },
-            {
-                "name": "",
                 "indicator": "CME_SBR",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -217,8 +218,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -234,7 +238,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -270,6 +274,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -279,7 +284,6 @@ page_config = {
             "indicators": [
                 "CME_MRM0",
                 "CME_MRY0T4",
-                "CME_TMY0T4",
                 "CME_SBR",
                 "MNCH_SAB",
                 "MNCH_CSEC",
@@ -319,8 +323,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -336,7 +343,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -372,6 +379,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -430,8 +438,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -447,7 +458,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -483,6 +494,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -537,8 +549,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -554,7 +569,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -590,6 +605,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -643,8 +659,11 @@ page_config = {
                         barmode="group",
                         text="OBS_VALUE",
                         hover_name="TIME_PERIOD",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        labels={
+                            "OBS_FOOTNOTE": "Footnote",
+                            "DATA_SOURCE": "Primary Source",
+                        },
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         height=500,
                     ),
                     "layout_options": dict(
@@ -660,7 +679,7 @@ page_config = {
                         color="Country_name",
                         hover_name="Country_name",
                         labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE"],
+                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
                         line_shape="spline",
                         render_mode="svg",
                         height=500,
@@ -696,6 +715,7 @@ page_config = {
                             "Country_name": True,
                             "TIME_PERIOD": True,
                             "OBS_FOOTNOTE": True,
+                            "DATA_SOURCE": True,
                         },
                         height=500,
                     ),
@@ -815,27 +835,6 @@ def make_card(
     return card
 
 
-def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's
-        displayed result; it displays the countries as a list, each on a separate line
-
-    Args:
-        sources (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    country_list = []
-    # lbassil: added this condition to stop the exception when sources is empty
-    if len(sources) > 0:
-        for index, source_info in sources.sort_values(by="OBS_VALUE").iterrows():
-            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
-        card_countries = "\n".join(country_list)
-        return card_countries
-    else:
-        return "NA"
-
-
 @callback(
     Output(f"{page_prefix}-store", "data"),
     Output(f"{page_prefix}-country_selector", "checked"),
@@ -891,6 +890,7 @@ def apply_filters(
         indicators_dict=indicators,
         years=selected_years,
         countries=countries_selected_codes,
+        count_names=countries_selected,
     )
 
     return (
@@ -977,9 +977,9 @@ def indicator_card(
         .set_index(["Country_name", "TIME_PERIOD"])
     )
 
-    if suffix.lower() == "countries":
+    if "countries" in suffix.lower():
         # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator:
+        if "FREE" in numerator or "COMP" in numerator:
             # trick to filter number of years of free education
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
@@ -1016,13 +1016,54 @@ def indicator_card(
 
     # define indicator header text: the resultant number except for the min-max range
     if min_max and len(sources) > 1:
-        # use string general format
-        indicator_min = "{:g}".format(numerator_pairs["OBS_VALUE"].min())
-        indicator_max = "{:g}".format(numerator_pairs["OBS_VALUE"].max())
+        min_val = numerator_pairs["OBS_VALUE"].min()
+        max_val = numerator_pairs["OBS_VALUE"].max()
+        # string format for cards: thousands separator and number of decimals
+        min_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(min_val) or "." not in str(min_val)
+                else (
+                    "0"
+                    if str(min_val)[::-1][0] == "0"
+                    else str(str(min_val)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        max_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(max_val) or "." not in str(max_val)
+                else (
+                    "0"
+                    if str(max_val)[::-1][0] == "0"
+                    else str(str(max_val)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        indicator_min = min_format.format(min_val)
+        indicator_max = max_format.format(max_val)
         indicator_header = f"{indicator_min} - {indicator_max}"
     else:
-        # use string general format
-        indicator_header = "{:g}".format(indicator_sum)
+        # string format for cards: thousands separator and number of decimals
+        sum_format = (
+            "{:,."
+            + (
+                "0"
+                if np.isnan(indicator_sum) or "." not in str(indicator_sum)
+                else (
+                    "0"
+                    if str(indicator_sum)[::-1][0] == "0"
+                    else str(str(indicator_sum)[::-1].find("."))
+                )
+            )
+            + "f}"
+        )
+        indicator_header = sum_format.format(indicator_sum)
 
     return make_card(
         name,
@@ -1198,6 +1239,7 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
         Output(f"{page_prefix}-aio_area_data_info", "children"),
+        Output(f"{page_prefix}-no-data-hover-body", "children"),
     ],
     Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
     [
@@ -1229,7 +1271,7 @@ def aio_area_figure(
     )
 
     fig_type = selected_type if selected_type else default_graph
-    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type]
+    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type].copy()
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
     layout_opt = fig_config.get("layout_options")
@@ -1241,7 +1283,7 @@ def aio_area_figure(
         selections["years"],
         selections["countries"],
         compare,
-        latest_data=False if fig_type in ["line", "map"] else True,
+        latest_data=False if fig_type == "line" else True,
     )
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
@@ -1308,7 +1350,12 @@ def aio_area_figure(
         title_x=0.5,
         font=dict(family="Arial", size=12),
         legend=dict(x=1, y=0.5),
-        xaxis={"categoryorder": "total descending", "tickangle": -45},
+        xaxis={
+            "categoryorder": "total descending",
+            "tickangle": -45,
+            "tickmode": "linear",
+            "tickfont_size": 10,
+        },
     )
     if layout_opt:
         layout.update(layout_opt)
@@ -1332,14 +1379,16 @@ def aio_area_figure(
         data.sort_values(by=[dimension], inplace=True)
 
     # rename figure_type 'map': 'choropleth' (plotly express)
-    fig_type = "choropleth_mapbox" if fig_type == "map" else fig_type
+    if fig_type == "map":
+        fig_type = "choropleth_mapbox"
+        options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     if traces:
         fig.update_traces(**traces)
 
-    # number of countries reporting data
-    count_rep = len(data.Country_name.unique())
+    # countries not reporting
+    not_rep_count = np.setdiff1d(selections["count_names"], data.Country_name.unique())
     # number of countries from selection
     count_sel = len(selections["countries"])
 
@@ -1374,7 +1423,7 @@ def aio_area_figure(
             html.Div(
                 [
                     html.P(
-                        "Selected countries reporting data: ",
+                        "Countries without data: ",
                         style={
                             "display": "inline-block",
                             "textDecoration": "underline",
@@ -1382,7 +1431,7 @@ def aio_area_figure(
                         },
                     ),
                     html.P(
-                        f" {count_rep} / {count_sel}",
+                        f" {len(not_rep_count)} / {count_sel}",
                         style={
                             "display": "inline-block",
                             "fontWeight": "bold",
@@ -1393,4 +1442,5 @@ def aio_area_figure(
                 ]
             )
         ],
+        dcc.Markdown(["- " + "\n- ".join(sorted(not_rep_count, key=str.lower))]),
     )
