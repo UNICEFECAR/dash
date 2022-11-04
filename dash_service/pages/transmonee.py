@@ -668,7 +668,12 @@ def get_base_layout(**kwargs):
             dbc.Row(
                 children=[
                     dbc.Col(
-                        html.A(html.Img(src="./assets/home.svg"), href="/"),
+                        html.A(
+                            html.Img(
+                                src=f"{Path(__file__).parent.parent.absolute()}/assets/home.svg"
+                            ),
+                            href="/transmonee",
+                        ),
                         width={"size": 1, "offset": 0},
                         style={"paddingTop": 15},
                     ),
