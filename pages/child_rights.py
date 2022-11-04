@@ -1103,6 +1103,11 @@ def indicator_card(
             indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
             sources = numerator_pairs.index.tolist()
             numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
+        elif "status" in suffix.lower():
+            # CRG D status coung
+            indicator_sum = (numerator_pairs.OBS_VALUE == "D").to_numpy().sum()
+            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE == "D"]
+            sources = numerator_pairs.index.tolist()
         elif absolute:
             # trick cards data availability among group of indicators and latest time_period
             # doesn't require filtering by count == len(numors)
@@ -1126,12 +1131,6 @@ def indicator_card(
             numerator_pairs = numerator_pairs[
                 numerator_pairs.OBS_VALUE == len(indicators)
             ]
-
-    elif "status" in suffix.lower():
-        # CRG D status coung
-        indicator_sum = (numerator_pairs.OBS_VALUE == "D").to_numpy().sum()
-        numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE == "D"]
-        sources = numerator_pairs.index.tolist()
 
     else:
         indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
