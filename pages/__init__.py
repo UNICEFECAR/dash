@@ -31,6 +31,7 @@ DEFAULT_LABELS = {
     "Age_name": "Age",
     "Wealth_name": "Wealth Quintile",
     "OBS_FOOTNOTE": "Footnote",
+    "DATA_SOURCE": "Primary Source",
 }
 
 EMPTY_CHART = {
@@ -68,11 +69,29 @@ indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
 }
+# customed names as requested by siraj: update thousands for consistency, packed indicators
+customed_names = {
+    # erase_name_thousands
+    "DM_BRTS": "Number of births",
+    "DM_POP_TOT_AGE": "Population by age",
+    "HT_SN_STA_OVWGTN": "2.2.2. Number of children moderately or severely overweight",
+    "DM_CHLD_POP": "Child population aged 0-17 years",
+    "DM_ADOL_POP": "Adolescent population aged 10-19 years",
+    "DM_TOT_POP_PROSP": "Population prospects",
+    "DM_ADOL_YOUTH_POP": "Adolescent, young and youth population aged 10-24 years",
+    "DM_ADULT_YOUTH_POP": "Adult youth population aged 20-29 years",
+    "DM_REPD_AGE_POP": "Population of reproductive age 15-49 years",
+    "MG_INTNL_MG_CNTRY_DEST_PS": "International migrant stock by country of destination",
+    # customed plots
+    "packed_CRG": "National Human Rights Institutions in compliance with the Paris Principles",
+    "packed_EXP": "Expenditure on education levels as a percentage of government expenditure on education",
+}
+indicator_names.update(customed_names)
 # lbassil: get the age groups code list as it is not in the DSD
 cl_age = unicef.codelist("CL_AGE", version="1.0")
 age_groups = sdmx.to_pandas(cl_age)
 dict_age_groups = age_groups["codelist"]["CL_AGE"].reset_index()
-age_groups_names = {age["CL_AGE"]: age["name"] for _, age in dict_age_groups.iterrows()}
+age_groups_names = {age.iloc[0]: age.iloc[1] for _, age in dict_age_groups.iterrows()}
 
 units_names = {
     unit.id: str(unit.name)
@@ -100,7 +119,7 @@ dimension_names = {
     "WEALTH_QUINTILE": "Wealth_name",
 }
 
-years = list(range(2010, 2022))
+years = list(range(2000, 2023))
 
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
@@ -276,48 +295,6 @@ data_sources = {
     "TMEE": "Transformative Monitoring for Enhanced Equity",
 }
 
-topics_subtopics = {
-    "All": ["All"],
-    "Education, Leisure, and Culture": [
-        {"Participation": "Education access and participation"},
-        {"Quality": "Learning quality and skills"},
-        {"System": "Education system"},
-    ],
-    "Family Environment and Protection": [
-        {"Violence": "Violence against Children and Women"},
-        {"Care": "Children without parental care"},
-        {"Justice": "Justice for Children"},
-        {"Marriage": "Child marriage and other harmful practices"},
-        {"Labour": "Child labour and other forms of exploitation"},
-    ],
-    "Health and Nutrition": [
-        {"HS": "Health System"},
-        {"MNCH": "Maternal, newborn and child health"},
-        {"Immunization": "Immunization"},
-        {"Nutrition": "Nutrition"},
-        {"Adolescent": "Adolescent physical, mental, and reproductive health"},
-        {"HIVAIDS": "HIV/AIDS"},
-        {"Wash": "Water, sanitation and hygiene"},
-    ],
-    "Poverty and Social Protection": [
-        {"Poverty": "Child Poverty and Material Deprivation"},
-        {"Protection": "Social protection system"},
-    ],
-    "Child Rights Landscape and Governance": [
-        {"Demography": "Demographics"},
-        {"Economy": "Political Economy"},
-        {"Migration": "Migration and Displacement"},
-        {"Access": "Access to Justice"},
-        {"Data": "Data on Children"},
-        {"Spending": "Public spending on Children"},
-    ],
-    "Participation and Civil Rights": [
-        {"Registration": "Birth registration and identity"},
-        {"Information": "Information, Internet and Protection of privacy"},
-        {"Leisure": "Education, Leisure, and Culture"},
-    ],
-}
-
 dict_topics_subtopics = {
     "Education, Leisure, and Culture": [
         "Education access and participation",
@@ -351,6 +328,7 @@ dict_topics_subtopics = {
         "Access to Justice",
         "Data on Children",
         "Public spending on Children",
+        "Child rights governance",
     ],
     "Participation and Civil Rights": [
         "Birth registration and identity",
@@ -358,6 +336,31 @@ dict_topics_subtopics = {
         "Leisure and Culture",
     ],
 }
+
+
+def get_card_popover_body(sources):
+    """This function is used to generate the list of countries that are part of the card's
+        displayed result; it displays the countries as a list, each on a separate line
+
+    Args:
+        sources (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    country_list = []
+    # lbassil: added this condition to stop the exception when sources is empty
+    if len(sources) > 0:
+        # sort by values if numeric else by country
+        sort_col = (
+            "OBS_VALUE" if sources.OBS_VALUE.dtype.kind in "iufc" else "Country_name"
+        )
+        for index, source_info in sources.sort_values(by=sort_col).iterrows():
+            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+        card_countries = "\n".join(country_list)
+        return card_countries
+    else:
+        return "NA"
 
 
 def get_search_countries(add_all):
@@ -447,9 +450,8 @@ def get_filtered_dataset(
         data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
         .sort_values(by=["TIME_PERIOD"])
         .reset_index()
-        .astype({"DATA_SOURCE": str})
     )
-    # if data has no footnotes then pdsdmx erases column
+    # if data has no footnotes or data source then pdsdmx erases column
     if "OBS_FOOTNOTE" in data.columns:
         data = data.astype({"OBS_FOOTNOTE": str})
         data.loc[:, "OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
@@ -458,13 +460,35 @@ def get_filtered_dataset(
     else:
         data["OBS_FOOTNOTE"] = "NA"
 
+    if "DATA_SOURCE" in data.columns:
+        data = data.astype({"DATA_SOURCE": str})
+        data.loc[:, "DATA_SOURCE"] = data.DATA_SOURCE.str.wrap(70).apply(
+            lambda x: x.replace("\n", "<br>")
+        )
+    else:
+        data["DATA_SOURCE"] = "NA"
+
+    # if unit multiplier present convert to integer
+    if "UNIT_MULTIPLIER" in data.columns:
+        data = data.astype({"UNIT_MULTIPLIER": str})
+        # unit multiplier thousands flag (requested by siraj)
+        is_thousand = "3" in data.UNIT_MULTIPLIER.values
+    else:
+        is_thousand = False
+
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
 
-    # convert to numeric and round
+    # convert to numeric
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
+
+    # if unit multiplier thousands modify obs value (requested by siraj)
+    if is_thousand:
+        data["UNIT_MULTIPLIER"] = pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
+        data["OBS_VALUE"] = data["OBS_VALUE"] * 10 ** data["UNIT_MULTIPLIER"]
+
     # round based on indicator unit: index takes 3 decimals
     ind_unit = data.UNIT_MEASURE.iloc[0].value
     data = data.round({"OBS_VALUE": 3 if ind_unit == "IDX" else 1})
@@ -652,12 +676,14 @@ def get_base_layout(**kwargs):
                                                         id=f"{page_prefix}-year_slider",
                                                         min=0,
                                                         max=len(years) - 1,
-                                                        step=None,
+                                                        step=1,
                                                         marks={
+                                                            # display only even years
                                                             index: str(year)
                                                             for index, year in enumerate(
                                                                 years
                                                             )
+                                                            if index % 2 == 0
                                                         },
                                                         value=[0, len(years) - 1],
                                                     ),
@@ -842,6 +868,27 @@ def get_base_layout(**kwargs):
                                                                 ),
                                                                 id=f"{page_prefix}-aio_area_data_info",
                                                                 className="float-left",
+                                                            ),
+                                                            dbc.Popover(
+                                                                [
+                                                                    dbc.PopoverHeader(
+                                                                        html.P(
+                                                                            "Countries without data"
+                                                                        )
+                                                                    ),
+                                                                    dbc.PopoverBody(
+                                                                        id=f"{page_prefix}-no-data-hover-body",
+                                                                        style={
+                                                                            "height": "200px",
+                                                                            "overflowY": "auto",
+                                                                            "whiteSpace": "pre-wrap",
+                                                                        },
+                                                                    ),
+                                                                ],
+                                                                id=f"{page_prefix}-no-data-hover",
+                                                                target=f"{page_prefix}-aio_area_data_info",
+                                                                placement="top-start",
+                                                                trigger="hover",
                                                             ),
                                                             html.Div(
                                                                 dbc.Alert(
