@@ -343,8 +343,9 @@
     "DM_CHLD_POP": {
         "AGE": {
             "AGE": [
-                "Y0T17",
-                "Y0T15",
+                "Y0T4",
+                "Y5T9",
+                "Y10T14",
                 "Y15T17"
             ],
             "SEX": [
@@ -972,10 +973,74 @@
             "SEX": [
                 "F",
                 "M"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
             ]
         },
         "TOTAL": {
             "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ]
+        },
+        "AGE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15",
+                "Y_GE25",
+                "Y15T24"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ]
+        },
+        "RESIDENCE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ],
+            "RESIDENCE": [
+                "U",
+                "R"
+            ]
+        },
+        "WEALTH_QUINTILE": {
+            "SEX": [
+                "_T"
+            ],
+            "AGE": [
+                "Y_GE15"
+            ],
+            "WEALTH_QUINTILE": [
+                "B40",
+                "R60"
+            ],
+            "RESIDENCE": [
                 "_T"
             ]
         }
@@ -2718,6 +2783,45 @@
             ]
         }
     },
+    "EDU_PISA_LOW_ACHIEVE_MAT": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "EDU_PISA_LOW_ACHIEVE_REA": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "EDU_PISA_LOW_ACHIEVE_SCI": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "EDU_SDG_GER_L01": {
         "SEX": {
             "SEX": [
@@ -3579,6 +3683,19 @@
             "AGE": [
                 "Y15T19",
                 "Y15T49"
+            ]
+        }
+    },
+    "FT_SP_DYN_ADKL": {
+        "AGE": {
+            "AGE": [
+                "Y10T14",
+                "Y15T19"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "Y15T19"
             ]
         }
     },
@@ -5144,6 +5261,19 @@
             ]
         }
     },
+    "JJ_VC_PRS_UNSNT": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
     "MG_INTNL_MG_CNTRY_DEST_PS": {
         "AGE": {
             "AGE": [
@@ -6141,24 +6271,9 @@
         }
     },
     "PT_CHLD_1-14_PS-PSY-V_CGVR": {
-        "AGE": {
-            "AGE": [
-                "Y5T9",
-                "Y10T14"
-            ],
-            "RESIDENCE": [
-                "_T"
-            ],
-            "SEX": [
-                "_T"
-            ],
-            "WEALTH_QUINTILE": [
-                "_T"
-            ]
-        },
         "RESIDENCE": {
             "AGE": [
-                "_T",
+                "Y1T14",
                 "Y2T14"
             ],
             "RESIDENCE": [
@@ -6174,7 +6289,7 @@
         },
         "SEX": {
             "AGE": [
-                "_T",
+                "Y1T14",
                 "Y2T14"
             ],
             "RESIDENCE": [
@@ -6190,7 +6305,7 @@
         },
         "TOTAL": {
             "AGE": [
-                "_T",
+                "Y1T14",
                 "Y2T14"
             ],
             "RESIDENCE": [
@@ -6205,7 +6320,7 @@
         },
         "WEALTH_QUINTILE": {
             "AGE": [
-                "_T",
+                "Y1T14",
                 "Y2T14"
             ],
             "RESIDENCE": [
@@ -7291,7 +7406,8 @@
         },
         "RESIDENCE": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "R",
@@ -7306,7 +7422,8 @@
         },
         "SEX": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "_T"
@@ -7336,7 +7453,8 @@
         },
         "WEALTH_QUINTILE": {
             "AGE": [
-                "_T"
+                "M0",
+                "Y0T4"
             ],
             "RESIDENCE": [
                 "_T"
@@ -8002,6 +8120,19 @@
             "AGE": [
                 "_T"
             ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PV_SEV_MAT_SOC_DPRT": {
+        "SEX": {
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
             "SEX": [
                 "_T"
             ]
