@@ -1,59 +1,35 @@
-import dash
-from dash import html
+from dash import html, register_page
 import dash_bootstrap_components as dbc
 
-dash.register_page(__name__, path="/", order=0)
+register_page(__name__, path="/transmonee", order=0, title="TransMonEE Dashboard")
 
 
-def layout(**kwargs):
-    return html.Div(
-        children=[
-            html.Div(
-                className="heading",
-                style={"padding": 36},
-                children=[
-                    html.Div(
-                        className="heading-content",
-                        children=[
-                            html.Div(
-                                className="heading-panel",
-                                style={"padding": 20},
-                                children=[
-                                    html.H1(
-                                        "Home",
-                                        id="main_title",
-                                        className="heading-title",
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            html.Br(),
-            html.Div(
-                children=[
-                    dbc.Card(
-                        [
-                            # dbc.CardHeader(html.H3("State of Children Rights")),
-                            dbc.CardBody(
-                                [
-                                    html.Img(
-                                        src="assets/architecture.png",
-                                        className="rounded mx-auto d-block",
-                                    ),
-                                    html.Br(),
-                                    # html.H4(
-                                    #     "What you can find here...",
-                                    #     className="card-title",
-                                    # ),
-                                ]
-                            ),
-                        ]
-                    ),
-                ],
-                style={"textAlign": "center"},
-            ),
-            html.Br(),
-        ],
-    )
+layout = dbc.Container(
+    [
+        dbc.Row(
+            [
+                html.Div(
+                    [
+                        html.ObjectEl(
+                            html.Img(src="./assets/SOCR_Diagram_Oct_2022_href.svg"),
+                            type="image/svg+xml",
+                            data="./assets/SOCR_Diagram_Oct_2022_href.svg",
+                            className="px-2",
+                            style={
+                                "width": "100%",
+                                "height": "200vh",
+                                # "height": "80rem",
+                                "display": "flex",
+                                "margin-top": "15px",
+                                "margin-bottom": "15px",
+                            },
+                        ),
+                    ]
+                ),
+            ],
+            justify="center",
+            align="center",
+        ),
+    ],
+    fluid=True,
+)
