@@ -6,8 +6,8 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from . import admin, default_settings, register_extensions
 from .extensions import admin, db
 from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
-from .models import Page, Project
-from .views import PageView, ProjectView
+from .models import Page, Project, DataExplorer
+from .views import PageView, ProjectView, DataExplorerView
 
 from werkzeug.exceptions import HTTPException, InternalServerError
 
@@ -30,6 +30,7 @@ register_extensions(server)
 # Flask-Admin
 admin.add_view(ProjectView(Project, db.session))
 admin.add_view(PageView(Page, db.session))
+admin.add_view(DataExplorerView(DataExplorer, db.session))
 
 app = Dash(
     server=server,
@@ -46,3 +47,11 @@ app.layout = main_default_layout()
 @server.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
+
+
+# import dash
+# for r in dash.page_registry:
+#     print(r)
+#     print(dash.page_registry[r])
+#     print("")
+
