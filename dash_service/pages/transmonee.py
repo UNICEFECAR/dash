@@ -4,7 +4,7 @@ import logging
 from io import BytesIO
 from pathlib import Path
 
-from dash import dcc, html
+from dash import dcc, html, get_asset_url
 import dash_bootstrap_components as dbc
 import dash_treeview_antd
 
@@ -669,10 +669,7 @@ def get_base_layout(**kwargs):
                 children=[
                     dbc.Col(
                         html.A(
-                            html.Img(
-                                src=f"{Path(__file__).parent.parent.absolute()}/assets/home.svg"
-                            ),
-                            href="/transmonee",
+                            html.Img(src=get_asset_url("home.svg")), href="/transmonee"
                         ),
                         width={"size": 1, "offset": 0},
                         style={"paddingTop": 15},
