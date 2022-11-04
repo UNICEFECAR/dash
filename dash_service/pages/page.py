@@ -1,4 +1,3 @@
-from msilib import type_key
 import textwrap
 
 import dash
