@@ -44,14 +44,13 @@ ID_DATA_SOURCE = "DATA_SOURCE"
 ID_TIME_PERIOD = "TIME_PERIOD"
 LABEL_COL_PREFIX = "_L_"
 # DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
-DEFAULT_LABELS = ["OBS_VALUE", "TIME_PERIOD"]
+DEFAULT_LABELS = ["OBS_VALUE", "TIME_PERIOD", "REF_AREA"]
 
 ELEM_ID_CARDS = "CARDS"
 ELEM_ID_MAIN = "MAIN"
 ELEM_ID_CHARTS = "CHARTS"
 
 CFG_N_THEMES = "THEMES"
-CFG_N_DSD_LBL_OVERR = "dsd_labels_override"
 
 
 # set defaults
@@ -70,7 +69,8 @@ translations = {
     "download_excel": {"en": "Download Excel", "pt": "[PT] Download Excel"},
     "download_csv": {"en": "Download CSV", "pt": "[PT] Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
-    "TIME_PERIOD": {"en": "Time", "pt": "[PT] Time"},
+    "TIME_PERIOD": {"pt": "Anos"},
+    "REF_AREA": {"pt": "Estado"},
 }
 
 # the configuration of the "Download plot" button in the charts
@@ -601,6 +601,18 @@ def set_options_main(data_structures, selection, config):
     return name, ddl_items, default_item
 
 
+# Util function: creates the label node for the chart configs
+def get_labels(data_structs, struct_id, df_cols, lang, lbl_override):
+    labels = {}
+    for col in df_cols:
+        # check if there is a _L_ col meaning that there is an original column + a label one for the coded column
+        if not col.startswith(LABEL_COL_PREFIX):
+            labels[col] = get_col_name(data_structs, struct_id, col, lang, lbl_override)
+            if LABEL_COL_PREFIX + col in df_cols:
+                labels[LABEL_COL_PREFIX + col] = labels[col]
+    return labels
+
+
 # Triggered when the Map area changes: show historical data is changed or indicator selected
 @callback(
     Output(MapAIO.ids.graph(ELEM_ID_MAIN), "figure"),
@@ -640,32 +652,38 @@ def main_figure(
     # get and merge the ref area labels
     struct_id = get_structure_id(data_cfg)
     df = merge_with_codelist(df, data_structs, struct_id, ID_REF_AREA)
-    df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
+    if ID_DATA_SOURCE in df.columns:
+        df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
     df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE])
 
-    # The data sources
+    # The data sources, hide the icon if data source is ""
     source = ""
     display_source = {"display": "none"}
-    if LABEL_COL_PREFIX + ID_DATA_SOURCE in df.columns:
+    if ID_DATA_SOURCE in df.columns:
+        # use the _L_ column that has been generated at the "merge_with_codelist" step
         source = ", ".join(list(df[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
     if source != "":
         display_source = {"display": "visible"}
 
     # Add the labels for all the dimensions
+    # get the options node (shorted code)
     options = config[CFG_N_THEMES][current_theme][ELEM_ID_MAIN]["options"]
 
-    options["labels"] = {}
-    for lbl in DEFAULT_LABELS:
-        options["labels"][lbl] = get_multilang_value(translations[lbl], lang)
+    # Generate the labels for the chart from the data structure, override with translations
+    options["labels"] = get_labels(
+        data_structs, struct_id, df.columns, lang, translations
+    )
 
-    for dim in data_structs[struct_id]["dsd"]["dims"]:
-        dim_id = dim["id"]
-        dim_lbl = get_col_name(data_structs, struct_id, dim_id)
-        lbl_dim_id = dim_id
-        # Is the column coded? Than get the label column (just ref_area)
-        if LABEL_COL_PREFIX + dim_id in df.columns:
-            lbl_dim_id = LABEL_COL_PREFIX + dim_id
-            options["labels"][lbl_dim_id] = dim_lbl
+    # This chart has hodes some data in the Hover, also hide the label columns for coded dimensions (are added when merged with codelists)
+    if "hover_data" in options:
+        hover_keys = list(options["hover_data"].keys())
+        for hover_k in hover_keys:
+            if LABEL_COL_PREFIX + hover_k in df.columns:
+                if options["hover_data"][hover_k]:
+                    options["hover_data"][hover_k] = False
+                    options["hover_data"][LABEL_COL_PREFIX + hover_k] = True
+                else:
+                    options["hover_data"][LABEL_COL_PREFIX + hover_k] = False
 
     # the geoJson
     options["geojson"] = get_geojson(geoj)
@@ -790,28 +808,9 @@ def update_charts(
         if o in options and LABEL_COL_PREFIX + options[o] in df.columns:
             options[o] = LABEL_COL_PREFIX + options[o]
 
-    # options["labels"] = options["labels"] = DEFAULT_LABELS.copy()
-    options["labels"] = {}
-    for lbl in DEFAULT_LABELS:
-        options["labels"][lbl] = get_multilang_value(translations[lbl], lang)
-    node_lbl_override = None
-    if CFG_N_DSD_LBL_OVERR in config:
-        node_lbl_override = config[CFG_N_DSD_LBL_OVERR]
-
-    for dim in data_structures[struct_id]["dsd"]["dims"]:
-        dim_id = dim["id"]
-        dim_lbl = get_col_name(
-            data_structures,
-            struct_id,
-            dim_id,
-            lang=lang,
-            lbl_override=node_lbl_override,
-        )
-        lbl_dim_id = dim_id
-        # Is the column coded? Than get the label column (just ref_area)
-        if LABEL_COL_PREFIX + dim_id in df.columns:
-            lbl_dim_id = LABEL_COL_PREFIX + dim_id
-            options["labels"][lbl_dim_id] = dim_lbl
+    options["labels"] = get_labels(
+        data_structures, struct_id, df.columns, lang, translations
+    )
 
     if "label" in chart_cfg["data"][int(ddl_value)]:
         indicator_name = chart_cfg["data"][int(ddl_value)]["label"]
