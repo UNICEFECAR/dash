@@ -51,7 +51,7 @@ EMPTY_CHART = {
         "yaxis": {"visible": False},
         "annotations": [
             {
-                "text": "Data request failed, retry selected filters.<br>If this message keeps appearing,<br>then no data is available for the selected filters.",
+                "text": "Data request failed: reclick indicator button.<br>If this message keeps appearing,<br>then no data is available for the selected filters.",
                 "xref": "paper",
                 "yref": "paper",
                 "showarrow": False,
