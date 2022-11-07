@@ -388,7 +388,7 @@ page_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-poverty",
     title="Poverty and Social Protection",
     # order=3,

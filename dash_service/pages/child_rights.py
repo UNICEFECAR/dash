@@ -837,7 +837,7 @@ packed_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-rights",
     title="Child Rights Landscape and Governance",
     # order=1,

@@ -264,7 +264,7 @@ page_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-participation",
     title="Participation",
     # order=4,

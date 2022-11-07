@@ -725,7 +725,7 @@ page_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-health",
     title="Health and Nutrition",
     # order=2,

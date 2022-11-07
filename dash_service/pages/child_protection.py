@@ -580,7 +580,7 @@ page_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-protection",
     title="Family Environment and Protection",
     # order=6,

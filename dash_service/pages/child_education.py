@@ -629,7 +629,7 @@ packed_config = {
 
 register_page(
     __name__,
-    path_template="/transmonee/<page_slug>",
+    # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-education",
     title="Education and Leisure",
     # order=5,
