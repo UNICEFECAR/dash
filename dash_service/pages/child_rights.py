@@ -840,7 +840,7 @@ register_page(
     path_template="/transmonee/<page_slug>",
     path="/transmonee/child-rights",
     title="Child Rights Landscape and Governance",
-    order=1,
+    # order=1,
 )
 page_prefix = "crg"
 

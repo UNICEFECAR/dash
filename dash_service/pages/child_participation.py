@@ -267,7 +267,7 @@ register_page(
     path_template="/transmonee/<page_slug>",
     path="/transmonee/child-participation",
     title="Participation",
-    order=4,
+    # order=4,
 )
 page_prefix = "par"
 

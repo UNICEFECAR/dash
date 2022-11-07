@@ -391,7 +391,7 @@ register_page(
     path_template="/transmonee/<page_slug>",
     path="/transmonee/child-poverty",
     title="Poverty and Social Protection",
-    order=3,
+    # order=3,
 )
 page_prefix = "pov"
 

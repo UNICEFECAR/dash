@@ -583,7 +583,7 @@ register_page(
     path_template="/transmonee/<page_slug>",
     path="/transmonee/child-protection",
     title="Family Environment and Protection",
-    order=6,
+    # order=6,
 )
 page_prefix = "chp"
 

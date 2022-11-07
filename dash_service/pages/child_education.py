@@ -632,7 +632,7 @@ register_page(
     path_template="/transmonee/<page_slug>",
     path="/transmonee/child-education",
     title="Education and Leisure",
-    order=5,
+    # order=5,
 )
 page_prefix = "edu"
 
