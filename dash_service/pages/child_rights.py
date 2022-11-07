@@ -858,24 +858,7 @@ def layout(page_slug=None, **query_parmas):
                     page_prefix=page_prefix,
                 ),
             ),
-            html.Button(
-                id="btnScroll",
-                title="Scroll to top",
-                className="btn btn-dark scroll-top",
-                children=[
-                    fa("fas fa-chevron-up"),
-                ],
-                style={
-                    "position": "fixed",
-                    "right": 20,
-                    "bottom": 20,
-                    "width": 50,
-                    "height": 50,
-                    "padding": 12,
-                    "border": 0,
-                    "display": "none",
-                },
-            ),
+            html.Br(),
         ],
         id="mainContainer",
     )
