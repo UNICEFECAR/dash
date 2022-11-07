@@ -930,7 +930,7 @@ def aio_area_figure(
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if data.empty:
-        return EMPTY_CHART, "", [], []
+        return EMPTY_CHART, "", [], [], []
     else:
         data.sort_values("OBS_VALUE", ascending=False, inplace=True)
 
