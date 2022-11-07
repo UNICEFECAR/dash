@@ -1,3 +1,7 @@
 .js-plotly-plot .plotly .modebar.vertical{
     top: 60px;
 }
+
+.de_rangeslider{
+    width: 100%;
+}
