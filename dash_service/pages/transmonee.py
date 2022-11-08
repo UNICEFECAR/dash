@@ -488,7 +488,9 @@ def get_filtered_dataset(
 
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
     # replace Yes by 1 and No by 0
-    data.OBS_VALUE.replace({"Yes": "1", "No": "0", "<": "", ">": ""}, inplace=True)
+    data.OBS_VALUE.replace(
+        {"(?i)Yes": "1", "(?i)No": "0", "<": "", ">": ""}, inplace=True, regex=True
+    )
 
     # convert to numeric
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
