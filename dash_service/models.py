@@ -56,3 +56,21 @@ class Page(db.Model, AllFeaturesMixin):
                 save_order=True,
             )
             target.slug = new_slug
+
+
+class DataExplorer(db.Model, AllFeaturesMixin):
+    __tablename__ = "dataexplorers"
+
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
+    project = db.relationship("Project")
+    title = db.Column(db.String(80), nullable=False)
+    slug = db.Column(db.String(80), unique=True, nullable=False)
+    content = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
+    )
+
+    def __repr__(self):
+        return "<Data explorer %r>" % self.title
