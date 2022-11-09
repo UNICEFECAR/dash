@@ -4,6 +4,7 @@ import uuid
 import datetime
 
 
+
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
     _LAST1OBS_LABEL = "Show latest data only"

@@ -1,17 +1,14 @@
-from msilib import type_key
 import textwrap
 
 import dash
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, Input, Output, State, ALL
-from dash_service.components import fa
 from dash_service.models import Page, Project
 
 from dash_service.pages import get_data, years, get_geojson
@@ -61,15 +58,15 @@ px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 
 # move this elsewhere
 translations = {
-    "sources": {"en": "Sources", "pt": "[PT] Sources"},
+    "sources": {"en": "Sources", "pt": "Fontes"},
     "years": {"en": "Years", "pt": "Anos"},
     "show_historical": {"en": "Show historical data", "pt": "Mostrar série histórica"},
     "bar": {"en": "Bar", "pt": "Gráfico em colunas"},
     "line": {"en": "Line", "pt": "Gráfico em linhas"},
-    "download_excel": {"en": "Download Excel", "pt": "[PT] Download Excel"},
-    "download_csv": {"en": "Download CSV", "pt": "[PT] Download CSV"},
+    "download_excel": {"en": "Download Excel", "pt": "Download Excel"},
+    "download_csv": {"en": "Download CSV", "pt": "Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
-    "TIME_PERIOD": {"pt": "Anos"},
+    "TIME_PERIOD": {"pt": "Ano"},
     "REF_AREA": {"pt": "Estado"},
 }
 
@@ -551,13 +548,13 @@ def show_charts(selections, page_config, lang):
 
 
 # loops the data node and returns the options for the dropdownlists: options + default value
-def get_ddl_values(data_node, data_structures, column_id):
+def get_ddl_values(data_node, data_structures, column_id,lang):
     items = []
     default_item = ""
     for idx, data_cfg in enumerate(data_node):
         # is it there a label? Override the one read from the data
         if not is_string_empty(data_cfg):
-            lbl = get_multilang_value(data_cfg["label"])
+            lbl = get_multilang_value(data_cfg["label"], lang)
         else:
             lbl = get_code_from_structure_and_dq(data_structures, data_cfg, column_id)[
                 "name"
@@ -577,9 +574,10 @@ def get_ddl_values(data_node, data_structures, column_id):
     [
         State("store", "data"),
         State("page_config", "data"),
+        State("lang", "data"),
     ],
 )
-def set_options_main(data_structures, selection, config):
+def set_options_main(data_structures, selection, config, lang):
     selected_theme = selection["theme"]
 
     # The main area title
@@ -587,14 +585,14 @@ def set_options_main(data_structures, selection, config):
     main_node = config[CFG_N_THEMES][selected_theme].get(ELEM_ID_MAIN, None)
 
     if not is_string_empty(main_node):
-        name = get_multilang_value(main_node["label"])
+        name = get_multilang_value(main_node["label"], lang)
 
     # Find the data nodes to fill the ddl
     ddl_items = []
     default_item = ""
     if main_node is not None and "data" in main_node:
         ddl_items, default_item = get_ddl_values(
-            main_node["data"], data_structures, ID_INDICATOR
+            main_node["data"], data_structures, ID_INDICATOR, lang
         )
 
     # return name, area_options, area_types, default_option, default_graph
@@ -655,6 +653,7 @@ def main_figure(
     if ID_DATA_SOURCE in df.columns:
         df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
     df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE])
+    df = df.sort_values(by=ID_TIME_PERIOD, ascending=True)
 
     # The data sources, hide the icon if data source is ""
     source = ""
@@ -717,13 +716,13 @@ def set_options_charts(data_structures, selection, config, component_id, lang):
     chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
     card_label = ""
     if not is_string_empty(chart_cfg):
-        card_label = get_multilang_value(chart_cfg["label"])
+        card_label = get_multilang_value(chart_cfg["label"], lang)
 
     # Find the data nodes to fill the ddl
     ddl_items = []
     default_item = ""
     ddl_items, default_item = get_ddl_values(
-        chart_cfg["data"], data_structures, ID_INDICATOR
+        chart_cfg["data"], data_structures, ID_INDICATOR, lang
     )
 
     # the chart types
@@ -812,14 +811,16 @@ def update_charts(
         data_structures, struct_id, df.columns, lang, translations
     )
 
+
     if "label" in chart_cfg["data"][int(ddl_value)]:
-        indicator_name = chart_cfg["data"][int(ddl_value)]["label"]
+        indicator_name = get_multilang_value(chart_cfg["data"][int(ddl_value)]["label"],lang)
     else:
         indicator_name = get_code_from_structure_and_dq(
             data_structures, data_cfg, ID_INDICATOR
         )["name"]
 
     # set the chart title, wrap the text when the indicator name is too long
+    
     chart_title = textwrap.wrap(
         indicator_name,
         width=74,
@@ -872,7 +873,7 @@ def update_charts(
         State(ChartAIO.ids.chart_types(ALL), "value"),
     ],
 )
-def download_data(
+def download_data_callb(
     n_clicks_excel,
     n_clicks_csv,
     selections,
