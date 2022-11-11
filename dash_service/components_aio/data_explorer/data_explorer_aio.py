@@ -4,7 +4,6 @@ import uuid
 import datetime
 
 
-
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
     _LAST1OBS_LABEL = "Show latest data only"
@@ -15,14 +14,19 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "dataexplorer",
             "aio_id": aio_id,
         }
-        lastnobs = lambda aio_id: {
+        de_lastnobs = lambda aio_id: {
             "component": "DataExplorer",
-            "subcomponent": "lastnobs",
+            "subcomponent": "de_lastnobs",
             "aio_id": aio_id,
         }
-        time_period = lambda aio_id: {
+        de_time_period = lambda aio_id: {
             "component": "DataExplorer",
-            "subcomponent": "time_period",
+            "subcomponent": "de_time_period",
+            "aio_id": aio_id,
+        }
+        de_filters = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_filters",
             "aio_id": aio_id,
         }
 
@@ -42,7 +46,7 @@ class DataExplorerAIO(html.Div):
         )
 
         filter_lastnobs = dcc.Checklist(
-            id=self.ids.lastnobs(aio_id),
+            id=self.ids.de_lastnobs(aio_id),
             options=[{"label": txt_lastnobs, "value": "lastn"}],
             value=lastnobs,
         )
@@ -54,14 +58,16 @@ class DataExplorerAIO(html.Div):
         time_end = time_max
         if cfg is not None:
             time_min = cfg.get("time_period_filter_start", time_min)
-            time_start = datetime.datetime.now().year - cfg.get("start_n_years_back", back_n_years)
+            time_start = datetime.datetime.now().year - cfg.get(
+                "start_n_years_back", back_n_years
+            )
 
         filter_time = dcc.RangeSlider(
             time_min,
             time_max,
             marks={time_min: str(time_min), time_max: str(time_max)},
             value=[time_start, time_end],
-            id=self.ids.time_period(aio_id),
+            id=self.ids.de_time_period(aio_id),
             className="de_rangeslider",
             allowCross=False,
             tooltip={"placement": "bottom", "always_visible": True},
@@ -70,10 +76,12 @@ class DataExplorerAIO(html.Div):
         left_col = html.Div(
             className="col-sm-12 col-lg-3 bg-light",
             children=[
-                html.Div(children=filter_lastnobs, className="row mb-2"),
-                html.Div(children=filter_time, className="row mb-2"),
-                html.Div(children=["Filters"], className="row mb-2"),
-                html.Div(children=["Pivot control"], className="row mb-2"),
+                html.Div(children=filter_lastnobs),
+                html.Div(children=filter_time),
+                html.Div(
+                    id=self.ids.de_filters(aio_id), children=[]
+                ),
+                html.Div(children=["Pivot control"]),
             ],
         )
 
