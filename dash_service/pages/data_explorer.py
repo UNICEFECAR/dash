@@ -14,12 +14,19 @@ from dash_service.pages import (
     get_multilang_value,
     is_string_empty,
     get_structure,
+    parse_sdmx_data_query,
 )
 
 from dash_service.components_aio.data_explorer.data_explorer_aio import DataExplorerAIO
 from dash_service.components_aio.data_explorer.data_explore_filter_aio import (
     DataExplorerFilterAIO,
 )
+
+_STORE_LANG = "lang"
+_STORE_CONFIG = "de_config"
+_STORE_DSTRUCTS = "de_data_structure"
+_STORE_SELECTIONS = "de_selections"
+
 
 LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
@@ -33,9 +40,6 @@ dash.register_page(
 
 
 def layout(project_slug=None, dataexplorer_slug=None, lang="en", **query_parmas):
-
-    print("in de")
-    print(project_slug, dataexplorer_slug)
 
     if project_slug is None or dataexplorer_slug is None:
         # return render_page_template({}, "Validation Page", [], "", lang)
@@ -79,9 +83,10 @@ def render_page_template(
     template = html.Div(
         className="container",
         children=[
-            dcc.Store(id="lang", data=lang),
-            dcc.Store(id="de_config", data=config),
-            dcc.Store(id="de_data_structure", data={}, storage_type="session"),
+            dcc.Store(id=_STORE_LANG, data=lang),
+            dcc.Store(id=_STORE_CONFIG, data=config),
+            dcc.Store(id=_STORE_DSTRUCTS, data={}, storage_type="session"),
+            dcc.Store(id=_STORE_SELECTIONS, data={}),
             de,
             html.Div(id="div_loaded", children=["..."]),
         ],
@@ -92,14 +97,16 @@ def render_page_template(
 
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
-    Output("de_data_structure", "data"),
+    Output(_STORE_DSTRUCTS, "data"),
     [
-        Input("de_config", "data"),
+        Input(_STORE_CONFIG, "data"),
     ],
-    [State("de_data_structure", "data"), State("lang", "data")],
+    [State(_STORE_DSTRUCTS, "data"), State("lang", "data")],
 )
 # Downloads the DSD for the data.
 def download_struct(de_config, de_data_structure, lang):
+    # Storing by datastructure id makes it faster to jump between dataflows
+    # and prevents using the wrong datastructure stored in the session
     data_struct_id = get_structure_id(de_config["data"])
     if not data_struct_id in de_data_structure:
         print("Downloading data structure " + data_struct_id)
@@ -113,22 +120,43 @@ def download_struct(de_config, de_data_structure, lang):
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
+    Output(_STORE_SELECTIONS, "data"),
     [
-        Input("de_data_structure", "data"),
+        Input(_STORE_DSTRUCTS, "data"),
         Input(DataExplorerFilterAIO.ids.dataexplorerfilter_button(ALL), "n_clicks"),
     ],
-    [State("de_config", "data"), State("lang", "data")],
+    [
+        State(_STORE_CONFIG, "data"),
+        State(_STORE_LANG, "data"),
+        State(_STORE_SELECTIONS, "data"),
+    ],
 )
 # Downloads the DSD for the data.
-def struct_downloaded(de_data_structure, nclicks, de_config, lang):
+def struct_downloaded(de_data_structure, nclicks, de_config, lang, selections):
+    print(selections)
     triggered = dash.callback_context.triggered[0]
+    data_struct_id = get_structure_id(de_config["data"])
+
+    sel_codes = {}
 
     filter_id = ""
-    #A button was clicked
+    # A button was clicked
     if triggered["prop_id"] != "de_data_structure.data":
         filter_id = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
         filter_id = filter_id.split(":")[1].replace('"', "")
-    
+        sel_codes = selections["sel_codes"]
+    # Else it is the first load and the callback has been triggered by the structure load
+    else:
+        dims = de_data_structure[data_struct_id]["dsd"]["dims"]
+        for dim in dims:
+            if not dim["is_time"]:
+                sel_codes[dim["id"]] = []
+        if ("dq") in de_config["data"]:
+            sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
+            # loop the parsed filter to make it resistant to missing dots in the dataquery
+            for i in range(len(sel_filter)):
+                sel_codes[dims[i]["id"]] = sel_filter[i]
+
     data_struct_id = get_structure_id(de_config["data"])
     struct = de_data_structure[data_struct_id]
 
@@ -137,64 +165,20 @@ def struct_downloaded(de_data_structure, nclicks, de_config, lang):
     for dim in struct["dsd"]["dims"]:
         if not dim["is_time"]:
             expanded = False
-            if filter_id == dim["id"]:
+            items = []
+            if filter_id == "DE_FILTER_" + dim["id"]:
+                items = dim["codes"]
                 expanded = True
             filter = DataExplorerFilterAIO(
-                aio_id=dim["id"], label=dim["name"], expanded=expanded
+                aio_id="DE_FILTER_" + dim["id"],
+                label=dim["name"],
+                expanded=expanded,
+                items=items,
+                selected=sel_codes[dim["id"]]
             )
             ret.append(filter)
 
-        # print(dim.keys())
+    selections["expanded_filter"] = filter_id
+    selections["sel_codes"] = sel_codes
 
-    return ret
-
-
-# # Output(ChartAIO.ids.card_title(MATCH), "children"),
-# @callback(
-#     [Output(DataExplorerFilterAIO.ids.dataexplorerfilter_accordion_b(MATCH), "className")],
-#     [Input(DataExplorerFilterAIO.ids.dataexplorerfilter_accordion(MATCH), "n_clicks")],
-#     [State(DataExplorerFilterAIO.ids.dataexplorerfilter_accordion(ALL), "id")],
-# )
-# def filters_accordion(nclicks, all_filters):
-#     triggered = dash.callback_context.triggered[0]
-#     if triggered["value"] is None:
-#         raise PreventUpdate
-#     print("all_filters")
-#     print(all_filters)
-#     print(triggered)
-#     print(triggered["value"])
-#     print(triggered["prop_id"])
-#     print(type(triggered["prop_id"]))
-#     filter_id = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
-#     filter_id = filter_id.split(":")[1].replace('"', "")
-
-#     print(filter_id)
-
-
-#     print(nclicks)
-#     # print(filter_id)
-#     if nclicks is None:
-#         raise PreventUpdate
-#     return ["d-none"]
-
-# # Output(ChartAIO.ids.card_title(MATCH), "children"),
-# @callback(
-#     [
-
-#         #Output(DataExplorerFilterAIO.ids.dataexplorerfilter_body(ELEM_DATAEXPLORER), "children"),
-
-#     ],
-#     [Input(DataExplorerFilterAIO.ids.dataexplorerfilter_button(ALL), "n_clicks")],
-#     [State("de_data_structure", "data")],
-#     prevent_initial_call=True,
-# )
-# def filters_accordion(nclicks, de_data_structure):
-#     triggered = dash.callback_context.triggered[0]
-#     if triggered["value"] is None:
-#         raise PreventUpdate
-#     print(nclicks)
-
-#     return [None, str(nclicks)]
-
-
-# # Output(MapAIO.ids.card_title(ELEM_ID_MAIN), "children"),
+    return ret, selections

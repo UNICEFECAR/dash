@@ -2,6 +2,13 @@
     top: 60px;
 }
 
+/*Data explorer*/
 .de_rangeslider{
     width: 100%;
 }
+
+.div_de_filter{
+    max-height: 250px;
+    overflow-y: auto;
+}
+
