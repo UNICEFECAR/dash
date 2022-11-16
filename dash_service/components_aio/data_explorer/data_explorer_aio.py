@@ -3,6 +3,8 @@ import dash_bootstrap_components as dbc
 import uuid
 import datetime
 
+from .data_explorer_table_aio import DataExplorerTableAIO
+
 
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
@@ -65,7 +67,9 @@ class DataExplorerAIO(html.Div):
         filter_time = dcc.RangeSlider(
             time_min,
             time_max,
+            1,
             marks={time_min: str(time_min), time_max: str(time_max)},
+
             value=[time_start, time_end],
             id=self.ids.de_time_period(aio_id),
             className="de_rangeslider",
@@ -87,7 +91,7 @@ class DataExplorerAIO(html.Div):
 
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
-            children=["Table"],
+            children=[DataExplorerTableAIO(aio_id)],
         )
 
         super().__init__(className="row", children=[left_col, table_col])

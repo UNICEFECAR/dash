@@ -4,8 +4,8 @@ from dash.exceptions import PreventUpdate
 from dash_service.models import DataExplorer, Project
 from dash.dependencies import MATCH, Input, Output, State, ALL
 import re
-from dash_service.pages import get_data
 from dash_service.pages import (
+    get_data,
     add_structure,
     get_structure_id,
     get_code_from_structure_and_dq,
@@ -21,15 +21,22 @@ from dash_service.components_aio.data_explorer.data_explorer_aio import DataExpl
 from dash_service.components_aio.data_explorer.data_explore_filter_aio import (
     DataExplorerFilterAIO,
 )
+from dash_service.components_aio.data_explorer.data_explorer_table_aio import (
+    DataExplorerTableAIO,
+)
 
 _STORE_LANG = "lang"
 _STORE_CONFIG = "de_config"
 _STORE_DSTRUCTS = "de_data_structure"
+_STORE_TIME_PERIOD = "de_time_period"
 _STORE_SELECTIONS = "de_selections"
 
 
 LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
+
+storeitem_sel_codes = "sel_codes"
+storeitem_exp_filter = "expanded_filter"
 
 dash.register_page(
     __name__,
@@ -86,6 +93,7 @@ def render_page_template(
             dcc.Store(id=_STORE_LANG, data=lang),
             dcc.Store(id=_STORE_CONFIG, data=config),
             dcc.Store(id=_STORE_DSTRUCTS, data={}, storage_type="session"),
+            dcc.Store(id=_STORE_TIME_PERIOD, data=[]),
             dcc.Store(id=_STORE_SELECTIONS, data={}),
             de,
             html.Div(id="div_loaded", children=["..."]),
@@ -116,7 +124,6 @@ def download_struct(de_config, de_data_structure, lang):
 
     return de_data_structure
 
-
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
@@ -124,6 +131,8 @@ def download_struct(de_config, de_data_structure, lang):
     [
         Input(_STORE_DSTRUCTS, "data"),
         Input(DataExplorerFilterAIO.ids.dataexplorerfilter_button(ALL), "n_clicks"),
+        Input({"type": "filter_tree", "index": ALL}, "checked"),
+        # id={"type": "filter_tree", "index": aio_id},
     ],
     [
         State(_STORE_CONFIG, "data"),
@@ -132,21 +141,31 @@ def download_struct(de_config, de_data_structure, lang):
     ],
 )
 # Downloads the DSD for the data.
-def struct_downloaded(de_data_structure, nclicks, de_config, lang, selections):
+def structure_and_filters(
+    de_data_structure, nclicks, checked, de_config, lang, selections
+):
+    print("selections")
     print(selections)
+    # print("triggered")
+    # print(dash.callback_context.triggered)
+    # print(checked)
+
     triggered = dash.callback_context.triggered[0]
     data_struct_id = get_structure_id(de_config["data"])
 
-    sel_codes = {}
+    prop_id_struct_loaded = "de_data_structure.data"
+    prop_id_expanded = '"subcomponent":"dataexplorerfilter_button"'
+    prop_id_code_checked = '"type":"filter_tree"'
 
-    filter_id = ""
-    # A button was clicked
-    if triggered["prop_id"] != "de_data_structure.data":
-        filter_id = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
-        filter_id = filter_id.split(":")[1].replace('"', "")
-        sel_codes = selections["sel_codes"]
-    # Else it is the first load and the callback has been triggered by the structure load
-    else:
+    # {'prop_id': 'de_data_structure.data',
+    # {'prop_id': '{"aio_id":"DE_FILTER_INDICATOR","component":"DataExplorerFilterAIO","subcomponent":"dataexplorerfilter_button"}.n_clicks', 'value': 1}
+    # {'prop_id': '{"index":"DE_FILTER_SEX","type":"filter_tree"}.checked', 'value': ['F', 'M']}
+
+    # get the current expanded fiter
+    filter_id = selections.get(storeitem_exp_filter, "")
+    sel_codes = selections.get(storeitem_sel_codes, {})
+    # First load, structure downloaded
+    if prop_id_struct_loaded in triggered["prop_id"]:
         dims = de_data_structure[data_struct_id]["dsd"]["dims"]
         for dim in dims:
             if not dim["is_time"]:
@@ -156,6 +175,16 @@ def struct_downloaded(de_data_structure, nclicks, de_config, lang, selections):
             # loop the parsed filter to make it resistant to missing dots in the dataquery
             for i in range(len(sel_filter)):
                 sel_codes[dims[i]["id"]] = sel_filter[i]
+    # Filter expanded
+    elif prop_id_expanded in triggered["prop_id"]:
+        filter_id = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
+        filter_id = filter_id.split(":")[1].replace('"', "")
+        sel_codes = selections[storeitem_sel_codes]
+    # codes checked
+    elif prop_id_code_checked in triggered["prop_id"]:
+        sel_codes[filter_id] = triggered["value"]
+        print("checked")
+        print(triggered["value"])
 
     data_struct_id = get_structure_id(de_config["data"])
     struct = de_data_structure[data_struct_id]
@@ -166,19 +195,78 @@ def struct_downloaded(de_data_structure, nclicks, de_config, lang, selections):
         if not dim["is_time"]:
             expanded = False
             items = []
-            if filter_id == "DE_FILTER_" + dim["id"]:
+            if filter_id == dim["id"]:
                 items = dim["codes"]
                 expanded = True
             filter = DataExplorerFilterAIO(
-                aio_id="DE_FILTER_" + dim["id"],
+                aio_id=dim["id"],
                 label=dim["name"],
                 expanded=expanded,
                 items=items,
-                selected=sel_codes[dim["id"]]
+                selected=sel_codes[dim["id"]],
             )
             ret.append(filter)
 
-    selections["expanded_filter"] = filter_id
-    selections["sel_codes"] = sel_codes
+    selections[storeitem_exp_filter] = filter_id
+    selections[storeitem_sel_codes] = sel_codes
 
     return ret, selections
+
+
+# Triggered when the selection changes
+@callback(
+    Output(
+        DataExplorerTableAIO.ids.dataexplorertable_summary(ELEM_DATAEXPLORER),
+        "children",
+    ),
+    [
+        Input(_STORE_SELECTIONS, "data"),
+        Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER),"value"),
+    ],
+    [
+        State(_STORE_CONFIG, "data"),
+        State(_STORE_LANG, "data"),
+    ],
+)
+# Downloads the DSD for the data.
+def selection_change(selections, time_period, de_cfg, lang):
+    '''
+    {
+                    "data": {
+                        "agency": "BRAZIL_CO",
+                        "id": "BRAZIL_CO",
+                        "version": "1.0",
+                        "dq": "BR.DISQUE100ABUSOSEXUAL._T._T",
+                        "lastnobservations": 1
+                    },
+                    "label": ""
+                }
+                
+                '''
+    print("de_cfg")
+    print(de_cfg)
+    print("time")
+    print(time_period)
+    last_n_obs = None
+    #prepare the data query
+    dq = list(selections[storeitem_sel_codes].values())
+    dq = ["+".join(c) for c in dq]
+    dq = ".".join(dq)
+    print(dq)
+    request_cfg = {
+        "agency":de_cfg["data"]["agency"],
+        "id":de_cfg["data"]["id"],
+        "version":de_cfg["data"]["version"],
+        "dq":dq
+    }
+
+    df = get_data(request_cfg,time_period,lastnobservations=last_n_obs)
+    print(df.head())
+    
+    #get_data()
+    summary = []
+    for sel_code in selections[storeitem_sel_codes]:
+        summary.append(
+            sel_code + ": " + ",".join(selections[storeitem_sel_codes][sel_code])
+        )
+    return "  <br>  ".join(summary)
