@@ -97,10 +97,10 @@ class DataExplorerFilterAIO(html.Div):
                 checkable=True,
                 multiple=True,
                 checked=selected,
-                expanded=["root_" + aio_id],
+                expanded=["_root_" + aio_id],
                 data={
                     "title": lbl_sel_all,
-                    "key": "root_" + aio_id,
+                    "key": "_root_" + aio_id,
                     "children": tree_items,
                 },
             )

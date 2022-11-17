@@ -29,6 +29,7 @@ _STORE_LANG = "lang"
 _STORE_CONFIG = "de_config"
 _STORE_DSTRUCTS = "de_data_structure"
 _STORE_TIME_PERIOD = "de_time_period"
+_STORE_EXPANDED_FILTER = "de_expanded_filter"
 _STORE_SELECTIONS = "de_selections"
 
 
@@ -36,7 +37,7 @@ LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
 
 storeitem_sel_codes = "sel_codes"
-storeitem_exp_filter = "expanded_filter"
+#storeitem_exp_filter = "expanded_filter"
 
 dash.register_page(
     __name__,
@@ -94,6 +95,7 @@ def render_page_template(
             dcc.Store(id=_STORE_CONFIG, data=config),
             dcc.Store(id=_STORE_DSTRUCTS, data={}, storage_type="session"),
             dcc.Store(id=_STORE_TIME_PERIOD, data=[]),
+            dcc.Store(id=_STORE_EXPANDED_FILTER, data=""),
             dcc.Store(id=_STORE_SELECTIONS, data={}),
             de,
             html.Div(id="div_loaded", children=["..."]),
@@ -124,10 +126,12 @@ def download_struct(de_config, de_data_structure, lang):
 
     return de_data_structure
 
+
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
     Output(_STORE_SELECTIONS, "data"),
+    Output(_STORE_EXPANDED_FILTER, "data"),
     [
         Input(_STORE_DSTRUCTS, "data"),
         Input(DataExplorerFilterAIO.ids.dataexplorerfilter_button(ALL), "n_clicks"),
@@ -138,11 +142,12 @@ def download_struct(de_config, de_data_structure, lang):
         State(_STORE_CONFIG, "data"),
         State(_STORE_LANG, "data"),
         State(_STORE_SELECTIONS, "data"),
+        State(_STORE_EXPANDED_FILTER, "data"),
     ],
 )
 # Downloads the DSD for the data.
 def structure_and_filters(
-    de_data_structure, nclicks, checked, de_config, lang, selections
+    de_data_structure, nclicks, checked, de_config, lang, selections, exp_filter
 ):
     print("selections")
     print(selections)
@@ -162,7 +167,6 @@ def structure_and_filters(
     # {'prop_id': '{"index":"DE_FILTER_SEX","type":"filter_tree"}.checked', 'value': ['F', 'M']}
 
     # get the current expanded fiter
-    filter_id = selections.get(storeitem_exp_filter, "")
     sel_codes = selections.get(storeitem_sel_codes, {})
     # First load, structure downloaded
     if prop_id_struct_loaded in triggered["prop_id"]:
@@ -177,12 +181,12 @@ def structure_and_filters(
                 sel_codes[dims[i]["id"]] = sel_filter[i]
     # Filter expanded
     elif prop_id_expanded in triggered["prop_id"]:
-        filter_id = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
-        filter_id = filter_id.split(":")[1].replace('"', "")
+        exp_filter = re.findall(r"\"aio_id\":.+?(?=,)", triggered["prop_id"])[0]
+        exp_filter = exp_filter.split(":")[1].replace('"', "")
         sel_codes = selections[storeitem_sel_codes]
     # codes checked
     elif prop_id_code_checked in triggered["prop_id"]:
-        sel_codes[filter_id] = triggered["value"]
+        sel_codes[exp_filter] = triggered["value"]
         print("checked")
         print(triggered["value"])
 
@@ -195,7 +199,7 @@ def structure_and_filters(
         if not dim["is_time"]:
             expanded = False
             items = []
-            if filter_id == dim["id"]:
+            if exp_filter == dim["id"]:
                 items = dim["codes"]
                 expanded = True
             filter = DataExplorerFilterAIO(
@@ -207,10 +211,10 @@ def structure_and_filters(
             )
             ret.append(filter)
 
-    selections[storeitem_exp_filter] = filter_id
+    
     selections[storeitem_sel_codes] = sel_codes
 
-    return ret, selections
+    return ret, selections, exp_filter
 
 
 # Triggered when the selection changes
@@ -221,7 +225,7 @@ def structure_and_filters(
     ),
     [
         Input(_STORE_SELECTIONS, "data"),
-        Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER),"value"),
+        Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
     ],
     [
         State(_STORE_CONFIG, "data"),
@@ -230,7 +234,7 @@ def structure_and_filters(
 )
 # Downloads the DSD for the data.
 def selection_change(selections, time_period, de_cfg, lang):
-    '''
+    """
     {
                     "data": {
                         "agency": "BRAZIL_CO",
@@ -241,29 +245,31 @@ def selection_change(selections, time_period, de_cfg, lang):
                     },
                     "label": ""
                 }
-                
-                '''
+
+    """
     print("de_cfg")
     print(de_cfg)
     print("time")
     print(time_period)
     last_n_obs = None
-    #prepare the data query
+    # prepare the data query
     dq = list(selections[storeitem_sel_codes].values())
+    #list comprehension for the list of lists just to remove the tree roots
+    dq = [[code for code in group if not code.startswith("_root_")] for group in dq]
     dq = ["+".join(c) for c in dq]
     dq = ".".join(dq)
-    print(dq)
+    
     request_cfg = {
-        "agency":de_cfg["data"]["agency"],
-        "id":de_cfg["data"]["id"],
-        "version":de_cfg["data"]["version"],
-        "dq":dq
+        "agency": de_cfg["data"]["agency"],
+        "id": de_cfg["data"]["id"],
+        "version": de_cfg["data"]["version"],
+        "dq": dq,
     }
 
-    df = get_data(request_cfg,time_period,lastnobservations=last_n_obs)
+    df = get_data(request_cfg, time_period, lastnobservations=last_n_obs)
     print(df.head())
-    
-    #get_data()
+
+    # get_data()
     summary = []
     for sel_code in selections[storeitem_sel_codes]:
         summary.append(
