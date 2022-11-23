@@ -649,6 +649,12 @@ def selection_change(
     print("tbl_data")
     print(tbl_data)
 
+    tmp_start_at = len(dims)-col_levels_count
+    for data_row in df.to_records():
+        to_add = {"v"+str(i):data_row[i+tmp_start_at] for i in range(len(data_row)-tmp_start_at)}
+        tbl_data.append(to_add)
+        
+
     # print(df.head())
 
     return [dq, tbl_data, tbl_cols_to_show]
