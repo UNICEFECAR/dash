@@ -24,6 +24,12 @@ class DataExplorerTableAIO(html.Div):
             "aio_id": aio_id,
         }
 
+        dataexplorertable_summary2 = lambda aio_id: {
+            "component": "dataexplorertable",
+            "subcomponent": "dataexplorertable_summary2",
+            "aio_id": aio_id,
+        }
+
     ids = ids
 
     def __init__(self, aio_id=None, obs_num_per_page=None):
@@ -52,11 +58,16 @@ class DataExplorerTableAIO(html.Div):
             },
             style_header={"fontWeight": "bold"},
             cell_selectable=False,
-            tooltip_data=[],
+            tooltip_data=[]
         )
 
         div_summary = html.Div(
             id=self.ids.dataexplorertable_summary(aio_id), children=["Summary"]
         )
+        div_summary2 = html.Div(
+            id=self.ids.dataexplorertable_summary2(aio_id), children=["Summary2"]
+        )
 
-        super().__init__(children=[div_summary, "DTabel_start", dtable, "DTabel_end"])
+        super().__init__(
+            children=[div_summary, div_summary2, dtable]
+        )

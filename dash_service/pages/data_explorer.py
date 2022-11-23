@@ -251,8 +251,7 @@ data = {
         8: "Total",
         9: "Total",
     },
-}
-
+}  # https://data.unicef.org/resources/data_explorer/unicef_f/?ag=UNICEF&df=GLOBAL_DATAFLOW&ver=1.0&dq=AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0.&startPeriod=2012&endPeriod=2022
 
 import dash
 from dash import callback, dcc, html
@@ -281,6 +280,13 @@ from dash_service.components_aio.data_explorer.data_explore_filter_aio import (
 from dash_service.components_aio.data_explorer.data_explorer_table_aio import (
     DataExplorerTableAIO,
 )
+from dash_service.components_aio.data_explorer.data_explorer_pivot_aio import (
+    DataExplorerPivotAIO,
+)
+
+pd.set_option("display.max_columns", None)
+pd.set_option("display.max_rows", None)
+pd.set_option("display.width", 0)
 
 _STORE_LANG = "lang"
 _STORE_CONFIG = "de_config"
@@ -293,6 +299,8 @@ _STORE_SELECTIONS = "de_selections"
 LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
 ELEM_DATAEXPLORER_TABLE = "ELEM_DATAEXPLORER_TABLE"
+
+ID_OBS_VALUE = "OBS_VALUE"
 
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
@@ -388,16 +396,13 @@ def download_struct(de_config, de_data_structure, lang):
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
-    # Output(_STORE_SELECTIONS, "data"),
+    Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
     [
         Input(_STORE_DSTRUCTS, "data"),
-        # Input({"type": "filter_tree", "index": ALL}, "checked"),
     ],
     [
         State(_STORE_CONFIG, "data"),
         State(_STORE_LANG, "data"),
-        # State(_STORE_SELECTIONS, "data"),
-        # State(_STORE_EXPANDED_FILTER, "data"),
     ],
 )
 # Downloads the DSD for the data.
@@ -419,6 +424,15 @@ def structure_and_filters(de_data_structure, de_config, lang):
     struct = de_data_structure[data_struct_id]
 
     ret_filters = []
+    ret_pvt_controls = []
+
+    if "pivot_cfg" in de_config:
+        pvt_cfg = de_config["pivot_cfg"]
+    else:
+        pvt_cfg = {
+            # "rows": [d["id"] for d in struct["dsd"]["dims"] if not d["is_time"]],
+            "cols": [d["id"] for d in struct["dsd"]["dims"] if d["is_time"]]
+        }
 
     for dim in struct["dsd"]["dims"]:
         if not dim["is_time"]:
@@ -431,7 +445,59 @@ def structure_and_filters(de_data_structure, de_config, lang):
             )
             ret_filters.append(filter)
 
-    return ret_filters
+        on_row = True
+        if dim["id"] in pvt_cfg["cols"]:
+            on_row = False
+
+        pvt_control = DataExplorerPivotAIO(
+            aio_id=dim["id"], label=dim["name"], onrow=on_row
+        )
+        ret_pvt_controls.append(pvt_control)
+
+    return ret_filters, ret_pvt_controls
+
+
+def pivot_data(df, on_rows, on_cols):
+
+    df_p = pd.pivot_table(
+        df,
+        index=[d["id"] for d in on_rows],
+        columns=[d["id"] for d in on_cols],
+        fill_value="",
+        values=ID_OBS_VALUE,
+        aggfunc=lambda x: x,
+    )
+
+    print("df")
+    print(df)
+    print("df_p")
+    print(df_p)
+    print("df_p2")
+    # df_p = df_p.to_records(index=True)
+    # df_p = df_p.to_dict
+    # print(df_p)
+
+    # start createinf the data_table data
+    ret = []
+    tooltip_data = []
+    dim_names_at = []
+    dim_vals_at = []
+
+    # the first rows contain the header (the dims on col), e.g. if 3 dims on col then 3 header rows
+    numrows = len(on_rows)
+    numcols = len(on_cols)
+
+    for c_idx in range(numcols):
+        # We need n empty cells where n=number of dimensions on the rows, the header starts at n+1
+        to_add = {}
+        tt_add = {}
+        for r in range(numrows):
+            to_add["_c" + str(r)] = ""
+        # Add the dimension name after the empty cols, and the tooltip (in case the label gets truncated)
+        to_add["_c" + str(numrows)] = on_cols[c_idx]["name"]
+        dim_names_at.append({"r": c_idx, "c": "_c" + str(numrows)})
+
+    return df_p
 
 
 # Triggered when the codes selection changes
@@ -452,6 +518,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
         # Input(_STORE_SELECTIONS, "data"),
         Input({"type": "filter_tree", "index": ALL}, "checked"),
         Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
+        Input({"type": "pvt_control", "index": ALL}, "value"),
     ],
     [
         State(_STORE_DSTRUCTS, "data"),
@@ -459,13 +526,9 @@ def structure_and_filters(de_data_structure, de_config, lang):
         State(_STORE_LANG, "data"),
     ],
 )
-def selection_change(selections, time_period, de_data_structure, de_config, lang):
-    # print("selections")
-    # print(selections)
-    # print("de_cfg")
-    # print(de_cfg)
-    # print("time")
-    # print(time_period)
+def selection_change(
+    selections, time_period, pvt_cfg, de_data_structure, de_config, lang
+):
 
     if len(selections) == 0:
         raise PreventUpdate
@@ -475,16 +538,16 @@ def selection_change(selections, time_period, de_data_structure, de_config, lang
     # prepare the data query
     data_struct_id = get_structure_id(de_config["data"])
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
-    cols_to_show = dims + [{"id":"OBS_VALUE", "name":"Value"}]
-    dims_no_time = [
-        d for d in dims if not d["is_time"]
+    cols_to_show = dims + [
+        {"id": ID_OBS_VALUE, "name": "[LANG] Value", "presentation": "markdown"}
     ]
-    #remove the roots from the selection nested (list comprehension)
+    dims_no_time = [d for d in dims if not d["is_time"]]
+    # remove the roots from the selection nested (list comprehension)
     selections_clean = [
         [code for code in group if not code.startswith("_root_")]
         for group in selections
     ]
-    #If all codes have been selected just sebd an empty selecition
+    # If all codes have been selected just sebd an empty selecition
     for i in range(len(dims_no_time)):
         if len(selections_clean[i]) == len(dims_no_time[i]["codes"]):
             selections_clean[i] = []
@@ -499,11 +562,113 @@ def selection_change(selections, time_period, de_data_structure, de_config, lang
         "dq": dq,
     }
 
-    # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs)
-    df = pd.DataFrame(data)
-    tbl_data = df.to_dict("records")
-    #tbl_cols_to_show = [{"name": c, "id": c} for c in df.columns]
-    tbl_cols_to_show = [{"name": d["name"], "id": d["id"]} for d in cols_to_show]
+    # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="name")
+    df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
+    # df = pd.DataFrame(data)
+    # Truncate the df if an obs num limit has been defined
+    if "obs_num_limit" in de_config:
+        if len(df) > de_config["obs_num_limit"]:
+            df = df[0 : de_config["obs_num_limit"]]
+
+    # the pivoting config selected
+    print("R")
+    on_rows = [
+        {"id": d["id"], "name": d["name"]}
+        for idx, d in enumerate(dims)
+        if pvt_cfg[idx] == "R"
+    ]
+    on_cols = [
+        {"id": d["id"], "name": d["name"]}
+        for idx, d in enumerate(dims)
+        if pvt_cfg[idx] == "C"
+    ]
+    # Pivot the data, create all the dict items to be passed to the dash datatable component
+    # df_p = pd.pivot_table(df, index=on_rows, columns=on_cols, fill_value="",
+    #                           values=ID_OBS_VALUE, aggfunc=lambda x: x)
+
+    # print("records")
+    # print(df.to_dict("records"))
+
+    df = pivot_data(df, on_rows, on_cols)
+    print("df.index")
+    print(df.index)
+    print("df.columns")
+    print(df.columns)
+
+    tbl_cols_to_show = []
+    # add shift for row titles
+    # tbl_cols_to_show.append(SHITF_HERE)
+    tbl_cols_to_show.append({"id": "col_titles", "name": "col_titles"})
+    col_levels_count = 0
+    cols=[]
+
+    col_names = []
+
+    # tbl_data = df.to_dict("records")
+    if isinstance(df.columns, pd.MultiIndex):
+        print("is multiindex")
+        print(len(df.columns))
+        print(df.columns[0])
+        print(df.columns.names)
+        col_names = df.columns.names
+        cols = list(df.columns)
+        col_levels_count = len(col_names)
+    else:
+        if len(df.columns) > 1:
+            # tbl_cols_to_show = tbl_cols_to_show + [
+            #     {"id": "v" + str(i), "name": "v" + str(i)}
+            #     for i in range(len(df.columns))
+            # ]
+            col_levels_count = 1
+            col_names = [df.columns.name]
+            #convert to 1 elem tuple to match the multi index case
+            cols = [(c,) for c in df.columns] 
+
+    tbl_cols_to_show = tbl_cols_to_show + [
+        {"id": "v" + str(i), "name": "v" + str(i)} for i in range(len(df.columns))
+    ]
+
+    tbl_data = []
+    print("cols")
+    print(cols)
+    #print(df.columns)
+    print(len(cols))
+    print("tbl_cols_to_show")
+    print(tbl_cols_to_show)
+    # create the header for the columns
+    print("col_levels_count")
+    print(col_levels_count)
+    for col_level in range(col_levels_count):
+        header_row = {"v" + str(i): cols[i][col_level] for i in range(len(cols))}
+        header_row["col_titles"] = col_names[col_level]
+        tbl_data.append(header_row)
+    
+    rows_header={"col_titles":"Rows header"}
+    tbl_data.append(rows_header)
+
+    print("tbl_data")
+    print(tbl_data)
+
     # print(df.head())
 
     return [dq, tbl_data, tbl_cols_to_show]
+
+
+@callback(
+    [
+        Output(
+            DataExplorerTableAIO.ids.dataexplorertable_summary2(ELEM_DATAEXPLORER),
+            "children",
+        )
+    ],
+    [
+        Input(
+            DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
+            "hoverInfo",
+        )
+    ],
+    [],
+)
+def tbl_cell_hover(hover_data):
+    print(hover_data)
+    return ["HHH"]

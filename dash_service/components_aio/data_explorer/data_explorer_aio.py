@@ -31,6 +31,11 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "de_filters",
             "aio_id": aio_id,
         }
+        de_pvt_control = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_pvt_control",
+            "aio_id": aio_id,
+        }
 
     ids = ids
 
@@ -69,7 +74,6 @@ class DataExplorerAIO(html.Div):
             time_max,
             1,
             marks={time_min: str(time_min), time_max: str(time_max)},
-
             value=[time_start, time_end],
             id=self.ids.de_time_period(aio_id),
             className="de_rangeslider",
@@ -82,10 +86,8 @@ class DataExplorerAIO(html.Div):
             children=[
                 html.Div(children=filter_lastnobs),
                 html.Div(children=filter_time),
-                html.Div(
-                    id=self.ids.de_filters(aio_id), children=[]
-                ),
-                html.Div(children=["Pivot control"]),
+                html.Div(id=self.ids.de_filters(aio_id), children=[]),
+                html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
             ],
         )
 
