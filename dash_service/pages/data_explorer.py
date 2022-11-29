@@ -571,7 +571,6 @@ def selection_change(
             df = df[0 : de_config["obs_num_limit"]]
 
     # the pivoting config selected
-    print("R")
     on_rows = [
         {"id": d["id"], "name": d["name"]}
         for idx, d in enumerate(dims)
@@ -582,80 +581,75 @@ def selection_change(
         for idx, d in enumerate(dims)
         if pvt_cfg[idx] == "C"
     ]
-    # Pivot the data, create all the dict items to be passed to the dash datatable component
-    # df_p = pd.pivot_table(df, index=on_rows, columns=on_cols, fill_value="",
-    #                           values=ID_OBS_VALUE, aggfunc=lambda x: x)
-
-    # print("records")
-    # print(df.to_dict("records"))
 
     df = pivot_data(df, on_rows, on_cols)
-    print("df.index")
-    print(df.index)
-    print("df.columns")
-    print(df.columns)
 
+    # The dash table needs a dictionary: col:value.
+    # We're building the list of columns to be passed to the table
     tbl_cols_to_show = []
-    # add shift for row titles
-    # tbl_cols_to_show.append(SHITF_HERE)
-    tbl_cols_to_show.append({"id": "col_titles", "name": "col_titles"})
-    col_levels_count = 0
-    cols=[]
-
-    col_names = []
-
-    # tbl_data = df.to_dict("records")
-    if isinstance(df.columns, pd.MultiIndex):
-        print("is multiindex")
-        print(len(df.columns))
-        print(df.columns[0])
-        print(df.columns.names)
-        col_names = df.columns.names
-        cols = list(df.columns)
-        col_levels_count = len(col_names)
+    # A column for each dimension on rows
+    if len(on_rows)>0:
+        for r in on_rows:
+            tbl_cols_to_show.append({"id": r["id"], "name": r["id"]})
     else:
-        if len(df.columns) > 1:
-            # tbl_cols_to_show = tbl_cols_to_show + [
-            #     {"id": "v" + str(i), "name": "v" + str(i)}
-            #     for i in range(len(df.columns))
-            # ]
-            col_levels_count = 1
-            col_names = [df.columns.name]
-            #convert to 1 elem tuple to match the multi index case
-            cols = [(c,) for c in df.columns] 
-
+        tbl_cols_to_show.append({"id": "OBS_VALUE", "name": "OBS_VALUE"})
+    # A column for all the dimensions on cols
+    tbl_cols_to_show.append({"id": "cols", "name": "cols"})
+    # A column for each column in the dataframe (will contain the values)
     tbl_cols_to_show = tbl_cols_to_show + [
         {"id": "v" + str(i), "name": "v" + str(i)} for i in range(len(df.columns))
     ]
 
+
+    # The pivoted dataframe can return a multiindex (>1 dim on col) or a single index (no cols, or 1 col)
+    #Extract the information from both cases so that we can handle both with the same code
+    col_levels_count = 0
+    cols_index = []
+    col_names = []
+    if isinstance(df.columns, pd.MultiIndex):
+        col_names = df.columns.names
+        cols_index = list(df.columns)
+        col_levels_count = len(col_names)
+    else:
+        if len(df.columns) > 1:
+            col_levels_count = 1
+            col_names = [df.columns.name]
+            # convert to 1 elem tuple to match the multi index case
+            cols_index = [(c,) for c in df.columns]
+
     tbl_data = []
-    print("cols")
-    print(cols)
-    #print(df.columns)
-    print(len(cols))
-    print("tbl_cols_to_show")
-    print(tbl_cols_to_show)
-    # create the header for the columns
-    print("col_levels_count")
-    print(col_levels_count)
+    # create the header for the columns (first row in the table)
     for col_level in range(col_levels_count):
-        header_row = {"v" + str(i): cols[i][col_level] for i in range(len(cols))}
-        header_row["col_titles"] = col_names[col_level]
+        header_row = {"v" + str(i): cols_index[i][col_level] for i in range(len(cols_index))}
+        header_row["cols"] = col_names[col_level]
         tbl_data.append(header_row)
+
+    #Create the row for the row's titles (1 row after all the col headers)
+    if len(on_rows)>0:
+        rows_header = {r["id"]: r["name"] for r in on_rows}
+        tbl_data.append(rows_header)
+
+
+    # Can I just rename the cols and append the reuslts of df.to_records()?
+    # Can I just rename the cols and append the reuslts of df.to_records()?
+    # Can I just rename the cols and append the reuslts of df.to_records()?
     
-    rows_header={"col_titles":"Rows header"}
-    tbl_data.append(rows_header)
+    # col_ids = [on_rows[i]["id"] for i in range(len(on_rows))]
+    # col_ids = col_ids + ["v" + str(i) for i in range(len(df.columns))]
+    col_ids = [c["id"] for c in tbl_cols_to_show]
 
-    print("tbl_data")
-    print(tbl_data)
-
-    tmp_start_at = len(dims)-col_levels_count
+    print("df.to_records()")
+    print(df.to_records())
+    print(col_ids)
     for data_row in df.to_records():
-        to_add = {"v"+str(i):data_row[i+tmp_start_at] for i in range(len(data_row)-tmp_start_at)}
-        tbl_data.append(to_add)
-        
+        # to_add = {on_rows[idx]["id"]:data_row[idx] for idx in range(len(on_rows))}
+        to_add = {col_ids[i]: data_row[i] for i in range(len(data_row))}
 
-    # print(df.head())
+        # to_add = {
+        #     "v" + str(i): data_row[i + tmp_start_at]
+        #     for i in range(len(data_row) - tmp_start_at)
+        # }
+        tbl_data.append(to_add)
 
     return [dq, tbl_data, tbl_cols_to_show]
 
