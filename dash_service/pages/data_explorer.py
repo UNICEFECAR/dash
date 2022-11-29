@@ -538,9 +538,6 @@ def selection_change(
     # prepare the data query
     data_struct_id = get_structure_id(de_config["data"])
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
-    cols_to_show = dims + [
-        {"id": ID_OBS_VALUE, "name": "[LANG] Value", "presentation": "markdown"}
-    ]
     dims_no_time = [d for d in dims if not d["is_time"]]
     # remove the roots from the selection nested (list comprehension)
     selections_clean = [
@@ -562,8 +559,8 @@ def selection_change(
         "dq": dq,
     }
 
-    # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="name")
-    df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
+    df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="name")
+    # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
     # df = pd.DataFrame(data)
     # Truncate the df if an obs num limit has been defined
     if "obs_num_limit" in de_config:
@@ -605,23 +602,30 @@ def selection_change(
     #Extract the information from both cases so that we can handle both with the same code
     col_levels_count = 0
     cols_index = []
-    col_names = []
+    #col_names = []
+    print("dfdfdfdf")
+    print(df.columns)
+    print(df.columns.names)
     if isinstance(df.columns, pd.MultiIndex):
-        col_names = df.columns.names
+        #col_names = df.columns.names
         cols_index = list(df.columns)
-        col_levels_count = len(col_names)
+        col_levels_count = len(df.columns.names)
     else:
         if len(df.columns) > 1:
             col_levels_count = 1
-            col_names = [df.columns.name]
+            #col_names = [df.columns.name]
             # convert to 1 elem tuple to match the multi index case
             cols_index = [(c,) for c in df.columns]
+
+    print("on_cols")
+    print(on_cols)
 
     tbl_data = []
     # create the header for the columns (first row in the table)
     for col_level in range(col_levels_count):
         header_row = {"v" + str(i): cols_index[i][col_level] for i in range(len(cols_index))}
-        header_row["cols"] = col_names[col_level]
+        #header_row["cols"] = col_names[col_level]
+        header_row["cols"] = on_cols[col_level]["name"]
         tbl_data.append(header_row)
 
     #Create the row for the row's titles (1 row after all the col headers)
@@ -633,22 +637,10 @@ def selection_change(
     # Can I just rename the cols and append the reuslts of df.to_records()?
     # Can I just rename the cols and append the reuslts of df.to_records()?
     # Can I just rename the cols and append the reuslts of df.to_records()?
-    
-    # col_ids = [on_rows[i]["id"] for i in range(len(on_rows))]
-    # col_ids = col_ids + ["v" + str(i) for i in range(len(df.columns))]
+
     col_ids = [c["id"] for c in tbl_cols_to_show]
-
-    print("df.to_records()")
-    print(df.to_records())
-    print(col_ids)
     for data_row in df.to_records():
-        # to_add = {on_rows[idx]["id"]:data_row[idx] for idx in range(len(on_rows))}
         to_add = {col_ids[i]: data_row[i] for i in range(len(data_row))}
-
-        # to_add = {
-        #     "v" + str(i): data_row[i + tmp_start_at]
-        #     for i in range(len(data_row) - tmp_start_at)
-        # }
         tbl_data.append(to_add)
 
     return [dq, tbl_data, tbl_cols_to_show]
