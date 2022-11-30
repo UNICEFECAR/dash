@@ -36,6 +36,7 @@ app = Dash(
     server=server,
     use_pages=True,
     title=default_settings.TITLE,
+    external_scripts=default_settings.EXTERNAL_SCRIPTS,
     external_stylesheets=default_settings.EXTERNAL_STYLESHEETS,
     suppress_callback_exceptions=True,
 )
@@ -46,7 +47,7 @@ app.layout = main_default_layout()
 
 @server.errorhandler(404)
 def page_not_found(error):
-    return render_template('404.html'), 404
+    return render_template("404.html"), 404
 
 
 # import dash
@@ -54,4 +55,3 @@ def page_not_found(error):
 #     print(r)
 #     print(dash.page_registry[r])
 #     print("")
-
