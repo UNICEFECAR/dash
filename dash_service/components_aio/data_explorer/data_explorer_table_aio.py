@@ -36,29 +36,31 @@ class DataExplorerTableAIO(html.Div):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
-        if obs_num_per_page is None:
-            page_action = "none"
-            page_size = 0
-        else:
-            page_action = "native"
-            page_size = obs_num_per_page
+        # if obs_num_per_page is None:
+        #     page_action = "none"
+        #     page_size = 0
+        # else:
+        #     page_action = "native"
+        #     page_size = obs_num_per_page
 
         dtable = dash_table.DataTable(
             id=self.ids.dataexplorertable_tbl(aio_id),
             data=[],
             columns=[],
             virtualization=True,
-            fixed_rows={"headers": True, "data": 0},
-            # page_action="none",
-            page_action=page_action,
-            page_size=page_size,
+            # fixed_rows={"headers": True, "data": 0},
+            page_action="none",
             style_cell={
-                "minWidth": "60px",
-                "maxWidth": "250px",
+                "minWidth": "50px",
+                "maxWidth": "190px",
+                "overflow": "hidden",
+                "textOverflow": "ellipsis",
             },
-            style_header={"fontWeight": "bold"},
+            style_header={"display": "none"},
+            fixed_rows={"headers": False},
             cell_selectable=False,
-            tooltip_data=[]
+            tooltip_data=[],
+            style_data_conditional=[],
         )
 
         div_summary = html.Div(
@@ -68,6 +70,4 @@ class DataExplorerTableAIO(html.Div):
             id=self.ids.dataexplorertable_summary2(aio_id), children=["Summary2"]
         )
 
-        super().__init__(
-            children=[div_summary, div_summary2, dtable]
-        )
+        super().__init__(children=[div_summary, div_summary2, dtable])

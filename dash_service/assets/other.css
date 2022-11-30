@@ -12,3 +12,15 @@
     overflow-y: auto;
 }
 
+/*Data explorer Data table*/
+
+/*makes the height of the DashTable 225 pix less then the 100% screen */
+.dash-spreadsheet.dash-freeze-top, .dash-spreadsheet.dash-virtualized
+    { max-height: inherit !important; }
+
+.dash-table-container {max-height: calc(100vh - 250px);}
+
+/*Allows the pivot table to span the whole column size*/
+.dash-spreadsheet.dash-freeze-left {
+    max-width: none !important;
+}
