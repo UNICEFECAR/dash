@@ -159,8 +159,10 @@ def structure_and_filters(de_data_structure, de_config, lang):
     for dim in dims:
         if not dim["is_time"]:
             if ("dq") in de_config["data"]:
-                #sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
-                sel_filter = parse_sdmx_data_query("AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4.")
+                # sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
+                sel_filter = parse_sdmx_data_query(
+                    "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
+                )
                 # loop the parsed filter to make it resistant to missing dots in the dataquery
                 for i in range(len(sel_filter)):
                     sel_codes[dims[i]["id"]] = sel_filter[i]
@@ -232,7 +234,9 @@ def pivot_data(df, on_rows, on_cols):
 
 
 def create_notes(row, cols_in_note, cols_in_note_names):
-    ret = [f"**{cols_in_note_names[a]}:** {row[a]}" for a in cols_in_note if row[a] != ""]
+    ret = [
+        f"**{cols_in_note_names[a]}:** {row[a]}" for a in cols_in_note if row[a] != ""
+    ]
     return "  \n".join(ret)
 
 
@@ -276,7 +280,8 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER), "columns"
         ),
         Output(
-            DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER), "tooltip_data"
+            DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
+            "tooltip_data",
         ),
         Output(
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
@@ -356,26 +361,7 @@ def selection_change(
         df, on_rows, on_cols, de_data_structure, data_struct_id
     )
 
-    print(df)
-
     df = pivot_data(df, on_rows, on_cols)
-
-    print(df)
-    print("df.columns")
-    print(df.columns)
-    print("df.index")
-    print(df.index)
-    print("len(df.columns.names)")
-    
-    #Map the index codes
-    for i in range(len(df.index.names)):
-        print(f"df.index.get_level_values({i})")
-        print(df.index.names[i])
-        print(df.index.get_level_values(i))
-        #print(df_tooltips)
-
-    print(f"df len: {len(df)}")
-    print(f"tt len: {len(df_tooltips)}")
 
     # The dash table needs a dictionary: col:value.
     # We're building the list of columns to be passed to the table
@@ -408,12 +394,23 @@ def selection_change(
 
     tbl_data = []
     tooltip_data = []
-    # create the header for the columns (first rows in the table)
+    # create the header for the columns (first rows in the table, 1 row per dim to be visualized on cols)
     for col_level in range(col_levels_count):
-        header_row = {
-            "v" + str(i): cols_index[i][col_level] for i in range(len(cols_index))
-        }
-        # header_row["cols"] = col_names[col_level]
+        # search for the dimension we're creating the header for in the structure
+        dim_on_col = next(dim for dim in dims if dim["id"] == on_cols[col_level]["id"])
+        # Is it coded? (TIME_PERIOD is not)
+        if "codes" in dim_on_col:
+            # create a dictionary {code:label} from the list of codes (it should be faster than looping)
+            id_name_dict = {c["id"]: c["name"] for c in dim_on_col["codes"]}
+            # loop the codes created in the pivot and replace them by the label
+            header_row = {
+                "v" + str(i): id_name_dict[cols_index[i][col_level]]
+                for i in range(len(cols_index))
+            }
+        else:
+            header_row = {
+                "v" + str(i): cols_index[i][col_level] for i in range(len(cols_index))
+            }
         header_row["cols"] = on_cols[col_level]["name"]
         tbl_data.append(header_row)
         tooltip_data.append(header_row)
@@ -424,15 +421,29 @@ def selection_change(
         tbl_data.append(rows_header)
         tooltip_data.append(rows_header)
 
-    # Can I just rename the cols and append the reuslts of df.to_records()?
-    # Can I just rename the cols and append the reuslts of df.to_records()?
-    # Can I just rename the cols and append the reuslts of df.to_records()?
-    col_ids = [c["id"] for c in tbl_cols_to_show if c["id"]!="cols"]
-    for data_row in df.to_records():
-        to_add = {col_ids[i]: data_row[i] for i in range(len(data_row))}
-        tbl_data.append(to_add)
+
+    #create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
+    to_replace = {}
+    for r in on_rows:
+        dim_on_row = next(dim for dim in dims if dim["id"] == r["id"])
+        if "codes" in dim_on_row:
+            to_replace[r["id"]] = {c["id"]: c["name"] for c in dim_on_row["codes"]}
+
+    #now reset the multiindex and replace the row names with the labels
+    df = df.reset_index()
+    #replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
+    df.columns=[r["id"] for r in on_rows] + ["v" + str(i) for i in range(len(df.columns)-len(on_rows))]
+    df = df.replace(to_replace)
+    #Fill the tbl_data with the rows/values
+    tbl_data = tbl_data + df.to_dict(orient="records")
+
+    #Now create the tooltips for the rows/data
+    col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
     for data_row in df_tooltips.to_records():
-        to_add = {col_ids[i]: {"value":data_row[i], "type":"markdown"} for i in range(len(data_row))}
+        to_add = {
+            col_ids[i]: {"value": data_row[i], "type": "markdown"}
+            for i in range(len(data_row))
+        }
         tooltip_data.append(to_add)
 
     # The table styles
@@ -453,8 +464,6 @@ def selection_change(
             }
         )
 
-    
-
     # The headers (cols and rows)
     for r in on_rows:
         style_data_conditional.append(
@@ -472,26 +481,5 @@ def selection_change(
                 "fontWeight": "bold",
             }
         )
-   
 
     return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional]
-
-
-@callback(
-    [
-        Output(
-            DataExplorerTableAIO.ids.dataexplorertable_summary2(ELEM_DATAEXPLORER),
-            "children",
-        )
-    ],
-    [
-        Input(
-            DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
-            "hoverInfo",
-        )
-    ],
-    [],
-)
-def tbl_cell_hover(hover_data):
-    print(hover_data)
-    return ["HHH"]
