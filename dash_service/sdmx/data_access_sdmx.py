@@ -174,11 +174,33 @@ class DataAccess_SDMX(data_access.Data_access):
                     if attr is None:
                         data_row[struct["attributes"]["observation"][idx]["id"]] = None
                     else:
-                        data_row[
-                            struct["attributes"]["observation"][idx]["id"]
-                        ] = struct["attributes"]["observation"][idx]["values"][attr][
-                            "name"
-                        ]
+                        if labels == "both":
+                            data_row[struct["attributes"]["observation"][idx]["id"]] = (
+                                struct["attributes"]["observation"][idx]["values"][
+                                    attr
+                                ]["id"]
+                                + ":"
+                                + struct["attributes"]["observation"][idx]["values"][
+                                    attr
+                                ]["name"]
+                            )
+                        elif labels == "name":
+
+                            data_row[
+                                struct["attributes"]["observation"][idx]["id"]
+                            ] = struct["attributes"]["observation"][idx]["values"][
+                                attr
+                            ][
+                                "name"
+                            ]
+                        elif labels == "id":
+                            data_row[
+                                struct["attributes"]["observation"][idx]["id"]
+                            ] = struct["attributes"]["observation"][idx]["values"][
+                                attr
+                            ][
+                                "id"
+                            ]
 
                 # data.append(data_row)
                 data.append({**series_vals, **data_row})
