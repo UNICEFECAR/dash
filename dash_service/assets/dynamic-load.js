@@ -128,7 +128,7 @@ if (browserOk) {
                     dashRenderer.setAttribute('type', 'text/javascript');
                     dashRenderer.innerHTML = "var renderer = new DashRenderer();";
                     document.body.appendChild(dashRenderer);
-                }, 500);
+                }, 1000);
             }
 
             if (document.readyState == 'complete') {
