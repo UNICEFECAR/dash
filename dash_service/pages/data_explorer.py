@@ -138,6 +138,7 @@ def download_struct(de_config, de_data_structure, lang):
 
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
+    Output(DataExplorerAIO.ids.de_table_title(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
     Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
@@ -155,6 +156,8 @@ def structure_and_filters(de_data_structure, de_config, lang):
     data_struct_id = get_structure_id(de_config["data"])
 
     sel_codes = {}
+
+    dataflow_title = de_data_structure[data_struct_id]["name"]
 
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
     for dim in dims:
@@ -205,7 +208,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
         )
         ret_pvt_controls.append(pvt_control)
 
-    return ret_filters, lastnobservations, ret_pvt_controls
+    return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
 
 
 def pivot_data(df, on_rows, on_cols):
@@ -299,6 +302,10 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
             "style_data_conditional",
         ),
+        Output(
+            DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER),
+            "children",
+        ),
     ],
     [
         # Input(_STORE_SELECTIONS, "data"),
@@ -328,6 +335,7 @@ def selection_change(
     data_struct_id = get_structure_id(de_config["data"])
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
     dims_no_time = [d for d in dims if not d["is_time"]]
+    attribs = de_data_structure[data_struct_id]["dsd"]["attribs"]
     # remove the roots from the selection nested (list comprehension)
     selections_clean = [
         [code for code in group if not code.startswith("_root_")]
@@ -385,6 +393,19 @@ def selection_change(
     )
 
     df = pivot_data(df, on_rows, on_cols)
+
+    # df = df.dropna(axis=1, how="all")
+    # unique_dims = {}
+    # unique_attribs = {}
+    # for c in dims:
+    #     uniq = df[c["id"]].unique()
+    #     if len(uniq) == 1:
+    #         unique_dims[c["id"]] = uniq[0]
+    #         df = df.drop(columns=c[])
+    # for a in attribs:
+    #     uniq = df[a["id"]].unique()
+    #     if len(uniq) == 1:
+    #         unique_attribs[c["id"]] = uniq[0]
 
     # The dash table needs a dictionary: col:value.
     # We're building the list of columns to be passed to the table
@@ -506,4 +527,4 @@ def selection_change(
             }
         )
 
-    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional]
+    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional,[]]
