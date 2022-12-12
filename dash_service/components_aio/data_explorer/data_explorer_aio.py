@@ -46,6 +46,11 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "de_unique_dims",
             "aio_id": aio_id,
         }
+        de_unique_attribs = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_unique_attribs",
+            "aio_id": aio_id,
+        }
 
     ids = ids
 
@@ -106,6 +111,7 @@ class DataExplorerAIO(html.Div):
             children=[
                 html.H1(id=self.ids.de_table_title(aio_id), children=[]),
                 html.Div(id=self.ids.de_unique_dims(aio_id), children=[]),
+                html.Div(id=self.ids.de_unique_attribs(aio_id), children=[]),
                 DataExplorerTableAIO(aio_id),
             ],
         )

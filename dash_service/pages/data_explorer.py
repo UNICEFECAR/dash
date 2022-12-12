@@ -261,7 +261,7 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
     #create a dict struct to quickly replace the attrib codes with the label
     to_replace = {}
     for attr in struct[struct_id]["dsd"]["attribs"]:
-        if "codes" in attr:
+        if "codes" in attr and attr["id"] in df.columns:
             to_replace[attr["id"]]={c["id"]:c["name"] for c in attr["codes"]}    
     df_t = df_t.replace(to_replace)
 
@@ -304,6 +304,10 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
         ),
         Output(
             DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER),
+            "children",
+        ),
+        Output(
+            DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER),
             "children",
         ),
     ],
@@ -376,16 +380,39 @@ def selection_change(
         if len(df) > de_config["obs_num_limit"]:
             df = df[0 : de_config["obs_num_limit"]]
 
+    df = df.dropna(axis=1, how="all")
+    unique_dims = {}
+    unique_attribs = {}
+    for dim in dims:
+        uniq = df[dim["id"]].unique()
+        if len(uniq) == 1:
+            df = df.drop(columns=dim["id"])
+            unique_dims[dim["id"]]={"name":dim["name"]}
+            if "codes" in dim:
+                unique_dims[dim["id"]]["value"] = (next(code for code in dim["codes"] if code["id"] == uniq[0]))["name"]
+            else:
+                unique_dims[dim["id"]]["value"] = uniq[0]
+    for attr in attribs:
+        if attr["id"] in df.columns:
+            uniq = df[attr["id"]].unique()
+            if len(uniq) == 1:
+                unique_attribs[attr["id"]]={"name":attr["name"]}
+                #unique_attribs[attr["id"]] = uniq[0]
+                if "codes" in attr:
+                    unique_attribs[attr["id"]]["value"] = (next(code for code in attr["codes"] if code["id"] == uniq[0]))["name"]
+                else:
+                    unique_attribs[attr["id"]]["value"] = uniq[0]
+
     # the pivoting config selected
     on_rows = [
         {"id": d["id"], "name": d["name"]}
         for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "R"
+        if pvt_cfg[idx] == "R" and d["id"] not in unique_dims
     ]
     on_cols = [
         {"id": d["id"], "name": d["name"]}
         for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "C"
+        if pvt_cfg[idx] == "C" and d["id"] not in unique_dims
     ]
 
     df_tooltips = pivot_tooltips(
@@ -394,18 +421,7 @@ def selection_change(
 
     df = pivot_data(df, on_rows, on_cols)
 
-    # df = df.dropna(axis=1, how="all")
-    # unique_dims = {}
-    # unique_attribs = {}
-    # for c in dims:
-    #     uniq = df[c["id"]].unique()
-    #     if len(uniq) == 1:
-    #         unique_dims[c["id"]] = uniq[0]
-    #         df = df.drop(columns=c[])
-    # for a in attribs:
-    #     uniq = df[a["id"]].unique()
-    #     if len(uniq) == 1:
-    #         unique_attribs[c["id"]] = uniq[0]
+
 
     # The dash table needs a dictionary: col:value.
     # We're building the list of columns to be passed to the table
@@ -527,4 +543,7 @@ def selection_change(
             }
         )
 
-    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional,[]]
+    unique_dims = [html.Div(f"{v['name']}: {v['value']}") for v in unique_dims.values()]
+    unique_attributes = [html.Div(f"{v['name']}: {v['value']}") for v in unique_attribs.values()]
+
+    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional,unique_dims, unique_attributes]
