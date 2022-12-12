@@ -167,6 +167,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
                 sel_filter = parse_sdmx_data_query(
                     "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
                 )
+                ##sel_filter= parse_sdmx_data_query("AFG.CME_MRY0T4._T")
                 # loop the parsed filter to make it resistant to missing dots in the dataquery
                 for i in range(len(sel_filter)):
                     sel_codes[dims[i]["id"]] = sel_filter[i]
@@ -396,6 +397,7 @@ def selection_change(
         if attr["id"] in df.columns:
             uniq = df[attr["id"]].unique()
             if len(uniq) == 1:
+                df = df.drop(columns=attr["id"])
                 unique_attribs[attr["id"]]={"name":attr["name"]}
                 #unique_attribs[attr["id"]] = uniq[0]
                 if "codes" in attr:
