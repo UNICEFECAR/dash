@@ -138,7 +138,9 @@ def download_struct(de_config, de_data_structure, lang):
 
 # Triggered when the config loaded from the database is stored in config dcc.store
 @callback(
+    Output(DataExplorerAIO.ids.de_table_title(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
+    Output(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
     Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
     [
         Input(_STORE_DSTRUCTS, "data"),
@@ -155,6 +157,8 @@ def structure_and_filters(de_data_structure, de_config, lang):
 
     sel_codes = {}
 
+    dataflow_title = de_data_structure[data_struct_id]["name"]
+
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
     for dim in dims:
         if not dim["is_time"]:
@@ -163,6 +167,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
                 sel_filter = parse_sdmx_data_query(
                     "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
                 )
+                ##sel_filter= parse_sdmx_data_query("AFG.CME_MRY0T4._T")
                 # loop the parsed filter to make it resistant to missing dots in the dataquery
                 for i in range(len(sel_filter)):
                     sel_codes[dims[i]["id"]] = sel_filter[i]
@@ -171,6 +176,10 @@ def structure_and_filters(de_data_structure, de_config, lang):
 
     ret_filters = []
     ret_pvt_controls = []
+
+    lastnobservations = []
+    if "lastnobservations" in de_config and de_config["lastnobservations"] > 0:
+        lastnobservations = ["lastn"]
 
     if "pivot_cfg" in de_config:
         pvt_cfg = de_config["pivot_cfg"]
@@ -200,7 +209,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
         )
         ret_pvt_controls.append(pvt_control)
 
-    return ret_filters, ret_pvt_controls
+    return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
 
 
 def pivot_data(df, on_rows, on_cols):
@@ -214,7 +223,7 @@ def pivot_data(df, on_rows, on_cols):
         aggfunc=lambda x: x,
     )
 
-    # start createinf the data_table data
+    # start createing the data_table data
     dim_names_at = []
 
     # the first rows contain the header (the dims on col), e.g. if 3 dims on col then 3 header rows
@@ -241,14 +250,21 @@ def create_notes(row, cols_in_note, cols_in_note_names):
 
 
 def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
-
+    #Drop the empty cols (sometimes the attrib can be completely empty)
     df_t = df.dropna(how="all", axis=1)
     df_t = df_t.fillna("")
 
+    #Get all the ids of the attrib (if it is not empty and has been dropped from the df)
     cols_in_note = [a["id"] for a in struct[struct_id]["dsd"]["attribs"]]
-    # cols_in_note = df.columns
     cols_in_note = [a for a in cols_in_note if a in df_t.columns]
     cols_in_note_names = {a: get_col_name(struct, struct_id, a) for a in cols_in_note}
+
+    #create a dict struct to quickly replace the attrib codes with the label
+    to_replace = {}
+    for attr in struct[struct_id]["dsd"]["attribs"]:
+        if "codes" in attr and attr["id"] in df.columns:
+            to_replace[attr["id"]]={c["id"]:c["name"] for c in attr["codes"]}    
+    df_t = df_t.replace(to_replace)
 
     df_t["tt"] = df_t.apply(
         lambda row: create_notes(row, cols_in_note, cols_in_note_names), axis=1
@@ -287,10 +303,19 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
             "style_data_conditional",
         ),
+        Output(
+            DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER),
+            "children",
+        ),
+        Output(
+            DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER),
+            "children",
+        ),
     ],
     [
         # Input(_STORE_SELECTIONS, "data"),
         Input({"type": "filter_tree", "index": ALL}, "checked"),
+        Input(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
         Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
         Input({"type": "pvt_control", "index": ALL}, "value"),
     ],
@@ -301,32 +326,41 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
     ],
 )
 def selection_change(
-    selections, time_period, pvt_cfg, de_data_structure, de_config, lang
+    selections, lastnobs, time_period, pvt_cfg, de_data_structure, de_config, lang
 ):
-
-    print("selection change called")
-
     if len(selections) == 0:
         raise PreventUpdate
 
-    last_n_obs = None
+    if len(lastnobs) > 0 and lastnobs[0] == "lastn":
+        lastn = 1
+    else:
+        lastn = None
 
     # prepare the data query
     data_struct_id = get_structure_id(de_config["data"])
     dims = de_data_structure[data_struct_id]["dsd"]["dims"]
     dims_no_time = [d for d in dims if not d["is_time"]]
+    attribs = de_data_structure[data_struct_id]["dsd"]["attribs"]
     # remove the roots from the selection nested (list comprehension)
     selections_clean = [
         [code for code in group if not code.startswith("_root_")]
         for group in selections
     ]
-    # If all codes have been selected just sebd an empty selecition
+    # If all codes have been selected just send an empty selecition
     for i in range(len(dims_no_time)):
         if len(selections_clean[i]) == len(dims_no_time[i]["codes"]):
             selections_clean[i] = []
 
-    dq = ["+".join(c) for c in selections_clean]
-    dq = ".".join(dq)
+    # Did the user selected all?
+    sel_all = True
+    for sel in selections_clean:
+        if len(sel) > 0:
+            sel_all = False
+    if sel_all:
+        dq = "all"
+    else:
+        dq = ["+".join(c) for c in selections_clean]
+        dq = ".".join(dq)
 
     request_cfg = {
         "agency": de_config["data"]["agency"],
@@ -335,26 +369,52 @@ def selection_change(
         "dq": dq,
     }
 
-    df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
+    df = get_data(request_cfg, time_period, lastnobservations=lastn, labels="id")
 
     print(f"Datapoint count: {str(len(df))}")
     # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
     # df = pd.DataFrame(data)
     # Truncate the df if an obs num limit has been defined
+    '''TODO Create a warning if the daset has been truncated'''
+    print("Create a warning if the dataset has been truncated")
     if "obs_num_limit" in de_config:
         if len(df) > de_config["obs_num_limit"]:
             df = df[0 : de_config["obs_num_limit"]]
+
+    df = df.dropna(axis=1, how="all")
+    unique_dims = {}
+    unique_attribs = {}
+    for dim in dims:
+        uniq = df[dim["id"]].unique()
+        if len(uniq) == 1:
+            df = df.drop(columns=dim["id"])
+            unique_dims[dim["id"]]={"name":dim["name"]}
+            if "codes" in dim:
+                unique_dims[dim["id"]]["value"] = (next(code for code in dim["codes"] if code["id"] == uniq[0]))["name"]
+            else:
+                unique_dims[dim["id"]]["value"] = uniq[0]
+    for attr in attribs:
+        if attr["id"] in df.columns:
+            uniq = df[attr["id"]].unique()
+            if len(uniq) == 1:
+                df = df.drop(columns=attr["id"])
+                unique_attribs[attr["id"]]={"name":attr["name"]}
+                #unique_attribs[attr["id"]] = uniq[0]
+                if "codes" in attr:
+                    unique_attribs[attr["id"]]["value"] = (next(code for code in attr["codes"] if code["id"] == uniq[0]))["name"]
+                else:
+                    unique_attribs[attr["id"]]["value"] = uniq[0]
 
     # the pivoting config selected
     on_rows = [
         {"id": d["id"], "name": d["name"]}
         for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "R"
+        if pvt_cfg[idx] == "R" and d["id"] not in unique_dims
     ]
     on_cols = [
         {"id": d["id"], "name": d["name"]}
         for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "C"
+        if pvt_cfg[idx] == "C" and d["id"] not in unique_dims
     ]
 
     df_tooltips = pivot_tooltips(
@@ -362,6 +422,8 @@ def selection_change(
     )
 
     df = pivot_data(df, on_rows, on_cols)
+
+
 
     # The dash table needs a dictionary: col:value.
     # We're building the list of columns to be passed to the table
@@ -421,23 +483,24 @@ def selection_change(
         tbl_data.append(rows_header)
         tooltip_data.append(rows_header)
 
-
-    #create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
+    # create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
     to_replace = {}
     for r in on_rows:
         dim_on_row = next(dim for dim in dims if dim["id"] == r["id"])
         if "codes" in dim_on_row:
             to_replace[r["id"]] = {c["id"]: c["name"] for c in dim_on_row["codes"]}
 
-    #now reset the multiindex and replace the row names with the labels
+    # now reset the multiindex and replace the row names with the labels
     df = df.reset_index()
-    #replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
-    df.columns=[r["id"] for r in on_rows] + ["v" + str(i) for i in range(len(df.columns)-len(on_rows))]
+    # replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
+    df.columns = [r["id"] for r in on_rows] + [
+        "v" + str(i) for i in range(len(df.columns) - len(on_rows))
+    ]
     df = df.replace(to_replace)
-    #Fill the tbl_data with the rows/values
+    # Fill the tbl_data with the rows/values
     tbl_data = tbl_data + df.to_dict(orient="records")
 
-    #Now create the tooltips for the rows/data
+    # Now create the tooltips for the rows/data
     col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
     for data_row in df_tooltips.to_records():
         to_add = {
@@ -482,4 +545,7 @@ def selection_change(
             }
         )
 
-    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional]
+    unique_dims = [html.Div(f"{v['name']}: {v['value']}") for v in unique_dims.values()]
+    unique_attributes = [html.Div(f"{v['name']}: {v['value']}") for v in unique_attribs.values()]
+
+    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional,unique_dims, unique_attributes]

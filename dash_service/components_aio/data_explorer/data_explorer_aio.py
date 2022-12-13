@@ -36,6 +36,21 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "de_pvt_control",
             "aio_id": aio_id,
         }
+        de_table_title = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_table_title",
+            "aio_id": aio_id,
+        }
+        de_unique_dims = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_unique_dims",
+            "aio_id": aio_id,
+        }
+        de_unique_attribs = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_unique_attribs",
+            "aio_id": aio_id,
+        }
 
     ids = ids
 
@@ -93,7 +108,12 @@ class DataExplorerAIO(html.Div):
 
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
-            children=[DataExplorerTableAIO(aio_id)],
+            children=[
+                html.H1(id=self.ids.de_table_title(aio_id), children=[]),
+                html.Div(id=self.ids.de_unique_dims(aio_id), children=[]),
+                html.Div(id=self.ids.de_unique_attribs(aio_id), children=[]),
+                DataExplorerTableAIO(aio_id),
+            ],
         )
 
         super().__init__(className="row", children=[left_col, table_col])

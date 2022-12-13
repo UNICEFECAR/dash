@@ -32,16 +32,9 @@ class DataExplorerTableAIO(html.Div):
 
     ids = ids
 
-    def __init__(self, aio_id=None, obs_num_per_page=None):
+    def __init__(self, aio_id=None):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
-
-        # if obs_num_per_page is None:
-        #     page_action = "none"
-        #     page_size = 0
-        # else:
-        #     page_action = "native"
-        #     page_size = obs_num_per_page
 
         dtable = dash_table.DataTable(
             id=self.ids.dataexplorertable_tbl(aio_id),
