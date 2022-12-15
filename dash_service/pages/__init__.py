@@ -197,5 +197,6 @@ def get_multilang_value(label_node, preferred_language="en"):
 
     return list(label_node.values())[0]
 
-def parse_sdmx_data_query(dq:str)->list:
+
+def parse_sdmx_data_query(dq: str) -> list:
     return parse_data_query(dq)

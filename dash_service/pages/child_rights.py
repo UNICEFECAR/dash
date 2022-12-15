@@ -20,6 +20,8 @@ from dash_service.pages.transmonee import (
     geo_json_countries,
     get_base_layout,
     make_card,
+    indicator_card,
+    graphs_dict,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -70,77 +72,7 @@ page_config = {
             },
         ],
         "AIO_AREA": {
-            "graphs": {
-                "bar": {
-                    "options": dict(
-                        x="Country_name",
-                        y="OBS_VALUE",
-                        barmode="group",
-                        text="OBS_VALUE",
-                        hover_name="TIME_PERIOD",
-                        labels={
-                            "OBS_FOOTNOTE": "Footnote",
-                            "DATA_SOURCE": "Primary Source",
-                        },
-                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
-                        height=500,
-                    ),
-                    "layout_options": dict(
-                        xaxis_title={"standoff": 0},
-                        margin_t=30,
-                        margin_b=0,
-                    ),
-                },
-                "line": {
-                    "options": dict(
-                        x="TIME_PERIOD",
-                        y="OBS_VALUE",
-                        color="Country_name",
-                        hover_name="Country_name",
-                        labels={"OBS_FOOTNOTE": "Footnote"},
-                        hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
-                        line_shape="spline",
-                        render_mode="svg",
-                        height=500,
-                    ),
-                    "trace_options": dict(mode="lines+markers"),
-                    "layout_options": dict(
-                        xaxis_title={"standoff": 10},
-                        margin_t=40,
-                        margin_b=0,
-                    ),
-                },
-                "map": {
-                    "options": dict(
-                        locations="REF_AREA",
-                        featureidkey="id",
-                        color="OBS_VALUE",
-                        color_continuous_scale=px.colors.sequential.GnBu,
-                        mapbox_style="carto-positron",
-                        geojson=geo_json_countries,
-                        zoom=2,
-                        center={"lat": 59.5381, "lon": 32.3200},
-                        opacity=0.5,
-                        labels={
-                            "OBS_VALUE": "Value",
-                            "Country_name": "Country",
-                            "TIME_PERIOD": "Year",
-                            "REF_AREA": "ISO3 Code",
-                            "OBS_FOOTNOTE": "Footnote",
-                        },
-                        hover_data={
-                            "OBS_VALUE": True,
-                            "REF_AREA": False,
-                            "Country_name": True,
-                            "TIME_PERIOD": True,
-                            "OBS_FOOTNOTE": True,
-                            "DATA_SOURCE": True,
-                        },
-                        height=500,
-                    ),
-                    "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
-                },
-            },
+            "graphs": graphs_dict,
             "indicators": [
                 "DM_CHLD_POP",
                 "DM_CHLD_POP_PT",
@@ -931,192 +863,6 @@ def apply_filters(
     )
 
 
-def indicator_card(
-    selections,
-    name,
-    numerator,
-    suffix,
-    absolute=False,
-    average=False,
-    min_max=False,
-    sex_code=None,
-    age_group=None,
-    data_provided=None,
-):
-    indicators = numerator.split(",")
-
-    # TODO: Change to use albertos config
-    # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    breakdown = "TOTAL"
-    # define the empty dimensions dict to be filled based on the card data filters
-    dimensions = {}
-    if age_group is not None:
-        dimensions["AGE"] = [age_group]
-    if sex_code is not None:
-        dimensions["SEX"] = [sex_code]
-
-    filtered_data = (
-        get_filtered_dataset(
-            indicators,
-            selections["years"],
-            selections["countries"],
-            breakdown,
-            dimensions,
-            latest_data=True,
-        )
-        if data_provided is None
-        else data_provided
-    )
-
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    indicator_sources = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
-    if filtered_data.empty:
-        indicator_header = "No data"
-        indicator_sources = "NA"
-        suffix = ""
-        numerator_pairs = []
-        return make_card(
-            name,
-            suffix,
-            indicator_sources,
-            source_link,
-            indicator_header,
-            numerator_pairs,
-            page_prefix,
-        )
-
-    # select last value for each country
-    indicator_values = (
-        filtered_data.groupby(
-            [
-                "Country_name",
-                "TIME_PERIOD",
-            ]
-        ).agg({"OBS_VALUE": "sum", "CODE": "count"})
-    ).reset_index()
-
-    numerator_pairs = (
-        indicator_values[indicator_values.CODE == len(indicators)]
-        .groupby("Country_name", as_index=False)
-        .last()
-        .set_index(["Country_name", "TIME_PERIOD"])
-    )
-
-    if "countries" in suffix.lower():
-        # this is a hack to accomodate small cases (to discuss with James)
-        if "FREE" in numerator or "COMP" in numerator:
-            # trick to filter number of years of free education
-            indicator_sum = (numerator_pairs.OBS_VALUE >= 1).to_numpy().sum()
-            sources = numerator_pairs.index.tolist()
-            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE >= 1]
-        elif "status" in suffix.lower():
-            # CRG D status coung
-            indicator_sum = (numerator_pairs.OBS_VALUE == "D").to_numpy().sum()
-            numerator_pairs = numerator_pairs[numerator_pairs.OBS_VALUE == "D"]
-            sources = numerator_pairs.index.tolist()
-        elif absolute:
-            # trick cards data availability among group of indicators and latest time_period
-            # doesn't require filtering by count == len(numors)
-            numerator_pairs = indicator_values.groupby(
-                "Country_name", as_index=False
-            ).last()
-            max_time_filter = (
-                numerator_pairs.TIME_PERIOD < numerator_pairs.TIME_PERIOD.max()
-            )
-            numerator_pairs.drop(numerator_pairs[max_time_filter].index, inplace=True)
-            numerator_pairs.set_index(["Country_name", "TIME_PERIOD"], inplace=True)
-            sources = numerator_pairs.index.tolist()
-            indicator_sum = len(sources)
-        else:
-            # trick to accomodate cards for admin exams (AND for boolean indicators)
-            # filter exams according to number of indicators
-            indicator_sum = (
-                (numerator_pairs.OBS_VALUE == len(indicators)).to_numpy().sum()
-            )
-            sources = numerator_pairs.index.tolist()
-            numerator_pairs = numerator_pairs[
-                numerator_pairs.OBS_VALUE == len(indicators)
-            ]
-
-    else:
-        indicator_sum = numerator_pairs["OBS_VALUE"].to_numpy().sum()
-        sources = numerator_pairs.index.tolist()
-        if average and len(sources) > 1:
-            indicator_sum = indicator_sum / len(sources)
-
-    # define indicator header text: the resultant number except for the min-max range
-    if min_max and len(sources) > 1:
-        min_val = numerator_pairs["OBS_VALUE"].min()
-        max_val = numerator_pairs["OBS_VALUE"].max()
-        # string format for cards: thousands separator and number of decimals
-        min_format = (
-            "{:,."
-            + (
-                "0"
-                if np.isnan(min_val) or "." not in str(min_val)
-                else (
-                    "0"
-                    if str(min_val)[::-1][0] == "0"
-                    else str(str(min_val)[::-1].find("."))
-                )
-            )
-            + "f}"
-        )
-        max_format = (
-            "{:,."
-            + (
-                "0"
-                if np.isnan(max_val) or "." not in str(max_val)
-                else (
-                    "0"
-                    if str(max_val)[::-1][0] == "0"
-                    else str(str(max_val)[::-1].find("."))
-                )
-            )
-            + "f}"
-        )
-        indicator_min = min_format.format(min_val)
-        indicator_max = max_format.format(max_val)
-        indicator_header = f"{indicator_min} - {indicator_max}"
-    else:
-        # string format for cards: thousands separator and number of decimals
-        sum_format = (
-            "{:,."
-            + (
-                "0"
-                if np.isnan(indicator_sum) or "." not in str(indicator_sum)
-                else (
-                    "0"
-                    if str(indicator_sum)[::-1][0] == "0"
-                    else str(str(indicator_sum)[::-1].find("."))
-                )
-            )
-            + "f}"
-        )
-        indicator_header = sum_format.format(indicator_sum)
-
-    return make_card(
-        name,
-        suffix,
-        indicator_sources,
-        source_link,
-        indicator_header,
-        numerator_pairs,
-        page_prefix,
-    )
-
-
 @callback(
     Output(f"{page_prefix}-main_title", "children"),
     Output(f"{page_prefix}-themes", "children"),
@@ -1395,7 +1141,7 @@ def aio_area_figure(
             card_config[0].get("min_max"),
             card_config[0].get("sex"),
             card_config[0].get("age"),
-            data if card_config[0].get("data_provided") else None,
+            page_prefix,
         )
     )
 
