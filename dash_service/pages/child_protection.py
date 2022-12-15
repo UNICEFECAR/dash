@@ -19,6 +19,7 @@ import textwrap
 from dash_service.pages.transmonee import (
     geo_json_countries,
     get_base_layout,
+    make_card,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -607,68 +608,6 @@ def layout(page_slug=None, **query_parmas):
     )
 
 
-def make_card(
-    name,
-    suffix,
-    indicator_sources,
-    source_link,
-    indicator_header,
-    numerator_pairs,
-):
-    card = [
-        dbc.CardBody(
-            [
-                html.H1(
-                    indicator_header,
-                    className="display-5",
-                    style={
-                        "textAlign": "center",
-                        "color": "#1cabe2",
-                    },
-                ),
-                html.H4(suffix, className="card-title"),
-                html.P(name, className="lead"),
-                html.Div(
-                    fa("fas fa-info-circle"),
-                    id=f"{page_prefix}-indicator_card_info",
-                    style={
-                        "position": "absolute",
-                        "bottom": "10px",
-                        "right": "10px",
-                    },
-                ),
-            ],
-            style={
-                "textAlign": "center",
-            },
-        ),
-        dbc.Popover(
-            [
-                dbc.PopoverHeader(
-                    html.A(
-                        html.P(f"Sources: {indicator_sources}"),
-                        href=source_link,
-                        target="_blank",
-                    )
-                ),
-                dbc.PopoverBody(
-                    dcc.Markdown(get_card_popover_body(numerator_pairs)),
-                    style={
-                        "height": "200px",
-                        "overflowY": "auto",
-                        "whiteSpace": "pre-wrap",
-                    },
-                ),
-            ],
-            id=f"{page_prefix}-hover",
-            target=f"{page_prefix}-indicator_card_info",
-            trigger="hover",
-        ),
-    ]
-
-    return card
-
-
 @callback(
     Output(f"{page_prefix}-store", "data"),
     Output(f"{page_prefix}-country_selector", "checked"),
@@ -792,6 +731,7 @@ def indicator_card(
             source_link,
             indicator_header,
             numerator_pairs,
+            page_prefix,
         )
 
     # select last value for each country
@@ -906,6 +846,7 @@ def indicator_card(
         source_link,
         indicator_header,
         numerator_pairs,
+        page_prefix,
     )
 
 

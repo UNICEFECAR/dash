@@ -16,10 +16,12 @@ layout = dbc.Container(
                             data="./assets/SOCR_Diagram_Oct_2022_href.svg",
                             className="px-2",
                             style={
-                                "width": "100%",
+                                "width": "80%",
                                 "height": "200vh",
                                 # "height": "80rem",
                                 "display": "flex",
+                                "margin-left": "auto",
+                                "margin-right": "auto",
                                 "margin-top": "15px",
                                 "margin-bottom": "15px",
                             },
