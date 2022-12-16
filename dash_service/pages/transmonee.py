@@ -1,14 +1,15 @@
+import collections
+import json
+import logging
+from io import BytesIO
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pandasdmx as sdmx
 import plotly.express as px
 import plotly.io as pio
 import requests
-import collections
-import json
-import logging
-from io import BytesIO
-from pathlib import Path
 
 
 import dash_bootstrap_components as dbc
@@ -1315,3 +1316,45 @@ def themes(selections, indicators_dict):
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
     return title, buttons
+
+
+def aio_options(theme, indicators_dict, page_prefix):
+    area = "AIO_AREA"
+    area_types = []
+    current_theme = theme["theme"]
+    if area in indicators_dict[current_theme]:
+        indicators = indicators_dict[current_theme][area].get("indicators")
+        area_indicators = indicators.keys() if indicators is dict else indicators
+
+        default_option = (
+            indicators_dict[current_theme][area].get("default")
+            if area in indicators_dict[current_theme]
+            else ""
+        )
+
+        area_butons = [
+            dbc.Button(
+                indicator_names[code],
+                id={"type": f"{page_prefix}-indicator_button", "index": code},
+                color="info",
+                className="my-1",
+                active=code == default_option if default_option != "" else num == 0,
+            )
+            for num, code in enumerate(area_indicators)
+        ]
+
+        area_types = [
+            {
+                "label": name.capitalize(),
+                "value": name,
+            }
+            for name in indicators_dict[current_theme][area].get("graphs", {}).keys()
+        ]
+
+    default_graph = (
+        indicators_dict[current_theme][area].get("default_graph")
+        if area in indicators_dict[current_theme]
+        else ""
+    )
+
+    return area_butons, area_types, default_graph
