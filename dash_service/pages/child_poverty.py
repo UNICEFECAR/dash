@@ -23,6 +23,7 @@ from dash_service.pages.transmonee import (
     indicator_card,
     graphs_dict,
     filters,
+    themes,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -234,24 +235,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     prevent_initial_call=True,
 )
 def show_themes(selections, indicators_dict):
-
-    title = indicators_dict[selections["theme"]].get("NAME")
-    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-    # hide the buttons when only one option is available
-    if len(indicators_dict.items()) == 1:
-        return title, []
-    buttons = [
-        dbc.Button(
-            value["NAME"],
-            id=key,
-            color=colours[num],
-            className="theme mx-1",
-            href=f"#{key.lower()}",
-            active=url_hash == f"#{key.lower()}",
-        )
-        for num, (key, value) in enumerate(indicators_dict.items())
-    ]
-    return title, buttons
+    return themes(selections, indicators_dict)
 
 
 @callback(

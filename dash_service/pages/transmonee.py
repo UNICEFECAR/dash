@@ -1,19 +1,20 @@
-import collections
-import json
-import logging
-from io import BytesIO
-from pathlib import Path
-
-from dash import dcc, html, get_asset_url, callback_context
-import dash_bootstrap_components as dbc
-import dash_treeview_antd
-
 import numpy as np
 import pandas as pd
 import pandasdmx as sdmx
 import plotly.express as px
 import plotly.io as pio
 import requests
+import collections
+import json
+import logging
+from io import BytesIO
+from pathlib import Path
+
+
+import dash_bootstrap_components as dbc
+import dash_treeview_antd
+from dash import dcc, html, get_asset_url, callback_context
+
 
 from dash_service.components import fa
 from dash_service.utils import get_geo_file
@@ -1294,3 +1295,23 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
         f"Years: {selected_years[0]} - {selected_years[-1]}",
         "Countries: {}".format(country_text),
     )
+
+
+def themes(selections, indicators_dict):
+    title = indicators_dict[selections["theme"]].get("NAME")
+    url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
+    # hide the buttons when only one option is available
+    if len(indicators_dict.items()) == 1:
+        return title, []
+    buttons = [
+        dbc.Button(
+            value["NAME"],
+            id=key,
+            color=colours[num],
+            className="theme mx-1",
+            href=f"#{key.lower()}",
+            active=url_hash == f"#{key.lower()}",
+        )
+        for num, (key, value) in enumerate(indicators_dict.items())
+    ]
+    return title, buttons
