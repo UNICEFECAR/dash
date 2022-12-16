@@ -4,7 +4,7 @@ import logging
 from io import BytesIO
 from pathlib import Path
 
-from dash import dcc, html, get_asset_url
+from dash import dcc, html, get_asset_url, callback_context
 import dash_bootstrap_components as dbc
 import dash_treeview_antd
 
@@ -1247,3 +1247,50 @@ graphs_dict = {
         "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
     },
 }
+
+
+def filters(theme, years_slider, country_selector, programme_toggle, indicators):
+    ctx = callback_context
+    selected = ctx.triggered[0]["prop_id"].split(".")[0]
+    countries_selected = set()
+    if programme_toggle and "programme-toggle" in selected:
+        countries_selected = unicef_country_prog
+        country_selector = programme_country_indexes
+    # Add the condition to know when the user unchecks the UNICEF country programs!
+    elif not country_selector or (
+        not programme_toggle and "programme-toggle" in selected
+    ):
+        countries_selected = countries
+        # Add this to check all the items in the selection tree
+        country_selector = ["0"]
+    else:
+        for index in country_selector:
+            countries_selected.update(selection_index[index])
+            if countries_selected == countries:
+                # if all countries are all selected then stop
+                break
+
+    countries_selected = list(countries_selected)
+    country_text = f"{len(countries_selected)} Selected"
+    # need to include the last selected year as it was exluded in the previous method
+    selected_years = years[years_slider[0] : years_slider[1] + 1]
+
+    # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
+    countries_selected_codes = [
+        countries_iso3_dict[country] for country in countries_selected
+    ]
+    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
+    selections = dict(
+        theme=current_theme,
+        indicators_dict=indicators,
+        years=selected_years,
+        countries=countries_selected_codes,
+        count_names=countries_selected,
+    )
+
+    return (
+        selections,
+        country_selector,
+        f"Years: {selected_years[0]} - {selected_years[-1]}",
+        "Countries: {}".format(country_text),
+    )
