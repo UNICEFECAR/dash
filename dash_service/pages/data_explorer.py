@@ -18,7 +18,7 @@ from dash_service.pages import (
     parse_sdmx_data_query,
 )
 import pandas as pd
-import re
+import dash_bootstrap_components as dbc
 
 from dash_service.components_aio.data_explorer.data_explorer_aio import DataExplorerAIO
 from dash_service.components_aio.data_explorer.data_explore_filter_aio import (
@@ -250,20 +250,20 @@ def create_notes(row, cols_in_note, cols_in_note_names):
 
 
 def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
-    #Drop the empty cols (sometimes the attrib can be completely empty)
+    # Drop the empty cols (sometimes the attrib can be completely empty)
     df_t = df.dropna(how="all", axis=1)
     df_t = df_t.fillna("")
 
-    #Get all the ids of the attrib (if it is not empty and has been dropped from the df)
+    # Get all the ids of the attrib (if it is not empty and has been dropped from the df)
     cols_in_note = [a["id"] for a in struct[struct_id]["dsd"]["attribs"]]
     cols_in_note = [a for a in cols_in_note if a in df_t.columns]
     cols_in_note_names = {a: get_col_name(struct, struct_id, a) for a in cols_in_note}
 
-    #create a dict struct to quickly replace the attrib codes with the label
+    # create a dict struct to quickly replace the attrib codes with the label
     to_replace = {}
     for attr in struct[struct_id]["dsd"]["attribs"]:
         if "codes" in attr and attr["id"] in df.columns:
-            to_replace[attr["id"]]={c["id"]:c["name"] for c in attr["codes"]}    
+            to_replace[attr["id"]] = {c["id"]: c["name"] for c in attr["codes"]}
     df_t = df_t.replace(to_replace)
 
     df_t["tt"] = df_t.apply(
@@ -280,6 +280,17 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
     )
 
     return df_t
+
+def create_unique_dims_attrs_text(uniq_vals):
+    ret = []
+    for idx, v in enumerate(uniq_vals.values()):
+        ret.append(html.B(v["name"] + ": "))
+        #ret.append(": ")
+        ret.append(v["value"])
+        print(idx, len(uniq_vals))
+        if idx != len(uniq_vals)-1:
+            ret.append(" - ")
+    return ret
 
 
 # Triggered when the codes selection changes
@@ -375,7 +386,7 @@ def selection_change(
     # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
     # df = pd.DataFrame(data)
     # Truncate the df if an obs num limit has been defined
-    '''TODO Create a warning if the daset has been truncated'''
+    """TODO Create a warning if the daset has been truncated"""
     print("Create a warning if the dataset has been truncated")
     if "obs_num_limit" in de_config:
         if len(df) > de_config["obs_num_limit"]:
@@ -388,9 +399,11 @@ def selection_change(
         uniq = df[dim["id"]].unique()
         if len(uniq) == 1:
             df = df.drop(columns=dim["id"])
-            unique_dims[dim["id"]]={"name":dim["name"]}
+            unique_dims[dim["id"]] = {"name": dim["name"]}
             if "codes" in dim:
-                unique_dims[dim["id"]]["value"] = (next(code for code in dim["codes"] if code["id"] == uniq[0]))["name"]
+                unique_dims[dim["id"]]["value"] = (
+                    next(code for code in dim["codes"] if code["id"] == uniq[0])
+                )["name"]
             else:
                 unique_dims[dim["id"]]["value"] = uniq[0]
     for attr in attribs:
@@ -398,10 +411,12 @@ def selection_change(
             uniq = df[attr["id"]].unique()
             if len(uniq) == 1:
                 df = df.drop(columns=attr["id"])
-                unique_attribs[attr["id"]]={"name":attr["name"]}
-                #unique_attribs[attr["id"]] = uniq[0]
+                unique_attribs[attr["id"]] = {"name": attr["name"]}
+                # unique_attribs[attr["id"]] = uniq[0]
                 if "codes" in attr:
-                    unique_attribs[attr["id"]]["value"] = (next(code for code in attr["codes"] if code["id"] == uniq[0]))["name"]
+                    unique_attribs[attr["id"]]["value"] = (
+                        next(code for code in attr["codes"] if code["id"] == uniq[0])
+                    )["name"]
                 else:
                     unique_attribs[attr["id"]]["value"] = uniq[0]
 
@@ -422,8 +437,6 @@ def selection_change(
     )
 
     df = pivot_data(df, on_rows, on_cols)
-
-
 
     # The dash table needs a dictionary: col:value.
     # We're building the list of columns to be passed to the table
@@ -545,7 +558,22 @@ def selection_change(
             }
         )
 
-    unique_dims = [html.Div(f"{v['name']}: {v['value']}") for v in unique_dims.values()]
-    unique_attributes = [html.Div(f"{v['name']}: {v['value']}") for v in unique_attribs.values()]
+    # unique_dims = [html.Div(f"{v['name']}: {v['value']}") for v in unique_dims.values()]
+    # unique_attributes = [
+    #     html.Div(f"{v['name']}: {v['value']}") for v in unique_attribs.values()
+    # ]
 
-    return [dq, tbl_data, tbl_cols_to_show, tooltip_data, style_data_conditional,unique_dims, unique_attributes]
+    # unique_dims = [[html.B(v["name"]),":",] for v in unique_dims.values()]
+    unique_dims_html = create_unique_dims_attrs_text(unique_dims)
+    unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
+
+
+    return [
+        dq,
+        tbl_data,
+        tbl_cols_to_show,
+        tooltip_data,
+        style_data_conditional,
+        unique_dims_html,
+        unique_attrs_html,
+    ]
