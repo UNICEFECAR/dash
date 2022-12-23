@@ -7,13 +7,8 @@ from dash_service.models import DataExplorer, Project
 from dash.dependencies import MATCH, Input, Output, State, ALL
 from dash_service.pages import (
     get_data,
-    add_structure,
     get_structure_id,
-    get_code_from_structure_and_dq,
     get_col_name,
-    merge_with_codelist,
-    get_multilang_value,
-    is_string_empty,
     get_structure,
     parse_sdmx_data_query,
 )
@@ -47,6 +42,8 @@ LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
 ELEM_DATAEXPLORER_TABLE = "ELEM_DATAEXPLORER_TABLE"
 
+# TODO Move this in a cfg
+OBS_COUNT_LIMIT = 5000
 ID_OBS_VALUE = "OBS_VALUE"
 
 storeitem_sel_codes = "sel_codes"
@@ -141,7 +138,7 @@ def download_struct(de_config, de_data_structure, lang):
     Output(DataExplorerAIO.ids.de_table_title(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
-    Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
+    # Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
     [
         Input(_STORE_DSTRUCTS, "data"),
     ],
@@ -175,12 +172,24 @@ def structure_and_filters(de_data_structure, de_config, lang):
     struct = de_data_structure[data_struct_id]
 
     ret_filters = []
-    ret_pvt_controls = []
+    for dim in struct["dsd"]["dims"]:
+        if not dim["is_time"]:
+            filter = DataExplorerFilterAIO(
+                aio_id=dim["id"],
+                label=dim["name"],
+                expanded=False,
+                items=dim["codes"],
+                selected=sel_codes[dim["id"]],
+            )
+            ret_filters.append(filter)
+
+    #    ret_pvt_controls = []
 
     lastnobservations = []
     if "lastnobservations" in de_config and de_config["lastnobservations"] > 0:
         lastnobservations = ["lastn"]
 
+    """
     if "pivot_cfg" in de_config:
         pvt_cfg = de_config["pivot_cfg"]
     else:
@@ -208,8 +217,10 @@ def structure_and_filters(de_data_structure, de_config, lang):
             aio_id=dim["id"], label=dim["name"], onrow=on_row
         )
         ret_pvt_controls.append(pvt_control)
+    """
 
-    return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
+    # return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
+    return [dataflow_title], ret_filters, lastnobservations
 
 
 def pivot_data(df, on_rows, on_cols):
@@ -281,16 +292,47 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
 
     return df_t
 
+
 def create_unique_dims_attrs_text(uniq_vals):
     ret = []
     for idx, v in enumerate(uniq_vals.values()):
         ret.append(html.B(v["name"] + ": "))
-        #ret.append(": ")
         ret.append(v["value"])
-        print(idx, len(uniq_vals))
-        if idx != len(uniq_vals)-1:
+        if idx != len(uniq_vals) - 1:
             ret.append(" - ")
     return ret
+
+
+def get_default_pvt_config(struct):
+    selected_pvt_cfg = []
+    for dim in struct["dsd"]["dims"]:
+        if dim["is_time"]:
+            selected_pvt_cfg.append("C")
+        else:
+            selected_pvt_cfg.append("R")
+    return selected_pvt_cfg
+
+
+def update_pvt_controls(struct, selected_pvt_cfg):
+    ret_pvt_controls = []
+
+    for idx, dim in enumerate(struct["dsd"]["dims"]):
+        on_row = False
+        if selected_pvt_cfg[idx] == "R":
+            on_row = True
+        pvt_control = DataExplorerPivotAIO(
+            aio_id=dim["id"], label=dim["name"], onrow=on_row
+        )
+        ret_pvt_controls.append(pvt_control)
+
+    return ret_pvt_controls
+
+
+def get_code_name(code, dim_or_attrib):
+    if "codes" in dim_or_attrib:
+        return next(c for c in dim_or_attrib["codes"] if c["id"] == code)["name"]
+    else:
+        return code
 
 
 # Triggered when the codes selection changes
@@ -322,9 +364,9 @@ def create_unique_dims_attrs_text(uniq_vals):
             DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER),
             "children",
         ),
+        Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
     ],
     [
-        # Input(_STORE_SELECTIONS, "data"),
         Input({"type": "filter_tree", "index": ALL}, "checked"),
         Input(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
         Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
@@ -380,45 +422,46 @@ def selection_change(
         "dq": dq,
     }
 
+    # Get the data
     df = get_data(request_cfg, time_period, lastnobservations=lastn, labels="id")
 
     print(f"Datapoint count: {str(len(df))}")
-    # df = get_data(request_cfg, time_period, lastnobservations=last_n_obs, labels="id")
-    # df = pd.DataFrame(data)
     # Truncate the df if an obs num limit has been defined
     """TODO Create a warning if the daset has been truncated"""
+    """TODO Should we even show the truncated data? Should we just show the download + API link?"""
     print("Create a warning if the dataset has been truncated")
-    if "obs_num_limit" in de_config:
-        if len(df) > de_config["obs_num_limit"]:
-            df = df[0 : de_config["obs_num_limit"]]
+    if OBS_COUNT_LIMIT > 0:
+        if len(df) > OBS_COUNT_LIMIT:
+            print("Dataframe limited to " + str(OBS_COUNT_LIMIT) + " data points")
+            df = df[0:OBS_COUNT_LIMIT]
 
-    df = df.dropna(axis=1, how="all")
+    # Check if the dataflow contains columns (dims or attribs) containing just one value or no value at all
     unique_dims = {}
     unique_attribs = {}
+
+    distinc_count = df.nunique()
+
     for dim in dims:
-        uniq = df[dim["id"]].unique()
-        if len(uniq) == 1:
-            df = df.drop(columns=dim["id"])
-            unique_dims[dim["id"]] = {"name": dim["name"]}
-            if "codes" in dim:
-                unique_dims[dim["id"]]["value"] = (
-                    next(code for code in dim["codes"] if code["id"] == uniq[0])
-                )["name"]
-            else:
-                unique_dims[dim["id"]]["value"] = uniq[0]
+        if distinc_count[dim["id"]] == 1:
+            uniq = df[dim["id"]].unique()[0]
+            unique_dims[dim["id"]] = {
+                "name": dim["name"],
+                "value": get_code_name(uniq, dim),
+            }
     for attr in attribs:
-        if attr["id"] in df.columns:
-            uniq = df[attr["id"]].unique()
-            if len(uniq) == 1:
-                df = df.drop(columns=attr["id"])
-                unique_attribs[attr["id"]] = {"name": attr["name"]}
-                # unique_attribs[attr["id"]] = uniq[0]
-                if "codes" in attr:
-                    unique_attribs[attr["id"]]["value"] = (
-                        next(code for code in attr["codes"] if code["id"] == uniq[0])
-                    )["name"]
-                else:
-                    unique_attribs[attr["id"]]["value"] = uniq[0]
+        if distinc_count[attr["id"]] == 1:
+            uniq = df[attr["id"]].unique()[0]
+            unique_attribs[attr["id"]] = {
+                "name": attr["name"],
+                "value": get_code_name(uniq, attr),
+            }
+    cols_to_drop = [idx for idx, val in distinc_count.items() if val < 2]
+    df = df.drop(columns=cols_to_drop)
+
+    # the pivot configuration
+    if len(pvt_cfg) == 0:
+        pvt_cfg = get_default_pvt_config(de_data_structure[data_struct_id])
+    pvt_controls = update_pvt_controls(de_data_structure[data_struct_id], pvt_cfg)
 
     # the pivoting config selected
     on_rows = [
@@ -558,15 +601,8 @@ def selection_change(
             }
         )
 
-    # unique_dims = [html.Div(f"{v['name']}: {v['value']}") for v in unique_dims.values()]
-    # unique_attributes = [
-    #     html.Div(f"{v['name']}: {v['value']}") for v in unique_attribs.values()
-    # ]
-
-    # unique_dims = [[html.B(v["name"]),":",] for v in unique_dims.values()]
     unique_dims_html = create_unique_dims_attrs_text(unique_dims)
     unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
-
 
     return [
         dq,
@@ -576,4 +612,5 @@ def selection_change(
         style_data_conditional,
         unique_dims_html,
         unique_attrs_html,
+        pvt_controls,
     ]
