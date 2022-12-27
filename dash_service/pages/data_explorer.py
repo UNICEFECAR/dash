@@ -189,36 +189,6 @@ def structure_and_filters(de_data_structure, de_config, lang):
     if "lastnobservations" in de_config and de_config["lastnobservations"] > 0:
         lastnobservations = ["lastn"]
 
-    """
-    if "pivot_cfg" in de_config:
-        pvt_cfg = de_config["pivot_cfg"]
-    else:
-        pvt_cfg = {
-            # "rows": [d["id"] for d in struct["dsd"]["dims"] if not d["is_time"]],
-            "cols": [d["id"] for d in struct["dsd"]["dims"] if d["is_time"]]
-        }
-
-    for dim in struct["dsd"]["dims"]:
-        if not dim["is_time"]:
-            filter = DataExplorerFilterAIO(
-                aio_id=dim["id"],
-                label=dim["name"],
-                expanded=False,
-                items=dim["codes"],
-                selected=sel_codes[dim["id"]],
-            )
-            ret_filters.append(filter)
-
-        on_row = True
-        if dim["id"] in pvt_cfg["cols"]:
-            on_row = False
-
-        pvt_control = DataExplorerPivotAIO(
-            aio_id=dim["id"], label=dim["name"], onrow=on_row
-        )
-        ret_pvt_controls.append(pvt_control)
-    """
-
     # return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
     return [dataflow_title], ret_filters, lastnobservations
 
@@ -303,25 +273,29 @@ def create_unique_dims_attrs_text(uniq_vals):
     return ret
 
 
+# Gets the default pvt cfg (it is now default, should get it from the SDMX annotations)
 def get_default_pvt_config(struct):
-    selected_pvt_cfg = []
+    ret = {}
     for dim in struct["dsd"]["dims"]:
         if dim["is_time"]:
-            selected_pvt_cfg.append("C")
+            ret[dim["id"]] = "C"
         else:
-            selected_pvt_cfg.append("R")
-    return selected_pvt_cfg
+            ret[dim["id"]] = "R"
+    return ret
 
 
-def update_pvt_controls(struct, selected_pvt_cfg):
+def update_pvt_controls(struct, uniq_dims_ids, selected_pvt_cfg):
     ret_pvt_controls = []
 
-    for idx, dim in enumerate(struct["dsd"]["dims"]):
+    for dim in struct["dsd"]["dims"]:
+        visible = True
+        if dim["id"] in uniq_dims_ids:
+            visible = False
         on_row = False
-        if selected_pvt_cfg[idx] == "R":
+        if selected_pvt_cfg[dim["id"]] == "R":
             on_row = True
         pvt_control = DataExplorerPivotAIO(
-            aio_id=dim["id"], label=dim["name"], onrow=on_row
+            aio_id=dim["id"], label=dim["name"], onrow=on_row, visible=visible
         )
         ret_pvt_controls.append(pvt_control)
 
@@ -371,6 +345,7 @@ def get_code_name(code, dim_or_attrib):
         Input(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
         Input(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
         Input({"type": "pvt_control", "index": ALL}, "value"),
+        Input({"type": "pvt_control", "index": ALL}, "id"),
     ],
     [
         State(_STORE_DSTRUCTS, "data"),
@@ -379,7 +354,14 @@ def get_code_name(code, dim_or_attrib):
     ],
 )
 def selection_change(
-    selections, lastnobs, time_period, pvt_cfg, de_data_structure, de_config, lang
+    selections,
+    lastnobs,
+    time_period,
+    selected_pvt_cfg,
+    pvt_ids,
+    de_data_structure,
+    de_config,
+    lang,
 ):
     if len(selections) == 0:
         raise PreventUpdate
@@ -439,40 +421,50 @@ def selection_change(
     unique_dims = {}
     unique_attribs = {}
 
-    distinc_count = df.nunique()
-
+    cols_to_drop = []
     for dim in dims:
-        if distinc_count[dim["id"]] == 1:
-            uniq = df[dim["id"]].unique()[0]
+        col_uniq = df[dim["id"]].unique()
+        if len(col_uniq)==1:
+            cols_to_drop.append(dim["id"])
             unique_dims[dim["id"]] = {
                 "name": dim["name"],
-                "value": get_code_name(uniq, dim),
+                "value": get_code_name(col_uniq[0], dim),
             }
     for attr in attribs:
-        if distinc_count[attr["id"]] == 1:
-            uniq = df[attr["id"]].unique()[0]
+        col_uniq = df[attr["id"]].unique()
+        #remove None
+        col_uniq = [u for u in col_uniq if u is not None]
+        if len(col_uniq)==0:
+            cols_to_drop.append(attr["id"])
+        elif len(col_uniq)==1:
+        
             unique_attribs[attr["id"]] = {
                 "name": attr["name"],
-                "value": get_code_name(uniq, attr),
-            }
-    cols_to_drop = [idx for idx, val in distinc_count.items() if val < 2]
+                "value": get_code_name(col_uniq[0], attr),
+                }
     df = df.drop(columns=cols_to_drop)
 
     # the pivot configuration
-    if len(pvt_cfg) == 0:
+    if selected_pvt_cfg is None or len(selected_pvt_cfg) == 0:
         pvt_cfg = get_default_pvt_config(de_data_structure[data_struct_id])
-    pvt_controls = update_pvt_controls(de_data_structure[data_struct_id], pvt_cfg)
+    else:
+        pvt_cfg = {}
+        for idx, pvt_id in enumerate(pvt_ids):
+            pvt_cfg[pvt_id["index"]] = selected_pvt_cfg[idx]
 
-    # the pivoting config selected
+    uniq_dims_ids = [d for d in unique_dims.keys()]
+    pvt_controls = update_pvt_controls(
+        de_data_structure[data_struct_id], uniq_dims_ids, pvt_cfg
+    )
     on_rows = [
         {"id": d["id"], "name": d["name"]}
-        for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "R" and d["id"] not in unique_dims
+        for d in dims
+        if pvt_cfg[d["id"]] == "R" and d["id"] not in unique_dims
     ]
     on_cols = [
         {"id": d["id"], "name": d["name"]}
-        for idx, d in enumerate(dims)
-        if pvt_cfg[idx] == "C" and d["id"] not in unique_dims
+        for d in dims
+        if pvt_cfg[d["id"]] == "C" and d["id"] not in unique_dims
     ]
 
     df_tooltips = pivot_tooltips(
