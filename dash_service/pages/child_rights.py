@@ -86,7 +86,7 @@ page_config = {
                 "DM_BRTS",
                 "DM_FRATE_TOT",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "DM_CHLD_POP",
         },
     },
