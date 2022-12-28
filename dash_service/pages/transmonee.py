@@ -297,7 +297,7 @@ data_sources = {
     "CCRI": "Children's Climate Risk Index",
     "UN Treaties": "UN Treaties",
     "ESTAT": "Euro Stat",
-    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+    "Helix": "UNICEF Data Warehouse",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
     "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
