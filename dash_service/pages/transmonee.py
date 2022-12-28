@@ -949,6 +949,7 @@ def make_card(
     indicator_header,
     numerator_pairs,
     page_prefix,
+    domain_colour,
 ):
     card = [
         dbc.CardBody(
@@ -958,7 +959,7 @@ def make_card(
                     className="display-5",
                     style={
                         "textAlign": "center",
-                        "color": "#1cabe2",
+                        "color": domain_colour,
                     },
                 ),
                 html.H4(suffix, className="card-title"),
@@ -1015,6 +1016,7 @@ def indicator_card(
     sex_code=None,
     age_group=None,
     page_prefix=None,
+    domain_colour="#1cabe2",
 ):
     indicators = numerator.split(",")
 
@@ -1063,6 +1065,7 @@ def indicator_card(
             indicator_header,
             numerator_pairs,
             page_prefix,
+            domain_colour,
         )
 
     # select last value for each country
@@ -1178,6 +1181,7 @@ def indicator_card(
         indicator_header,
         numerator_pairs,
         page_prefix,
+        domain_colour,
     )
 
 
@@ -1210,11 +1214,11 @@ graphs_dict = {
             hover_name="Country_name",
             labels={"OBS_FOOTNOTE": "Footnote"},
             hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
-            line_shape="spline",
+            # line_shape="spline",
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines+markers", line=dict(width=0.5)),
+        "trace_options": dict(mode="lines", line=dict(width=0.7)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1524,6 +1528,7 @@ def aio_area_figure(
             card_config[0].get("sex"),
             card_config[0].get("age"),
             page_prefix,
+            domain_colour,
         )
     )
 
