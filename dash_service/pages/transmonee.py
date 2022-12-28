@@ -314,17 +314,17 @@ dict_topics_subtopics = {
     "Education, Leisure, and Culture": [
         "Education access and participation",
         "Learning quality and skills",
-        "Education System",
+        "Education system",
     ],
     "Family Environment and Protection": [
-        "Violence against Children and Women",
+        "Violence against children and women",
         "Children without parental care",
-        "Justice for Children",
+        "Justice for children",
         "Child marriage and other harmful practices",
         "Child labour and other forms of exploitation",
     ],
     "Health and Nutrition": [
-        "Health System",
+        "Health system",
         "Maternal, newborn and child health",
         "Immunization",
         "Nutrition",
@@ -333,22 +333,22 @@ dict_topics_subtopics = {
         "Water, sanitation and hygiene",
     ],
     "Poverty and Social Protection": [
-        "Child Poverty and Material Deprivation",
+        "Child poverty and material deprivation",
         "Social protection system",
     ],
     "Child Rights Landscape and Governance": [
         "Demographics",
-        "Political Economy",
-        "Migration and Displacement",
+        "Political economy",
+        "Migration and displacement",
         "Access to Justice",
-        "Data on Children",
-        "Public spending on Children",
+        "Data on children",
+        "Public spending on children",
         "Child rights governance",
     ],
     "Participation and Civil Rights": [
         "Birth registration and identity",
-        "Information, Internet and Protection of privacy",
-        "Leisure and Culture",
+        "Information, internet and protection of privacy",
+        "Leisure and culture",
     ],
 }
 
@@ -1598,6 +1598,8 @@ def aio_area_figure(
         options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
+    # remove x-axis title but keep space below
+    fig.update_layout(xaxis_title="")
     if traces:
         fig.update_traces(**traces)
 

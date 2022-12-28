@@ -51,7 +51,7 @@ min_max_card_suffix = "min - max values"
 
 page_config = {
     "HSM": {
-        "NAME": "Health System",
+        "NAME": "Health system",
         "CARDS": [
             {
                 "name": "",
