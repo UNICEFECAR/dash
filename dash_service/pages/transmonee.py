@@ -1362,6 +1362,38 @@ def aio_options(theme, indicators_dict, page_prefix):
     return area_butons, area_types, default_graph
 
 
+def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
+
+    indicator = [
+        ind_code["index"]
+        for ind_code, truth in zip(buttons_id, is_active_button)
+        if truth
+    ][0]
+
+    # check if indicator is a packed config
+    indicator = (
+        indicator
+        if indicator not in packed_config
+        else packed_config[indicator]["card_key"]
+    )
+
+    options = [{"label": "Total", "value": "TOTAL"}]
+    # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
+    all_breakdowns = [
+        {"label": "Sex", "value": "SEX"},
+        {"label": "Age", "value": "AGE"},
+        {"label": "Residence", "value": "RESIDENCE"},
+        {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
+    ]
+    dimensions = indicators_config.get(indicator, {}).keys()
+    # disaggregate only bar charts
+    if dimensions and fig_type == "bar":
+        for breakdown in all_breakdowns:
+            if breakdown["value"] in dimensions:
+                options.append(breakdown)
+    return options
+
+
 def aio_area_figure(
     compare,
     selections,

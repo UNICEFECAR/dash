@@ -25,6 +25,7 @@ from dash_service.pages.transmonee import (
     filters,
     themes,
     aio_options,
+    breakdown_options,
     aio_area_figure,
     fa,
     unicef_country_prog,
@@ -279,29 +280,8 @@ def set_active_button(_, buttons_id):
     State({"type": f"{page_prefix}-indicator_button", "index": ALL}, "id"),
     prevent_initial_call=True,
 )
-def breakdown_options(is_active_button, fig_type, buttons_id):
-
-    indicator = [
-        ind_code["index"]
-        for ind_code, truth in zip(buttons_id, is_active_button)
-        if truth
-    ][0]
-
-    options = [{"label": "Total", "value": "TOTAL"}]
-    # lbassil: change the disaggregation to use the names of the dimensions instead of the codes
-    all_breakdowns = [
-        {"label": "Sex", "value": "SEX"},
-        {"label": "Age", "value": "AGE"},
-        {"label": "Residence", "value": "RESIDENCE"},
-        {"label": "Wealth Quintile", "value": "WEALTH_QUINTILE"},
-    ]
-    dimensions = indicators_config.get(indicator, {}).keys()
-    # disaggregate only bar charts
-    if dimensions and fig_type == "bar":
-        for breakdown in all_breakdowns:
-            if breakdown["value"] in dimensions:
-                options.append(breakdown)
-    return options
+def set_breakdown_options(is_active_button, fig_type, buttons_id):
+    return breakdown_options(is_active_button, fig_type, buttons_id, packed_config)
 
 
 @callback(
