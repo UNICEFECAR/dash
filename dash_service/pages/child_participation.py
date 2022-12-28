@@ -142,6 +142,7 @@ register_page(
     # order=4,
 )
 page_prefix = "par"
+domain_colour = "#861c3f"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -268,4 +269,5 @@ def apply_aio_area_figure(
         selected_type,
         page_prefix,
         packed_config,
+        domain_colour,
     )

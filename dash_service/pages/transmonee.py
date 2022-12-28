@@ -38,6 +38,7 @@ colours = [
     "danger",
 ]
 
+
 DEFAULT_LABELS = {
     "Country_name": "Country",
     "TIME_PERIOD": "Year",
@@ -1213,7 +1214,7 @@ graphs_dict = {
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines+markers"),
+        "trace_options": dict(mode="lines+markers", line=dict(width=0.5)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1431,6 +1432,7 @@ def aio_area_figure(
     selected_type,
     page_prefix,
     packed_config,
+    domain_colour,
 ):
 
     # assumes indicator is not empty
@@ -1589,6 +1591,9 @@ def aio_area_figure(
         dimension_name = str(dimension_names.get(dimension, ""))
         options["color"] = dimension_name
 
+        if dimension_name == "Sex_name":
+            options["color_discrete_map"] = {"Female": "#e15f99", "Male": "#2e91e5"}
+
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
 
@@ -1600,7 +1605,9 @@ def aio_area_figure(
     fig.update_layout(layout)
     # remove x-axis title but keep space below
     fig.update_layout(xaxis_title="")
-    if traces:
+    if fig_type == "bar" and not dimension:
+        fig.update_traces(marker_color=domain_colour)
+    if fig_type == "line":
         fig.update_traces(**traces)
 
     # countries not reporting
