@@ -25,7 +25,9 @@ from dash_service.pages.transmonee import (
     filters,
     themes,
     aio_options,
+    active_button,
     breakdown_options,
+    default_compare,
     aio_area_figure,
     fa,
     unicef_country_prog,
@@ -427,13 +429,7 @@ def set_aio_options(theme, indicators_dict):
     prevent_initial_call=True,
 )
 def set_active_button(_, buttons_id):
-
-    # figure out which button was clicked
-    ctx = callback_context
-    button_code = eval(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
-
-    # return active properties accordingly
-    return [button_code == id_button["index"] for id_button in buttons_id]
+    return active_button(_, buttons_id)
 
 
 @callback(
@@ -460,22 +456,7 @@ def set_breakdown_options(is_active_button, fig_type, buttons_id):
     prevent_initial_call=True,
 )
 def set_default_compare(compare_options, selected_type, indicators_dict, theme):
-
-    area = "AIO_AREA"
-    current_theme = theme["theme"]
-
-    config = indicators_dict[current_theme][area]["graphs"][selected_type]
-    default_compare = config.get("compare")
-
-    return (
-        "TOTAL"
-        if selected_type != "bar" or default_compare is None
-        else default_compare
-        if default_compare in compare_options
-        else compare_options[1]["value"]
-        if len(compare_options) > 1
-        else compare_options[0]["value"]
-    )
+    return default_compare(compare_options, selected_type, indicators_dict, theme)
 
 
 @callback(

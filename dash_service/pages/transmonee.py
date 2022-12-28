@@ -1394,6 +1394,35 @@ def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
     return options
 
 
+def active_button(_, buttons_id):
+
+    # figure out which button was clicked
+    ctx = callback_context
+    button_code = eval(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
+
+    # return active properties accordingly
+    return [button_code == id_button["index"] for id_button in buttons_id]
+
+
+def default_compare(compare_options, selected_type, indicators_dict, theme):
+
+    area = "AIO_AREA"
+    current_theme = theme["theme"]
+
+    config = indicators_dict[current_theme][area]["graphs"][selected_type]
+    default_compare = config.get("compare")
+
+    return (
+        "TOTAL"
+        if selected_type != "bar" or default_compare is None
+        else default_compare
+        if default_compare in compare_options
+        else compare_options[1]["value"]
+        if len(compare_options) > 1
+        else compare_options[0]["value"]
+    )
+
+
 def aio_area_figure(
     compare,
     selections,
