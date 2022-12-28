@@ -685,6 +685,21 @@ def get_base_layout(**kwargs):
                     dbc.Col(
                         [
                             dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.ButtonGroup(
+                                            id=f"{page_prefix}-themes",
+                                        ),
+                                    ],
+                                    width=11,
+                                ),
+                                id=f"{page_prefix}-theme-row",
+                                className="my-2",
+                                justify="end",
+                                align="center",
+                                style=themes_row_style,
+                            ),
+                            dbc.Row(
                                 [
                                     dbc.Col(
                                         dbc.DropdownMenu(
@@ -764,21 +779,6 @@ def get_base_layout(**kwargs):
                                 style={
                                     "paddingTop": 15,
                                 },
-                            ),
-                            dbc.Row(
-                                dbc.Col(
-                                    [
-                                        dbc.ButtonGroup(
-                                            id=f"{page_prefix}-themes",
-                                        ),
-                                    ],
-                                    width=11,
-                                ),
-                                id=f"{page_prefix}-theme-row",
-                                className="my-2",
-                                justify="end",
-                                align="center",
-                                style=themes_row_style,
                             ),
                         ],
                         width={"size": 11, "offset": 0},
