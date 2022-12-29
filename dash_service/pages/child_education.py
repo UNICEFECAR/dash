@@ -379,6 +379,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Education and Leisure",
                     page_prefix=page_prefix,
+                    domain_colour=domain_colour,
                 ),
             ),
             html.Br(),

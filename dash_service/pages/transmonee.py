@@ -640,6 +640,7 @@ def get_base_layout(**kwargs):
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     page_prefix = kwargs.get("page_prefix")
+    domain_colour = kwargs.get("domain_colour")
 
     return html.Div(
         [
@@ -661,11 +662,12 @@ def get_base_layout(**kwargs):
                                             html.P(
                                                 main_subtitle,
                                                 id=f"{page_prefix}-subtitle",
-                                                className="heading-subtitle",
+                                                className="heading-subtitle-tm",
                                             ),
                                             html.H1(
                                                 id=f"{page_prefix}-main_title",
                                                 className="heading-title",
+                                                style={"color": domain_colour},
                                             ),
                                         ],
                                     ),
@@ -679,7 +681,10 @@ def get_base_layout(**kwargs):
                 children=[
                     dbc.Col(
                         html.A(
-                            html.Img(src=get_asset_url("home.svg")), href="/transmonee"
+                            html.Img(
+                                src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg")
+                            ),
+                            href="/transmonee",
                         ),
                         width={"size": 1, "offset": 0},
                         style={"paddingTop": 15},
@@ -691,6 +696,7 @@ def get_base_layout(**kwargs):
                                     [
                                         dbc.ButtonGroup(
                                             id=f"{page_prefix}-themes",
+                                            style={"color": domain_colour},
                                         ),
                                     ],
                                     width=11,

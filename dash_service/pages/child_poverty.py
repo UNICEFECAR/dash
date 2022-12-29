@@ -210,6 +210,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Poverty and Social Protection",
                     page_prefix=page_prefix,
+                    domain_colour=domain_colour,
                 ),
             ),
             html.Br(),
