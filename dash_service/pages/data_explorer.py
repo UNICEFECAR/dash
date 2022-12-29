@@ -421,14 +421,27 @@ def selection_change(
     unique_dims = {}
     unique_attribs = {}
 
+    #store the dimension uniques, will be used later
+    tmp_dim_uniques={}
+    for dim in dims:
+        tmp_dim_uniques[dim["id"]]=list(df[dim["id"]].unique())
+    # create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels
+    code_lbl_replace = {}
+    for dim in dims:
+        if "codes" in dim:
+            code_lbl_replace[dim["id"]]={c["id"]:c["name"] for c in dim["codes"] if c["id"] in tmp_dim_uniques[dim["id"]]}
+    
+
     cols_to_drop = []
     for dim in dims:
-        col_uniq = df[dim["id"]].unique()
-        if len(col_uniq)==1:
+        #col_uniq = df[dim["id"]].unique()
+        #dim_uniques[dim["id"]]=list(df[dim["id"]].unique())
+        if len(tmp_dim_uniques[dim["id"]])==1:
             cols_to_drop.append(dim["id"])
             unique_dims[dim["id"]] = {
                 "name": dim["name"],
-                "value": get_code_name(col_uniq[0], dim),
+                #"value": get_code_name(dim_uniques[dim["id"]][0], dim),
+                "value": code_lbl_replace[dim["id"]][tmp_dim_uniques[dim["id"]][0]]
             }
     for attr in attribs:
         col_uniq = df[attr["id"]].unique()
@@ -437,12 +450,13 @@ def selection_change(
         if len(col_uniq)==0:
             cols_to_drop.append(attr["id"])
         elif len(col_uniq)==1:
-        
             unique_attribs[attr["id"]] = {
                 "name": attr["name"],
                 "value": get_code_name(col_uniq[0], attr),
                 }
     df = df.drop(columns=cols_to_drop)
+
+
 
     # the pivot configuration
     if selected_pvt_cfg is None or len(selected_pvt_cfg) == 0:
@@ -510,11 +524,9 @@ def selection_change(
         dim_on_col = next(dim for dim in dims if dim["id"] == on_cols[col_level]["id"])
         # Is it coded? (TIME_PERIOD is not)
         if "codes" in dim_on_col:
-            # create a dictionary {code:label} from the list of codes (it should be faster than looping)
-            id_name_dict = {c["id"]: c["name"] for c in dim_on_col["codes"]}
             # loop the codes created in the pivot and replace them by the label
             header_row = {
-                "v" + str(i): id_name_dict[cols_index[i][col_level]]
+                "v" + str(i): code_lbl_replace[dim_on_col["id"]][cols_index[i][col_level]]
                 for i in range(len(cols_index))
             }
         else:
@@ -531,13 +543,6 @@ def selection_change(
         tbl_data.append(rows_header)
         tooltip_data.append(rows_header)
 
-    # create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
-    to_replace = {}
-    for r in on_rows:
-        dim_on_row = next(dim for dim in dims if dim["id"] == r["id"])
-        if "codes" in dim_on_row:
-            to_replace[r["id"]] = {c["id"]: c["name"] for c in dim_on_row["codes"]}
-
     # now reset the multiindex and replace the row names with the labels
     df = df.reset_index()
     # replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
@@ -546,17 +551,15 @@ def selection_change(
     ]
 
     #Replace the code for rows by the label (the dimensions)
-    df = df.replace(to_replace)
+    df = df.replace(code_lbl_replace)
     # Fill the tbl_data with the rows/values
     tbl_data = tbl_data + df.to_dict(orient="records")
 
     # Now create the tooltips for the rows/data
     df_tooltips=df_tooltips.reset_index()
-    df_tooltips = df_tooltips.replace(to_replace)
+    df_tooltips = df_tooltips.replace(code_lbl_replace)
     col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
-    print(col_ids)
     for data_row in df_tooltips.to_records(index=False):
-        print(data_row)
         to_add = {
             col_ids[i]: {"value": data_row[i], "type": "markdown"}
             for i in range(len(data_row))
