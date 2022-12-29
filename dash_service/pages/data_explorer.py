@@ -544,13 +544,19 @@ def selection_change(
     df.columns = [r["id"] for r in on_rows] + [
         "v" + str(i) for i in range(len(df.columns) - len(on_rows))
     ]
+
+    #Replace the code for rows by the label (the dimensions)
     df = df.replace(to_replace)
     # Fill the tbl_data with the rows/values
     tbl_data = tbl_data + df.to_dict(orient="records")
 
     # Now create the tooltips for the rows/data
+    df_tooltips=df_tooltips.reset_index()
+    df_tooltips = df_tooltips.replace(to_replace)
     col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
-    for data_row in df_tooltips.to_records():
+    print(col_ids)
+    for data_row in df_tooltips.to_records(index=False):
+        print(data_row)
         to_add = {
             col_ids[i]: {"value": data_row[i], "type": "markdown"}
             for i in range(len(data_row))
