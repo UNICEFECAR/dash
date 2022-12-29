@@ -1262,9 +1262,9 @@ graphs_dict = {
             color="OBS_VALUE",
             mapbox_style="carto-positron",
             geojson=geo_json_countries,
-            zoom=2,
-            center={"lat": 59.5381, "lon": 32.3200},
-            opacity=0.8,
+            zoom=2.5,
+            center={"lat": 51.9194, "lon": 19.040236},
+            opacity=0.7,
             labels={
                 "OBS_VALUE": "Value",
                 "Country_name": "Country",
@@ -1282,7 +1282,7 @@ graphs_dict = {
             },
             height=500,
         ),
-        "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+        "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 5}),
     },
 }
 
@@ -1635,7 +1635,7 @@ def aio_area_figure(
     if fig_type == "map":
         fig_type = "choropleth_mapbox"
         options["color_continuous_scale"] = ["white", domain_colour]
-        options["range_color"] = [0, data.OBS_VALUE.max()]
+        options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     # remove x-axis title but keep space below
