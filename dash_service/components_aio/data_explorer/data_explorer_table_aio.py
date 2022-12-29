@@ -59,8 +59,5 @@ class DataExplorerTableAIO(html.Div):
         div_summary = html.Div(
             id=self.ids.dataexplorertable_summary(aio_id), children=[]
         )
-        div_summary2 = html.Div(
-            id=self.ids.dataexplorertable_summary2(aio_id), children=["Summary2"]
-        )
 
-        super().__init__(children=[div_summary, div_summary2, dtable])
+        super().__init__(children=[div_summary, dtable])

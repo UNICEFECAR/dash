@@ -421,42 +421,40 @@ def selection_change(
     unique_dims = {}
     unique_attribs = {}
 
-    #store the dimension uniques, will be used later
-    tmp_dim_uniques={}
+    # store the dimension uniques, will be used later
+    tmp_dim_uniques = {}
     for dim in dims:
-        tmp_dim_uniques[dim["id"]]=list(df[dim["id"]].unique())
+        tmp_dim_uniques[dim["id"]] = list(df[dim["id"]].unique())
     # create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels
     code_lbl_replace = {}
     for dim in dims:
         if "codes" in dim:
-            code_lbl_replace[dim["id"]]={c["id"]:c["name"] for c in dim["codes"] if c["id"] in tmp_dim_uniques[dim["id"]]}
-    
+            code_lbl_replace[dim["id"]] = {
+                c["id"]: c["name"]
+                for c in dim["codes"]
+                if c["id"] in tmp_dim_uniques[dim["id"]]
+            }
 
     cols_to_drop = []
     for dim in dims:
-        #col_uniq = df[dim["id"]].unique()
-        #dim_uniques[dim["id"]]=list(df[dim["id"]].unique())
-        if len(tmp_dim_uniques[dim["id"]])==1:
+        if len(tmp_dim_uniques[dim["id"]]) == 1:
             cols_to_drop.append(dim["id"])
             unique_dims[dim["id"]] = {
                 "name": dim["name"],
-                #"value": get_code_name(dim_uniques[dim["id"]][0], dim),
-                "value": code_lbl_replace[dim["id"]][tmp_dim_uniques[dim["id"]][0]]
+                "value": code_lbl_replace[dim["id"]][tmp_dim_uniques[dim["id"]][0]],
             }
     for attr in attribs:
         col_uniq = df[attr["id"]].unique()
-        #remove None
+        # remove None
         col_uniq = [u for u in col_uniq if u is not None]
-        if len(col_uniq)==0:
+        if len(col_uniq) == 0:
             cols_to_drop.append(attr["id"])
-        elif len(col_uniq)==1:
+        elif len(col_uniq) == 1:
             unique_attribs[attr["id"]] = {
                 "name": attr["name"],
                 "value": get_code_name(col_uniq[0], attr),
-                }
+            }
     df = df.drop(columns=cols_to_drop)
-
-
 
     # the pivot configuration
     if selected_pvt_cfg is None or len(selected_pvt_cfg) == 0:
@@ -526,7 +524,8 @@ def selection_change(
         if "codes" in dim_on_col:
             # loop the codes created in the pivot and replace them by the label
             header_row = {
-                "v" + str(i): code_lbl_replace[dim_on_col["id"]][cols_index[i][col_level]]
+                "v"
+                + str(i): code_lbl_replace[dim_on_col["id"]][cols_index[i][col_level]]
                 for i in range(len(cols_index))
             }
         else:
@@ -550,13 +549,13 @@ def selection_change(
         "v" + str(i) for i in range(len(df.columns) - len(on_rows))
     ]
 
-    #Replace the code for rows by the label (the dimensions)
+    # Replace the code for rows by the label (the dimensions)
     df = df.replace(code_lbl_replace)
     # Fill the tbl_data with the rows/values
     tbl_data = tbl_data + df.to_dict(orient="records")
 
     # Now create the tooltips for the rows/data
-    df_tooltips=df_tooltips.reset_index()
+    df_tooltips = df_tooltips.reset_index()
     df_tooltips = df_tooltips.replace(code_lbl_replace)
     col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
     for data_row in df_tooltips.to_records(index=False):
@@ -572,17 +571,31 @@ def selection_change(
     for r in on_rows:
         style_data_conditional.append(
             {
+                # "if": {"column_id": r["id"]},
+                # "filter_query": "{row_index} > {6}",
                 "if": {"column_id": r["id"]},
-                "fontWeight": "bold",
+                "backgroundColor": "WhiteSmoke",
             }
         )
+
     for c in range(col_levels_count):
         style_data_conditional.append(
             {
-                "if": {"row_index": c},
-                "fontWeight": "bold",
+                "if": {"row_index": c },
+                # "fontWeight": "bold",
+                "backgroundColor": "WhiteSmoke",
             }
         )
+
+    #Restore the normal color for the rows left blank for the Column header (top left ones)
+    for r in on_rows:
+        for c in range(col_levels_count):
+            style_data_conditional.append(
+                {
+                    "if": {"row_index": c, "column_id": r["id"]},
+                    "backgroundColor": "White",
+                }
+            )
 
     # The headers (cols and rows)
     for r in on_rows:
