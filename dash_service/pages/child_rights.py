@@ -299,7 +299,7 @@ page_config = {
                 "CR_SG_STT_NSDSFDDNR",
                 "CR_SG_STT_NSDSFDOTHR",
             ],
-            "default_graph": "bar",
+            "default_graph": "map",
             "default": "CR_IQ_SCI_OVRL",
         },
     },

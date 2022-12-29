@@ -663,11 +663,17 @@ def get_base_layout(**kwargs):
                                                 main_subtitle,
                                                 id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle-tm",
+                                                style={
+                                                    "margin-bottom": "0px",
+                                                },
                                             ),
                                             html.H1(
                                                 id=f"{page_prefix}-main_title",
                                                 className="heading-title",
-                                                style={"color": domain_colour},
+                                                style={
+                                                    "color": domain_colour,
+                                                    "margin-top": "5px",
+                                                },
                                             ),
                                         ],
                                     ),
@@ -680,14 +686,23 @@ def get_base_layout(**kwargs):
             dbc.Row(
                 children=[
                     dbc.Col(
-                        html.A(
-                            html.Img(
-                                src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg")
+                        [
+                            html.A(
+                                html.Img(
+                                    id="wheel-icon",
+                                    src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg"),
+                                    style={"background-color": "white"},
+                                ),
+                                href="/transmonee",
                             ),
-                            href="/transmonee",
-                        ),
+                            dbc.Tooltip(
+                                "Return to ECA CRM Framework", target="wheel-icon"
+                            ),
+                        ],
                         width={"size": 1, "offset": 0},
-                        style={"paddingTop": 15},
+                        style={
+                            "paddingTop": 15,
+                        },
                     ),
                     dbc.Col(
                         [
@@ -696,7 +711,6 @@ def get_base_layout(**kwargs):
                                     [
                                         dbc.ButtonGroup(
                                             id=f"{page_prefix}-themes",
-                                            style={"color": domain_colour},
                                         ),
                                     ],
                                     width=11,
@@ -714,7 +728,7 @@ def get_base_layout(**kwargs):
                                             label=f"Years: {years[0]} - {years[-1]}",
                                             id=f"{page_prefix}-collapse-years-button",
                                             className="m-2",
-                                            color="info",
+                                            color="secondary",
                                             # block=True,
                                             children=[
                                                 dbc.Card(
@@ -749,7 +763,7 @@ def get_base_layout(**kwargs):
                                             label=f"Countries: {len(countries)}",
                                             id=f"{page_prefix}-collapse-countries-button",
                                             className="m-2",
-                                            color="info",
+                                            color="secondary",
                                             style=countries_filter_style,
                                             children=[
                                                 dbc.Card(
@@ -786,6 +800,7 @@ def get_base_layout(**kwargs):
                                                 "type": "area_types",
                                                 "index": f"{page_prefix}-AIO_AREA",
                                             },
+                                            className="custom-control-input-crg",
                                             labelStyle={
                                                 "paddingLeft": 0,
                                                 "marginLeft": "-20px",
@@ -835,7 +850,8 @@ def get_base_layout(**kwargs):
                                                                     },
                                                                     vertical=True,
                                                                     style={
-                                                                        "marginBottom": "20px"
+                                                                        "marginBottom": "20px",
+                                                                        "width": "95%",
                                                                     },
                                                                 ),
                                                             ],
@@ -849,9 +865,12 @@ def get_base_layout(**kwargs):
                                                             id=f"{page_prefix}-indicator_card",
                                                             color="primary",
                                                             outline=True,
+                                                            style={
+                                                                "width": "95%",
+                                                            },
                                                         ),
                                                     ],
-                                                    width=4,
+                                                    width=3,
                                                 ),
                                                 dbc.Col(
                                                     html.Div(
@@ -865,6 +884,9 @@ def get_base_layout(**kwargs):
                                                                                     id={
                                                                                         "type": "area_breakdowns",
                                                                                         "index": f"{page_prefix}-AIO_AREA",
+                                                                                    },
+                                                                                    inputStyle={
+                                                                                        "color": domain_colour
                                                                                     },
                                                                                     labelStyle={
                                                                                         "paddingLeft": 0,
@@ -930,7 +952,7 @@ def get_base_layout(**kwargs):
                                                             ),
                                                         ],
                                                     ),
-                                                    width=8,
+                                                    width=9,
                                                 ),
                                             ],
                                             justify="evenly",
@@ -990,7 +1012,7 @@ def make_card(
             [
                 dbc.PopoverHeader(
                     html.A(
-                        html.P(f"Sources: {indicator_sources}"),
+                        html.P(f"Sources(s): {indicator_sources}"),
                         href=source_link,
                         target="_blank",
                     )
@@ -1238,12 +1260,11 @@ graphs_dict = {
             locations="REF_AREA",
             featureidkey="id",
             color="OBS_VALUE",
-            color_continuous_scale=px.colors.sequential.GnBu,
             mapbox_style="carto-positron",
             geojson=geo_json_countries,
             zoom=2,
             center={"lat": 59.5381, "lon": 32.3200},
-            opacity=0.5,
+            opacity=0.8,
             labels={
                 "OBS_VALUE": "Value",
                 "Country_name": "Country",
@@ -1323,7 +1344,7 @@ def themes(selections, indicators_dict):
         dbc.Button(
             value["NAME"],
             id=key,
-            color=colours[num],
+            color="crg-sub",
             className="theme mx-1",
             href=f"#{key.lower()}",
             active=url_hash == f"#{key.lower()}",
@@ -1351,7 +1372,7 @@ def aio_options(theme, indicators_dict, page_prefix):
             dbc.Button(
                 indicator_names[code],
                 id={"type": f"{page_prefix}-indicator_button", "index": code},
-                color="info",
+                color="crg",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
             )
@@ -1613,7 +1634,8 @@ def aio_area_figure(
     # rename figure_type 'map': 'choropleth' (plotly express)
     if fig_type == "map":
         fig_type = "choropleth_mapbox"
-        options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
+        options["color_continuous_scale"] = ["white", domain_colour]
+        options["range_color"] = [0, data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     # remove x-axis title but keep space below
@@ -1650,6 +1672,7 @@ def aio_area_figure(
                             "index": f"{page_prefix}-AIO_AREA",
                         },
                         className="alert-link",
+                        style={"color": domain_colour},
                     ),
                 ],
             )
@@ -1671,7 +1694,7 @@ def aio_area_figure(
                         style={
                             "display": "inline-block",
                             "fontWeight": "bold",
-                            "color": "#1cabe2",
+                            "color": domain_colour,
                             "whiteSpace": "pre",
                         },
                     ),
