@@ -780,6 +780,20 @@ def get_base_layout(**kwargs):
                                         ),
                                         width="auto",
                                     ),
+                                    dbc.Col(
+                                        dbc.RadioItems(
+                                            id={
+                                                "type": "area_types",
+                                                "index": f"{page_prefix}-AIO_AREA",
+                                            },
+                                            labelStyle={
+                                                "paddingLeft": 0,
+                                                "marginLeft": "-20px",
+                                            },
+                                            inline=True,
+                                        ),
+                                        width="auto",
+                                    ),
                                 ],
                                 id=f"{page_prefix}-filter-row",
                                 justify="center",
@@ -849,20 +863,6 @@ def get_base_layout(**kwargs):
                                                                             dbc.Col(
                                                                                 dbc.RadioItems(
                                                                                     id={
-                                                                                        "type": "area_types",
-                                                                                        "index": f"{page_prefix}-AIO_AREA",
-                                                                                    },
-                                                                                    labelStyle={
-                                                                                        "paddingLeft": 0,
-                                                                                        "marginLeft": "-20px",
-                                                                                    },
-                                                                                    inline=True,
-                                                                                ),
-                                                                                width="auto",
-                                                                            ),
-                                                                            dbc.Col(
-                                                                                dbc.RadioItems(
-                                                                                    id={
                                                                                         "type": "area_breakdowns",
                                                                                         "index": f"{page_prefix}-AIO_AREA",
                                                                                     },
@@ -875,12 +875,12 @@ def get_base_layout(**kwargs):
                                                                                 width="auto",
                                                                             ),
                                                                         ],
-                                                                        justify="around",
-                                                                        align="center",
                                                                     )
                                                                 ],
                                                                 style={
-                                                                    "paddingBottom": 10
+                                                                    "paddingBottom": 10,
+                                                                    "display": "flex",
+                                                                    "justify-content": "flex-end",
                                                                 },
                                                             ),
                                                             dcc.Loading(
