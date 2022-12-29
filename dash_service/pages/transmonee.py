@@ -304,6 +304,8 @@ data_sources = {
     "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
     "WB": "World Bank",
     "OECD": "Organisation for Economic Co-operation and Development",
+    "OECD CWD": "OECD Child Wellbeing Dashboard",
+    "INFORM": "Inform Risk Index",
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "NEW_UIS": "UNESCO Institute for Statistics",
@@ -656,14 +658,14 @@ def get_base_layout(**kwargs):
                                         className="heading-panel",
                                         style={"padding": 20},
                                         children=[
-                                            html.H1(
-                                                id=f"{page_prefix}-main_title",
-                                                className="heading-title",
-                                            ),
                                             html.P(
                                                 main_subtitle,
                                                 id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle",
+                                            ),
+                                            html.H1(
+                                                id=f"{page_prefix}-main_title",
+                                                className="heading-title",
                                             ),
                                         ],
                                     ),
