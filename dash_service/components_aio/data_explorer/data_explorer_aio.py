@@ -4,6 +4,7 @@ import uuid
 import datetime
 
 from .data_explorer_table_aio import DataExplorerTableAIO
+from dash_service.components_aio.data_explorer.downloads_aio_ddl import DownloadsAIO_dll
 
 
 class DataExplorerAIO(html.Div):
@@ -41,6 +42,12 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "de_table_title",
             "aio_id": aio_id,
         }
+        de_download_data = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_download_data",
+            "aio_id": aio_id,
+        }
+
         de_unique_dims = lambda aio_id: {
             "component": "DataExplorer",
             "subcomponent": "de_unique_dims",
@@ -106,12 +113,38 @@ class DataExplorerAIO(html.Div):
             ],
         )
 
+        btn_downloads = DownloadsAIO_dll(aio_id, lbl_excel="lbl_excel", lbl_csv="lbl_csv")
+
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
             children=[
-                html.H1(id=self.ids.de_table_title(aio_id), children=[]),
-                html.Div(id=self.ids.de_unique_dims(aio_id), children=[]),
-                html.Div(id=self.ids.de_unique_attribs(aio_id), children=[]),
+                html.H1(
+                    id=self.ids.de_table_title(aio_id),
+                    children=[],
+                    className="row col-sm-12 col-lg-9",
+                ),
+                html.Div(
+                    className="row",
+                    children=[
+                        html.Div(
+                            className="col-sm-9",
+                            # style={"backgroundColor": "red"},
+                            children=[
+                                html.Div(
+                                    id=self.ids.de_unique_dims(aio_id), children=[]
+                                ),
+                                html.Div(
+                                    id=self.ids.de_unique_attribs(aio_id), children=[]
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className="col-sm-3 text-right",
+                            # style={"backgroundColor": "blue"},
+                            children=[btn_downloads]
+                        ),
+                    ],
+                ),
                 DataExplorerTableAIO(aio_id),
             ],
         )
