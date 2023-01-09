@@ -601,7 +601,7 @@ df_sources["Domain"] = df_sources["Subdomain"].apply(
     lambda x: get_sector(x) if not pd.isna(x) else ""
 )
 df_sources["Source_Full"] = df_sources["Source"].apply(
-    lambda x: data_sources[x] if not pd.isna(x) else ""
+    lambda x: data_sources[x] if not pd.isna(x) and x in data_sources else ""
 )
 
 df_sources = df_sources[df_sources["Subdomain"].str.lower().isin(sitan_subtopics)]
