@@ -139,13 +139,14 @@ class DataExplorerAIO(html.Div):
                             ],
                         ),
                         html.Div(
-                            className="col-sm-3 text-right",
+                            className="col-sm-3",
                             # style={"backgroundColor": "blue"},
                             children=[btn_downloads]
                         ),
                     ],
                 ),
-                DataExplorerTableAIO(aio_id),
+                html.Div(
+                children=[DataExplorerTableAIO(aio_id)])
             ],
         )
 

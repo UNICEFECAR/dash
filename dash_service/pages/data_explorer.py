@@ -25,6 +25,7 @@ from dash_service.components_aio.data_explorer.data_explorer_table_aio import (
 from dash_service.components_aio.data_explorer.data_explorer_pivot_aio import (
     DataExplorerPivotAIO,
 )
+from dash_service.components_aio.data_explorer.downloads_aio_ddl import DownloadsAIO_dll
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -33,9 +34,8 @@ pd.set_option("display.width", 0)
 _STORE_LANG = "lang"
 _STORE_CONFIG = "de_config"
 _STORE_DSTRUCTS = "de_data_structure"
-_STORE_TIME_PERIOD = "de_time_period"
-_STORE_EXPANDED_FILTER = "de_expanded_filter"
-_STORE_SELECTIONS = "de_selections"
+_STORE_REQUEST_CFG = "de_request_config"
+_STORE_LASTNOBS_CFG = "de_lastnobs_config"
 
 
 LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
@@ -100,11 +100,14 @@ def render_page_template(
             dcc.Store(id=_STORE_LANG, data=lang),
             dcc.Store(id=_STORE_CONFIG, data=config),
             dcc.Store(id=_STORE_DSTRUCTS, data={}, storage_type="session"),
-            dcc.Store(id=_STORE_TIME_PERIOD, data=[]),
-            dcc.Store(id=_STORE_EXPANDED_FILTER, data=""),
-            dcc.Store(id=_STORE_SELECTIONS, data={}),
+            dcc.Store(id=_STORE_REQUEST_CFG, data={}),
+            dcc.Store(id=_STORE_LASTNOBS_CFG, data=None),
             de,
             html.Div(id="div_loaded", children=["..."]),
+
+
+            html.Div(id="out", children=["kjh"]),
+            html.Button(id="bbb", children=["kjh"])
         ],
     )
 
@@ -138,7 +141,6 @@ def download_struct(de_config, de_data_structure, lang):
     Output(DataExplorerAIO.ids.de_table_title(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_filters(ELEM_DATAEXPLORER), "children"),
     Output(DataExplorerAIO.ids.de_lastnobs(ELEM_DATAEXPLORER), "value"),
-    # Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
     [
         Input(_STORE_DSTRUCTS, "data"),
     ],
@@ -148,7 +150,6 @@ def download_struct(de_config, de_data_structure, lang):
     ],
 )
 # Downloads the DSD for the data.
-# def structure_and_filters(de_data_structure, checked, de_config, lang, selections):
 def structure_and_filters(de_data_structure, de_config, lang):
     data_struct_id = get_structure_id(de_config["data"])
 
@@ -313,10 +314,6 @@ def get_code_name(code, dim_or_attrib):
 @callback(
     [
         Output(
-            DataExplorerTableAIO.ids.dataexplorertable_summary(ELEM_DATAEXPLORER),
-            "children",
-        ),
-        Output(
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER), "data"
         ),
         Output(
@@ -330,15 +327,11 @@ def get_code_name(code, dim_or_attrib):
             DataExplorerTableAIO.ids.dataexplorertable_tbl(ELEM_DATAEXPLORER),
             "style_data_conditional",
         ),
-        Output(
-            DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER),
-            "children",
-        ),
-        Output(
-            DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER),
-            "children",
-        ),
+        Output(DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER), "children"),
+        Output(DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
+        Output(_STORE_REQUEST_CFG, "data"),
+        Output(_STORE_LASTNOBS_CFG, "data"),
     ],
     [
         Input({"type": "filter_tree", "index": ALL}, "checked"),
@@ -581,13 +574,13 @@ def selection_change(
     for c in range(col_levels_count):
         style_data_conditional.append(
             {
-                "if": {"row_index": c },
+                "if": {"row_index": c},
                 # "fontWeight": "bold",
                 "backgroundColor": "WhiteSmoke",
             }
         )
 
-    #Restore the normal color for the rows left blank for the Column header (top left ones)
+    # Restore the normal color for the rows left blank for the Column header (top left ones)
     for r in on_rows:
         for c in range(col_levels_count):
             style_data_conditional.append(
@@ -619,7 +612,6 @@ def selection_change(
     unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
 
     return [
-        dq,
         tbl_data,
         tbl_cols_to_show,
         tooltip_data,
@@ -627,4 +619,47 @@ def selection_change(
         unique_dims_html,
         unique_attrs_html,
         pvt_controls,
+        request_cfg,
+        {"lastn":lastn},
     ]
+
+
+# Data downloads
+
+@callback(
+    Output(DownloadsAIO_dll.ids.dcc_down_csv(MATCH), "children"),
+    [
+        Input(DownloadsAIO_dll.ids.btn_down_excel(MATCH), "n_clicks"),
+    ],
+)
+# Downloads the DSD for the data.
+def download_struct(n_clicks):
+
+    print("Trrr")
+    print(n_clicks)
+
+
+    return "d " + str(n_clicks)
+
+# @callback(
+#     #Output(DownloadsAIO_dll.ids.dcc_down_csv(DataExplorerAIO), "data"),
+#     [Output("out", "children")],
+#     [Input(DownloadsAIO_dll.ids.btn_down_csv(DataExplorerAIO), "n_clicks")],
+#     [
+#         #State(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
+#         # State(_STORE_REQUEST_CFG, "data"),
+#         # State(_STORE_LASTNOBS_CFG, "data"),
+#     ],
+#     prevent_initial_call=True,
+# )
+# #def download_data_callb(n_clicks_csv, time_period, req_cfg, lastnobs):
+# def download_data_callb(n_clicks_csv):
+#     print("n")
+#     print(n_clicks_csv)
+
+#     # d = {"col1": [1, 2], "col2": [3, 4]}
+#     # df = pd.DataFrame(data=d)
+#     # print(df.head())
+
+#     #return dcc.send_data_frame(df.to_csv, "data.csv", index=False)
+#     return ["AAAAAAAAA"]

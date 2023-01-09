@@ -63,12 +63,14 @@ class DownloadsAIO_dll(dbc.ButtonGroup):
                         id=self.ids.btn_down_group(aio_id),
                         **{
                             "data-toggle": "dropdown",
-                            "aria-haspopup": "true",
                             "aria-expanded": "false",
+                            "aria-haspopup": "true",
+                            "data-reference":"parent"
                         },
                         children=[lbl_download]
                     ),
                     html.Div(
+                        style={"z-index":100},
                         className="dropdown-menu",
                         **{"aria-labelledby": self.ids.btn_down_group(aio_id)},
                         children=[
@@ -76,18 +78,22 @@ class DownloadsAIO_dll(dbc.ButtonGroup):
                                 className="dropdown-item",
                                 href="#",
                                 children=[lbl_excel],
+                                id=self.ids.btn_down_excel(aio_id)
                             ),
                             html.A(
                                 className="dropdown-item",
                                 href="#",
                                 children=[lbl_csv],
+                                id=self.ids.btn_down_csv(aio_id)                              
                             ),
+                            
                         ]
                     ),
                 ],
             ),
             dcc.Download(id=self.ids.dcc_down_excel(aio_id)),
-            dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
+            #dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
+            html.Div(id=self.ids.dcc_down_csv(aio_id), children=["DDD"]),
         ]
 
         # Define the component's layout
