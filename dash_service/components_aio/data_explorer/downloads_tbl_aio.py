@@ -45,6 +45,7 @@ class Downloads_tbl_AIO(html.Div):
         aio_id=None,
         lbl_excel="Download Excel",
         lbl_csv="Download CSV",
+        additional_classes="",
     ):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
@@ -52,7 +53,7 @@ class Downloads_tbl_AIO(html.Div):
 
         ret = [
             html.Div(
-                className="btn-group", 
+                className="btn-group btn-group-sm" + " " +additional_classes , 
                 role="group",
                 children=[
                     html.Button(
@@ -62,6 +63,7 @@ class Downloads_tbl_AIO(html.Div):
                         children=[lbl_excel]
                     ),
                     html.Button(
+                        id=self.ids.btn_down_csv(aio_id),
                         className="btn btn-primary",
                         type="button",
                         children=[lbl_csv]
@@ -69,7 +71,7 @@ class Downloads_tbl_AIO(html.Div):
                 ],
             ),
             dcc.Download(id=self.ids.dcc_down_excel(aio_id)),
-            #dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
+            dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
         ]
 
         # Define the component's layout
