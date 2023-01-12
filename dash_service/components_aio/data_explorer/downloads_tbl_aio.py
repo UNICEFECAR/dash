@@ -1,9 +1,8 @@
 from dash import html, dcc
 import uuid
-import dash_bootstrap_components as dbc
 
 
-class Downloads_tbl_AIO(dbc.ButtonGroup):
+class Downloads_tbl_AIO(html.Div):
     # _value_style = {"textAlign": "center", "color": "#1cabe2"}
     # A set of functions that create pattern-matching callbacks of the subcomponents
     class ids:
@@ -44,7 +43,6 @@ class Downloads_tbl_AIO(dbc.ButtonGroup):
     def __init__(
         self,
         aio_id=None,
-        lbl_download="Download",
         lbl_excel="Download Excel",
         lbl_csv="Download CSV",
     ):
@@ -54,44 +52,24 @@ class Downloads_tbl_AIO(dbc.ButtonGroup):
 
         ret = [
             html.Div(
-                className="dropdown",
+                className="btn-group", 
+                role="group",
                 children=[
                     html.Button(
-                        className="btn btn-primary dropdown-toggle",
+                        id=self.ids.btn_down_excel(aio_id),
+                        className="btn btn-primary",
                         type="button",
-                        id=self.ids.btn_down_group(aio_id),
-                        **{
-                            "data-toggle": "dropdown",
-                            "aria-expanded": "false",
-                            "aria-haspopup": "true",
-                            "data-reference":"parent"
-                        },
-                        children=[lbl_download]
+                        children=[lbl_excel]
                     ),
-                    html.Div(
-                        className="dropdown-menu",
-                        **{"aria-labelledby": self.ids.btn_down_group(aio_id)},
-                        children=[
-                            html.A(
-                                className="dropdown-item",
-                                href="#",
-                                children=[lbl_excel],
-                                id=self.ids.btn_down_excel(aio_id)
-                            ),
-                            html.A(
-                                className="dropdown-item",
-                                href="#",
-                                children=[lbl_csv],
-                                id=self.ids.btn_down_csv(aio_id)                              
-                            ),
-                            
-                        ]
-                    ),
+                    html.Button(
+                        className="btn btn-primary",
+                        type="button",
+                        children=[lbl_csv]
+                    )
                 ],
             ),
             dcc.Download(id=self.ids.dcc_down_excel(aio_id)),
             #dcc.Download(id=self.ids.dcc_down_csv(aio_id)),
-            html.Div(id=self.ids.dcc_down_csv(aio_id), children=["DDD"]),
         ]
 
         # Define the component's layout

@@ -25,7 +25,9 @@ from dash_service.components_aio.data_explorer.data_explorer_table_aio import (
 from dash_service.components_aio.data_explorer.data_explorer_pivot_aio import (
     DataExplorerPivotAIO,
 )
-from dash_service.components_aio.data_explorer.downloads_tbl_aio import Downloads_tbl_AIO
+from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
+    Downloads_tbl_AIO,
+)
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -104,10 +106,6 @@ def render_page_template(
             dcc.Store(id=_STORE_LASTNOBS_CFG, data=None),
             de,
             html.Div(id="div_loaded", children=["..."]),
-
-
-            html.Div(id="out", children=["kjh"]),
-            html.Button(id="bbb", children=["kjh"])
         ],
     )
 
@@ -620,46 +618,28 @@ def selection_change(
         unique_attrs_html,
         pvt_controls,
         request_cfg,
-        {"lastn":lastn},
+        {"lastn": lastn},
     ]
 
 
 # Data downloads
 
+
 @callback(
-    Output(Downloads_tbl_AIO.ids.dcc_down_csv(MATCH), "children"),
+    Output(Downloads_tbl_AIO.ids.dcc_down_excel(MATCH), "data"),
     [
         Input(Downloads_tbl_AIO.ids.btn_down_excel(MATCH), "n_clicks"),
     ],
+    [
+        State(_STORE_REQUEST_CFG, "data"),
+        State(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
+        State(_STORE_LASTNOBS_CFG, "data"),
+    ],
+    prevent_initial_call=True,
 )
 # Downloads the DSD for the data.
-def download_struct(n_clicks):
+def download_excel(n_clicks, request_cfg, time_period, lastn):
 
-    print("Trrr")
-    print(n_clicks)
+    df = get_data(request_cfg, time_period, lastnobservations=lastn, labels="both")
 
-
-    return "d " + str(n_clicks)
-
-# @callback(
-#     #Output(DownloadsAIO_dll.ids.dcc_down_csv(DataExplorerAIO), "data"),
-#     [Output("out", "children")],
-#     [Input(DownloadsAIO_dll.ids.btn_down_csv(DataExplorerAIO), "n_clicks")],
-#     [
-#         #State(DataExplorerAIO.ids.de_time_period(ELEM_DATAEXPLORER), "value"),
-#         # State(_STORE_REQUEST_CFG, "data"),
-#         # State(_STORE_LASTNOBS_CFG, "data"),
-#     ],
-#     prevent_initial_call=True,
-# )
-# #def download_data_callb(n_clicks_csv, time_period, req_cfg, lastnobs):
-# def download_data_callb(n_clicks_csv):
-#     print("n")
-#     print(n_clicks_csv)
-
-#     # d = {"col1": [1, 2], "col2": [3, 4]}
-#     # df = pd.DataFrame(data=d)
-#     # print(df.head())
-
-#     #return dcc.send_data_frame(df.to_csv, "data.csv", index=False)
-#     return ["AAAAAAAAA"]
+    return dcc.send_data_frame(df.to_excel, "data.xlsx", index=False)
