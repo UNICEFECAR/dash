@@ -1,7 +1,6 @@
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 import uuid
-import datetime
 
 
 class DataExplorerTableAIO(html.Div):
@@ -32,7 +31,7 @@ class DataExplorerTableAIO(html.Div):
 
     ids = ids
 
-    def __init__(self, aio_id=None):
+    def __init__(self, aio_id=None, className=None):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
@@ -49,7 +48,7 @@ class DataExplorerTableAIO(html.Div):
             page_action="none",
             style_cell={
                 "minWidth": "50px",
-                "maxWidth": "190px",
+                "maxWidth": "200px",
                 "overflow": "hidden",
                 "textOverflow": "ellipsis",
             },
@@ -59,7 +58,5 @@ class DataExplorerTableAIO(html.Div):
             tooltip_data=[],
             style_data_conditional=[],
         )
-
-
 
         super().__init__(children=[div_summary, dtable])
