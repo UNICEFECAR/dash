@@ -4,7 +4,7 @@ import uuid
 import datetime
 
 from .data_explorer_table_aio import DataExplorerTableAIO
-from dash_service.components_aio.data_explorer.downloads_aio_ddl import DownloadsAIO_dll
+from dash_service.components_aio.data_explorer.downloads_tbl_aio import Downloads_tbl_AIO
 
 
 class DataExplorerAIO(html.Div):
@@ -113,7 +113,9 @@ class DataExplorerAIO(html.Div):
             ],
         )
 
-        btn_downloads = DownloadsAIO_dll(aio_id, lbl_excel="lbl_excel", lbl_csv="lbl_csv")
+        btn_downloads = Downloads_tbl_AIO(
+            aio_id, lbl_excel="lbl_excel", lbl_csv="lbl_csv"
+        )
 
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
@@ -141,13 +143,12 @@ class DataExplorerAIO(html.Div):
                         html.Div(
                             className="col-sm-3",
                             # style={"backgroundColor": "blue"},
-                            children=[btn_downloads]
+                            children=[btn_downloads],
                         ),
                     ],
                 ),
-                html.Div(
-                children=[DataExplorerTableAIO(aio_id)])
+                DataExplorerTableAIO(aio_id, className="row col-sm-12")
             ],
         )
 
-        super().__init__(className="row", children=[left_col, table_col])
+        super().__init__(className="row col-sm-12", children=[left_col, table_col])

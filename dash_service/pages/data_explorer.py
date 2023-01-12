@@ -25,7 +25,7 @@ from dash_service.components_aio.data_explorer.data_explorer_table_aio import (
 from dash_service.components_aio.data_explorer.data_explorer_pivot_aio import (
     DataExplorerPivotAIO,
 )
-from dash_service.components_aio.data_explorer.downloads_aio_ddl import DownloadsAIO_dll
+from dash_service.components_aio.data_explorer.downloads_tbl_aio import Downloads_tbl_AIO
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
@@ -627,9 +627,9 @@ def selection_change(
 # Data downloads
 
 @callback(
-    Output(DownloadsAIO_dll.ids.dcc_down_csv(MATCH), "children"),
+    Output(Downloads_tbl_AIO.ids.dcc_down_csv(MATCH), "children"),
     [
-        Input(DownloadsAIO_dll.ids.btn_down_excel(MATCH), "n_clicks"),
+        Input(Downloads_tbl_AIO.ids.btn_down_excel(MATCH), "n_clicks"),
     ],
 )
 # Downloads the DSD for the data.
