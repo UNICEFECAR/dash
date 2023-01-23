@@ -366,6 +366,9 @@ register_page(
 )
 page_prefix = "edu"
 domain_colour = "#37568f"
+light_domain_colour = "#bdcbe5"
+dark_domain_colour = "#1d2c49"
+map_colour = "ice_r"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -413,7 +416,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     prevent_initial_call=True,
 )
 def show_themes(selections, indicators_dict):
-    return themes(selections, indicators_dict)
+    return themes(selections, indicators_dict, page_prefix)
 
 
 @callback(
@@ -494,4 +497,5 @@ def apply_aio_area_figure(
         page_prefix,
         packed_config,
         domain_colour,
+        map_colour,
     )

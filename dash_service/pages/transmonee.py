@@ -297,7 +297,7 @@ data_sources = {
     "CDDEM": "CountDown 2030",
     "CCRI": "Children's Climate Risk Index",
     "UN Treaties": "UN Treaties",
-    "ESTAT": "Euro Stat",
+    "ESTAT": "Eurostat",
     "Helix": "UNICEF Data Warehouse",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
@@ -662,7 +662,7 @@ def get_base_layout(**kwargs):
                                             html.P(
                                                 main_subtitle,
                                                 id=f"{page_prefix}-subtitle",
-                                                className="heading-subtitle-tm",
+                                                className="heading-subtitle",
                                                 style={
                                                     "margin-bottom": "0px",
                                                 },
@@ -713,11 +713,11 @@ def get_base_layout(**kwargs):
                                             id=f"{page_prefix}-themes",
                                         ),
                                     ],
-                                    width=11,
+                                    width="auto",
                                 ),
                                 id=f"{page_prefix}-theme-row",
                                 className="my-2",
-                                justify="end",
+                                justify="center",
                                 align="center",
                                 style=themes_row_style,
                             ),
@@ -809,6 +809,14 @@ def get_base_layout(**kwargs):
                                         ),
                                         width="auto",
                                     ),
+                                    # removing button for moment
+                                    # dbc.Col(
+                                    # [
+                                    # html.Button("Download CSV", id="btn_csv"),
+                                    # dcc.Download(id="download-dataframe-csv"),
+                                    # ],
+                                    # width="auto",
+                                    # ),
                                 ],
                                 id=f"{page_prefix}-filter-row",
                                 justify="center",
@@ -818,7 +826,10 @@ def get_base_layout(**kwargs):
                                 },
                             ),
                         ],
-                        width={"size": 11, "offset": 0},
+                        width={"size": 10, "offset": 0},
+                    ),
+                    dbc.Col(
+                        width={"size": 1, "offset": 0},
                     ),
                 ],
                 # sticky="top",
@@ -1248,7 +1259,7 @@ graphs_dict = {
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines", line=dict(width=0.7)),
+        "trace_options": dict(mode="lines+markers", line=dict(width=0.8)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1264,7 +1275,7 @@ graphs_dict = {
             geojson=geo_json_countries,
             zoom=2.5,
             center={"lat": 51.9194, "lon": 19.040236},
-            opacity=0.7,
+            opacity=0.6,
             labels={
                 "OBS_VALUE": "Value",
                 "Country_name": "Country",
@@ -1334,7 +1345,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
     )
 
 
-def themes(selections, indicators_dict):
+def themes(selections, indicators_dict, page_prefix):
     title = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one option is available
@@ -1344,7 +1355,7 @@ def themes(selections, indicators_dict):
         dbc.Button(
             value["NAME"],
             id=key,
-            color="crg-sub",
+            color=f"{page_prefix}-sub",
             className="theme mx-1",
             href=f"#{key.lower()}",
             active=url_hash == f"#{key.lower()}",
@@ -1368,11 +1379,11 @@ def aio_options(theme, indicators_dict, page_prefix):
             else ""
         )
 
-        area_butons = [
+        area_buttons = [
             dbc.Button(
                 indicator_names[code],
                 id={"type": f"{page_prefix}-indicator_button", "index": code},
-                color="crg",
+                color=f"{page_prefix}",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
             )
@@ -1393,7 +1404,7 @@ def aio_options(theme, indicators_dict, page_prefix):
         else ""
     )
 
-    return area_butons, area_types, default_graph
+    return area_buttons, area_types, default_graph
 
 
 def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
@@ -1466,6 +1477,7 @@ def aio_area_figure(
     page_prefix,
     packed_config,
     domain_colour,
+    map_colour,
 ):
 
     # assumes indicator is not empty
@@ -1626,7 +1638,7 @@ def aio_area_figure(
         options["color"] = dimension_name
 
         if dimension_name == "Sex_name":
-            options["color_discrete_map"] = {"Female": "#e15f99", "Male": "#2e91e5"}
+            options["color_discrete_map"] = {"Female": "#944a9d", "Male": "#1a9654"}
 
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
@@ -1634,7 +1646,7 @@ def aio_area_figure(
     # rename figure_type 'map': 'choropleth' (plotly express)
     if fig_type == "map":
         fig_type = "choropleth_mapbox"
-        options["color_continuous_scale"] = ["white", domain_colour]
+        options["color_continuous_scale"] = map_colour
         options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)

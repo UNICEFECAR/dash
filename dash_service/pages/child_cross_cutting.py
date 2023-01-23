@@ -300,6 +300,9 @@ register_page(
 )
 page_prefix = "cci"
 domain_colour = "#ec5e24"
+light_domain_colour = "##f7b9a1"
+dark_domain_colour = "#5e2008"
+map_colour = "Oranges"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -347,7 +350,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     prevent_initial_call=True,
 )
 def show_themes(selections, indicators_dict):
-    return themes(selections, indicators_dict)
+    return themes(selections, indicators_dict, page_prefix)
 
 
 @callback(
@@ -428,4 +431,5 @@ def apply_aio_area_figure(
         page_prefix,
         packed_config,
         domain_colour,
+        map_colour,
     )
