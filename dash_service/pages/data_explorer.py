@@ -421,23 +421,24 @@ def selection_change(
         tbl_data.append(rows_header)
         tooltip_data.append(rows_header)
 
-
-    #create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
+    # create a dictionary: {DIM_ID:{CODE_ID:CODE_LABEL}} will be used to replace the dimension codes by the labels for each row
     to_replace = {}
     for r in on_rows:
         dim_on_row = next(dim for dim in dims if dim["id"] == r["id"])
         if "codes" in dim_on_row:
             to_replace[r["id"]] = {c["id"]: c["name"] for c in dim_on_row["codes"]}
 
-    #now reset the multiindex and replace the row names with the labels
+    # now reset the multiindex and replace the row names with the labels
     df = df.reset_index()
-    #replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
-    df.columns=[r["id"] for r in on_rows] + ["v" + str(i) for i in range(len(df.columns)-len(on_rows))]
+    # replace the column names with: ROW_ID_1, ROW_ID_2..., v1, v2, v3...
+    df.columns = [r["id"] for r in on_rows] + [
+        "v" + str(i) for i in range(len(df.columns) - len(on_rows))
+    ]
     df = df.replace(to_replace)
-    #Fill the tbl_data with the rows/values
+    # Fill the tbl_data with the rows/values
     tbl_data = tbl_data + df.to_dict(orient="records")
 
-    #Now create the tooltips for the rows/data
+    # Now create the tooltips for the rows/data
     col_ids = [c["id"] for c in tbl_cols_to_show if c["id"] != "cols"]
     for data_row in df_tooltips.to_records():
         to_add = {
