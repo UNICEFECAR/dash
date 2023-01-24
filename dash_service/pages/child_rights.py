@@ -12,11 +12,13 @@ from dash import (
 import dash_bootstrap_components as dbc
 
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
 
 from dash_service.pages.transmonee import (
+    get_filtered_dataset,
     geo_json_countries,
     get_base_layout,
     make_card,
@@ -86,7 +88,7 @@ page_config = {
                 "DM_BRTS",
                 "DM_FRATE_TOT",
             ],
-            "default_graph": "line",
+            "default_graph": "bar",
             "default": "DM_CHLD_POP",
         },
     },
@@ -299,7 +301,7 @@ page_config = {
                 "CR_SG_STT_NSDSFDDNR",
                 "CR_SG_STT_NSDSFDOTHR",
             ],
-            "default_graph": "bar",
+            "default_graph": "map",
             "default": "CR_IQ_SCI_OVRL",
         },
     },
@@ -361,6 +363,10 @@ register_page(
     # order=1,
 )
 page_prefix = "crg"
+domain_colour = "#562061"
+light_domain_colour = "#e7c9ed"
+dark_domain_colour = "#44194d"
+map_colour = "purp"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -374,12 +380,25 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Child Rights Landscape and Governance",
                     page_prefix=page_prefix,
+                    domain_colour=domain_colour,
                 ),
             ),
             html.Br(),
         ],
         id="mainContainer",
     )
+
+
+df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
+
+
+@callback(
+    Output("download-dataframe-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    return dcc.send_data_frame(df.to_csv, "mydf.csv")
 
 
 @callback(
@@ -407,7 +426,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     prevent_initial_call=True,
 )
 def show_themes(selections, indicators_dict):
-    return themes(selections, indicators_dict)
+    return themes(selections, indicators_dict, page_prefix)
 
 
 @callback(
@@ -487,4 +506,6 @@ def apply_aio_area_figure(
         selected_type,
         page_prefix,
         packed_config,
+        domain_colour,
+        map_colour,
     )

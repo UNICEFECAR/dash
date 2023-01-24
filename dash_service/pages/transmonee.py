@@ -38,6 +38,7 @@ colours = [
     "danger",
 ]
 
+
 DEFAULT_LABELS = {
     "Country_name": "Country",
     "TIME_PERIOD": "Year",
@@ -296,13 +297,15 @@ data_sources = {
     "CDDEM": "CountDown 2030",
     "CCRI": "Children's Climate Risk Index",
     "UN Treaties": "UN Treaties",
-    "ESTAT": "Euro Stat",
-    "Helix": " Health Entrepreneurship and LIfestyle Xchange",
+    "ESTAT": "Eurostat",
+    "Helix": "UNICEF Data Warehouse",
     "ILO": "International Labour Organization",
     "WHO": "World Health Organization",
     "Immunization Monitoring (WHO)": "Immunization Monitoring (WHO)",
     "WB": "World Bank",
     "OECD": "Organisation for Economic Co-operation and Development",
+    "OECD CWD": "OECD Child Wellbeing Dashboard",
+    "INFORM": "Inform Risk Index",
     "SDG": "Sustainable Development Goals",
     "UIS": "UNESCO Institute for Statistics",
     "NEW_UIS": "UNESCO Institute for Statistics",
@@ -314,17 +317,17 @@ dict_topics_subtopics = {
     "Education, Leisure, and Culture": [
         "Education access and participation",
         "Learning quality and skills",
-        "Education System",
+        "Education system",
     ],
     "Family Environment and Protection": [
-        "Violence against Children and Women",
+        "Violence against children and women",
         "Children without parental care",
-        "Justice for Children",
+        "Justice for children",
         "Child marriage and other harmful practices",
         "Child labour and other forms of exploitation",
     ],
     "Health and Nutrition": [
-        "Health System",
+        "Health system",
         "Maternal, newborn and child health",
         "Immunization",
         "Nutrition",
@@ -333,22 +336,22 @@ dict_topics_subtopics = {
         "Water, sanitation and hygiene",
     ],
     "Poverty and Social Protection": [
-        "Child Poverty and Material Deprivation",
+        "Child poverty and material deprivation",
         "Social protection system",
     ],
     "Child Rights Landscape and Governance": [
         "Demographics",
-        "Political Economy",
-        "Migration and Displacement",
+        "Political economy",
+        "Migration and displacement",
         "Access to Justice",
-        "Data on Children",
-        "Public spending on Children",
+        "Data on children",
+        "Public spending on children",
         "Child rights governance",
     ],
     "Participation and Civil Rights": [
         "Birth registration and identity",
-        "Information, Internet and Protection of privacy",
-        "Leisure and Culture",
+        "Information, internet and protection of privacy",
+        "Leisure and culture",
     ],
 }
 
@@ -637,6 +640,7 @@ def get_base_layout(**kwargs):
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     page_prefix = kwargs.get("page_prefix")
+    domain_colour = kwargs.get("domain_colour")
 
     return html.Div(
         [
@@ -655,14 +659,21 @@ def get_base_layout(**kwargs):
                                         className="heading-panel",
                                         style={"padding": 20},
                                         children=[
-                                            html.H1(
-                                                id=f"{page_prefix}-main_title",
-                                                className="heading-title",
-                                            ),
                                             html.P(
                                                 main_subtitle,
                                                 id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle",
+                                                style={
+                                                    "margin-bottom": "0px",
+                                                },
+                                            ),
+                                            html.H1(
+                                                id=f"{page_prefix}-main_title",
+                                                className="heading-title",
+                                                style={
+                                                    "color": domain_colour,
+                                                    "margin-top": "5px",
+                                                },
                                             ),
                                         ],
                                     ),
@@ -675,14 +686,41 @@ def get_base_layout(**kwargs):
             dbc.Row(
                 children=[
                     dbc.Col(
-                        html.A(
-                            html.Img(src=get_asset_url("home.svg")), href="/transmonee"
-                        ),
+                        [
+                            html.A(
+                                html.Img(
+                                    id="wheel-icon",
+                                    src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg"),
+                                    style={"background-color": "white"},
+                                ),
+                                href="/transmonee",
+                            ),
+                            dbc.Tooltip(
+                                "Return to ECA CRM Framework", target="wheel-icon"
+                            ),
+                        ],
                         width={"size": 1, "offset": 0},
-                        style={"paddingTop": 15},
+                        style={
+                            "paddingTop": 15,
+                        },
                     ),
                     dbc.Col(
                         [
+                            dbc.Row(
+                                dbc.Col(
+                                    [
+                                        dbc.ButtonGroup(
+                                            id=f"{page_prefix}-themes",
+                                        ),
+                                    ],
+                                    width="auto",
+                                ),
+                                id=f"{page_prefix}-theme-row",
+                                className="my-2",
+                                justify="center",
+                                align="center",
+                                style=themes_row_style,
+                            ),
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -690,7 +728,7 @@ def get_base_layout(**kwargs):
                                             label=f"Years: {years[0]} - {years[-1]}",
                                             id=f"{page_prefix}-collapse-years-button",
                                             className="m-2",
-                                            color="info",
+                                            color="secondary",
                                             # block=True,
                                             children=[
                                                 dbc.Card(
@@ -725,7 +763,7 @@ def get_base_layout(**kwargs):
                                             label=f"Countries: {len(countries)}",
                                             id=f"{page_prefix}-collapse-countries-button",
                                             className="m-2",
-                                            color="info",
+                                            color="secondary",
                                             style=countries_filter_style,
                                             children=[
                                                 dbc.Card(
@@ -756,6 +794,29 @@ def get_base_layout(**kwargs):
                                         ),
                                         width="auto",
                                     ),
+                                    dbc.Col(
+                                        dbc.RadioItems(
+                                            id={
+                                                "type": "area_types",
+                                                "index": f"{page_prefix}-AIO_AREA",
+                                            },
+                                            className="custom-control-input-crg",
+                                            labelStyle={
+                                                "paddingLeft": 0,
+                                                "marginLeft": "-20px",
+                                            },
+                                            inline=True,
+                                        ),
+                                        width="auto",
+                                    ),
+                                    # removing button for moment
+                                    # dbc.Col(
+                                    # [
+                                    # html.Button("Download CSV", id="btn_csv"),
+                                    # dcc.Download(id="download-dataframe-csv"),
+                                    # ],
+                                    # width="auto",
+                                    # ),
                                 ],
                                 id=f"{page_prefix}-filter-row",
                                 justify="center",
@@ -764,23 +825,11 @@ def get_base_layout(**kwargs):
                                     "paddingTop": 15,
                                 },
                             ),
-                            dbc.Row(
-                                dbc.Col(
-                                    [
-                                        dbc.ButtonGroup(
-                                            id=f"{page_prefix}-themes",
-                                        ),
-                                    ],
-                                    width=11,
-                                ),
-                                id=f"{page_prefix}-theme-row",
-                                className="my-2",
-                                justify="end",
-                                align="center",
-                                style=themes_row_style,
-                            ),
                         ],
-                        width={"size": 11, "offset": 0},
+                        width={"size": 10, "offset": 0},
+                    ),
+                    dbc.Col(
+                        width={"size": 1, "offset": 0},
                     ),
                 ],
                 # sticky="top",
@@ -812,7 +861,8 @@ def get_base_layout(**kwargs):
                                                                     },
                                                                     vertical=True,
                                                                     style={
-                                                                        "marginBottom": "20px"
+                                                                        "marginBottom": "20px",
+                                                                        "width": "95%",
                                                                     },
                                                                 ),
                                                             ],
@@ -826,9 +876,12 @@ def get_base_layout(**kwargs):
                                                             id=f"{page_prefix}-indicator_card",
                                                             color="primary",
                                                             outline=True,
+                                                            style={
+                                                                "width": "95%",
+                                                            },
                                                         ),
                                                     ],
-                                                    width=4,
+                                                    width=3,
                                                 ),
                                                 dbc.Col(
                                                     html.Div(
@@ -840,22 +893,11 @@ def get_base_layout(**kwargs):
                                                                             dbc.Col(
                                                                                 dbc.RadioItems(
                                                                                     id={
-                                                                                        "type": "area_types",
-                                                                                        "index": f"{page_prefix}-AIO_AREA",
-                                                                                    },
-                                                                                    labelStyle={
-                                                                                        "paddingLeft": 0,
-                                                                                        "marginLeft": "-20px",
-                                                                                    },
-                                                                                    inline=True,
-                                                                                ),
-                                                                                width="auto",
-                                                                            ),
-                                                                            dbc.Col(
-                                                                                dbc.RadioItems(
-                                                                                    id={
                                                                                         "type": "area_breakdowns",
                                                                                         "index": f"{page_prefix}-AIO_AREA",
+                                                                                    },
+                                                                                    inputStyle={
+                                                                                        "color": domain_colour
                                                                                     },
                                                                                     labelStyle={
                                                                                         "paddingLeft": 0,
@@ -866,12 +908,12 @@ def get_base_layout(**kwargs):
                                                                                 width="auto",
                                                                             ),
                                                                         ],
-                                                                        justify="around",
-                                                                        align="center",
                                                                     )
                                                                 ],
                                                                 style={
-                                                                    "paddingBottom": 10
+                                                                    "paddingBottom": 10,
+                                                                    "display": "flex",
+                                                                    "justify-content": "flex-end",
                                                                 },
                                                             ),
                                                             dcc.Loading(
@@ -921,7 +963,7 @@ def get_base_layout(**kwargs):
                                                             ),
                                                         ],
                                                     ),
-                                                    width=8,
+                                                    width=9,
                                                 ),
                                             ],
                                             justify="evenly",
@@ -948,6 +990,7 @@ def make_card(
     indicator_header,
     numerator_pairs,
     page_prefix,
+    domain_colour,
 ):
     card = [
         dbc.CardBody(
@@ -957,7 +1000,7 @@ def make_card(
                     className="display-5",
                     style={
                         "textAlign": "center",
-                        "color": "#1cabe2",
+                        "color": domain_colour,
                     },
                 ),
                 html.H4(suffix, className="card-title"),
@@ -980,7 +1023,7 @@ def make_card(
             [
                 dbc.PopoverHeader(
                     html.A(
-                        html.P(f"Sources: {indicator_sources}"),
+                        html.P(f"Sources(s): {indicator_sources}"),
                         href=source_link,
                         target="_blank",
                     )
@@ -1014,6 +1057,7 @@ def indicator_card(
     sex_code=None,
     age_group=None,
     page_prefix=None,
+    domain_colour="#1cabe2",
 ):
     indicators = numerator.split(",")
 
@@ -1062,6 +1106,7 @@ def indicator_card(
             indicator_header,
             numerator_pairs,
             page_prefix,
+            domain_colour,
         )
 
     # select last value for each country
@@ -1177,6 +1222,7 @@ def indicator_card(
         indicator_header,
         numerator_pairs,
         page_prefix,
+        domain_colour,
     )
 
 
@@ -1209,11 +1255,11 @@ graphs_dict = {
             hover_name="Country_name",
             labels={"OBS_FOOTNOTE": "Footnote"},
             hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
-            line_shape="spline",
+            # line_shape="spline",
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines+markers"),
+        "trace_options": dict(mode="lines+markers", line=dict(width=0.8)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1225,12 +1271,11 @@ graphs_dict = {
             locations="REF_AREA",
             featureidkey="id",
             color="OBS_VALUE",
-            color_continuous_scale=px.colors.sequential.GnBu,
             mapbox_style="carto-positron",
             geojson=geo_json_countries,
-            zoom=2,
-            center={"lat": 59.5381, "lon": 32.3200},
-            opacity=0.5,
+            zoom=2.5,
+            center={"lat": 51.9194, "lon": 19.040236},
+            opacity=0.6,
             labels={
                 "OBS_VALUE": "Value",
                 "Country_name": "Country",
@@ -1248,7 +1293,7 @@ graphs_dict = {
             },
             height=500,
         ),
-        "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 1}),
+        "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 5}),
     },
 }
 
@@ -1300,7 +1345,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
     )
 
 
-def themes(selections, indicators_dict):
+def themes(selections, indicators_dict, page_prefix):
     title = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one option is available
@@ -1310,7 +1355,7 @@ def themes(selections, indicators_dict):
         dbc.Button(
             value["NAME"],
             id=key,
-            color=colours[num],
+            color=f"{page_prefix}-sub",
             className="theme mx-1",
             href=f"#{key.lower()}",
             active=url_hash == f"#{key.lower()}",
@@ -1334,11 +1379,11 @@ def aio_options(theme, indicators_dict, page_prefix):
             else ""
         )
 
-        area_butons = [
+        area_buttons = [
             dbc.Button(
                 indicator_names[code],
                 id={"type": f"{page_prefix}-indicator_button", "index": code},
-                color="info",
+                color=f"{page_prefix}",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
             )
@@ -1359,7 +1404,7 @@ def aio_options(theme, indicators_dict, page_prefix):
         else ""
     )
 
-    return area_butons, area_types, default_graph
+    return area_buttons, area_types, default_graph
 
 
 def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
@@ -1431,6 +1476,8 @@ def aio_area_figure(
     selected_type,
     page_prefix,
     packed_config,
+    domain_colour,
+    map_colour,
 ):
 
     # assumes indicator is not empty
@@ -1522,6 +1569,7 @@ def aio_area_figure(
             card_config[0].get("sex"),
             card_config[0].get("age"),
             page_prefix,
+            domain_colour,
         )
     )
 
@@ -1589,16 +1637,24 @@ def aio_area_figure(
         dimension_name = str(dimension_names.get(dimension, ""))
         options["color"] = dimension_name
 
+        if dimension_name == "Sex_name":
+            options["color_discrete_map"] = {"Female": "#944a9d", "Male": "#1a9654"}
+
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
 
     # rename figure_type 'map': 'choropleth' (plotly express)
     if fig_type == "map":
         fig_type = "choropleth_mapbox"
+        options["color_continuous_scale"] = map_colour
         options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
-    if traces:
+    # remove x-axis title but keep space below
+    fig.update_layout(xaxis_title="")
+    if fig_type == "bar" and not dimension:
+        fig.update_traces(marker_color=domain_colour)
+    if fig_type == "line":
         fig.update_traces(**traces)
 
     # countries not reporting
@@ -1628,6 +1684,7 @@ def aio_area_figure(
                             "index": f"{page_prefix}-AIO_AREA",
                         },
                         className="alert-link",
+                        style={"color": domain_colour},
                     ),
                 ],
             )
@@ -1649,7 +1706,7 @@ def aio_area_figure(
                         style={
                             "display": "inline-block",
                             "fontWeight": "bold",
-                            "color": "#1cabe2",
+                            "color": domain_colour,
                             "whiteSpace": "pre",
                         },
                     ),

@@ -51,7 +51,7 @@ min_max_card_suffix = "min - max values"
 
 page_config = {
     "HSM": {
-        "NAME": "Health System",
+        "NAME": "Health system",
         "CARDS": [
             {
                 "name": "",
@@ -323,6 +323,10 @@ register_page(
     # order=2,
 )
 page_prefix = "han"
+domain_colour = "#3e7c49"
+light_domain_colour = "#e0f0e3"
+dark_domain_colour = "#24472a"
+map_colour = "algae"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -336,6 +340,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Health and Nutrition",
                     page_prefix=page_prefix,
+                    domain_colour=domain_colour,
                 ),
             ),
             html.Br(),
@@ -369,7 +374,7 @@ def apply_filters(theme, years_slider, country_selector, programme_toggle, indic
     prevent_initial_call=True,
 )
 def show_themes(selections, indicators_dict):
-    return themes(selections, indicators_dict)
+    return themes(selections, indicators_dict, page_prefix)
 
 
 @callback(
@@ -449,4 +454,6 @@ def apply_aio_area_figure(
         selected_type,
         page_prefix,
         packed_config,
+        domain_colour,
+        map_colour,
     )
