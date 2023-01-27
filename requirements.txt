@@ -13,6 +13,7 @@ Flask-Admin==1.6.0
 flask-sqlalchemy==2.5.1
 Flask-Migrate==3.1.0
 sqlalchemy-mixins==1.5.3
+sqlalchemy==1.4.45
 slugify
 
 pandasdmx
