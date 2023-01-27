@@ -4,6 +4,9 @@ import uuid
 import datetime
 
 from .data_explorer_table_aio import DataExplorerTableAIO
+from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
+    Downloads_tbl_AIO,
+)
 
 
 class DataExplorerAIO(html.Div):
@@ -34,6 +37,27 @@ class DataExplorerAIO(html.Div):
         de_pvt_control = lambda aio_id: {
             "component": "DataExplorer",
             "subcomponent": "de_pvt_control",
+            "aio_id": aio_id,
+        }
+        de_table_title = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_table_title",
+            "aio_id": aio_id,
+        }
+        de_download_data = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_download_data",
+            "aio_id": aio_id,
+        }
+
+        de_unique_dims = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_unique_dims",
+            "aio_id": aio_id,
+        }
+        de_unique_attribs = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_unique_attribs",
             "aio_id": aio_id,
         }
 
@@ -91,9 +115,48 @@ class DataExplorerAIO(html.Div):
             ],
         )
 
-        table_col = html.Div(
-            className="col-sm-12 col-lg-9",
-            children=[DataExplorerTableAIO(aio_id)],
+        lbl_download_excel = "Download Excel"
+        lbl_download_csv = "Download CSV"
+        if "download_excel" in labels:
+            lbl_download_excel = labels["download_excel"]
+        if "download_csv" in labels:
+            lbl_download_csv = labels["download_csv"]
+
+        btn_downloads = Downloads_tbl_AIO(
+            aio_id, lbl_excel=lbl_download_excel, lbl_csv=lbl_download_csv, additional_classes="float-right"
         )
 
-        super().__init__(className="row", children=[left_col, table_col])
+        table_col = html.Div(
+            className="col-sm-12 col-lg-9",
+            children=[
+                html.H1(
+                    id=self.ids.de_table_title(aio_id),
+                    children=[],
+                    className="row col-sm-12 col-lg-9",
+                ),
+                html.Div(
+                    className="row",
+                    children=[
+                        html.Div(
+                            className="col-sm-9",
+                            # style={"backgroundColor": "red"},
+                            children=[
+                                html.Div(
+                                    id=self.ids.de_unique_dims(aio_id), children=[]
+                                ),
+                                html.Div(
+                                    id=self.ids.de_unique_attribs(aio_id), children=[]
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className="col-sm-3",
+                            children=[btn_downloads],
+                        ),
+                    ],
+                ),
+                DataExplorerTableAIO(aio_id, className="row col-sm-12"),
+            ],
+        )
+
+        super().__init__(className="row col-sm-12", children=[left_col, table_col])

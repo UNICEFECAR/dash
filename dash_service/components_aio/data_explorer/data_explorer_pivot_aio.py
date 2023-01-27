@@ -15,7 +15,13 @@ class DataExplorerPivotAIO(html.Div):
     ids = ids
 
     def __init__(
-        self, aio_id=None, label="", onrow=True, lblRow="Row", lblCol="Column"
+        self,
+        aio_id=None,
+        label="",
+        onrow=True,
+        lblRow="Row",
+        lblCol="Column",
+        visible=True,
     ):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
@@ -40,7 +46,13 @@ class DataExplorerPivotAIO(html.Div):
             ),
         ]
 
+        if visible:
+            display = "block"
+        else:
+            display = "none"
+            
         super().__init__(
             id=self.ids.dataexplorer_pvt(aio_id),
             children=control,
+            style={"display": display},
         )

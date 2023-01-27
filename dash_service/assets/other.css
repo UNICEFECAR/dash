@@ -20,9 +20,8 @@
     max-height: inherit !important;
 }
 
-.dash-table-container {
-    max-height: calc(100vh - 250px);
-}
+.dash-table-container {max-height: calc(100vh - 250px)}
+div.dt-table-container__row.dt-table-container__row-1 {min-height: 150px;}
 
 /*Allows the pivot table to span the whole column size*/
 .dash-spreadsheet.dash-freeze-left {

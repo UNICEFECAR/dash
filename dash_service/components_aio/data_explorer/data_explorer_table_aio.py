@@ -1,7 +1,6 @@
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 import uuid
-import datetime
 
 
 class DataExplorerTableAIO(html.Div):
@@ -32,16 +31,13 @@ class DataExplorerTableAIO(html.Div):
 
     ids = ids
 
-    def __init__(self, aio_id=None, obs_num_per_page=None):
+    def __init__(self, aio_id=None, className=None):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
-        # if obs_num_per_page is None:
-        #     page_action = "none"
-        #     page_size = 0
-        # else:
-        #     page_action = "native"
-        #     page_size = obs_num_per_page
+        div_summary = html.Div(
+            id=self.ids.dataexplorertable_summary(aio_id), children=[]
+        )
 
         dtable = dash_table.DataTable(
             id=self.ids.dataexplorertable_tbl(aio_id),
@@ -52,7 +48,7 @@ class DataExplorerTableAIO(html.Div):
             page_action="none",
             style_cell={
                 "minWidth": "50px",
-                "maxWidth": "190px",
+                "maxWidth": "200px",
                 "overflow": "hidden",
                 "textOverflow": "ellipsis",
             },
@@ -63,11 +59,4 @@ class DataExplorerTableAIO(html.Div):
             style_data_conditional=[],
         )
 
-        div_summary = html.Div(
-            id=self.ids.dataexplorertable_summary(aio_id), children=["Summary"]
-        )
-        div_summary2 = html.Div(
-            id=self.ids.dataexplorertable_summary2(aio_id), children=["Summary2"]
-        )
-
-        super().__init__(children=[div_summary, div_summary2, dtable])
+        super().__init__(children=[div_summary, dtable])

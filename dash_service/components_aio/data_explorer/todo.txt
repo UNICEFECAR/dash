@@ -1,0 +1,5 @@
+Put common attributes on top if Unit of Measure or Unit Multiplier. Put in footnotes if other.
+Download buttons
+Link to RDM for indicator description
+Help (in CMS maybe?)
+Handle no dataHandle too many data points

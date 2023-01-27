@@ -1,0 +1,17 @@
+{
+    "default_data_api_endpoint": "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest",
+    "print_stats": 1,
+    "data": {
+        "agency": "UNICEF",
+        "id": "GLOBAL_DATAFLOW",
+        "version": "1.0",
+        "dq": "AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0."
+    },
+    "time_period_filter_start": 1970,
+    "lastnobservations": 0,
+    "start_n_years_back": 5,
+    "indicator_profile": {
+        "link": "../../../indicator-profile/",
+        "enabled": 1
+    }
+}
