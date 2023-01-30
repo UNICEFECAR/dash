@@ -66,7 +66,7 @@ translations = {
     "download_excel": {"en": "Download Excel", "pt": "Download Excel"},
     "download_csv": {"en": "Download CSV", "pt": "Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
-    "TIME_PERIOD": {"pt": "Ano"},
+    "TIME_PERIOD": {"en":"Time period","pt": "Ano"},
     "REF_AREA": {"pt": "Estado"},
 }
 
@@ -491,6 +491,7 @@ def show_cards(data_struct, selections, page_config, lang):
         config = card["data"]
         value = "-"
         data_source = ""
+        time_period = ""
 
         # if suffix has not been overridden pull it from the indicator
         if is_string_empty(card):
@@ -504,6 +505,7 @@ def show_cards(data_struct, selections, page_config, lang):
         df = get_data(config, lastnobservations=1, labels="id")
         if len(df) > 0:
             value = df.iloc[0][ID_OBS_VALUE]
+            time_period = df.iloc[0][ID_TIME_PERIOD]
             if ID_DATA_SOURCE in df.columns:
                 data_source = df.iloc[0][ID_DATA_SOURCE]
 
@@ -515,6 +517,8 @@ def show_cards(data_struct, selections, page_config, lang):
                 suffix=label,
                 info_head=info_head,
                 info_body=data_source,
+                time_period=time_period,
+                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang)
             )
         )
 

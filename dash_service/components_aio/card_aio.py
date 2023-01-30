@@ -21,7 +21,16 @@ class CardAIO(dbc.Card):
     ids = ids
 
     # Define the arguments of the All-in-One component
-    def __init__(self, value="-", suffix="", aio_id=None, info_head="", info_body=""):
+    def __init__(
+        self,
+        value="-",
+        suffix="",
+        aio_id=None,
+        info_head="",
+        info_body="",
+        time_period="",
+        lbl_time_period="Time period",
+    ):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
             aio_id = str(uuid.uuid4())
@@ -39,20 +48,27 @@ class CardAIO(dbc.Card):
             ],
             style={"textAlign": "center"},
         )
+
         card_children = [card_body]
+
+        card_footer = []
+
+        if time_period != "":
+            time_p = html.Div(
+                lbl_time_period + ": " + time_period,
+
+                className="text-primary font-weight-bold float-left",
+            )
+            card_footer.append(time_p)
 
         # if there is an info body add the "i" icon and the popup window
         if info_body is not None and info_body != "":
             popover_icon = html.Div(
-                html.I(className="fas fa-info-circle mx-1"),
+                html.I(className="fas fa-info-circle mx-1 float-right"),
                 id=f"card-info_icon{aio_id}",
-                style={
-                    "position": "absolute",
-                    "bottom": "10px",
-                    "right": "10px",
-                },
+
             )
-            card_children.append(popover_icon)
+            card_footer.append(popover_icon)
 
             popover_window = dbc.Popover(
                 [
@@ -63,7 +79,10 @@ class CardAIO(dbc.Card):
                 trigger="hover",
             )
 
-            card_children.append(popover_window)
+            card_footer.append(popover_window)
+
+        if len(card_footer) > 0:
+            card_children.append(html.Div(className="container", children=card_footer))
 
         # Define the component's layout
         super().__init__(
