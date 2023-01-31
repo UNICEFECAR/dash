@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
 from flask_cors import CORS
+from flask_login import LoginManager
 
 
 # bcrypt = Bcrypt()
@@ -23,3 +24,4 @@ cors = CORS()
 db = SQLAlchemy(session_options={"autocommit": False})
 migrate = Migrate()
 admin = Admin(name="Dash Service", template_mode="bootstrap3")
+login_manager = LoginManager()

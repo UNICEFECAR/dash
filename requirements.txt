@@ -22,3 +22,5 @@ scipy
 openpyxl
 
 sentry-sdk[flask]
+
+flask-login

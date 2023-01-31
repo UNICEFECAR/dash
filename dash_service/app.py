@@ -1,15 +1,17 @@
 import sentry_sdk
 from dash import Dash
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from . import admin, default_settings, register_extensions
-from .extensions import admin, db
+from .extensions import admin, db, login_manager
 from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
 from .models import Page, Project, DataExplorer, User
 from .views import PageView, ProjectView, DataExplorerView, UserView
 
 from werkzeug.exceptions import HTTPException, InternalServerError
+
+from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 
 sentry_sdk.init(
     integrations=[FlaskIntegration()],
@@ -58,20 +60,55 @@ def page_not_found(error):
 #     print("")
 
 with server.app_context():
+    
     db.create_all()
     #Check if there is at least one user
     first_user = User.query.first()
-    print("first_user")
-    print(first_user)
     #if not add the admin
     if first_user is None:
         first_admin = User(
             name="Deafult admin",
-            email="default_admin@admin.com",
-            user="admin",
+            email="admin@admin.com",
             password="admin",
             is_admin=True,
         )
 
         db.session.add(first_admin)
         db.session.commit()
+
+
+'''
+@login_manager.user_loader
+def load_user(login, pwd):
+    return User.query(User).filter(User.email==login, User.password==pwd).first()
+
+# import json
+@server.route("/do_login", methods=["POST"])
+def do_login():
+    print("REQ a")
+    print(request.data)
+    print("REQ b")
+    email = "a"
+    pwd = "b"
+    #info = json.loads(request.data)
+    login_user(user)
+    user = User.query(User).filter(User.email==email, User.password==pwd).first()
+
+    if user:
+        login_user(user)
+        return jsonify(user.to_json())
+    else:
+        return jsonify({"status": 401,
+                        "reason": "Username or Password Error"})
+
+
+'''
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+# @server.route('do_login', methods=["GET","POST"])
+# def do_login():
+#     form = LoginForm()
+#     return render_template()

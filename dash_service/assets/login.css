@@ -1,0 +1,18 @@
+.login_form {
+    min-width: 500px;
+    position: absolute;
+    text-align: center;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem
+  }
+  @media (max-width: 500px) {
+    .login_form {
+      min-width: 90%;
+    }
+  }
+
+.login_form #submit{
+    height: 100%;
+  }
