@@ -46,6 +46,19 @@ class DataExplorerView(ModelView):
         "updated_at",
     )
 
+class UserView(ModelView):
+    column_display_all_relations = True 
+    column_list = (
+        "id",
+        "name",
+        "email",
+        "user",
+        "password",
+        "project",
+
+        "created_at",
+        "updated_at",
+    )
 
 # production storage will be an Azure blob storage
 path = op.join(op.dirname(__file__), "static")

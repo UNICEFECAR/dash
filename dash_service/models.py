@@ -74,3 +74,24 @@ class DataExplorer(db.Model, AllFeaturesMixin):
 
     def __repr__(self):
         return "<Data explorer %r>" % self.title
+
+
+class User(db.Model, AllFeaturesMixin):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
+    name = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), nullable=False)
+    user = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+    project = db.relationship("Project")
+    is_admin = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
+    )
+
+    def __repr__(self):
+        return "<User %r>" % self.name
