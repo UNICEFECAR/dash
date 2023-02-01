@@ -1,6 +1,6 @@
 import sentry_sdk
 from dash import Dash
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, flash, url_for
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from . import admin, default_settings, register_extensions
@@ -81,28 +81,33 @@ with server.app_context():
 @login_manager.user_loader
 def load_user(login, pwd):
     return User.query(User).filter(User.email==login, User.password==pwd).first()
-
+'''
+'''
 # import json
 @server.route("/do_login", methods=["POST"])
 def do_login():
     print("REQ a")
+    print(request)
     print(request.data)
     print("REQ b")
-    email = "a"
-    pwd = "b"
+    email = "admin@admin.com"
+    pwd = "admin"
     #info = json.loads(request.data)
-    login_user(user)
-    user = User.query(User).filter(User.email==email, User.password==pwd).first()
+    
+    #user = User.query().filter(User.email==email, User.password==pwd).first()
+    user = User.query.filter(User.email==email, User.password==pwd).first()
+    print("user")
+    print(user)
 
     if user:
         login_user(user)
-        return jsonify(user.to_json())
+        flash('Logged in successfully.')
+        return dcc.(url_for("/admin"))
     else:
-        return jsonify({"status": 401,
-                        "reason": "Username or Password Error"})
-
-
+        return redirect(url_for("/login"))
 '''
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
