@@ -3,8 +3,18 @@ import os.path as op
 
 from flask_admin.contrib.fileadmin import FileAdmin
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.sqla.view import func
+import flask_login
 from jinja2.utils import markupsafe
 from .extensions import admin
+from .models import Page
+
+
+def is_admin():
+    if flask_login.current_user.is_authenticated:
+        if flask_login.current_user.is_admin:
+            return True
+    return False
 
 
 def json_formatter(view, context, model, name):
@@ -19,6 +29,9 @@ class ProjectView(ModelView):
     column_filters = ("name", "slug", "description")
     form_excluded_columns = ("created_at", "updated_at", "pages")
     form_readonly_columns = ("slug",)
+
+    def is_accessible(self):
+        return is_admin()
 
 
 class PageView(ModelView):
@@ -36,6 +49,24 @@ class PageView(ModelView):
         "updated_at",
     )
 
+    def is_accessible(self):
+        return flask_login.current_user.is_authenticated
+
+    def get_query(self):
+        if is_admin():
+            return self.session.query(self.model)
+        return self.session.query(self.model).filter(
+            Page.project_id == flask_login.current_user.project_id
+        )
+
+    def get_count_query(self):
+        if is_admin():
+            return self.session.query(func.count("*"))
+        return self.session.query(func.count("*")).filter(
+            Page.project_id == flask_login.current_user.project_id
+        )
+
+
 class DataExplorerView(ModelView):
     column_display_all_relations = True
     column_list = (
@@ -46,6 +77,7 @@ class DataExplorerView(ModelView):
         "updated_at",
     )
 
+
 class UserView(ModelView):
     # def is_accessible(self):
     #     return login.current_user.is_authenticated
@@ -53,7 +85,7 @@ class UserView(ModelView):
     # def inaccessible_callback(self, name, **kwargs):
     #     return redirect(url_for('login', next=request.url))
 
-    column_display_all_relations = True 
+    column_display_all_relations = True
     column_list = (
         "id",
         "name",
@@ -61,11 +93,16 @@ class UserView(ModelView):
         "password",
         "project",
         "is_admin",
-        "is_active",
-
+        "is_user_active",
         "created_at",
         "updated_at",
     )
+
+    form_readonly_columns = "created_at"
+
+    def is_accessible(self):
+        return is_admin()
+
 
 # production storage will be an Azure blob storage
 path = op.join(op.dirname(__file__), "static")

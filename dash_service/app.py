@@ -11,7 +11,12 @@ from .views import PageView, ProjectView, DataExplorerView, UserView
 
 from werkzeug.exceptions import HTTPException, InternalServerError
 
-from flask_login import UserMixin, login_user, login_required, logout_user, current_user
+from flask_admin.menu import MenuLink
+
+import flask_login
+
+#from flask_login import UserMixin, login_user, login_required, logout_user, current_user
+
 
 sentry_sdk.init(
     integrations=[FlaskIntegration()],
@@ -53,14 +58,8 @@ def page_not_found(error):
     return render_template("404.html"), 404
 
 
-# import dash
-# for r in dash.page_registry:
-#     print(r)
-#     print(dash.page_registry[r])
-#     print("")
-
 with server.app_context():
-    
+    print("Creating db")
     db.create_all()
     #Check if there is at least one user
     first_user = User.query.first()
@@ -76,44 +75,12 @@ with server.app_context():
         db.session.add(first_admin)
         db.session.commit()
 
-
-'''
-@login_manager.user_loader
-def load_user(login, pwd):
-    return User.query(User).filter(User.email==login, User.password==pwd).first()
-'''
-'''
-# import json
-@server.route("/do_login", methods=["POST"])
-def do_login():
-    print("REQ a")
-    print(request)
-    print(request.data)
-    print("REQ b")
-    email = "admin@admin.com"
-    pwd = "admin"
-    #info = json.loads(request.data)
-    
-    #user = User.query().filter(User.email==email, User.password==pwd).first()
-    user = User.query.filter(User.email==email, User.password==pwd).first()
-    print("user")
-    print(user)
-
-    if user:
-        login_user(user)
-        flash('Logged in successfully.')
-        return dcc.(url_for("/admin"))
-    else:
-        return redirect(url_for("/login"))
-'''
-
-
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.query.get(user_id)
 
-# @server.route('do_login', methods=["GET","POST"])
-# def do_login():
-#     form = LoginForm()
-#     return render_template()
+class LogoutMenuLink(MenuLink):
+    def is_accessible(self):
+        return flask_login.current_user.is_authenticated
+
+admin.add_link(LogoutMenuLink(name="Logout", category="", url="/logout"))

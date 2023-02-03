@@ -86,7 +86,7 @@ class User(db.Model, AllFeaturesMixin):
     password = db.Column(db.String(80), nullable=False)
     project = db.relationship("Project")
     is_admin = db.Column(db.Boolean, default=False)
-    is_active = db.Column(db.Boolean, default=True)
+    is_user_active = db.Column(db.Boolean, default=True)
 
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(
@@ -95,7 +95,9 @@ class User(db.Model, AllFeaturesMixin):
 
     #Used by Flask-login
     def is_active(self):
-        return self.is_active
+        print("Is active called")
+        print(self)
+        return self.is_user_active
 
     def get_id(self):
         return str(self.id)
