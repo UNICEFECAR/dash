@@ -95,8 +95,6 @@ class User(db.Model, AllFeaturesMixin):
 
     #Used by Flask-login
     def is_active(self):
-        print("Is active called")
-        print(self)
         return self.is_user_active
 
     def get_id(self):

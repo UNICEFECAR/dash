@@ -75,12 +75,12 @@ with server.app_context():
         db.session.add(first_admin)
         db.session.commit()
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
-
 class LogoutMenuLink(MenuLink):
     def is_accessible(self):
         return flask_login.current_user.is_authenticated
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 admin.add_link(LogoutMenuLink(name="Logout", category="", url="/logout"))

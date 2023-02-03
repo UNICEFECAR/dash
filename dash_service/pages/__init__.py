@@ -53,8 +53,9 @@ def get_data(cfg_data, years=None, lastnobservations=None, labels="id"):
 # Get geoJson
 def get_geojson(geoj_filename: str):
     geojson_path = (
-        f"{pathlib.Path(__file__).parent.parent.absolute()}/assets/{geoj_filename}"
+        f"{pathlib.Path(__file__).parent.parent.absolute()}/static/{geoj_filename}"
     )
+
     with open(geojson_path) as shapes_file:
         geo_json_data = json.load(shapes_file)
     return geo_json_data

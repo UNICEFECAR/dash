@@ -23,7 +23,8 @@ layout = html.Div(
                         html.Hr(),
                         html.H3("Log in"),
                         # login form
-                        html.Div(
+                        
+                        html.Form(
                             children=[
                                 html.Div(
                                     className="form-group",
@@ -53,7 +54,7 @@ layout = html.Div(
                                 ),
                                 html.Button(
                                     children=["Login"],
-                                    # type="submit",
+                                    type="submit",
                                     id="login_button",
                                     className="btn btn-primary",
                                 ),
@@ -81,8 +82,6 @@ layout = html.Div(
     prevent_initial_call=True,
 )
 def do_login(n_clicks, email, pwd):
-
-    print(n_clicks, email, pwd)
     user = User.query.filter(User.email==email, User.password==pwd).first()
     if user:
         flask_login.login_user(user)

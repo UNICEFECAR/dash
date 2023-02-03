@@ -1,5 +1,7 @@
 import json
 import os.path as op
+import pathlib
+import os
 
 from flask_admin.contrib.fileadmin import FileAdmin
 from flask_admin.contrib.sqla import ModelView
@@ -7,7 +9,7 @@ from flask_admin.contrib.sqla.view import func
 import flask_login
 from jinja2.utils import markupsafe
 from .extensions import admin
-from .models import Page
+from .models import Page, DataExplorer
 
 
 def is_admin():
@@ -49,6 +51,17 @@ class PageView(ModelView):
         "updated_at",
     )
 
+    items = []
+    upload_files_path = f"{pathlib.Path(__file__).parent.parent.absolute()}/dash_service/static"
+    up = upload_files_path
+    
+    # uploaded_files_path="/dash_service/static"
+    for f in os.listdir(upload_files_path):
+        if op.isfile(op.join(upload_files_path, f)):
+            items.append((f,f))
+
+    form_choices = {"geography": items}
+
     def is_accessible(self):
         return flask_login.current_user.is_authenticated
 
@@ -77,6 +90,23 @@ class DataExplorerView(ModelView):
         "updated_at",
     )
 
+    def is_accessible(self):
+        return flask_login.current_user.is_authenticated
+
+    def get_query(self):
+        if is_admin():
+            return self.session.query(self.model)
+        return self.session.query(self.model).filter(
+            DataExplorer.project_id == flask_login.current_user.project_id
+        )
+
+    def get_count_query(self):
+        if is_admin():
+            return self.session.query(func.count("*"))
+        return self.session.query(func.count("*")).filter(
+            DataExplorer.project_id == flask_login.current_user.project_id
+        )
+
 
 class UserView(ModelView):
     # def is_accessible(self):
@@ -104,6 +134,13 @@ class UserView(ModelView):
         return is_admin()
 
 
+class ExtFileAdmin(FileAdmin):
+    def is_accessible(self):
+        return is_admin()
+
+
 # production storage will be an Azure blob storage
 path = op.join(op.dirname(__file__), "static")
-admin.add_view(FileAdmin(path, "/static/", name="Static Files"))
+
+# admin.add_view(FileAdmin(path, "/static/", name="Static Files"))
+admin.add_view(ExtFileAdmin(path, "/static/", name="Static Files"))
