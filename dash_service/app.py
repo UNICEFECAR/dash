@@ -59,11 +59,11 @@ def page_not_found(error):
 
 
 with server.app_context():
-    print("Creating db")
     db.create_all()
     #Check if there is at least one user
     first_user = User.query.first()
     #if not add the admin
+    
     if first_user is None:
         first_admin = User(
             name="Deafult admin",
@@ -71,6 +71,7 @@ with server.app_context():
             password="admin",
             is_admin=True,
         )
+       
 
         db.session.add(first_admin)
         db.session.commit()

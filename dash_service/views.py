@@ -9,7 +9,8 @@ from flask_admin.contrib.sqla.view import func
 import flask_login
 from jinja2.utils import markupsafe
 from .extensions import admin
-from .models import Page, DataExplorer
+from .models import Page, DataExplorer, User
+from sqlalchemy.sql import func
 
 
 def is_admin():
@@ -52,13 +53,15 @@ class PageView(ModelView):
     )
 
     items = []
-    upload_files_path = f"{pathlib.Path(__file__).parent.parent.absolute()}/dash_service/static"
+    upload_files_path = (
+        f"{pathlib.Path(__file__).parent.parent.absolute()}/dash_service/static"
+    )
     up = upload_files_path
-    
+
     # uploaded_files_path="/dash_service/static"
     for f in os.listdir(upload_files_path):
         if op.isfile(op.join(upload_files_path, f)):
-            items.append((f,f))
+            items.append((f, f))
 
     form_choices = {"geography": items}
 
@@ -109,18 +112,12 @@ class DataExplorerView(ModelView):
 
 
 class UserView(ModelView):
-    # def is_accessible(self):
-    #     return login.current_user.is_authenticated
-
-    # def inaccessible_callback(self, name, **kwargs):
-    #     return redirect(url_for('login', next=request.url))
-
     column_display_all_relations = True
     column_list = (
         "id",
         "name",
         "email",
-        "password",
+        #"password",
         "project",
         "is_admin",
         "is_user_active",
@@ -128,11 +125,22 @@ class UserView(ModelView):
         "updated_at",
     )
 
-    form_readonly_columns = "created_at"
+    form_widget_args = {
+        "created_at": {"disabled": True},
+        "updated_at": {"disabled": True},
+    }
+
+    def on_model_change(self, form, instance, is_created):
+        if is_created:
+            instance.set_password(form.password.data)
+        else:
+            old_pwd = form.password.object_data
+            if old_pwd != instance.password:
+                instance.set_password(form.password.data)
+
 
     def is_accessible(self):
         return is_admin()
-
 
 class ExtFileAdmin(FileAdmin):
     def is_accessible(self):

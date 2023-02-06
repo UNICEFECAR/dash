@@ -2,7 +2,8 @@ from dash import html, register_page, dcc, callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from dash_service.models import User
-#from flask_login import UserMixin, login_user, login_required, logout_user, current_user
+
+# from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 import flask_login
 from flask import flash
 
@@ -23,18 +24,17 @@ layout = html.Div(
                         html.Hr(),
                         html.H3("Log in"),
                         # login form
-                        
-                        html.Form(
+                        html.Div(
                             children=[
                                 html.Div(
                                     className="form-group",
                                     children=[
                                         html.Label(htmlFor="email", children=["Email"]),
                                         dcc.Input(
-                                            type="email",
                                             id="email",
                                             placeholder="Enter email",
                                             className="form-control",
+                                            debounce=True,
                                         ),
                                     ],
                                 ),
@@ -49,6 +49,7 @@ layout = html.Div(
                                             id="password",
                                             placeholder="Enter password",
                                             className="form-control",
+                                            debounce=True,
                                         ),
                                     ],
                                 ),
@@ -74,16 +75,28 @@ layout = html.Div(
 
 
 @callback(
-    Output("dummy_out", "children"),
+    [
+        Output("dummy_out", "children"),
+        Output("email", "n_submit"),
+        Output("password", "n_submit"),
+    ],
     [
         Input("login_button", "n_clicks"),
+        Input("email", "value"),
+        Input("password", "value"),
     ],
-    [State("email", "value"), State("password", "value")],
+    [
+        State("email", "n_submit"),
+        State("password", "n_submit"),
+    ],
     prevent_initial_call=True,
 )
-def do_login(n_clicks, email, pwd):
-    user = User.query.filter(User.email==email, User.password==pwd).first()
-    if user:
-        flask_login.login_user(user)
+def do_login(n_clicks, email, pwd, email_n_sub, pwd_n_sub):
+    user = User.query.filter(User.email == email).first()
+    enter_clicked = email_n_sub is not None or pwd_n_sub is not None
 
-    return dcc.Location(pathname="/admin", id="any_id")
+    if enter_clicked and user and pwd and user.verify_password(pwd):
+        flask_login.login_user(user)
+        return [dcc.Location(pathname="/admin", id="any_id"), None, None]
+    else:
+        return [None, None, None]

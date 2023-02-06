@@ -1,5 +1,6 @@
 from slugify import slugify
 from sqlalchemy_mixins import AllFeaturesMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from .extensions import db
 
@@ -83,7 +84,7 @@ class User(db.Model, AllFeaturesMixin):
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), nullable=False)
-    password = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     project = db.relationship("Project")
     is_admin = db.Column(db.Boolean, default=False)
     is_user_active = db.Column(db.Boolean, default=True)
@@ -93,7 +94,31 @@ class User(db.Model, AllFeaturesMixin):
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
     )
 
-    #Used by Flask-login
+    def __init__(
+        self,
+        # project_id,
+        name,
+        email,
+        password,
+        is_admin,
+        # is_user_active,
+        # created_at,
+        # updated_at,
+        project_id=None,
+        is_user_active=None,
+        created_at=None,
+        updated_at=None,
+    ) -> None:
+        self.project_id = project_id
+        self.name = name
+        self.email = email
+        self.password = generate_password_hash(password,)
+        self.is_admin = is_admin
+        self.is_user_active = is_user_active
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    # Used by Flask-login
     def is_active(self):
         return self.is_user_active
 
@@ -107,4 +132,11 @@ class User(db.Model, AllFeaturesMixin):
         return False
 
     def __repr__(self):
-        return "<User %r>" % self.name
+        return f"<User {self.name}>"
+
+
+    def set_password(self, password_plaintext:str):
+        self.password = generate_password_hash(password_plaintext)
+
+    def verify_password(self, password_plaintext:str):
+        return check_password_hash(self.password, password_plaintext,)

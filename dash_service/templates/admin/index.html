@@ -3,5 +3,7 @@
 {% block body %}
     {% if current_user.is_authenticated %}
         Logged in: {{current_user.name}}
+    {% else %}
+        Go to login page: <a href="/login">Login</a>
     {% endif %}
 {% endblock %}
