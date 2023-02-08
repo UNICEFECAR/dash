@@ -59,12 +59,15 @@ layout = html.Div(
                                     id="login_button",
                                     className="btn btn-primary",
                                 ),
-                                html.Br(),
-                                html.Hr(),
-                                html.Div(id="dummy_out", style={"display": "none"}),
                             ],
                             id="login_form",
                             hidden=False,
+                        ),
+                        html.Br(),
+                        html.Hr(),
+                        html.Div(id="feedback", children=[]),
+                        html.Div(
+                            id="dummy_out", children=None, style={"display": "none"}
                         ),
                     ],
                 )
@@ -79,6 +82,8 @@ layout = html.Div(
         Output("dummy_out", "children"),
         Output("email", "n_submit"),
         Output("password", "n_submit"),
+        Output("login_button", "n_clicks"),
+        Output("feedback", "children"),
     ],
     [
         Input("login_button", "n_clicks"),
@@ -95,8 +100,13 @@ def do_login(n_clicks, email, pwd, email_n_sub, pwd_n_sub):
     user = User.query.filter(User.email == email).first()
     enter_clicked = email_n_sub is not None or pwd_n_sub is not None
 
+    message = None
     if enter_clicked and user and pwd and user.verify_password(pwd):
         flask_login.login_user(user)
-        return [dcc.Location(pathname="/admin", id="any_id"), None, None]
+        return [dcc.Location(pathname="/admin", id="any_id"), None, None, None,message]
+    elif enter_clicked or n_clicks is not None:
+        message = "Wrong login/password"
+        return [None, None, None, None,message]
     else:
-        return [None, None, None]
+        message = None
+        return [None, None, None,None, message]
