@@ -103,10 +103,10 @@ def do_login(n_clicks, email, pwd, email_n_sub, pwd_n_sub):
     message = None
     if enter_clicked and user and pwd and user.verify_password(pwd):
         flask_login.login_user(user)
-        return [dcc.Location(pathname="/admin", id="any_id"), None, None, None,message]
+        return [dcc.Location(pathname="/admin", id="any_id"), None, None, None, message]
     elif enter_clicked or n_clicks is not None:
         message = "Wrong login/password"
-        return [None, None, None, None,message]
+        return [None, None, None, None, message]
     else:
         message = None
-        return [None, None, None,None, message]
+        return [None, None, None, None, message]
