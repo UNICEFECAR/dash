@@ -61,6 +61,12 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "PT_ADLT_PS_NEC",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -68,12 +74,6 @@ page_config = {
             {
                 "name": "",
                 "indicator": "PT_F_18-29_SX-V_AGE-18",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PT_ADLT_PS_NEC",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -88,9 +88,9 @@ page_config = {
             "graphs": graphs_dict,
             "indicators": [
                 "PT_CHLD_1-14_PS-PSY-V_CGVR",
+                "PT_ADLT_PS_NEC",
                 "PT_F_GE15_PS-SX-EM_V_PTNR_12MNTH",
                 "PT_F_18-29_SX-V_AGE-18",
-                "PT_ADLT_PS_NEC",
                 "PT_ST_13-15_BUL_30-DYS",
             ],
             "default_graph": "bar",
@@ -108,14 +108,14 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "PT_CHLD_ADOPTION",
-                "suffix": "adoptions",
+                "indicator": "PT_CHLD_CARED_BY_FOSTER",
+                "suffix": "children",
                 "min_max": False,
             },
             {
                 "name": "",
-                "indicator": "PT_CHLD_CARED_BY_FOSTER",
-                "suffix": "children",
+                "indicator": "PT_CHLD_ADOPTION",
+                "suffix": "adoptions",
                 "min_max": False,
             },
         ],
@@ -123,8 +123,8 @@ page_config = {
             "graphs": graphs_dict,
             "indicators": [
                 "PT_CHLD_INRESIDENTIAL",
-                "PT_CHLD_ADOPTION",
                 "PT_CHLD_CARED_BY_FOSTER",
+                "PT_CHLD_ADOPTION",
             ],
             "default_graph": "bar",
             "default": "PT_CHLD_INRESIDENTIAL",
@@ -175,18 +175,6 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PT_F_15-19_MRD",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PT_M_15-19_MRD",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
                 "indicator": "PT_F_20-24_MRD_U18",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -197,17 +185,29 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "PT_F_15-19_MRD",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_M_15-19_MRD",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "PT_F_15-19_MRD",
-                "PT_M_15-19_MRD",
                 "PT_F_20-24_MRD_U18",
                 "PT_M_20-24_MRD_U18",
+                "PT_F_15-19_MRD",
+                "PT_M_15-19_MRD",
             ],
             "default_graph": "bar",
-            "default": "PT_F_15-19_MRD",
+            "default": "PT_F_20-24_MRD_U18",
         },
     },
     "LAB": {
@@ -215,13 +215,13 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PT_CHLD_5-17_LBR_ECON",
+                "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PT_CHLD_5-17_LBR_ECON-HC",
+                "indicator": "PT_CHLD_5-17_LBR_ECON",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -229,11 +229,11 @@ page_config = {
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "PT_CHLD_5-17_LBR_ECON",
                 "PT_CHLD_5-17_LBR_ECON-HC",
+                "PT_CHLD_5-17_LBR_ECON",
             ],
             "default_graph": "bar",
-            "default": "PT_CHLD_5-17_LBR_ECON",
+            "default": "PT_CHLD_5-17_LBR_ECON-HC",
         },
     },
 }
