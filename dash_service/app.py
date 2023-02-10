@@ -15,7 +15,7 @@ from flask_admin.menu import MenuLink
 
 import flask_login
 
-#from flask_login import UserMixin, login_user, login_required, logout_user, current_user
+# from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 
 
 sentry_sdk.init(
@@ -42,7 +42,8 @@ admin.add_view(UserView(User, db.session))
 
 app = Dash(
     server=server,
-    use_pages=True,
+    #use_pages=True,
+    use_pages=False,
     title=default_settings.TITLE,
     external_scripts=default_settings.EXTERNAL_SCRIPTS,
     external_stylesheets=default_settings.EXTERNAL_STYLESHEETS,
@@ -50,7 +51,7 @@ app = Dash(
 )
 
 # configure the Dash instance's layout
-app.layout = main_default_layout()
+#app.layout = main_default_layout()
 
 
 @server.errorhandler(404)
@@ -60,10 +61,10 @@ def page_not_found(error):
 
 with server.app_context():
     db.create_all()
-    #Check if there is at least one user
+    # Check if there is at least one user
     first_user = User.query.first()
-    #if not add the admin
-    
+    # if not add the admin
+
     if first_user is None:
         first_admin = User(
             name="Deafult admin",
@@ -71,17 +72,64 @@ with server.app_context():
             password="admin",
             is_admin=True,
         )
-       
 
         db.session.add(first_admin)
         db.session.commit()
+
 
 class LogoutMenuLink(MenuLink):
     def is_accessible(self):
         return flask_login.current_user.is_authenticated
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
 
+
 admin.add_link(LogoutMenuLink(name="Logout", category="", url="/logout"))
+
+
+@server.after_request
+def after_request(response):
+    response.headers.add(
+        "Access-Control-Allow-Headers", "Content-Type, Authorization, Accept"
+    )
+    response.headers.add(
+        "Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS"
+    )
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+
+    return response
+
+with server.app_context():
+    from . import index
+    app.layout = main_default_layout
+
+"""
+
+import pprint
+
+class LoggingMiddleware(object):
+    def __init__(self, app):
+        self._app = app
+
+    def __call__(self, env, resp):
+        errorlog = env['wsgi.errors']
+        #pprint.pprint(('REQUEST', env), stream=errorlog)
+        #print(env["REQUEST_URI"])
+        print("")
+        print("RRRRRRRRR")
+        print(env["werkzeug.request"])
+        print(env["QUERY_STRING"])
+
+        def log_response(status, headers, *args):
+            #pprint.pprint(('RESPONSE', status, headers), stream=errorlog)
+            return resp(status, headers, *args)
+
+        return self._app(env, log_response)
+
+server.wsgi_app = LoggingMiddleware(server.wsgi_app)
+
+"""
+

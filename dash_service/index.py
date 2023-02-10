@@ -1,17 +1,83 @@
 import dash_html_components as html
 
 from .app import app
-from .utils import DashRouter, DashNavBar
-
+from .utils import DashRouter
+from .pages import (
+    page,
+)
 from .components import fa
 
 
-nav_items = (
-    ("", html.Div([fa("fas fa-info-circle"), "Education"]), []),
-    ("health", html.Div([fa("fas fa-medkit"), "Health"]), []),
-    # ("protection", html.Div([fa("fas fa-bullseye"), "Protection"]), []),
+# Ordered iterable of routes: tuples of (route, layout), where 'route' is a
+# string corresponding to path of the route (will be prefixed with Dash's
+# 'routes_pathname_prefix' and 'layout' is a Dash Component.
+urls = (
+    ("", page.layout),
 )
 
+# keyword argument for a Dash component (ie a Dash Component or a string).
+nav_items = (
+    ("", html.Div([fa("fas fa-home"), "Home"]), []),
+    ("overview", html.Div([fa("fas fa-info-circle"), "Overview"]), []),
+    (
+        "sectors",
+        "Domains",
+        [
+            ("child-education", html.Div([fa("fas fa-book"), "Education"])),
+            (
+                "child-protection",
+                html.Div([fa("fas fa-child"), "Family Environment and Protection"]),
+            ),
+            (
+                "child-health",
+                html.Div([fa("fas fa-heartbeat"), "Health and Nutrition"]),
+            ),
+            (
+                "child-poverty",
+                html.Div([fa("fas fa-hand-holding-usd"), "Poverty"]),
+            ),
+            (
+                "child-rights",
+                html.Div(
+                    [
+                        fa("fas fa-balance-scale"),
+                        "Child Rights Landscape",
+                    ]
+                ),
+            ),
+            (
+                "child-participation",
+                html.Div([fa("fas fa-users"), "Participation"]),
+            ),
+        ],
+    ),
+    (
+        "cross-sectors",
+        "Cross-Sectoral Issues",
+        [
+            ("adolescent", html.Div([fa("fas fa-user-friends"), "Adolescent"])),
+            ("disability", html.Div([fa("fas fa-blind"), "Disability"])),
+            ("gender", html.Div([fa("fas fa-venus-mars"), "Gender"])),
+            ("ecd", html.Div([fa("fas fa-baby"), "ECD"])),
+            (
+                "risks",
+                html.Div([fa("fas fa-exclamation-triangle"), "Risks and Humanitarian"]),
+            ),
+            ("climate", html.Div([fa("fas fa-sun"), "Climate Change"])),
+        ],
+    ),
+    ("profiles", html.Div([fa("fas fa-globe"), "Country Snapshots"]), []),
+    ("data_query", html.Div([fa("fas fa-table"), "Query Data"]), []),
+    ("resources", html.Div([fa("fas fa-database"), "Resources"]), []),
+)
 
-# router = DashRouter(app, urls)
-navbar = DashNavBar(app, nav_items)
+nav_items_full_names = {
+    "education": "Education",
+    "child-protection": "Family environment and protection from violence and harmful practices",
+    "child-health": "Health and Nutrition",
+    "child-poverty": "Poverty and Social Protection",
+    "child-rights": "Child Rights Landscape",
+    "participation": "Participation",
+}
+
+router = DashRouter(app, urls)

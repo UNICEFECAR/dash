@@ -13,7 +13,9 @@ def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
     admin.init_app(app)
-    cors.init_app(app)
+    #cors.init_app(app)
+    cors.init_app(app, resources={r"/*": {"origins": "*"}})
+    
     login_manager.init_app(app)
     # bcrypt.init_app(app)
     # cache.init_app(app)

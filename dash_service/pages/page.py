@@ -66,7 +66,7 @@ translations = {
     "download_excel": {"en": "Download Excel", "pt": "Download Excel"},
     "download_csv": {"en": "Download CSV", "pt": "Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
-    "TIME_PERIOD": {"en":"Time period","pt": "Ano"},
+    "TIME_PERIOD": {"en": "Time period", "pt": "Ano"},
     "REF_AREA": {"pt": "Estado"},
 }
 
@@ -110,14 +110,16 @@ EMPTY_CHART = {
     }
 }
 
+'''
 # This hooks into Dash's multipage functionality and allows us to specify the URL pattern
 # https://dash.plotly.com/urls
 dash.register_page(
     __name__,
-    path_template="/<project_slug>/<page_slug>",
-    path="/brazil/child-education",  # this is the default path and working example
+    # path_template="/<project_slug>/<page_slug>",
+    path_template="/",
+    # path="/brazil/child-education",  # this is the default path and working example
 )
-
+'''
 
 # Creates the top menu (pages) html elements
 def make_page_nav(pages, vertical=False, **kwargs):
@@ -159,7 +161,7 @@ def make_page_nav(pages, vertical=False, **kwargs):
     )
 
 
-def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
+def layout(project_slug=None, page_slug=None, lang="en", **query_params):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.
@@ -172,6 +174,15 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
     Returns:
         html.Div: The rendered page
     """
+
+    print("query_params")
+    print(query_params)
+
+    project_slug = query_params.get("prj", "brazil")
+    page_slug = query_params.get("page", "protection")
+
+    if "prj" in query_params:
+        project_slug = query_params["prj"]
 
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
@@ -518,7 +529,7 @@ def show_cards(data_struct, selections, page_config, lang):
                 info_head=info_head,
                 info_body=data_source,
                 time_period=time_period,
-                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang)
+                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang),
             )
         )
 
@@ -552,7 +563,7 @@ def show_charts(selections, page_config, lang):
 
 
 # loops the data node and returns the options for the dropdownlists: options + default value
-def get_ddl_values(data_node, data_structures, column_id,lang):
+def get_ddl_values(data_node, data_structures, column_id, lang):
     items = []
     default_item = ""
     for idx, data_cfg in enumerate(data_node):
@@ -815,16 +826,17 @@ def update_charts(
         data_structures, struct_id, df.columns, lang, translations
     )
 
-
     if "label" in chart_cfg["data"][int(ddl_value)]:
-        indicator_name = get_multilang_value(chart_cfg["data"][int(ddl_value)]["label"],lang)
+        indicator_name = get_multilang_value(
+            chart_cfg["data"][int(ddl_value)]["label"], lang
+        )
     else:
         indicator_name = get_code_from_structure_and_dq(
             data_structures, data_cfg, ID_INDICATOR
         )["name"]
 
     # set the chart title, wrap the text when the indicator name is too long
-    
+
     chart_title = textwrap.wrap(
         indicator_name,
         width=74,

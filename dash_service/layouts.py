@@ -58,7 +58,10 @@ def main_default_layout():
             dbc.Container(
                 fluid=True,
                 children=[
-                    dash.page_container,
+                    html.H1("Main default layout"),
+                    #dash.page_container,
+                    dbc.Col(id="MAIN_CONTAINER"),
+                    dcc.Location(id="dash-location", refresh=False)
                 ],
             ),
             # make_footer(),
@@ -85,3 +88,6 @@ def main_default_layout():
         ],
         id="mainContainer",
     )
+
+
+

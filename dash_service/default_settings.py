@@ -67,3 +67,24 @@ FLASK_ADMIN_SWATCH = "cerulean"
 SQLALCHEMY_DATABASE_URI = "sqlite:///pages.db"
 
 SECRET_KEY = "secretthatneedstobechangedinproduction"
+
+# URL prefix for client-side requests and client-side requests. If not None,
+# must begin and end with a '/'.
+REQUESTS_PATHNAME_PREFIX = None
+
+# URL prefix for server-side routes. If not None, must begin and end with a
+# '/'.
+ROUTES_PATHNAME_PREFIX = "/"
+
+#
+# Layout config
+#
+
+# The ID of the dcc.Location component used for multi-page apps
+LOCATION_COMPONENT_ID = "dash-location"
+
+# The ID of the element used to inject each page of the multi-page app into
+CONTENT_CONTAINER_ID = "page-content"
+
+# The ID of the element used to inject the navbar items into
+NAVBAR_CONTAINER_ID = "navbar-items"

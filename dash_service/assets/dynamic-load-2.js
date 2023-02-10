@@ -91,7 +91,7 @@ if (browserOk) {
                 var scriptElement = document.createElement('script');
                 if (src) {
                     // ignore this file to prevent load loops
-                    if (src.includes('dynamic-load.js')) {
+                    if (src.includes('dynamic-load-2.js')) {
                         continue;
                     }
                     // set the correct path if it is relative
@@ -128,7 +128,7 @@ if (browserOk) {
                     dashRenderer.setAttribute('type', 'text/javascript');
                     dashRenderer.innerHTML = "var renderer = new DashRenderer();";
                     document.body.appendChild(dashRenderer);
-                }, 1000);
+                }, 5000);
             }
 
             if (document.readyState == 'complete') {
