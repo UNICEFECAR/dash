@@ -258,8 +258,8 @@ page_config = {
             "graphs": graphs_dict,
             "indicators": [
                 "CR_EG_EGY_CLEAN",
-                "CR_CCRI_VUL_ES",
                 "CR_CCRI",
+                "CR_CCRI_VUL_ES",
                 "CR_CCRI_EXP_CESS",
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
@@ -274,6 +274,7 @@ page_config = {
             "default_graph": "bar",
             "default": "CR_EG_EGY_CLEAN",
         },
+    },
 }
 
 packed_config = {}
