@@ -1023,7 +1023,7 @@ def make_card(
             [
                 dbc.PopoverHeader(
                     html.A(
-                        html.P(f"Sources(s): {indicator_sources}"),
+                        html.P(f"Source(s): {indicator_sources}"),
                         href=source_link,
                         target="_blank",
                     )
@@ -1697,7 +1697,7 @@ def aio_area_figure(
             html.Div(
                 [
                     html.P(
-                        "Countries without data: ",
+                        "Countries without data for selected years: ",
                         style={
                             "display": "inline-block",
                             "textDecoration": "underline",

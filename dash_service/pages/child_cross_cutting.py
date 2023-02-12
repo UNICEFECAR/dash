@@ -173,17 +173,11 @@ page_config = {
         },
     },
     "ENV": {
-        "NAME": "Environment and climate change",
+        "NAME": "Climate, conflict and disaster risk",
         "CARDS": [
             {
                 "name": "",
                 "indicator": "CR_EG_EGY_CLEAN",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "CR_CCRI_VUL_ES",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -195,26 +189,16 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "CR_CCRI_VUL_ES",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "CR_CCRI_EXP_CESS",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
-        ],
-        "AIO_AREA": {
-            "graphs": graphs_dict,
-            "indicators": [
-                "CR_EG_EGY_CLEAN",
-                "CR_CCRI_VUL_ES",
-                "CR_CCRI",
-                "CR_CCRI_EXP_CESS",
-            ],
-            "default_graph": "bar",
-            "default": "CR_EG_EGY_CLEAN",
-        },
-    },
-    "RSK": {
-        "NAME": "Risks and humanitarian situation",
-        "CARDS": [
             {
                 "name": "",
                 "indicator": "CR_VC_DSR_MTMP",
@@ -273,6 +257,10 @@ page_config = {
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
+                "CR_EG_EGY_CLEAN",
+                "CR_CCRI_VUL_ES",
+                "CR_CCRI",
+                "CR_CCRI_EXP_CESS",
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
                 "CR_SH_STA_AIRP",
@@ -284,9 +272,8 @@ page_config = {
                 "CR_SG_DSR_LGRGSR",
             ],
             "default_graph": "bar",
-            "default": "CR_VC_DSR_MTMP",
+            "default": "CR_EG_EGY_CLEAN",
         },
-    },
 }
 
 packed_config = {}

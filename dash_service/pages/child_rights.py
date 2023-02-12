@@ -53,7 +53,7 @@ min_max_card_suffix = "min - max values"
 
 page_config = {
     "DEM": {
-        "NAME": "Demographics",
+        "NAME": "Demographics and population movements",
         "CARDS": [
             {
                 "name": "",
@@ -79,6 +79,24 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "DM_POP_NETM",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "DM_ASYL_FRST",
+                "suffix": "persons",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "MG_INTNL_MG_CNTRY_DEST_PS",
+                "suffix": "persons",
+                "min_max": False,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
@@ -87,6 +105,9 @@ page_config = {
                 "DM_CHLD_POP_PT",
                 "DM_BRTS",
                 "DM_FRATE_TOT",
+                "DM_POP_NETM",
+                "DM_ASYL_FRST",
+                "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
             "default_graph": "bar",
             "default": "DM_CHLD_POP",
@@ -144,39 +165,6 @@ page_config = {
             ],
             "default_graph": "bar",
             "default": "EC_HDI",
-        },
-    },
-    "MIG": {
-        "NAME": "Migration and displacement",
-        "CARDS": [
-            {
-                "name": "",
-                "indicator": "DM_POP_NETM",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "DM_ASYL_FRST",
-                "suffix": "persons",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "MG_INTNL_MG_CNTRY_DEST_PS",
-                "suffix": "persons",
-                "min_max": False,
-            },
-        ],
-        "AIO_AREA": {
-            "graphs": graphs_dict,
-            "indicators": [
-                "DM_POP_NETM",
-                "DM_ASYL_FRST",
-                "MG_INTNL_MG_CNTRY_DEST_PS",
-            ],
-            "default_graph": "map",
-            "default": "DM_POP_NETM",
         },
     },
     "CRG": {

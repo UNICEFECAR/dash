@@ -98,7 +98,7 @@ page_config = {
         },
     },
     "CPC": {
-        "NAME": "Children without parental care",
+        "NAME": "Children in alternative care",
         "CARDS": [
             {
                 "name": "",

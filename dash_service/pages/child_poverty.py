@@ -152,7 +152,7 @@ page_config = {
         },
     },
     "WSH": {
-        "NAME": "Water, sanitation and hygiene",
+        "NAME": "Water and sanitation",
         "CARDS": [
             {
                 "name": "",
@@ -192,7 +192,7 @@ register_page(
     __name__,
     # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-poverty",
-    title="Poverty and Social Protection",
+    title="Poverty and Adequate Standard of Living",
     # order=3,
 )
 page_prefix = "pov"
@@ -211,7 +211,7 @@ def layout(page_slug=None, **query_parmas):
                 fluid=True,
                 children=get_base_layout(
                     indicators=page_config,
-                    main_subtitle="Poverty and Social Protection",
+                    main_subtitle="Poverty and Adequate Standard of Living",
                     page_prefix=page_prefix,
                     domain_colour=domain_colour,
                 ),

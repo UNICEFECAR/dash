@@ -361,7 +361,7 @@ register_page(
     __name__,
     # path_template="/transmonee/<page_slug>",
     path="/transmonee/child-education",
-    title="Education and Leisure",
+    title="Education, Leisure and Culture",
     # order=5,
 )
 page_prefix = "edu"
@@ -380,7 +380,7 @@ def layout(page_slug=None, **query_parmas):
                 fluid=True,
                 children=get_base_layout(
                     indicators=page_config,
-                    main_subtitle="Education and Leisure",
+                    main_subtitle="Education, Leisure and Culture",
                     page_prefix=page_prefix,
                     domain_colour=domain_colour,
                 ),
