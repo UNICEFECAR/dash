@@ -85,8 +85,8 @@ indicator_names = {
     code.id: code.name.en
     for code in dsd.dimensions.get("INDICATOR").local_representation.enumerated
 }
-# custom names as requested by siraj: update thousands for consistency, packed indicators
-custom_names = {
+# customed names as requested by siraj: update thousands for consistency, packed indicators
+customed_names = {
     # erase_name_thousands
     "DM_BRTS": "Number of births",
     "DM_POP_TOT_AGE": "Population by age",
@@ -97,12 +97,12 @@ custom_names = {
     "DM_ADOL_YOUTH_POP": "Adolescent, young and youth population aged 10-24 years",
     "DM_ADULT_YOUTH_POP": "Adult youth population aged 20-29 years",
     "DM_REPD_AGE_POP": "Population of reproductive age 15-49 years",
-    "MG_INTNL_MG_CNTRY_DEST_PS": "International migrant stock",
-    # custom plots
+    "MG_INTNL_MG_CNTRY_DEST_PS": "International migrant stock by country of destination",
+    # customed plots
     "packed_CRG": "National Human Rights Institutions in compliance with the Paris Principles",
     "packed_EXP": "Expenditure on education levels as a percentage of government expenditure on education",
 }
-indicator_names.update(custom_names)
+indicator_names.update(customed_names)
 # lbassil: get the age groups code list as it is not in the DSD
 cl_age = unicef.codelist("CL_AGE", version="1.0")
 age_groups = sdmx.to_pandas(cl_age)
@@ -1023,7 +1023,7 @@ def make_card(
             [
                 dbc.PopoverHeader(
                     html.A(
-                        html.P(f"Source(s): {indicator_sources}"),
+                        html.P(f"Sources(s): {indicator_sources}"),
                         href=source_link,
                         target="_blank",
                     )
@@ -1640,9 +1640,6 @@ def aio_area_figure(
         if dimension_name == "Sex_name":
             options["color_discrete_map"] = {"Female": "#944a9d", "Male": "#1a9654"}
 
-        if dimension_name == "Residence_name":
-            options["color_discrete_map"] = {"Rural": "#5dd763", "Urban": "#d9b300"}
-
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
 
@@ -1697,7 +1694,7 @@ def aio_area_figure(
             html.Div(
                 [
                     html.P(
-                        "Countries without data for selected years: ",
+                        "Countries without data: ",
                         style={
                             "display": "inline-block",
                             "textDecoration": "underline",
