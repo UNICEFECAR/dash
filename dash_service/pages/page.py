@@ -110,7 +110,7 @@ EMPTY_CHART = {
     }
 }
 
-'''
+"""
 # This hooks into Dash's multipage functionality and allows us to specify the URL pattern
 # https://dash.plotly.com/urls
 dash.register_page(
@@ -119,14 +119,29 @@ dash.register_page(
     path_template="/",
     # path="/brazil/child-education",  # this is the default path and working example
 )
-'''
+"""
 
 # Creates the top menu (pages) html elements
-def make_page_nav(pages, vertical=False, **kwargs):
+def make_page_nav(pages, query_params, vertical=False, **kwargs):
+    nav_links = []
+
+    for p in pages:
+        url_params = [
+            "prj=" + p["prj_slug"],
+            "page=" + p["slug"],
+        ]
+        if p["lang"] != "en":
+            url_params.append("lang=" + p["lang"])
+        for qp in query_params:
+            if qp not in ["prj", "page", "lang", "hash"]:
+                url_params.append(qp + "=" + query_params[qp])
+        nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
+
     return html.Header(
         id="header",
         className="header",
         children=[
+            html.Div(id="dd", children=[]),
             html.Div(
                 className="container-fluid",
                 children=[
@@ -140,12 +155,18 @@ def make_page_nav(pages, vertical=False, **kwargs):
                                             dbc.NavLink(
                                                 page["name"],
                                                 className="ms-2",
-                                                href=page["path"],
+                                                href=page["href"],
+                                                # href=page["path"],
+                                                # href="#",
+                                                # id={
+                                                #     "type": "nav_link",
+                                                #     "index": f"{page['prj_slug']}&{page['slug']}&{page['lang']}",
+                                                # },
                                                 active="exact",
                                             ),
                                         ],
                                     )
-                                    for page in pages
+                                    for page in nav_links
                                 ],
                                 vertical=vertical,
                                 pills=True,
@@ -175,9 +196,6 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_params):
         html.Div: The rendered page
     """
 
-    print("query_params")
-    print(query_params)
-
     project_slug = query_params.get("prj", "brazil")
     page_slug = query_params.get("page", "protection")
 
@@ -193,12 +211,10 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_params):
     if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
 
-    if lang == "en":
-        all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
-    else:
-        all_pages = [
-            {"name": p.title, "path": p.slug + "?lang=" + lang} for p in all_pages
-        ]
+    all_pages = [
+        {"name": p.title, "prj_slug": p.project.slug, "slug": p.slug, "lang": lang}
+        for p in all_pages
+    ]
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
@@ -206,7 +222,9 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_params):
     config = page.content
     main_title = config["main_title"]
 
-    return render_page_template(config, main_title, all_pages, page.geography, lang)
+    return render_page_template(
+        config, main_title, all_pages, page.geography, lang, query_params
+    )
 
 
 def render_page_template(
@@ -215,6 +233,7 @@ def render_page_template(
     all_pages: dict,
     geoj: str,
     lang,
+    query_params,
     **kwargs,
 ) -> html.Div:
     """Renders the page template based on the page config and other parameters
@@ -235,7 +254,7 @@ def render_page_template(
             dcc.Store(id="geoj", data=geoj),
             dcc.Store(id="data_structures", data={}, storage_type="session"),
             dcc.Location(id="theme"),
-            make_page_nav(all_pages),
+            make_page_nav(all_pages, query_params),
             html.Br(),
             dbc.Col(
                 html.Div(

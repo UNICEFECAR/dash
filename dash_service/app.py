@@ -106,30 +106,3 @@ with server.app_context():
     from . import index
     app.layout = main_default_layout
 
-"""
-
-import pprint
-
-class LoggingMiddleware(object):
-    def __init__(self, app):
-        self._app = app
-
-    def __call__(self, env, resp):
-        errorlog = env['wsgi.errors']
-        #pprint.pprint(('REQUEST', env), stream=errorlog)
-        #print(env["REQUEST_URI"])
-        print("")
-        print("RRRRRRRRR")
-        print(env["werkzeug.request"])
-        print(env["QUERY_STRING"])
-
-        def log_response(status, headers, *args):
-            #pprint.pprint(('RESPONSE', status, headers), stream=errorlog)
-            return resp(status, headers, *args)
-
-        return self._app(env, log_response)
-
-server.wsgi_app = LoggingMiddleware(server.wsgi_app)
-
-"""
-
