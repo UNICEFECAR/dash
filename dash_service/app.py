@@ -40,6 +40,10 @@ admin.add_view(PageView(Page, db.session))
 admin.add_view(DataExplorerView(DataExplorer, db.session))
 admin.add_view(UserView(User, db.session))
 
+@server.route("/login")
+def page_login():
+    return render_template("login.html")
+
 app = Dash(
     server=server,
     #use_pages=True,

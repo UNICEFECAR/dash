@@ -2,7 +2,7 @@ import dash_html_components as html
 
 from .app import app
 from .utils import DashRouter
-from .pages import (
+from .tmp import (
     page,
 )
 from .components import fa

@@ -7,7 +7,7 @@ from dash_service.models import User
 import flask_login
 from flask import flash
 
-register_page(__name__, path="/login", order=0, title="Login")
+#register_page(__name__, path="/login", order=0, title="Login")
 
 layout = html.Div(
     className="row",
