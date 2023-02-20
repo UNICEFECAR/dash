@@ -42,11 +42,45 @@ admin.add_view(UserView(User, db.session))
 
 @server.route("/login")
 def page_login():
-    return render_template("login.html")
+    req_args = request.args.to_dict(flat=False)
+    message = ""
+    if "msg" in req_args:
+        if "err_cred" in req_args["msg"]:
+            message = "Login error"
+        elif "err_nocred" in req_args["msg"]:
+            message = "Email or password cannot be empty"
+
+    return render_template("login.html", message=message)
+
+@server.route("/do_login", methods=["POST", "GET"])
+def do_login():
+    form_args = request.form.to_dict(flat=False)
+    arg_email = ""
+    arg_pwd = ""
+    if "email" in form_args:
+        arg_email = form_args["email"][0]
+    if "pwd" in form_args:
+        arg_pwd = form_args["pwd"][0]
+
+    if arg_email.strip() == "" or arg_pwd.strip() == "":
+        return redirect("/login?msg=err_nocred")
+
+    user = User.query.filter(User.email == arg_email).first()
+    if user.verify_password(arg_pwd):
+        flask_login.login_user(user)
+        return redirect("/admin")
+
+    return redirect("/login?msg=err_cred")
+
+@server.route("/logout")
+def do_logout():
+    flask_login.logout_user()
+
+    return redirect("/login")
 
 app = Dash(
     server=server,
-    #use_pages=True,
+    # use_pages=True,
     use_pages=False,
     title=default_settings.TITLE,
     external_scripts=default_settings.EXTERNAL_SCRIPTS,
@@ -55,7 +89,7 @@ app = Dash(
 )
 
 # configure the Dash instance's layout
-#app.layout = main_default_layout()
+# app.layout = main_default_layout()
 
 
 @server.errorhandler(404)
@@ -106,7 +140,8 @@ def after_request(response):
 
     return response
 
+
 with server.app_context():
     from . import index
-    app.layout = main_default_layout
 
+    app.layout = main_default_layout
