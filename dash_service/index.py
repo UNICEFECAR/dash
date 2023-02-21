@@ -2,17 +2,19 @@ import dash_html_components as html
 
 from .app import app
 from .utils import DashRouter
-from .pages import (
-    dashboard,
-)
+from .pages import dashboard, data_explorer, empty_renderer
 from .components import fa
 
 
 # Ordered iterable of routes: tuples of (route, layout), where 'route' is a
 # string corresponding to path of the route (will be prefixed with Dash's
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
-urls = (
-    ("", dashboard.layout),
+urls = (("", dashboard.layout),)
+
+renderers = (
+    ("", empty_renderer.layout),
+    ("ds", dashboard.layout),
+    ("de", data_explorer.layout),
 )
 
 # keyword argument for a Dash component (ie a Dash Component or a string).
@@ -80,4 +82,5 @@ nav_items_full_names = {
     "participation": "Participation",
 }
 
-router = DashRouter(app, urls)
+# router = DashRouter(app, urls)
+router = DashRouter(app, renderers)

@@ -99,18 +99,39 @@ class DashRouter:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
             
-            page = self.routes.get(pathname, None)
+            #page = self.routes.get(pathname, None)
 
+            # is_callable = False
+            # if search is not None and search!="":
+            #     qparams = parse_qs(search.lstrip("?"))
+
+            #     page_renderer = html.Div("Param error")
+            #     if "viz" in qparams and qparams["viz"][0]=="ds":
+            #         page_renderer = dashboard.layout
+                    
+            #     print("router qparams")
+            #     print(qparams)
+            #     page = self.routes.get("/", None)
+
+
+            #     is_callable = True
+            
             is_callable = False
-            if search is not None and search!="":
+            if search is not None and search != "":
                 qparams = parse_qs(search.lstrip("?"))
-                print("qparams")
-                print(qparams)
-                page = self.routes.get("/", None)
-                print("page")
+                param_viz = "/"
+                if "viz" in qparams:
+                    param_viz = qparams["viz"][0]
+                print("param_viz")
+                print(param_viz)
+                
+                page = self.routes.get("/"+param_viz,"jhfgdjhfgd")
+                print("Page")
                 print(page)
-
                 is_callable = True
+
+                
+                
 
                 
                 #file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
