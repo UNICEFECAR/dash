@@ -182,7 +182,7 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
     )
 
 
-def layout(project_slug=None, page_slug=None, lang="en", **query_params):
+def layout(lang="en", **query_params):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.

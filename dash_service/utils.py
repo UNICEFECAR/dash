@@ -22,6 +22,7 @@ from pathlib import Path
 
 parent = Path(__file__).resolve().parent
 
+
 def component(func):
     """Decorator to help vanilla functions as pseudo Dash Components"""
 
@@ -54,6 +55,7 @@ def component(func):
 
     return function_wrapper
 
+
 class DashRouter:
     """A URL Router for Dash multipage apps"""
 
@@ -71,7 +73,7 @@ class DashRouter:
         self.routes = {get_url(route): layout for route, layout in urls}
 
         @app.callback(
-            #Output(app.server.config["CONTENT_CONTAINER_ID"], "children"),
+            # Output(app.server.config["CONTENT_CONTAINER_ID"], "children"),
             Output("MAIN_CONTAINER", "children"),
             [
                 # Input(server.config["LOCATION_COMPONENT_ID"], "pathname"),
@@ -80,67 +82,34 @@ class DashRouter:
                 Input("dash-location", "search"),
             ],
             [
-                #State(server.config["LOCATION_COMPONENT_ID"], "hash"),
+                # State(server.config["LOCATION_COMPONENT_ID"], "hash"),
                 State("dash-location", "hash"),
             ],
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
 
-            print("Start router")
-            print(f" pathname: {pathname}")
-            print(f" search: {search}")
-            print(f" url_hash: {url_hash}")
-            print("Routes:")
-            print(self.routes)
-            print("End router")
-
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
+            page = self.routes.get("/")
             
-            #page = self.routes.get(pathname, None)
-
-            # is_callable = False
-            # if search is not None and search!="":
-            #     qparams = parse_qs(search.lstrip("?"))
-
-            #     page_renderer = html.Div("Param error")
-            #     if "viz" in qparams and qparams["viz"][0]=="ds":
-            #         page_renderer = dashboard.layout
-                    
-            #     print("router qparams")
-            #     print(qparams)
-            #     page = self.routes.get("/", None)
-
-
-            #     is_callable = True
-            
-            is_callable = False
             if search is not None and search != "":
                 qparams = parse_qs(search.lstrip("?"))
                 param_viz = "/"
                 if "viz" in qparams:
-                    param_viz = qparams["viz"][0]
-                print("param_viz")
-                print(param_viz)
-                
-                page = self.routes.get("/"+param_viz,"jhfgdjhfgd")
-                print("Page")
-                print(page)
-                is_callable = True
+                    param_viz = "/"+qparams["viz"][0]
+                page = self.routes.get(param_viz, self.routes.get("/"))
+            
 
-                
-                
-
-                
-                #file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
+                # file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
 
             if page is None:
                 layout = page_not_found(pathname)
             elif isinstance(page, Component):
                 layout = page
-            elif callable(page) or is_callable:
+            #elif callable(page) or is_callable:
+            elif callable(page):
                 kwargs = MultiDict(parse_qs(search.lstrip("?")))
                 kwargs["hash"] = url_hash
                 layout = page(**kwargs)

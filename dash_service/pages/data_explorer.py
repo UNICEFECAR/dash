@@ -51,23 +51,26 @@ ID_OBS_VALUE = "OBS_VALUE"
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
 
-dash.register_page(
-    __name__,
-    # path_template="/de/<project_slug>/<page_slug>",
-    path_template="/de/<project_slug>/<dataexplorer_slug>",
-    # path="/de/rosa/de_rosa",  # this is the default path and working example
-)
+# dash.register_page(
+#     __name__,
+#     # path_template="/de/<project_slug>/<page_slug>",
+#     path_template="/de/<project_slug>/<dataexplorer_slug>",
+#     # path="/de/rosa/de_rosa",  # this is the default path and working example
+# )
 
 
-def layout(project_slug=None, dataexplorer_slug=None, lang="en", **query_parmas):
+def layout(lang="en", **query_params):
 
-    if project_slug is None or dataexplorer_slug is None:
+    project_slug = query_params.get("prj", None)
+    page_slug = query_params.get("page", None)
+
+    if project_slug is None or page_slug is None:
         # return render_page_template({}, "Validation Page", [], "", lang)
-        return html.Div()
+        return html.Div(f"No data explorer found for project {project_slug}, page {page_slug}")
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     dataexpl = DataExplorer.where(
-        project___slug=project_slug, slug=dataexplorer_slug
+        project___slug=project_slug, slug=page_slug
     ).first_or_404()
 
     config = dataexpl.content
