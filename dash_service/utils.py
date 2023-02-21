@@ -91,12 +91,14 @@ class DashRouter:
             print(f" pathname: {pathname}")
             print(f" search: {search}")
             print(f" url_hash: {url_hash}")
+            print("Routes:")
+            print(self.routes)
             print("End router")
 
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
-            print(self.routes)
+            
             page = self.routes.get(pathname, None)
 
             is_callable = False

@@ -196,16 +196,15 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_params):
         html.Div: The rendered page
     """
 
-    project_slug = query_params.get("prj", "brazil")
-    page_slug = query_params.get("page", "protection")
-
-    if "prj" in query_params:
-        project_slug = query_params["prj"]
+    project_slug = query_params.get("prj", None)
+    page_slug = query_params.get("page", None)
 
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
-        return render_page_template({}, "Validation Page", [], "", lang)
+        # return render_page_template({}, "Validation Page", [], "", lang, query_params)
+        all_configs = Page.query.all()
+        return render_no_dashboard_cfg_found(all_configs)
 
     all_pages = Page.where(project___slug=project_slug).all()
     if all_pages is None or len(all_pages) == 0:
@@ -225,6 +224,34 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_params):
     return render_page_template(
         config, main_title, all_pages, page.geography, lang, query_params
     )
+
+
+def render_no_dashboard_cfg_found(all_configs):
+    # pages = [f"prj={c.project.slug}&page={c.slug}" for c in all_configs]
+    pages = [
+        {
+            "title": f"Project: {c.project.name} - Page: {c.title}",
+            "qparams": f"?prj={c.project.slug}&page={c.slug}",
+        }
+        for c in all_configs
+    ]
+    pages.sort(key=lambda x: x["qparams"])
+
+    html_elems = [
+        html.Div(dcc.Link(children=c["title"], href=c["qparams"])) for c in pages
+    ]
+
+    template = html.Div(
+        dbc.Col(
+            [
+                dbc.Row(html.H2("No dashboard found")),
+                dbc.Row(html.H4("Available pages:")),
+                # html.Div([html.href(p) for p in pages]),
+                html.Div(html_elems),
+            ]
+        )
+    )
+    return template
 
 
 def render_page_template(

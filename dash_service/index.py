@@ -2,8 +2,8 @@ import dash_html_components as html
 
 from .app import app
 from .utils import DashRouter
-from .tmp import (
-    page,
+from .pages import (
+    dashboard,
 )
 from .components import fa
 
@@ -12,7 +12,7 @@ from .components import fa
 # string corresponding to path of the route (will be prefixed with Dash's
 # 'routes_pathname_prefix' and 'layout' is a Dash Component.
 urls = (
-    ("", page.layout),
+    ("", dashboard.layout),
 )
 
 # keyword argument for a Dash component (ie a Dash Component or a string).
