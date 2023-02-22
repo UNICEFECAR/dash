@@ -1,5 +1,4 @@
 import inspect
-import json
 
 from functools import wraps
 from urllib.parse import parse_qs
@@ -15,8 +14,6 @@ from werkzeug.datastructures import MultiDict
 
 from .pages import page_not_found
 from .exceptions import InvalidLayoutError
-
-import itertools
 
 from pathlib import Path
 
@@ -93,14 +90,13 @@ class DashRouter:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
             page = self.routes.get("/")
-            
+
             if search is not None and search != "":
                 qparams = parse_qs(search.lstrip("?"))
                 param_viz = "/"
                 if "viz" in qparams:
-                    param_viz = "/"+qparams["viz"][0]
+                    param_viz = "/" + qparams["viz"][0]
                 page = self.routes.get(param_viz, self.routes.get("/"))
-            
 
                 # file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
 
@@ -108,7 +104,7 @@ class DashRouter:
                 layout = page_not_found(pathname)
             elif isinstance(page, Component):
                 layout = page
-            #elif callable(page) or is_callable:
+            # elif callable(page) or is_callable:
             elif callable(page):
                 kwargs = MultiDict(parse_qs(search.lstrip("?")))
                 kwargs["hash"] = url_hash

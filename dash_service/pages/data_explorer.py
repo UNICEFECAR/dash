@@ -75,6 +75,23 @@ def layout(lang="en", **query_params):
 
     config = dataexpl.content
     t = dataexpl.title
+    
+    #override config from query params
+    qp_ignore_case = {k.lower():v for k,v in query_params.items()}
+
+    if "ag" in qp_ignore_case:
+        config["data"]["agency"] = qp_ignore_case["ag"]
+    if "df" in qp_ignore_case:
+        config["data"]["id"] = qp_ignore_case["df"]
+    if "dfv" in qp_ignore_case:
+        config["data"]["version"] = qp_ignore_case["dfv"]
+    if "dq" in qp_ignore_case:
+        config["data"]["dq"] = qp_ignore_case["dq"]
+    if "startperiod" in qp_ignore_case:
+        config["data"]["startperiod"] = qp_ignore_case["startperiod"]
+    if "endperiod" in qp_ignore_case:
+        config["data"]["endperiod"] = qp_ignore_case["endperiod"]
+    
 
     return render_page_template(config, lang)
 
@@ -162,10 +179,10 @@ def structure_and_filters(de_data_structure, de_config, lang):
     for dim in dims:
         if not dim["is_time"]:
             if ("dq") in de_config["data"]:
-                # sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
-                sel_filter = parse_sdmx_data_query(
-                    "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
-                )
+                sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
+                # sel_filter = parse_sdmx_data_query(
+                #     "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
+                # )
                 ##sel_filter= parse_sdmx_data_query("AFG.CME_MRY0T4._T")
                 # loop the parsed filter to make it resistant to missing dots in the dataquery
                 for i in range(len(sel_filter)):
@@ -626,8 +643,6 @@ def selection_change(
 
 
 # Data downloads
-
-
 @callback(
     Output(Downloads_tbl_AIO.ids.dcc_down_excel(MATCH), "data"),
     [

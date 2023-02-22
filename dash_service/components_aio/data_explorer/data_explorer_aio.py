@@ -93,6 +93,11 @@ class DataExplorerAIO(html.Div):
                 "start_n_years_back", back_n_years
             )
 
+            if "data" in cfg and "startperiod" in cfg["data"]:
+                time_start = cfg["data"]["startperiod"]
+            if "data" in cfg and "endperiod" in cfg["data"]:
+                time_end = cfg["data"]["endperiod"]
+
         filter_time = dcc.RangeSlider(
             time_min,
             time_max,
