@@ -80,11 +80,11 @@ def do_logout():
 
 @server.route("/brazil/<path:page>")
 def reroute_brazil(page):
-    return redirect(f"/?prj=brazil&page={page}")
+    return redirect(f"/?viz=ds&prj=brazil&page={page}")
 
 @server.route("/rosa/<path:page>")
 def reroute_rosa(page):
-    return redirect(f"/?prj=rosa&page={page}")
+    return redirect(f"/?viz=ds&prj=rosa&page={page}")
 
 app = Dash(
     server=server,

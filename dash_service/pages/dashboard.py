@@ -231,7 +231,7 @@ def render_no_dashboard_cfg_found(all_configs):
     pages = [
         {
             "title": f"Project: {c.project.name} - Page: {c.title}",
-            "qparams": f"?prj={c.project.slug}&page={c.slug}",
+            "qparams": f"?viz=ds&prj={c.project.slug}&page={c.slug}",
         }
         for c in all_configs
     ]
@@ -325,7 +325,7 @@ def render_page_template(
                                     ),
                                     lbl_csv=get_multilang_value(
                                         translations["download_csv"], lang
-                                    ),
+                                    )
                                 )
                             ],
                             style={"display": "block"},
@@ -677,6 +677,7 @@ def get_labels(data_structs, struct_id, df_cols, lang, lbl_override):
     Output(MapAIO.ids.graph(ELEM_ID_MAIN), "figure"),
     Output(MapAIO.ids.info_text(ELEM_ID_MAIN), "children"),
     Output(MapAIO.ids.info_icon(ELEM_ID_MAIN), "style"),
+    Output(MapAIO.ids.map_timpe_period(ELEM_ID_MAIN), "children"),
     [
         Input(MapAIO.ids.ddl(ELEM_ID_MAIN), "value"),
         Input(MapAIO.ids.toggle_historical(ELEM_ID_MAIN), "value"),
@@ -700,10 +701,15 @@ def main_figure(
     time_period = [min(selections["years"]), max(selections["years"])]
 
     lastnobs = None
+    if not show_historical_data or len(show_historical_data)==0:
+        show_historical_data = False
+    else:
+        show_historical_data = True
     if not show_historical_data:
         lastnobs = 1
 
     df = get_data(data_cfg, years=time_period, lastnobservations=lastnobs)
+
     if df.empty:
         return EMPTY_CHART, ""
 
@@ -747,10 +753,20 @@ def main_figure(
 
     # the geoJson
     options["geojson"] = get_geojson(geoj)
+    if not show_historical_data:
+        del(options["animation_frame"])
     main_figure = px.choropleth_mapbox(df, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
-    return main_figure, source, display_source
+    time_periods_in_df = ""
+
+    if not show_historical_data:
+        
+        time_periods_in_df = list(df["TIME_PERIOD"].unique())
+        time_periods_in_df.sort()
+        time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
+
+    return main_figure, source, display_source, time_periods_in_df
 
 
 # Triggered when the selection changes. Updates the charts ddls.

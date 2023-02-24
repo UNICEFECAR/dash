@@ -59,6 +59,11 @@ class MapAIO(html.Div):
             "subcomponent": "download_buttons",
             "aio_id": aio_id,
         }
+        map_timpe_period = lambda aio_id: {
+            "component": "MapAIO",
+            "subcomponent": "map_timpe_period",
+            "aio_id": aio_id,
+        }
 
     # Make the ids class a public class
     ids = ids
@@ -95,12 +100,15 @@ class MapAIO(html.Div):
                     id=self.ids.toggle_historical(aio_id),
                     switch=True,
                     style={"display": "block"},
+                    className="float-left"
                 ),
+                html.Div(id=self.ids.map_timpe_period(aio_id), className="text-primary font-weight-bold float-right", children=[]),
+                html.Br(),
                 html.Br(),
                 dcc.Loading([dcc.Graph(id=self.ids.graph(aio_id), config=plot_cfg)]),
                 html.Br(),
                 html.Div(
-                    className="fload_left",
+                    className="fload-left",
                     children=[DownloadsAIO(aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv)],
                 ),
                 # Icon wrapper: a workaround to link the popover that wouldn't work with aio created IDs
