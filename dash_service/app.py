@@ -86,6 +86,14 @@ def reroute_brazil(page):
 def reroute_rosa(page):
     return redirect(f"/?viz=ds&prj=rosa&page={page}")
 
+@server.route("/transmonee")
+def reroute_transmonee_root():
+    return redirect(f"/?viz=tm")
+
+@server.route("/transmonee/<path:page>")
+def reroute_transmonee(page):
+    return redirect(f"/?viz=tm&page={page}")
+
 app = Dash(
     server=server,
     # use_pages=True,

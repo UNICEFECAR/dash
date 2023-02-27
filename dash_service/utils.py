@@ -1,4 +1,5 @@
 import inspect
+import json
 
 from functools import wraps
 from urllib.parse import parse_qs
@@ -13,11 +14,25 @@ from flask import current_app as server
 from werkzeug.datastructures import MultiDict
 
 from .pages import page_not_found
+
 from .exceptions import InvalidLayoutError
 
 from pathlib import Path
+import importlib
 
 parent = Path(__file__).resolve().parent
+
+
+def get_geo_file(name):
+    """Get a geojson file from the assets folder"""
+    path = parent / "static/{}".format(name)
+    with open(path) as shapes_file:
+        return json.load(shapes_file)
+
+
+def fa(className):
+    """A convenience component for adding Font Awesome icons"""
+    return html.I(className=f"{className} mx-1")
 
 
 def component(func):
@@ -91,12 +106,26 @@ class DashRouter:
 
             page = self.routes.get("/")
 
+            #Needs to be cleaned when transmonee will use the Database
+            #It is quite messy: dynaically load the page module needed for transmonee using the query param
             if search is not None and search != "":
                 qparams = parse_qs(search.lstrip("?"))
                 param_viz = "/"
                 if "viz" in qparams:
                     param_viz = "/" + qparams["viz"][0]
-                page = self.routes.get(param_viz, self.routes.get("/"))
+                    if param_viz == "/tm":
+                        if "page" in qparams:
+                            param_page = qparams["page"][0]
+                            param_page = param_page.replace("-", "_")
+                        else:
+                            param_page = "home"
+                        tm_module = importlib.import_module(
+                            f"dash_service.pages.{param_page}"
+                        )
+
+                        page = tm_module.layout
+                    else:
+                        page = self.routes.get(param_viz, self.routes.get("/"))
 
                 # file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
 
