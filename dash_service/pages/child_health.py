@@ -315,13 +315,13 @@ page_config = {
 
 packed_config = {}
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-health",
-    title="Health and Nutrition",
-    # order=2,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-health",
+#     title="Health and Nutrition",
+#     # order=2,
+# )
 page_prefix = "han"
 domain_colour = "#3e7c49"
 light_domain_colour = "#e0f0e3"

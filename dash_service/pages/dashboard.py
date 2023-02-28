@@ -66,7 +66,7 @@ translations = {
     "download_excel": {"en": "Download Excel", "pt": "Download Excel"},
     "download_csv": {"en": "Download CSV", "pt": "Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
-    "TIME_PERIOD": {"en":"Time period","pt": "Ano"},
+    "TIME_PERIOD": {"en": "Time period", "pt": "Ano"},
     "REF_AREA": {"pt": "Estado"},
 }
 
@@ -110,21 +110,38 @@ EMPTY_CHART = {
     }
 }
 
+"""
 # This hooks into Dash's multipage functionality and allows us to specify the URL pattern
 # https://dash.plotly.com/urls
 dash.register_page(
     __name__,
-    path_template="/<project_slug>/<page_slug>",
-    path="/brazil/child-education",  # this is the default path and working example
+    # path_template="/<project_slug>/<page_slug>",
+    path_template="/",
+    # path="/brazil/child-education",  # this is the default path and working example
 )
-
+"""
 
 # Creates the top menu (pages) html elements
-def make_page_nav(pages, vertical=False, **kwargs):
+def make_page_nav(pages, query_params, vertical=False, **kwargs):
+    nav_links = []
+
+    for p in pages:
+        url_params = [
+            "prj=" + p["prj_slug"],
+            "page=" + p["slug"],
+        ]
+        if p["lang"] != "en":
+            url_params.append("lang=" + p["lang"])
+        for qp in query_params:
+            if qp not in ["prj", "page", "lang", "hash"]:
+                url_params.append(qp + "=" + query_params[qp])
+        nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
+
     return html.Header(
         id="header",
         className="header",
         children=[
+            html.Div(id="dd", children=[]),
             html.Div(
                 className="container-fluid",
                 children=[
@@ -138,12 +155,18 @@ def make_page_nav(pages, vertical=False, **kwargs):
                                             dbc.NavLink(
                                                 page["name"],
                                                 className="ms-2",
-                                                href=page["path"],
+                                                href=page["href"],
+                                                # href=page["path"],
+                                                # href="#",
+                                                # id={
+                                                #     "type": "nav_link",
+                                                #     "index": f"{page['prj_slug']}&{page['slug']}&{page['lang']}",
+                                                # },
                                                 active="exact",
                                             ),
                                         ],
                                     )
-                                    for page in pages
+                                    for page in nav_links
                                 ],
                                 vertical=vertical,
                                 pills=True,
@@ -159,7 +182,7 @@ def make_page_nav(pages, vertical=False, **kwargs):
     )
 
 
-def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
+def layout(lang="en", **query_params):
     """
     Handler for Dash's multipage functionality.
     This function is called with the URL parameters and returns the layout for that page.
@@ -173,21 +196,24 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
         html.Div: The rendered page
     """
 
+    project_slug = query_params.get("prj", None)
+    page_slug = query_params.get("page", None)
+
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
-        return render_page_template({}, "Validation Page", [], "", lang)
+        # return render_page_template({}, "Validation Page", [], "", lang, query_params)
+        all_configs = Page.query.all()
+        return render_no_dashboard_cfg_found(all_configs)
 
     all_pages = Page.where(project___slug=project_slug).all()
     if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
 
-    if lang == "en":
-        all_pages = [{"name": p.title, "path": p.slug} for p in all_pages]
-    else:
-        all_pages = [
-            {"name": p.title, "path": p.slug + "?lang=" + lang} for p in all_pages
-        ]
+    all_pages = [
+        {"name": p.title, "prj_slug": p.project.slug, "slug": p.slug, "lang": lang}
+        for p in all_pages
+    ]
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
@@ -195,7 +221,37 @@ def layout(project_slug=None, page_slug=None, lang="en", **query_parmas):
     config = page.content
     main_title = config["main_title"]
 
-    return render_page_template(config, main_title, all_pages, page.geography, lang)
+    return render_page_template(
+        config, main_title, all_pages, page.geography, lang, query_params
+    )
+
+
+def render_no_dashboard_cfg_found(all_configs):
+    # pages = [f"prj={c.project.slug}&page={c.slug}" for c in all_configs]
+    pages = [
+        {
+            "title": f"Project: {c.project.name} - Page: {c.title}",
+            "qparams": f"?viz=ds&prj={c.project.slug}&page={c.slug}",
+        }
+        for c in all_configs
+    ]
+    pages.sort(key=lambda x: x["qparams"])
+
+    html_elems = [
+        html.Div(dcc.Link(children=c["title"], href=c["qparams"])) for c in pages
+    ]
+
+    template = html.Div(
+        dbc.Col(
+            [
+                dbc.Row(html.H2("No dashboard found")),
+                dbc.Row(html.H4("Available pages:")),
+                # html.Div([html.href(p) for p in pages]),
+                html.Div(html_elems),
+            ]
+        )
+    )
+    return template
 
 
 def render_page_template(
@@ -204,6 +260,7 @@ def render_page_template(
     all_pages: dict,
     geoj: str,
     lang,
+    query_params,
     **kwargs,
 ) -> html.Div:
     """Renders the page template based on the page config and other parameters
@@ -224,7 +281,7 @@ def render_page_template(
             dcc.Store(id="geoj", data=geoj),
             dcc.Store(id="data_structures", data={}, storage_type="session"),
             dcc.Location(id="theme"),
-            make_page_nav(all_pages),
+            make_page_nav(all_pages, query_params),
             html.Br(),
             dbc.Col(
                 html.Div(
@@ -268,7 +325,7 @@ def render_page_template(
                                     ),
                                     lbl_csv=get_multilang_value(
                                         translations["download_csv"], lang
-                                    ),
+                                    )
                                 )
                             ],
                             style={"display": "block"},
@@ -518,7 +575,7 @@ def show_cards(data_struct, selections, page_config, lang):
                 info_head=info_head,
                 info_body=data_source,
                 time_period=time_period,
-                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang)
+                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang),
             )
         )
 
@@ -552,7 +609,7 @@ def show_charts(selections, page_config, lang):
 
 
 # loops the data node and returns the options for the dropdownlists: options + default value
-def get_ddl_values(data_node, data_structures, column_id,lang):
+def get_ddl_values(data_node, data_structures, column_id, lang):
     items = []
     default_item = ""
     for idx, data_cfg in enumerate(data_node):
@@ -620,6 +677,7 @@ def get_labels(data_structs, struct_id, df_cols, lang, lbl_override):
     Output(MapAIO.ids.graph(ELEM_ID_MAIN), "figure"),
     Output(MapAIO.ids.info_text(ELEM_ID_MAIN), "children"),
     Output(MapAIO.ids.info_icon(ELEM_ID_MAIN), "style"),
+    Output(MapAIO.ids.map_timpe_period(ELEM_ID_MAIN), "children"),
     [
         Input(MapAIO.ids.ddl(ELEM_ID_MAIN), "value"),
         Input(MapAIO.ids.toggle_historical(ELEM_ID_MAIN), "value"),
@@ -643,10 +701,15 @@ def main_figure(
     time_period = [min(selections["years"]), max(selections["years"])]
 
     lastnobs = None
+    if not show_historical_data or len(show_historical_data)==0:
+        show_historical_data = False
+    else:
+        show_historical_data = True
     if not show_historical_data:
         lastnobs = 1
 
     df = get_data(data_cfg, years=time_period, lastnobservations=lastnobs)
+
     if df.empty:
         return EMPTY_CHART, ""
 
@@ -690,10 +753,20 @@ def main_figure(
 
     # the geoJson
     options["geojson"] = get_geojson(geoj)
+    if not show_historical_data:
+        del(options["animation_frame"])
     main_figure = px.choropleth_mapbox(df, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
-    return main_figure, source, display_source
+    time_periods_in_df = ""
+
+    if not show_historical_data:
+        
+        time_periods_in_df = list(df["TIME_PERIOD"].unique())
+        time_periods_in_df.sort()
+        time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
+
+    return main_figure, source, display_source, time_periods_in_df
 
 
 # Triggered when the selection changes. Updates the charts ddls.
@@ -815,16 +888,17 @@ def update_charts(
         data_structures, struct_id, df.columns, lang, translations
     )
 
-
     if "label" in chart_cfg["data"][int(ddl_value)]:
-        indicator_name = get_multilang_value(chart_cfg["data"][int(ddl_value)]["label"],lang)
+        indicator_name = get_multilang_value(
+            chart_cfg["data"][int(ddl_value)]["label"], lang
+        )
     else:
         indicator_name = get_code_from_structure_and_dq(
             data_structures, data_cfg, ID_INDICATOR
         )["name"]
 
     # set the chart title, wrap the text when the indicator name is too long
-    
+
     chart_title = textwrap.wrap(
         indicator_name,
         width=74,

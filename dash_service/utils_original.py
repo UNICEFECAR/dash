@@ -14,11 +14,11 @@ from flask import current_app as server
 from werkzeug.datastructures import MultiDict
 
 from .pages import page_not_found
-
 from .exceptions import InvalidLayoutError
 
+import itertools
+
 from pathlib import Path
-import importlib
 
 parent = Path(__file__).resolve().parent
 
@@ -85,7 +85,7 @@ class DashRouter:
         self.routes = {get_url(route): layout for route, layout in urls}
 
         @app.callback(
-            # Output(app.server.config["CONTENT_CONTAINER_ID"], "children"),
+            #Output(app.server.config["CONTENT_CONTAINER_ID"], "children"),
             Output("MAIN_CONTAINER", "children"),
             [
                 # Input(server.config["LOCATION_COMPONENT_ID"], "pathname"),
@@ -94,46 +94,24 @@ class DashRouter:
                 Input("dash-location", "search"),
             ],
             [
-                # State(server.config["LOCATION_COMPONENT_ID"], "hash"),
+                #State(server.config["LOCATION_COMPONENT_ID"], "hash"),
                 State("dash-location", "hash"),
             ],
         )
         def router_callback(pathname, search, url_hash):
             """The router"""
 
+            print(f"pathname: {pathname}")
+
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location.pathname callback")
 
-            page = self.routes.get("/")
-
-            #Needs to be cleaned when transmonee will use the Database
-            #It is quite messy: dynaically load the page module needed for transmonee using the query param
-            if search is not None and search != "":
-                qparams = parse_qs(search.lstrip("?"))
-                param_viz = "/"
-                if "viz" in qparams:
-                    param_viz = "/" + qparams["viz"][0]
-                    if param_viz == "/tm":
-                        if "page" in qparams:
-                            param_page = qparams["page"][0]
-                            param_page = param_page.replace("-", "_")
-                        else:
-                            param_page = "home"
-                        tm_module = importlib.import_module(
-                            f"dash_service.pages.{param_page}"
-                        )
-
-                        page = tm_module.layout
-                    else:
-                        page = self.routes.get(param_viz, self.routes.get("/"))
-
-                # file:///C:/gitRepos/dash/minimal_dash_embedding_test_static.html?prj=brazil&page=health
+            page = self.routes.get(pathname, None)
 
             if page is None:
                 layout = page_not_found(pathname)
             elif isinstance(page, Component):
                 layout = page
-            # elif callable(page) or is_callable:
             elif callable(page):
                 kwargs = MultiDict(parse_qs(search.lstrip("?")))
                 kwargs["hash"] = url_hash
@@ -152,6 +130,67 @@ class DashRouter:
                 )
                 raise InvalidLayoutError(msg)
             return layout
+
+
+class DashNavBar:
+    """A Dash navbar for multipage apps"""
+
+    def __init__(self, app, nav_items):
+        """Initialise the navbar.
+
+        Params:
+        app:        A Dash instance to associate the router with.
+
+        nav_items:  Ordered iterable of navbar items: tuples of `(route, display)`,
+                    where `route` is a string corresponding to path of the route
+                    (will be prefixed with Dash's 'routes_pathname_prefix') and
+                    'display' is a valid value for the `children` keyword argument
+                    for a Dash component (ie a Dash Component or a string).
+        """
+        self.nav_items = nav_items
+
+        @app.callback(
+            Output(server.config["NAVBAR_CONTAINER_ID"], "children"),
+            [Input(server.config["LOCATION_COMPONENT_ID"], "pathname")],
+        )
+        def update_nav_callback(pathname):
+            """Create the navbar with the current page set to active"""
+            if pathname is None:
+                # pathname is None on the first load of the app; ignore this
+                raise PreventUpdate("Ignoring first Location.pathname callback")
+            return self.make_nav(pathname)
+
+    @component
+    def make_nav(self, current_path, **kwargs):
+        nav_items = []
+        route_prefix = server.config["ROUTES_PATHNAME_PREFIX"]
+        for i, (path, text, sub_items) in enumerate(self.nav_items):
+            href = get_url(path)
+            active = (current_path == href) or (i == 0 and current_path == route_prefix)
+            if len(sub_items) > 0:
+                nav_items.append(
+                    dbc.DropdownMenu(
+                        children=[
+                            dbc.DropdownMenuItem(
+                                child_text,
+                                className=f"menu-item{' active' if get_url(child_path) == current_path else ''}",
+                                href=child_path,
+                            )
+                            for j, (child_path, child_text) in enumerate(sub_items)
+                        ],
+                        nav=True,
+                        in_navbar=True,
+                        label=text,
+                    ),
+                )
+            else:
+                nav_item = dbc.NavItem(
+                    dbc.NavLink(text, href=href, active=active),
+                    className=f"menu-item{' active' if active else ''}",
+                )
+                nav_items.append(nav_item)
+        # TODO: move class name for nav container to config
+        return html.Ul(nav_items, className="header__menu", **kwargs)
 
 
 def get_dash_args_from_flask_config(config):

@@ -51,27 +51,47 @@ ID_OBS_VALUE = "OBS_VALUE"
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
 
-dash.register_page(
-    __name__,
-    # path_template="/de/<project_slug>/<page_slug>",
-    path_template="/de/<project_slug>/<dataexplorer_slug>",
-    # path="/de/rosa/de_rosa",  # this is the default path and working example
-)
+# dash.register_page(
+#     __name__,
+#     # path_template="/de/<project_slug>/<page_slug>",
+#     path_template="/de/<project_slug>/<dataexplorer_slug>",
+#     # path="/de/rosa/de_rosa",  # this is the default path and working example
+# )
 
 
-def layout(project_slug=None, dataexplorer_slug=None, lang="en", **query_parmas):
+def layout(lang="en", **query_params):
 
-    if project_slug is None or dataexplorer_slug is None:
+    project_slug = query_params.get("prj", None)
+    page_slug = query_params.get("page", None)
+
+    if project_slug is None or page_slug is None:
         # return render_page_template({}, "Validation Page", [], "", lang)
-        return html.Div()
+        return html.Div(f"No data explorer found for project {project_slug}, page {page_slug}")
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     dataexpl = DataExplorer.where(
-        project___slug=project_slug, slug=dataexplorer_slug
+        project___slug=project_slug, slug=page_slug
     ).first_or_404()
 
     config = dataexpl.content
     t = dataexpl.title
+    
+    #override config from query params
+    qp_ignore_case = {k.lower():v for k,v in query_params.items()}
+
+    if "ag" in qp_ignore_case:
+        config["data"]["agency"] = qp_ignore_case["ag"]
+    if "df" in qp_ignore_case:
+        config["data"]["id"] = qp_ignore_case["df"]
+    if "dfv" in qp_ignore_case:
+        config["data"]["version"] = qp_ignore_case["dfv"]
+    if "dq" in qp_ignore_case:
+        config["data"]["dq"] = qp_ignore_case["dq"]
+    if "startperiod" in qp_ignore_case:
+        config["data"]["startperiod"] = qp_ignore_case["startperiod"]
+    if "endperiod" in qp_ignore_case:
+        config["data"]["endperiod"] = qp_ignore_case["endperiod"]
+    
 
     return render_page_template(config, lang)
 
@@ -159,10 +179,10 @@ def structure_and_filters(de_data_structure, de_config, lang):
     for dim in dims:
         if not dim["is_time"]:
             if ("dq") in de_config["data"]:
-                # sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
-                sel_filter = parse_sdmx_data_query(
-                    "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
-                )
+                sel_filter = parse_sdmx_data_query(de_config["data"]["dq"])
+                # sel_filter = parse_sdmx_data_query(
+                #     "AFG+UNICEF_EAPRO+UNICEF_EAP.CME_MRY0T4."
+                # )
                 ##sel_filter= parse_sdmx_data_query("AFG.CME_MRY0T4._T")
                 # loop the parsed filter to make it resistant to missing dots in the dataquery
                 for i in range(len(sel_filter)):
@@ -623,8 +643,6 @@ def selection_change(
 
 
 # Data downloads
-
-
 @callback(
     Output(Downloads_tbl_AIO.ids.dcc_down_excel(MATCH), "data"),
     [

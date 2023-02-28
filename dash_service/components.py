@@ -3,7 +3,8 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 from . import default_settings
-from .utils import component, get_url
+#from .utils import component, get_url
+from .utils import component
 
 
 def fa(className):
