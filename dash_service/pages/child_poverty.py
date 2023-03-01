@@ -188,13 +188,13 @@ page_config = {
 
 packed_config = {}
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-poverty",
-    title="Poverty and Social Protection",
-    # order=3,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-poverty",
+#     title="Poverty and Social Protection",
+#     # order=3,
+# )
 page_prefix = "pov"
 domain_colour = "#4c8cbb"
 light_domain_colour = "#c0d7e7"

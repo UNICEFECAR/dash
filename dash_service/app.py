@@ -14,6 +14,9 @@ from werkzeug.exceptions import HTTPException, InternalServerError
 from flask_admin.menu import MenuLink
 
 import flask_login
+from urllib.parse import parse_qs
+
+from dash import html, dcc, Input, Output, State
 
 # from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 
@@ -40,6 +43,7 @@ admin.add_view(PageView(Page, db.session))
 admin.add_view(DataExplorerView(DataExplorer, db.session))
 admin.add_view(UserView(User, db.session))
 
+
 @server.route("/login")
 def page_login():
     req_args = request.args.to_dict(flat=False)
@@ -51,6 +55,7 @@ def page_login():
             message = "Email or password cannot be empty"
 
     return render_template("login.html", message=message)
+
 
 @server.route("/do_login", methods=["POST", "GET"])
 def do_login():
@@ -72,27 +77,33 @@ def do_login():
 
     return redirect("/login?msg=err_cred")
 
+
 @server.route("/logout")
 def do_logout():
     flask_login.logout_user()
 
     return redirect("/login")
 
+
 @server.route("/brazil/<path:page>")
 def reroute_brazil(page):
     return redirect(f"/?viz=ds&prj=brazil&page={page}")
+
 
 @server.route("/rosa/<path:page>")
 def reroute_rosa(page):
     return redirect(f"/?viz=ds&prj=rosa&page={page}")
 
+
 @server.route("/transmonee")
 def reroute_transmonee_root():
     return redirect(f"/?viz=tm")
 
+
 @server.route("/transmonee/<path:page>")
 def reroute_transmonee(page):
     return redirect(f"/?viz=tm&page={page}")
+
 
 app = Dash(
     server=server,
@@ -157,7 +168,89 @@ def after_request(response):
     return response
 
 
-with server.app_context():
-    from . import index
+from dash_service.pages import empty_renderer, dashboard, data_explorer
+from dash_service.pages import (
+    child_cross_cutting,
+    child_education,
+    child_health,
+    child_participation,
+    child_poverty,
+    child_protection,
+    child_rights,
+    home,
+)
+from dash.development.base_component import Component
+from werkzeug.datastructures import MultiDict
+from .exceptions import InvalidLayoutError
+from dash.exceptions import PreventUpdate
+from dash_service.pages import empty_renderer
+from dash_service.pages import data_explorer
+from dash_service.pages import dashboard
 
-    app.layout = main_default_layout
+
+with server.app_context():
+    app.layout = html.Div(
+        [
+            dcc.Store(id="store"),
+            dcc.Location(id="dash-location", refresh=False),
+            html.Div(id="MAIN_CONTAINER", children=[]),
+        ],
+        id="mainContainer",
+    )
+
+
+from dash_service.pages import child_health
+
+
+@app.callback(
+    [Output("MAIN_CONTAINER", "children")],
+    [Input("dash-location", "pathname"), Input("dash-location", "search")],
+    [State("dash-location", "hash")],
+)
+def display_page(pathname, search, url_hash):
+
+    if pathname is None:
+        raise PreventUpdate("Ignoring first Location.pathname callback")
+
+    qparams = parse_qs(search.lstrip("?"))
+
+    tm_layouts = {
+        "": home.layout,
+        "child-cross-cutting": child_cross_cutting.layout,
+        "child-education": child_education.layout,
+        "child-health": child_health.layout,
+        "child-participation": child_participation.layout,
+        "child-poverty": child_poverty.layout,
+        "child-protection": child_protection.layout,
+        "child-rights": child_rights.layout,
+    }
+
+    param_page = ""
+    page_to_use = None
+    if "page" in qparams:
+        param_page = qparams["page"][0]
+    if "viz" in qparams:
+        param_viz = qparams["viz"][0]
+        if param_viz == "de":
+            page_to_use = data_explorer.layout
+        elif param_viz == "ds":
+            page_to_use = dashboard.layout
+        elif param_viz == "tm":
+            page_to_use = tm_layouts[param_page]
+        else:
+            page_to_use = empty_renderer.layout
+
+        if isinstance(page_to_use, Component):
+            layout = page_to_use
+        elif callable(page_to_use):
+            kwargs = MultiDict(qparams)
+            kwargs["hash"] = url_hash
+            layout = page_to_use(**kwargs)
+            if not isinstance(layout, Component):
+                msg = (
+                    "Layout function must return a Dash Component.\n\n"
+                    f"Function {page_to_use.__name__} from module {page_to_use.__module__} "
+                    f"returned value of type {type(layout)} instead."
+                )
+                raise InvalidLayoutError(msg)
+    return [layout]

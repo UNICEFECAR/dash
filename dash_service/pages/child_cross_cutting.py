@@ -291,13 +291,13 @@ page_config = {
 
 packed_config = {}
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-cross-cutting",
-    title="Cross-Cutting",
-    # order=7,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-cross-cutting",
+#     title="Cross-Cutting",
+#     # order=7,
+# )
 page_prefix = "cci"
 domain_colour = "#ec5e24"
 light_domain_colour = "##f7b9a1"

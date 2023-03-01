@@ -1,7 +1,7 @@
 from dash import html, register_page
 import dash_bootstrap_components as dbc
 
-#register_page(__name__, path="/transmonee", order=0, title="TransMonEE Dashboard")
+# register_page(__name__, path="/transmonee", order=0, title="TransMonEE Dashboard")
 
 
 layout = dbc.Container(

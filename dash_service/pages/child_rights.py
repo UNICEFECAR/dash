@@ -355,13 +355,13 @@ packed_config = {
     }
 }
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-rights",
-    title="Child Rights Landscape and Governance",
-    # order=1,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-rights",
+#     title="Child Rights Landscape and Governance",
+#     # order=1,
+# )
 page_prefix = "crg"
 domain_colour = "#562061"
 light_domain_colour = "#e7c9ed"

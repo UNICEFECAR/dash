@@ -357,13 +357,13 @@ packed_config = {
     }
 }
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-education",
-    title="Education and Leisure",
-    # order=5,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-education",
+#     title="Education and Leisure",
+#     # order=5,
+# )
 page_prefix = "edu"
 domain_colour = "#37568f"
 light_domain_colour = "#bdcbe5"

@@ -330,6 +330,9 @@ map_colour = "algae"
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
+    print("In layout")
+    print(page_slug)
+    print(query_parmas)
     return html.Div(
         [
             html.Br(),
