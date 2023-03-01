@@ -12,6 +12,7 @@ import plotly.io as pio
 import requests
 import plotly.graph_objects as go
 import textwrap
+import time
 
 
 import dash_bootstrap_components as dbc
@@ -21,6 +22,7 @@ from dash import dcc, html, get_asset_url, callback_context
 
 from dash_service.components import fa
 from dash_service.utils import get_geo_file
+from ..sdmx import data_access_sdmx
 
 # set defaults
 pio.templates.default = "plotly_white"
@@ -68,7 +70,6 @@ EMPTY_CHART = {
 
 
 # TODO: Move all of these to env/setting vars from production
-sdmx_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/ECARO,TRANSMONEE,1.0/.{}....?format=csv&startPeriod={}&endPeriod={}"
 
 parent = Path(__file__).resolve().parent
 with open(parent / "../static/indicator_config.json") as config_file:
@@ -197,8 +198,70 @@ countries_iso3_dict = {
     "Uzbekistan": "UZB",
 }
 
+#
+reversed_countries_iso3_dict = {
+    "ALB": "Albania",
+    "AND": "Andorra",
+    "ARM": "Armenia",
+    "AUT": "Austria",
+    "AZE": "Azerbaijan",
+    "BLR": "Belarus",
+    "BEL": "Belgium",
+    "BIH": "Bosnia and Herzegovina",
+    "BGR": "Bulgaria",
+    "HRV": "Croatia",
+    "CYP": "Cyprus",
+    "CZE": "Czech Republic",
+    "DNK": "Denmark",
+    "EST": "Estonia",
+    "FIN": "Finland",
+    "FRA": "France",
+    "GEO": "Georgia",
+    "DEU": "Germany",
+    "GRC": "Greece",
+    "VAT": "Holy See",
+    "HUN": "Hungary",
+    "ISL": "Iceland",
+    "IRL": "Ireland",
+    "ITA": "Italy",
+    "KAZ": "Kazakhstan",
+    "XKX": "Kosovo (UN SC resolution 1244)",
+    "KGZ": "Kyrgyzstan",
+    "LVA": "Latvia",
+    "LIE": "Liechtenstein",
+    "LTU": "Lithuania",
+    "LUX": "Luxembourg",
+    "MLT": "Malta",
+    "MCO": "Monaco",
+    "MNE": "Montenegro",
+    "NLD": "Netherlands",
+    "MKD": "North Macedonia",
+    "NOR": "Norway",
+    "POL": "Poland",
+    "PRT": "Portugal",
+    "MDA": "Republic of Moldova",
+    "ROU": "Romania",
+    "RUS": "Russian Federation",
+    "SMR": "San Marino",
+    "SRB": "Serbia",
+    "SVK": "Slovakia",
+    "SVN": "Slovenia",
+    "ESP": "Spain",
+    "SWE": "Sweden",
+    "CHE": "Switzerland",
+    "TJK": "Tajikistan",
+    "TUR": "Türkiye",
+    "TKM": "Turkmenistan",
+    "UKR": "Ukraine",
+    "GBR": "United Kingdom",
+    "UZB": "Uzbekistan",
+}
+
 # create a list of country names in the same order as the countries_iso3_dict
 countries = list(countries_iso3_dict.keys())
+
+# create a list of country names in the same order as the countries_iso3_dict
+country_codes = list(reversed_countries_iso3_dict.keys())
 
 unicef_country_prog = [
     "Albania",
@@ -407,6 +470,123 @@ def only_dtype(config):
     return list(config.keys()) == ["DTYPE"]
 
 
+# alternative way to read in data, uses Daniels' data_access_sdmx class and json parser
+def get_data(
+    indicators: list,
+    years: list,
+    selected_countries: list,
+    breakdown: str = "TOTAL",  # send default breakdown as Total
+    dimensions: dict = {},
+    latest_data: bool = True,
+):
+    data_endpoint_id = "ECARO"
+    data_endpoint_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/"
+    api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
+
+    start_time = time.time()
+    keys = {
+        "REF_AREA": selected_countries,
+        "INDICATOR": indicators,
+        "SEX": [],
+        "AGE": [],
+        "RESIDENCE": [],
+        "WEALTH_QUINTILE": [],
+    }
+
+    # get the first indicator of the list... we have more than one indicator in the cards
+    indicator_config = indicators_config.get(indicators[0], {})
+
+    # check if the indicator has special config, update the keys from the config
+    if indicator_config and not only_dtype(indicator_config):
+        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
+        card_keys = indicator_config[breakdown].copy()
+        if (
+            dimensions
+        ):  # if we are sending cards related filters, update the keys with the set values
+            card_keys.update(dimensions)
+        keys.update(card_keys)  # update the keys with the sent values
+
+    # build data query string
+    data_query = "".join(
+        ["+".join(keys[param]) + "." if keys[param] else "." for param in keys]
+    )
+
+    start_period, end_period = years[0], years[-1] if years is not None else (
+        None,
+        None,
+    )
+
+    # function that uses Daniele's json parser
+    data = api_access.get_data(
+        agency="ECARO",
+        id="TRANSMONEE",
+        ver="1.0",
+        dq=data_query,
+        lastnobs=latest_data,
+        startperiod=start_period,
+        endperiod=end_period,
+        labels="id",
+        print_stats=True,
+    )
+
+    # rest of code adapted from Alberto's get_filtered_dataset()
+    dtype = (
+        eval(indicator_config["DTYPE"]) if "DTYPE" in indicator_config else np.float64
+    )
+    data = data.astype({"OBS_VALUE": dtype, "TIME_PERIOD": "int32"})
+    data = data.sort_values(by=["TIME_PERIOD"]).reset_index()
+
+    # replace Yes by 1 and No by 0
+    data.OBS_VALUE.replace(
+        {"(?i)Yes": "1", "(?i)No": "0", "<": "", ">": ""}, inplace=True, regex=True
+    )
+
+    data = data.rename(columns={"INDICATOR": "CODE"})
+
+    # convert to numeric
+    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
+    data.dropna(subset=["OBS_VALUE"], inplace=True)
+
+    # if unit multiplier thousands modify obs value (requested by siraj)
+    if "3" in data.UNIT_MULTIPLIER.values:
+        data["UNIT_MULTIPLIER"] = pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
+        data["OBS_VALUE"] = data["OBS_VALUE"] * 10 ** data["UNIT_MULTIPLIER"]
+
+    data.replace(np.nan, "N/A", inplace=True)
+
+    data["OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
+        lambda x: x.replace("\n", "<br>")
+    )
+    data["DATA_SOURCE"] = data.DATA_SOURCE.str.wrap(70).apply(
+        lambda x: x.replace("\n", "<br>")
+    )
+
+    # round to whole number if values greater than one (and not index)
+    if "IDX" in data.UNIT_MEASURE.values:
+        data.round({"OBS_VALUE": 3})
+    else:
+        data.OBS_VALUE = data.OBS_VALUE.round(1)
+        data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
+            data.OBS_VALUE > 1
+        ].OBS_VALUE.round()
+
+    data["Country_name"] = data["REF_AREA"].map(reversed_countries_iso3_dict)
+
+    def create_labels(row):
+        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
+        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
+        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
+        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
+        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
+        return row
+
+    data = data.apply(create_labels, axis="columns")
+
+    print("get_data: %s seconds" % (time.time() - start_time))
+    return data
+
+
+# the original function to get data, keeping for the moment in case we revert back to this
 def get_filtered_dataset(
     indicators: list,
     years: list,
@@ -415,7 +595,6 @@ def get_filtered_dataset(
     dimensions: dict = {},
     latest_data: bool = True,
 ) -> pd.DataFrame:
-
     # TODO: This is temporary, need to move to config
     # Add all dimensions by default to the keys
     keys = {
@@ -495,6 +674,7 @@ def get_filtered_dataset(
         is_thousand = False
 
     data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
+
     # replace Yes by 1 and No by 0
     data.OBS_VALUE.replace(
         {"(?i)Yes": "1", "(?i)No": "0", "<": "", ">": ""}, inplace=True, regex=True
@@ -725,7 +905,7 @@ def get_base_layout(**kwargs):
                                 [
                                     dbc.Col(
                                         dbc.DropdownMenu(
-                                            label=f"Years: {years[0]} - {years[-1]}",
+                                            label=f"Filter by years: {years[0]} - {years[-1]}",
                                             id=f"{page_prefix}-collapse-years-button",
                                             className="m-2",
                                             color="secondary",
@@ -760,7 +940,7 @@ def get_base_layout(**kwargs):
                                     ),
                                     dbc.Col(
                                         dbc.DropdownMenu(
-                                            label=f"Countries: {len(countries)}",
+                                            label=f"Filter by country: {len(countries)}",
                                             id=f"{page_prefix}-collapse-countries-button",
                                             className="m-2",
                                             color="secondary",
@@ -785,7 +965,9 @@ def get_base_layout(**kwargs):
                                     dbc.Col(
                                         dbc.Checklist(
                                             options=[
-                                                {"label": "UNICEF Country Programmes"}
+                                                {
+                                                    "label": "Show only UNICEF programme countries"
+                                                }
                                             ],
                                             style={"color": "DeepSkyBlue"},
                                             value=[],
@@ -992,6 +1174,7 @@ def make_card(
     page_prefix,
     domain_colour,
 ):
+    start_time = time.time()
     card = [
         dbc.CardBody(
             [
@@ -1042,6 +1225,7 @@ def make_card(
             trigger="hover",
         ),
     ]
+    print("make_card: %s seconds" % (time.time() - start_time))
 
     return card
 
@@ -1059,6 +1243,7 @@ def indicator_card(
     page_prefix=None,
     domain_colour="#1cabe2",
 ):
+    start_time = time.time()
     indicators = numerator.split(",")
 
     # TODO: Change to use albertos config
@@ -1071,7 +1256,16 @@ def indicator_card(
     if sex_code is not None:
         dimensions["SEX"] = [sex_code]
 
-    filtered_data = get_filtered_dataset(
+    # filtered_data = get_filtered_dataset(
+    # indicators,
+    # selections["years"],
+    # selections["countries"],
+    # breakdown,
+    # dimensions,
+    # latest_data=True,
+    # )
+
+    filtered_data = get_data(
         indicators,
         selections["years"],
         selections["countries"],
@@ -1214,6 +1408,8 @@ def indicator_card(
         )
         indicator_header = sum_format.format(indicator_sum)
 
+    print("get indicator card: %s seconds" % (time.time() - start_time))
+
     return make_card(
         name,
         suffix,
@@ -1299,6 +1495,7 @@ graphs_dict = {
 
 
 def filters(theme, years_slider, country_selector, programme_toggle, indicators):
+    start_time = time.time()
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
@@ -1320,7 +1517,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
                 break
 
     countries_selected = list(countries_selected)
-    country_text = f"{len(countries_selected)} Selected"
+    country_text = f"{len(countries_selected)} selected"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
 
@@ -1336,16 +1533,17 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
         countries=countries_selected_codes,
         count_names=countries_selected,
     )
-
+    print("filters: %s seconds" % (time.time() - start_time))
     return (
         selections,
         country_selector,
-        f"Years: {selected_years[0]} - {selected_years[-1]}",
-        "Countries: {}".format(country_text),
+        f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
+        f"Filter by country: {country_text} selected",
     )
 
 
 def themes(selections, indicators_dict, page_prefix):
+    start_time = time.time()
     title = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one option is available
@@ -1362,10 +1560,12 @@ def themes(selections, indicators_dict, page_prefix):
         )
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
+    print("themes: %s seconds" % (time.time() - start_time))
     return title, buttons
 
 
 def aio_options(theme, indicators_dict, page_prefix):
+    start_time = time.time()
     area = "AIO_AREA"
     area_types = []
     current_theme = theme["theme"]
@@ -1403,12 +1603,11 @@ def aio_options(theme, indicators_dict, page_prefix):
         if area in indicators_dict[current_theme]
         else ""
     )
-
+    print("aio_options: %s seconds" % (time.time() - start_time))
     return area_buttons, area_types, default_graph
 
 
 def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
-
     indicator = [
         ind_code["index"]
         for ind_code, truth in zip(buttons_id, is_active_button)
@@ -1440,7 +1639,6 @@ def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
 
 
 def active_button(_, buttons_id):
-
     # figure out which button was clicked
     ctx = callback_context
     button_code = eval(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
@@ -1450,7 +1648,6 @@ def active_button(_, buttons_id):
 
 
 def default_compare(compare_options, selected_type, indicators_dict, theme):
-
     area = "AIO_AREA"
     current_theme = theme["theme"]
 
@@ -1479,7 +1676,7 @@ def aio_area_figure(
     domain_colour,
     map_colour,
 ):
-
+    start_time = time.time()
     # assumes indicator is not empty
     indicator = [
         but_prop["props"]["id"]["index"]
@@ -1501,9 +1698,8 @@ def aio_area_figure(
     indicator_name = str(indicator_names.get(indicator, ""))
 
     if indicator not in packed_config:
-
         # query one indicator
-        data = get_filtered_dataset(
+        data = get_data(
             [indicator],
             selections["years"],
             selections["countries"],
@@ -1512,15 +1708,15 @@ def aio_area_figure(
         )
 
     else:
-
         # query packed indicators
-        data = get_filtered_dataset(
+        data = get_data(
             packed_config[indicator]["indicators"],
             selections["years"],
             selections["countries"],
             compare,
             latest_data=False if fig_type == "line" else True,
         )
+
         # map columns
         if "mapping" in packed_config[indicator]:
             for key_col in packed_config[indicator]["mapping"]:
@@ -1665,6 +1861,7 @@ def aio_area_figure(
     # number of countries from selection
     count_sel = len(selections["countries"])
 
+    print("aio_area_figure: %s seconds" % (time.time() - start_time))
     return (
         fig,
         [
