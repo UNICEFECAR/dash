@@ -483,7 +483,7 @@ def get_data(
     data_endpoint_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/"
     api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
 
-    start_time = time.time()
+    # start_time = time.time()
     keys = {
         "REF_AREA": selected_countries,
         "INDICATOR": indicators,
@@ -582,7 +582,7 @@ def get_data(
 
     data = data.apply(create_labels, axis="columns")
 
-    print("get_data: %s seconds" % (time.time() - start_time))
+    # print("get_data: %s seconds" % (time.time() - start_time))
     return data
 
 
@@ -940,7 +940,7 @@ def get_base_layout(**kwargs):
                                     ),
                                     dbc.Col(
                                         dbc.DropdownMenu(
-                                            label=f"Filter by country: {len(countries)}",
+                                            label=f"Filter by country: {len(countries)} selected",
                                             id=f"{page_prefix}-collapse-countries-button",
                                             className="m-2",
                                             color="secondary",
@@ -1174,7 +1174,7 @@ def make_card(
     page_prefix,
     domain_colour,
 ):
-    start_time = time.time()
+    # start_time = time.time()
     card = [
         dbc.CardBody(
             [
@@ -1225,7 +1225,7 @@ def make_card(
             trigger="hover",
         ),
     ]
-    print("make_card: %s seconds" % (time.time() - start_time))
+    # print("make_card: %s seconds" % (time.time() - start_time))
 
     return card
 
@@ -1243,7 +1243,7 @@ def indicator_card(
     page_prefix=None,
     domain_colour="#1cabe2",
 ):
-    start_time = time.time()
+    # start_time = time.time()
     indicators = numerator.split(",")
 
     # TODO: Change to use albertos config
@@ -1408,7 +1408,7 @@ def indicator_card(
         )
         indicator_header = sum_format.format(indicator_sum)
 
-    print("get indicator card: %s seconds" % (time.time() - start_time))
+    # print("get indicator card: %s seconds" % (time.time() - start_time))
 
     return make_card(
         name,
@@ -1495,7 +1495,7 @@ graphs_dict = {
 
 
 def filters(theme, years_slider, country_selector, programme_toggle, indicators):
-    start_time = time.time()
+    # start_time = time.time()
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
     countries_selected = set()
@@ -1517,7 +1517,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
                 break
 
     countries_selected = list(countries_selected)
-    country_text = f"{len(countries_selected)} selected"
+    country_text = f"{len(countries_selected)}"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
 
@@ -1533,7 +1533,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
         countries=countries_selected_codes,
         count_names=countries_selected,
     )
-    print("filters: %s seconds" % (time.time() - start_time))
+    # print("filters: %s seconds" % (time.time() - start_time))
     return (
         selections,
         country_selector,
@@ -1543,7 +1543,7 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
 
 
 def themes(selections, indicators_dict, page_prefix):
-    start_time = time.time()
+    # start_time = time.time()
     title = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
     # hide the buttons when only one option is available
@@ -1560,12 +1560,12 @@ def themes(selections, indicators_dict, page_prefix):
         )
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
-    print("themes: %s seconds" % (time.time() - start_time))
+    # print("themes: %s seconds" % (time.time() - start_time))
     return title, buttons
 
 
 def aio_options(theme, indicators_dict, page_prefix):
-    start_time = time.time()
+    # start_time = time.time()
     area = "AIO_AREA"
     area_types = []
     current_theme = theme["theme"]
@@ -1603,7 +1603,7 @@ def aio_options(theme, indicators_dict, page_prefix):
         if area in indicators_dict[current_theme]
         else ""
     )
-    print("aio_options: %s seconds" % (time.time() - start_time))
+    # print("aio_options: %s seconds" % (time.time() - start_time))
     return area_buttons, area_types, default_graph
 
 
@@ -1676,7 +1676,7 @@ def aio_area_figure(
     domain_colour,
     map_colour,
 ):
-    start_time = time.time()
+    # start_time = time.time()
     # assumes indicator is not empty
     indicator = [
         but_prop["props"]["id"]["index"]
@@ -1861,7 +1861,7 @@ def aio_area_figure(
     # number of countries from selection
     count_sel = len(selections["countries"])
 
-    print("aio_area_figure: %s seconds" % (time.time() - start_time))
+    # print("aio_area_figure: %s seconds" % (time.time() - start_time))
     return (
         fig,
         [
