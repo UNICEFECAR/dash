@@ -95,6 +95,11 @@ def reroute_rosa(page):
     return redirect(f"/?viz=ds&prj=rosa&page={page}")
 
 
+@server.route("/de/rosa/<path:page>")
+def reroute_rosa_de(page):
+    return redirect(f"/?viz=de&prj=rosa&page={page}")
+
+
 @server.route("/transmonee")
 def reroute_transmonee_root():
     return redirect(f"/?viz=tm")
@@ -168,6 +173,10 @@ def after_request(response):
     return response
 
 
+"""
+Move the router back in utils (or somewhere else)
+I coded it here due to tight deadlines, must be cleaned.
+"""
 from dash_service.pages import empty_renderer, dashboard, data_explorer
 from dash_service.pages import (
     child_cross_cutting,
@@ -227,18 +236,18 @@ def display_page(pathname, search, url_hash):
 
     param_page = ""
     page_to_use = None
+    layout = None
     if "page" in qparams:
         param_page = qparams["page"][0]
     if "viz" in qparams:
         param_viz = qparams["viz"][0]
+        print("PV: " + param_viz)
         if param_viz == "de":
             page_to_use = data_explorer.layout
         elif param_viz == "ds":
             page_to_use = dashboard.layout
         elif param_viz == "tm":
             page_to_use = tm_layouts[param_page]
-        else:
-            page_to_use = empty_renderer.layout
 
         if isinstance(page_to_use, Component):
             layout = page_to_use
@@ -253,4 +262,7 @@ def display_page(pathname, search, url_hash):
                     f"returned value of type {type(layout)} instead."
                 )
                 raise InvalidLayoutError(msg)
+
+    if layout is None:
+        layout = empty_renderer.layout()
     return [layout]
