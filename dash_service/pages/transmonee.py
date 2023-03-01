@@ -1256,15 +1256,6 @@ def indicator_card(
     if sex_code is not None:
         dimensions["SEX"] = [sex_code]
 
-    # filtered_data = get_filtered_dataset(
-    # indicators,
-    # selections["years"],
-    # selections["countries"],
-    # breakdown,
-    # dimensions,
-    # latest_data=True,
-    # )
-
     filtered_data = get_data(
         indicators,
         selections["years"],
