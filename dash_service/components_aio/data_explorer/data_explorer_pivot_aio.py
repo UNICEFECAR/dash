@@ -41,7 +41,7 @@ class DataExplorerPivotAIO(html.Div):
                 style={
                     "display": "flex",
                     "align-items": "center",
-                    "justify-content": "center",
+                    "justifyContent": "center",
                 },
             ),
         ]

@@ -240,13 +240,13 @@ page_config = {
 
 packed_config = {}
 
-register_page(
-    __name__,
-    # path_template="/transmonee/<page_slug>",
-    path="/transmonee/child-protection",
-    title="Family Environment and Protection",
-    # order=6,
-)
+# register_page(
+#     __name__,
+#     # path_template="/transmonee/<page_slug>",
+#     path="/transmonee/child-protection",
+#     title="Family Environment and Protection",
+#     # order=6,
+# )
 page_prefix = "chp"
 domain_colour = "#e5ae4c"
 light_domain_colour = "#f4daaf"

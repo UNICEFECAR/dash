@@ -72,11 +72,11 @@ def main_default_layout():
                     fa("fas fa-chevron-up"),
                 ],
                 style={
-                    "border-radius": 50,
+                    "borderRadius": 50,
                     "position": "fixed",
                     "right": 20,
                     "bottom": 20,
-                    "z-index": 1101,
+                    "zIndex": 1101,
                     "width": 50,
                     "height": 50,
                     "padding": 12,
