@@ -52,6 +52,11 @@ class PageView(ModelView):
         "updated_at",
     )
 
+    form_widget_args = {
+        "created_at": {"disabled": True},
+        "updated_at": {"disabled": True},
+    }
+
     items = []
     upload_files_path = (
         f"{pathlib.Path(__file__).parent.parent.absolute()}/dash_service/static"
@@ -92,6 +97,11 @@ class DataExplorerView(ModelView):
         "created_at",
         "updated_at",
     )
+
+    form_widget_args = {
+        "created_at": {"disabled": True},
+        "updated_at": {"disabled": True},
+    }
 
     def is_accessible(self):
         return flask_login.current_user.is_authenticated

@@ -1,22 +1,23 @@
 import sentry_sdk
 from dash import Dash
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask, render_template, request, redirect
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from . import admin, default_settings, register_extensions
 from .extensions import admin, db, login_manager
-from .layouts import main_default_layout, main_layout_header, main_layout_sidebar
 from .models import Page, Project, DataExplorer, User
 from .views import PageView, ProjectView, DataExplorerView, UserView
+from .layouts import base_layout
 
-from werkzeug.exceptions import HTTPException, InternalServerError
+from . import custom_router
 
 from flask_admin.menu import MenuLink
 
 import flask_login
-from urllib.parse import parse_qs
 
-from dash import html, dcc, Input, Output, State
+# from urllib.parse import parse_qs
+
+# from dash import html, dcc, Input, Output, State
 
 # from flask_login import UserMixin, login_user, login_required, logout_user, current_user
 
@@ -173,9 +174,12 @@ def after_request(response):
     return response
 
 
+cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
+
 """
 Move the router back in utils (or somewhere else)
 I coded it here due to tight deadlines, must be cleaned.
+"""
 """
 from dash_service.pages import empty_renderer, dashboard, data_explorer
 from dash_service.pages import (
@@ -195,22 +199,13 @@ from dash.exceptions import PreventUpdate
 from dash_service.pages import empty_renderer
 from dash_service.pages import data_explorer
 from dash_service.pages import dashboard
-
+"""
 
 with server.app_context():
-    app.layout = html.Div(
-        [
-            dcc.Store(id="store"),
-            dcc.Location(id="dash-location", refresh=False),
-            html.Div(id="MAIN_CONTAINER", children=[]),
-        ],
-        id="mainContainer",
-    )
+    app.layout = base_layout()
 
 
-from dash_service.pages import child_health
-
-
+"""
 @app.callback(
     [Output("MAIN_CONTAINER", "children")],
     [Input("dash-location", "pathname"), Input("dash-location", "search")],
@@ -266,3 +261,4 @@ def display_page(pathname, search, url_hash):
     if layout is None:
         layout = empty_renderer.layout()
     return [layout]
+"""
