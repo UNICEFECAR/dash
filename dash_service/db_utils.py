@@ -9,10 +9,9 @@ class db_utils:
     TYPE_DASHBOARD = 1
 
     def get_page_type(self, prj_slug, page_slug):
-
         # look for the proj and page slugs in the Dashboard table
         p = (
-            Page.query.join(Page.project)
+            Page.query.join(Project)
             .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
             .first()
         )
@@ -20,7 +19,7 @@ class db_utils:
             return db_utils.TYPE_DASHBOARD
 
         p = (
-            DataExplorer.query.join(DataExplorer.project)
+            DataExplorer.query.join(Project)
             .filter(and_(Project.slug == prj_slug, DataExplorer.slug == page_slug))
             .first()
         )
@@ -28,6 +27,27 @@ class db_utils:
             return db_utils.TYPE_DATAEXPLORER
 
         return db_utils.TYPE_UNKNOWN
+
+    # def get_page_type(self, prj_slug, page_slug):
+
+    #     # look for the proj and page slugs in the Dashboard table
+    #     p = (
+    #         Page.query.join(Page.project)
+    #         .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
+    #         .first()
+    #     )
+    #     if p is not None:
+    #         return db_utils.TYPE_DASHBOARD
+
+    #     p = (
+    #         DataExplorer.query.join(DataExplorer.project)
+    #         .filter(and_(Project.slug == prj_slug, DataExplorer.slug == page_slug))
+    #         .first()
+    #     )
+    #     if p is not None:
+    #         return db_utils.TYPE_DATAEXPLORER
+
+    #     return db_utils.TYPE_UNKNOWN
     
     #check if the slug exists in the Pages
     def slug_exists_in_page_prj(

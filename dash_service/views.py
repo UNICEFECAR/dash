@@ -90,7 +90,7 @@ class PageView(ModelView):
         )
 
     def on_model_change(self, form, model, is_created):
-        #We're updating a Page, check if the slug has already been used in the project for a Data explorer
+        # We're updating a Page, check if the slug has already been used in the project for a Data explorer
         exists = db_utils().slug_exists_in_dataexplorer_prj(
             form.project.data.slug, form.slug.data
         )
@@ -133,7 +133,7 @@ class DataExplorerView(ModelView):
         )
 
     def on_model_change(self, form, model, is_created):
-        #We're updating a DE, check if the slug has already been used in the project for a Page
+        # We're updating a DE, check if the slug has already been used in the project for a Page
         exists = db_utils().slug_exists_in_page_prj(
             form.project.data.slug, form.slug.data
         )
