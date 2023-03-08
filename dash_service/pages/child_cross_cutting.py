@@ -96,6 +96,18 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
+                "indicator": "EC_GDI",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EC_GII",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "EDUNF_CR_L3",
                 "suffix": min_max_girls_suffix,
                 "sex": "F",
@@ -107,29 +119,17 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
-            {
-                "name": "",
-                "indicator": "EC_GDI",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "EC_GII",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "EDUNF_CR_L3",
-                "EDU_SE_AGP_CPRA_L3",
                 "EC_GDI",
                 "EC_GII",
+                "EDUNF_CR_L3",
+                "EDU_SE_AGP_CPRA_L3",
             ],
             "default_graph": "bar",
-            "default": "EDUNF_CR_L3",
+            "default": "EC_GDI",
         },
     },
     "ODA": {
@@ -173,17 +173,17 @@ page_config = {
         },
     },
     "ENV": {
-        "NAME": "Climate, conflict and disaster risk",
+        "NAME": "Climate, conflict and disaster risks",
         "CARDS": [
             {
                 "name": "",
-                "indicator": "CR_EG_EGY_CLEAN",
+                "indicator": "CR_CCRI",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "CR_CCRI",
+                "indicator": "CR_CCRI_EXP_CESS",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -195,7 +195,7 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "CR_CCRI_EXP_CESS",
+                "indicator": "CR_EG_EGY_CLEAN",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -257,10 +257,10 @@ page_config = {
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "CR_EG_EGY_CLEAN",
                 "CR_CCRI",
-                "CR_CCRI_VUL_ES",
                 "CR_CCRI_EXP_CESS",
+                "CR_CCRI_VUL_ES",
+                "CR_EG_EGY_CLEAN",
                 "CR_VC_DSR_MTMP",
                 "CR_VC_DSR_DAFF",
                 "CR_SH_STA_AIRP",
@@ -272,7 +272,7 @@ page_config = {
                 "CR_SG_DSR_LGRGSR",
             ],
             "default_graph": "bar",
-            "default": "CR_EG_EGY_CLEAN",
+            "default": "CR_CCRI",
         },
     },
 }
@@ -291,6 +291,7 @@ domain_colour = "#ec5e24"
 light_domain_colour = "##f7b9a1"
 dark_domain_colour = "#5e2008"
 map_colour = "Oranges"
+
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
@@ -345,8 +346,14 @@ def show_themes(selections, indicators_dict):
     Output({"type": "button_group", "index": f"{page_prefix}-AIO_AREA"}, "children"),
     Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "options"),
     Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "value"),
-    Input(f"{page_prefix}-store", "data"),
-    State(f"{page_prefix}-indicators", "data"),
+    [
+        Input(f"{page_prefix}-store", "data"),
+        # Input({"type": f"{page_prefix}-indicator_button", "index": ALL}, "active"),
+    ],
+    [
+        State(f"{page_prefix}-indicators", "data"),
+        # State({"type": f"{page_prefix}-indicator_button", "index": ALL}, "id"),
+    ],
     prevent_initial_call=True,
 )
 def set_aio_options(theme, indicators_dict):

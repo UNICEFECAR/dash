@@ -432,12 +432,13 @@ def get_card_popover_body(sources):
     country_list = []
     # lbassil: added this condition to stop the exception when sources is empty
     if len(sources) > 0:
+        numeric = sources.OBS_VALUE.dtype.kind in "iufc"
         # sort by values if numeric else by country
-        sort_col = (
-            "OBS_VALUE" if sources.OBS_VALUE.dtype.kind in "iufc" else "Country_name"
-        )
+        sort_col = "OBS_VALUE" if numeric else "Country_name"
         for index, source_info in sources.sort_values(by=sort_col).iterrows():
-            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+            country_list.append(
+                f"- {index[0]}, {source_info[0].round() if numeric else source_info[0]} ({index[1]})"
+            )
         card_countries = "\n".join(country_list)
         return card_countries
     else:
@@ -1570,6 +1571,13 @@ def aio_options(theme, indicators_dict, page_prefix):
             else ""
         )
 
+        # come back to this to fix indicator resetting when year/country is selected
+        # active_button = [
+        #   ind_code["index"]
+        #  for ind_code, truth in zip(buttons_id, is_active_button)
+        # if truth
+        # ][0]
+
         area_buttons = [
             dbc.Button(
                 indicator_names[code],
@@ -1577,6 +1585,9 @@ def aio_options(theme, indicators_dict, page_prefix):
                 color=f"{page_prefix}",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
+                # active=code == active_button
+                # if active_button is not None
+                # else code == default_option,
             )
             for num, code in enumerate(area_indicators)
         ]
