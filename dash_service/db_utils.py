@@ -1,5 +1,6 @@
 from .models import Page, DataExplorer, Project
-from sqlalchemy import and_
+from sqlalchemy import and_, func
+from .extensions import db
 
 
 class db_utils:
@@ -27,10 +28,39 @@ class db_utils:
             return db_utils.TYPE_DATAEXPLORER
 
         return db_utils.TYPE_UNKNOWN
+    
+    #check if the slug exists in the Pages
+    def slug_exists_in_page_prj(
+        self,
+        prj_slug,
+        page_slug,
+    ):
 
-    def page_slug_exists(self, prj_slug, page_slug):
-        page_type = self.get_page_type(prj_slug, page_slug)
-        if page_type == db_utils.TYPE_UNKNOWN:
-            print("RET FALSE")
-            return False
-        return True
+        page_slug_count = (
+            db.session.query(func.count(Page.id))
+            .join(Project)
+            .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
+            .scalar()
+        )
+        if page_slug_count > 0:
+            return True
+        return False
+
+    #check if the slug exists in the Data explorers
+    def slug_exists_in_dataexplorer_prj(
+        self,
+        prj_slug,
+        de_slug,
+    ):
+
+        de_slug_count = (
+            db.session.query(func.count(DataExplorer.id))
+            .join(Project)
+            .filter(and_(Project.slug == prj_slug, DataExplorer.slug == de_slug))
+            .scalar()
+        )
+        if de_slug_count > 0:
+            return True
+        return False
+
+

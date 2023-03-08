@@ -11,6 +11,8 @@ from jinja2.utils import markupsafe
 from .extensions import admin
 from .models import Page, DataExplorer, User
 from sqlalchemy.sql import func
+from .db_utils import db_utils
+from wtforms.validators import ValidationError
 
 
 def is_admin():
@@ -87,6 +89,16 @@ class PageView(ModelView):
             Page.project_id == flask_login.current_user.project_id
         )
 
+    def on_model_change(self, form, model, is_created):
+        #We're updating a Page, check if the slug has already been used in the project for a Data explorer
+        exists = db_utils().slug_exists_in_dataexplorer_prj(
+            form.project.data.slug, form.slug.data
+        )
+        if exists:
+            raise ValidationError(
+                f'Slug "{form.slug.data}" is already used, please select a new one'
+            )
+
 
 class DataExplorerView(ModelView):
     column_display_all_relations = True
@@ -120,6 +132,16 @@ class DataExplorerView(ModelView):
             DataExplorer.project_id == flask_login.current_user.project_id
         )
 
+    def on_model_change(self, form, model, is_created):
+        #We're updating a DE, check if the slug has already been used in the project for a Page
+        exists = db_utils().slug_exists_in_page_prj(
+            form.project.data.slug, form.slug.data
+        )
+        if exists:
+            raise ValidationError(
+                f'Slug "{form.slug.data}" is already used, please select a new one'
+            )
+
 
 class UserView(ModelView):
     column_display_all_relations = True
@@ -127,7 +149,7 @@ class UserView(ModelView):
         "id",
         "name",
         "email",
-        #"password",
+        # "password",
         "project",
         "is_admin",
         "is_user_active",
@@ -148,9 +170,9 @@ class UserView(ModelView):
             if old_pwd != instance.password:
                 instance.set_password(form.password.data)
 
-
     def is_accessible(self):
         return is_admin()
+
 
 class ExtFileAdmin(FileAdmin):
     def is_accessible(self):

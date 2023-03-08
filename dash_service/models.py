@@ -32,7 +32,7 @@ class Page(db.Model, AllFeaturesMixin):
     __tablename__ = "pages"
 
     id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
     project = db.relationship("Project")
     title = db.Column(db.String(80), nullable=False)
     slug = db.Column(db.String(80), unique=True, nullable=False)
@@ -63,7 +63,7 @@ class DataExplorer(db.Model, AllFeaturesMixin):
     __tablename__ = "dataexplorers"
 
     id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
     project = db.relationship("Project")
     title = db.Column(db.String(80), nullable=False)
     slug = db.Column(db.String(80), unique=True, nullable=False)
