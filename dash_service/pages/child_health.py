@@ -328,6 +328,7 @@ light_domain_colour = "#e0f0e3"
 dark_domain_colour = "#24472a"
 map_colour = "algae"
 
+
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
     print("In layout")

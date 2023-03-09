@@ -432,10 +432,9 @@ def get_card_popover_body(sources):
     country_list = []
     # lbassil: added this condition to stop the exception when sources is empty
     if len(sources) > 0:
+        numeric = sources.OBS_VALUE.dtype.kind in "iufc"
         # sort by values if numeric else by country
-        sort_col = (
-            "OBS_VALUE" if sources.OBS_VALUE.dtype.kind in "iufc" else "Country_name"
-        )
+        sort_col = "OBS_VALUE" if numeric else "Country_name"
         for index, source_info in sources.sort_values(by=sort_col).iterrows():
             country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
         card_countries = "\n".join(country_list)
@@ -561,9 +560,13 @@ def get_data(
         lambda x: x.replace("\n", "<br>")
     )
 
-    # round to whole number if values greater than one (and not index)
+    # keep three decimals for indexes
     if "IDX" in data.UNIT_MEASURE.values:
-        data.round({"OBS_VALUE": 3})
+        data.OBS_VALUE = data.OBS_VALUE.round(3)
+    # keep one decimal for fertility rate
+    elif "DM_FRATE_TOT" in data.CODE.values:
+        data.OBS_VALUE = data.OBS_VALUE.round(1)
+    # round to whole number if values greater than one
     else:
         data.OBS_VALUE = data.OBS_VALUE.round(1)
         data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
@@ -1420,13 +1423,23 @@ graphs_dict = {
             y="OBS_VALUE",
             barmode="group",
             text="OBS_VALUE",
-            hover_name="TIME_PERIOD",
             labels={
                 "OBS_FOOTNOTE": "Footnote",
                 "DATA_SOURCE": "Primary Source",
             },
-            hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
+            custom_data=[
+                "OBS_VALUE",
+                "Country_name",
+                "TIME_PERIOD",
+                "OBS_FOOTNOTE",
+                "DATA_SOURCE",
+                "Sex_name",
+                "Age_name",
+                "Wealth_name",
+                "Residence_name",
+            ],
             height=500,
+            text_auto=".2s",
         ),
         "layout_options": dict(
             xaxis_title={"standoff": 0},
@@ -1439,14 +1452,19 @@ graphs_dict = {
             x="TIME_PERIOD",
             y="OBS_VALUE",
             color="Country_name",
-            hover_name="Country_name",
             labels={"OBS_FOOTNOTE": "Footnote"},
-            hover_data=["OBS_FOOTNOTE", "DATA_SOURCE"],
-            # line_shape="spline",
+            custom_data=[
+                "OBS_VALUE",
+                "Country_name",
+                "TIME_PERIOD",
+                "OBS_FOOTNOTE",
+                "DATA_SOURCE",
+            ],
+            line_shape="spline",
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines+markers", line=dict(width=0.8)),
+        "trace_options": dict(mode="lines", line=dict(width=0.8)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1470,14 +1488,13 @@ graphs_dict = {
                 "REF_AREA": "ISO3 Code",
                 "OBS_FOOTNOTE": "Footnote",
             },
-            hover_data={
-                "OBS_VALUE": True,
-                "REF_AREA": False,
-                "Country_name": True,
-                "TIME_PERIOD": True,
-                "OBS_FOOTNOTE": True,
-                "DATA_SOURCE": True,
-            },
+            custom_data=[
+                "OBS_VALUE",
+                "Country_name",
+                "TIME_PERIOD",
+                "OBS_FOOTNOTE",
+                "DATA_SOURCE",
+            ],
             height=500,
         ),
         "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 5}),
@@ -1570,6 +1587,13 @@ def aio_options(theme, indicators_dict, page_prefix):
             else ""
         )
 
+        # come back to this to fix indicator resetting when year/country is selected
+        # active_button = [
+        #   ind_code["index"]
+        #  for ind_code, truth in zip(buttons_id, is_active_button)
+        # if truth
+        # ][0]
+
         area_buttons = [
             dbc.Button(
                 indicator_names[code],
@@ -1577,6 +1601,9 @@ def aio_options(theme, indicators_dict, page_prefix):
                 color=f"{page_prefix}",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
+                # active=code == active_button
+                # if active_button is not None
+                # else code == default_option,
             )
             for num, code in enumerate(area_indicators)
         ]
@@ -1793,13 +1820,13 @@ def aio_area_figure(
     layout = go.Layout(
         title=chart_title,
         title_x=0.5,
-        font=dict(family="Arial", size=12),
+        font=dict(family="Verdana", size=11),
         legend=dict(x=1, y=0.5),
         xaxis={
             "categoryorder": "total descending",
             "tickangle": -45,
             "tickmode": "linear",
-            "tickfont_size": 10,
+            "tickfont_size": 11,
         },
     )
     if layout_opt:
@@ -1819,6 +1846,14 @@ def aio_area_figure(
                 categoryorder="array", categoryarray=packed_config[indicator]["yaxis"]
             )
 
+    hovertext = (
+        "%{customdata[0]:,}  </br><br>"
+        + "Country: %{customdata[1]}  </br>"
+        + "Year: %{customdata[2]}  </br><br>"
+        + "Footnote: %{customdata[3]}  </br>"
+        + "Primary Source: %{customdata[4]}  </br>"
+    )
+
     if dimension:
         # lbassil: use the dimension name instead of the code
         dimension_name = str(dimension_names.get(dimension, ""))
@@ -1826,9 +1861,17 @@ def aio_area_figure(
 
         if dimension_name == "Sex_name":
             options["color_discrete_map"] = {"Female": "#944a9d", "Male": "#1a9654"}
+            hovertext = "%{customdata[5]}  </br><br>" + hovertext
 
-        if dimension_name == "Residence_name":
+        elif dimension_name == "Age_name":
+            hovertext = "%{customdata[6]}  </br><br>" + hovertext
+
+        elif dimension_name == "Wealth_name":
+            hovertext = "%{customdata[7]}  </br><br>" + hovertext
+
+        else:
             options["color_discrete_map"] = {"Rural": "#5dd763", "Urban": "#d9b300"}
+            hovertext = "%{customdata[8]}  </br><br>" + hovertext
 
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
@@ -1838,6 +1881,10 @@ def aio_area_figure(
         fig_type = "choropleth_mapbox"
         options["color_continuous_scale"] = map_colour
         options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
+    if fig_type == "bar":
+        if "IDX" in data.UNIT_MEASURE.values:
+            options["text_auto"] = False
+
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     # remove x-axis title but keep space below
@@ -1847,6 +1894,7 @@ def aio_area_figure(
     if fig_type == "line":
         fig.update_traces(**traces)
 
+    fig.update_traces(hovertemplate=hovertext)
     # countries not reporting
     not_rep_count = np.setdiff1d(selections["count_names"], data.Country_name.unique())
     # number of countries from selection
