@@ -27,8 +27,6 @@ function checkBrowser() {
 //Loads a json file and calls the onsuccess callback, ToDo: add a onerror callback
 function loadJson(url, onsuccess) {
     var xmlhttp = new XMLHttpRequest();
-    /*xmlhttp.setRequestHeader("Accept", 'application/json');
-    xmlhttp.withCredentials=true;*/
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
@@ -49,12 +47,51 @@ function loadJson(url, onsuccess) {
     xmlhttp.send();
 }
 
+
+
+//The remote_files_path variable must be present in the hosting page HTML.
+//Other paramenters can be passed by the hosting page in a dictionary the var name in "host_params"
+//  e.g. host_params = {prj: 'brazil', page: 'child-education'}
+
 //Checks if the browser is supported 
 var browserOk = checkBrowser();
 
 if (browserOk) {
 
-    //loaad the json and adds to the page in the callback function
+    var url_to_update = new URL(window.location.href);
+
+    var qparam_prj = url_to_update.searchParams.get("prj");
+    var qparam_page = url_to_update.searchParams.get("page");
+
+    //If the params are not in the query string then try to pull them from the host page config
+    //This allows to override the hosting page config
+    if (qparam_prj == null) {
+        if (host_params && "prj" in host_params){
+            qparam_prj = host_params["prj"]
+        }
+    }
+    if (qparam_page == null) {
+        if (host_params && "page" in host_params){
+            qparam_page = host_params["page"]
+        }
+    }
+    //url_to_update.searchParams.set('prj', host_params['prj']);
+    url_to_update.searchParams.set('prj', qparam_prj);
+    url_to_update.searchParams.set('page', qparam_page);
+
+    window.history.pushState({}, "", url_to_update);
+
+    //url_to_update.searchParams.set('prj', host_params['prj']);
+
+    function loadDash() {
+        var dashRenderer = document.createElement('script');
+        dashRenderer.setAttribute('id', '_dash-renderer');
+        dashRenderer.setAttribute('type', 'text/javascript');
+        dashRenderer.innerHTML = "var renderer = new DashRenderer();";
+        document.body.appendChild(dashRenderer);
+    }
+
+    //load the json and adds to the page in the callback function
     loadJson(remote_files_path,
         function (data) {
 
@@ -83,6 +120,16 @@ if (browserOk) {
 
             // load the js
             var scripts = dash.getElementsByTagName("script");
+            var loadedScripts = 0;
+            var withSrc = 0;
+
+            for (var i = 0; i < scripts.length; i++) {
+                var src = scripts[i].getAttribute('src');
+                if (src && !src.includes('dynamic-load.js')) {
+                    withSrc += 1;
+                }
+            }
+
             for (var i = 0; i < scripts.length; i++) {
                 var script = scripts[i];
                 var src = script.getAttribute('src');
@@ -91,11 +138,12 @@ if (browserOk) {
                 var scriptElement = document.createElement('script');
                 if (src) {
                     // ignore this file to prevent load loops
-                    if (src.includes('dynamic-load-2.js')) {
+                    if (src.includes('dynamic-load.js')) {
                         continue;
                     }
                     // set the correct path if it is relative
                     scriptElement.setAttribute('src', src.startsWith('/') ? new URL(src, baseUrl) : src);
+
                 }
                 if (id) {
                     scriptElement.setAttribute('id', id);
@@ -116,32 +164,9 @@ if (browserOk) {
                     }
                     scriptElement.innerHTML = script.innerHTML;
                 }
+                //each injected script has an onload function, when the loaded scripts == withSrc then trigger LoadDash
+                scriptElement.onload = function () { loadedScripts += 1; if (loadedScripts >= withSrc) { loadDash() } };
                 document.body.appendChild(scriptElement);
             }
-
-            function loadDash() {
-                // need to wait for the dash libraries to finish loading
-                setTimeout(function () {
-                    // then load the dash renderer
-                    var dashRenderer = document.createElement('script');
-                    dashRenderer.setAttribute('id', '_dash-renderer');
-                    dashRenderer.setAttribute('type', 'text/javascript');
-                    dashRenderer.innerHTML = "var renderer = new DashRenderer();";
-                    document.body.appendChild(dashRenderer);
-                }, 5000);
-            }
-
-            if (document.readyState == 'complete') {
-                // load the dash renderer when the page is ready
-                loadDash();
-            } else {
-                // wait for the page to be ready
-                document.onreadystatechange = function () {
-                    if (document.readyState === "complete") {
-                        loadDash();
-                    }
-                }
-            }
-
         });
 }
