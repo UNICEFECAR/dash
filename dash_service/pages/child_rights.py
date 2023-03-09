@@ -18,7 +18,6 @@ import plotly.graph_objects as go
 import textwrap
 
 from dash_service.pages.transmonee import (
-    get_filtered_dataset,
     geo_json_countries,
     get_base_layout,
     make_card,
@@ -354,7 +353,7 @@ page_prefix = "crg"
 domain_colour = "#562061"
 light_domain_colour = "#e7c9ed"
 dark_domain_colour = "#44194d"
-map_colour = "purp"
+map_colour = "purpor"
 
 
 # configure the Dash instance's layout
