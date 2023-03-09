@@ -65,23 +65,24 @@ if (browserOk) {
 
     //If the params are not in the query string then try to pull them from the host page config
     //This allows to override the hosting page config
-    if (qparam_prj == null) {
-        if (host_params && "prj" in host_params){
+    if (typeof host_params !== 'undefined') {
+        if (qparam_prj == null && "prj" in host_params) {
             qparam_prj = host_params["prj"]
         }
-    }
-    if (qparam_page == null) {
-        if (host_params && "page" in host_params){
+        if (qparam_page == null && "page" in host_params) {
             qparam_page = host_params["page"]
         }
     }
-    //url_to_update.searchParams.set('prj', host_params['prj']);
-    url_to_update.searchParams.set('prj', qparam_prj);
-    url_to_update.searchParams.set('page', qparam_page);
+
+    if (qparam_prj != null) {
+        url_to_update.searchParams.set('prj', qparam_prj);
+    }
+    if (qparam_page != null) {
+        url_to_update.searchParams.set('page', qparam_page);
+    }
 
     window.history.pushState({}, "", url_to_update);
 
-    //url_to_update.searchParams.set('prj', host_params['prj']);
 
     function loadDash() {
         var dashRenderer = document.createElement('script');
