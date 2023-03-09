@@ -147,6 +147,7 @@ light_domain_colour = "#eca7be"
 dark_domain_colour = "#541228"
 map_colour = "Brwnyl"
 
+
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
     return html.Div(

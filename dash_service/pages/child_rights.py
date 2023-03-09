@@ -18,7 +18,6 @@ import plotly.graph_objects as go
 import textwrap
 
 from dash_service.pages.transmonee import (
-    get_filtered_dataset,
     geo_json_countries,
     get_base_layout,
     make_card,
@@ -318,19 +317,19 @@ page_config = {
 packed_config = {
     "packed_CRG": {
         "indicators": [
-            "PP_SG_NHR_IMPLN",
-            "PP_SG_NHR_INTEXSTN",
-            "PP_SG_NHR_NOSTUSN",
             "PP_SG_NHR_NOAPPLN",
+            "PP_SG_NHR_NOSTUSN",
+            "PP_SG_NHR_INTEXSTN",
+            "PP_SG_NHR_IMPLN",
         ],
         "card_key": "PP_SG_NHR_NOAPPLN",
         "mapping": {
             "CODE": {
                 "OBS_VALUE": {
-                    "PP_SG_NHR_IMPLN": "A",
-                    "PP_SG_NHR_INTEXSTN": "B",
-                    "PP_SG_NHR_NOSTUSN": "C",
                     "PP_SG_NHR_NOAPPLN": "D",
+                    "PP_SG_NHR_NOSTUSN": "C",
+                    "PP_SG_NHR_INTEXSTN": "B",
+                    "PP_SG_NHR_IMPLN": "A",
                 }
             },
             "Unit_name": {"Unit_name": {"Yes/No": "Status"}},
@@ -339,7 +338,7 @@ packed_config = {
             "bar": "data.groupby('REF_AREA', as_index=False).agg('last')",
             "map": "data.groupby('REF_AREA', as_index=False).agg('last')",
         },
-        "yaxis": ["D", "C", "B", "A"],
+        "yaxis": ["A", "B", "C", "D"],
     }
 }
 
@@ -354,7 +353,8 @@ page_prefix = "crg"
 domain_colour = "#562061"
 light_domain_colour = "#e7c9ed"
 dark_domain_colour = "#44194d"
-map_colour = "purp"
+map_colour = "purpor"
+
 
 # configure the Dash instance's layout
 def layout(page_slug=None, **query_parmas):
