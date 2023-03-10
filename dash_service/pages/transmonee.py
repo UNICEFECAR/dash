@@ -464,9 +464,9 @@ def get_sector(subtopic):
     return ""
 
 
-# function to check if the config of a certain indicator are only about its dtype
+# function to check if the config of a certain indicator are only about its dtype and if its nominal data
 def only_dtype(config):
-    return list(config.keys()) == ["DTYPE"]
+    return list(config.keys()) == ["DTYPE", "NOMINAL"]
 
 
 # alternative way to read in data, uses Daniels' data_access_sdmx class and json parser
@@ -546,7 +546,7 @@ def get_data(
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
 
-    # if unit multiplier thousands modify obs value (requested by siraj)
+    # if unit multiplier thousands modify obs value
     if "3" in data.UNIT_MULTIPLIER.values:
         data["UNIT_MULTIPLIER"] = pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
         data["OBS_VALUE"] = data["OBS_VALUE"] * 10 ** data["UNIT_MULTIPLIER"]
@@ -572,6 +572,10 @@ def get_data(
         data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
             data.OBS_VALUE > 1
         ].OBS_VALUE.round()
+
+    # map binary data back to yes/no in new column
+    if "YES_NO" in data.UNIT_MEASURE.values:
+        data["Status"] = data["OBS_VALUE"].map({1: "Yes", 0: "No"})
 
     data["Country_name"] = data["REF_AREA"].map(reversed_countries_iso3_dict)
 
@@ -1423,10 +1427,6 @@ graphs_dict = {
             y="OBS_VALUE",
             barmode="group",
             text="OBS_VALUE",
-            labels={
-                "OBS_FOOTNOTE": "Footnote",
-                "DATA_SOURCE": "Primary Source",
-            },
             custom_data=[
                 "OBS_VALUE",
                 "Country_name",
@@ -1439,11 +1439,33 @@ graphs_dict = {
                 "Residence_name",
             ],
             height=500,
-            text_auto=".2s",
+            text_auto=".1s",
         ),
         "layout_options": dict(
             xaxis_title={"standoff": 0},
             margin_t=30,
+            margin_b=0,
+        ),
+    },
+    "count_bar": {
+        "options": dict(
+            x="Status",
+            color="Status",
+            color_discrete_map={"Yes": "#4e8722", "No": "#a8325d"},
+            custom_data=[
+                "OBS_VALUE",
+                "Country_name",
+                "TIME_PERIOD",
+                "OBS_FOOTNOTE",
+                "DATA_SOURCE",
+                "Status",
+            ],
+            height=450,
+            width=1000,
+        ),
+        "layout_options": dict(
+            xaxis_title={"standoff": 0},
+            margin_t=50,
             margin_b=0,
         ),
     },
@@ -1452,7 +1474,6 @@ graphs_dict = {
             x="TIME_PERIOD",
             y="OBS_VALUE",
             color="Country_name",
-            labels={"OBS_FOOTNOTE": "Footnote"},
             custom_data=[
                 "OBS_VALUE",
                 "Country_name",
@@ -1481,13 +1502,6 @@ graphs_dict = {
             zoom=2.5,
             center={"lat": 51.9194, "lon": 19.040236},
             opacity=0.6,
-            labels={
-                "OBS_VALUE": "Value",
-                "Country_name": "Country",
-                "TIME_PERIOD": "Year",
-                "REF_AREA": "ISO3 Code",
-                "OBS_FOOTNOTE": "Footnote",
-            },
             custom_data=[
                 "OBS_VALUE",
                 "Country_name",
@@ -1496,6 +1510,7 @@ graphs_dict = {
                 "DATA_SOURCE",
             ],
             height=500,
+            width=None,
         ),
         "layout_options": dict(margin={"r": 0, "t": 30, "l": 2, "b": 5}),
     },
@@ -1575,7 +1590,6 @@ def themes(selections, indicators_dict, page_prefix):
 def aio_options(theme, indicators_dict, page_prefix):
     # start_time = time.time()
     area = "AIO_AREA"
-    area_types = []
     current_theme = theme["theme"]
     if area in indicators_dict[current_theme]:
         indicators = indicators_dict[current_theme][area].get("indicators")
@@ -1607,22 +1621,8 @@ def aio_options(theme, indicators_dict, page_prefix):
             )
             for num, code in enumerate(area_indicators)
         ]
-
-        area_types = [
-            {
-                "label": name.capitalize(),
-                "value": name,
-            }
-            for name in indicators_dict[current_theme][area].get("graphs", {}).keys()
-        ]
-
-    default_graph = (
-        indicators_dict[current_theme][area].get("default_graph")
-        if area in indicators_dict[current_theme]
-        else ""
-    )
     # print("aio_options: %s seconds" % (time.time() - start_time))
-    return area_buttons, area_types, default_graph
+    return area_buttons
 
 
 def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
@@ -1654,6 +1654,41 @@ def breakdown_options(is_active_button, fig_type, buttons_id, packed_config):
             if breakdown["value"] in dimensions:
                 options.append(breakdown)
     return options
+
+
+def fig_options(is_active_button, buttons_id, packed_config):
+    indicator = [
+        ind_code["index"]
+        for ind_code, truth in zip(buttons_id, is_active_button)
+        if truth
+    ][0]
+
+    # check if indicator is a packed config
+    indicator = (
+        indicator
+        if indicator not in packed_config
+        else packed_config[indicator]["card_key"]
+    )
+
+    # get the first indicator of the list... we have more than one indicator in the cards
+    indicator_config = indicators_config.get(indicator, {})
+
+    # check if the indicator has is string type and give only bar and map as options
+    if indicator_config and only_dtype(indicator_config):
+        area_types = [
+            {"label": "Bar", "value": "count_bar"},
+            {"label": "Map", "value": "map"},
+        ]
+        default_graph = "count_bar"
+    else:
+        area_types = [
+            {"label": "Bar", "value": "bar"},
+            {"label": "Line", "value": "line"},
+            {"label": "Map", "value": "map"},
+        ]
+        default_graph = "bar"
+
+    return area_types, default_graph
 
 
 def active_button(_, buttons_id):
@@ -1692,6 +1727,8 @@ def aio_area_figure(
     page_prefix,
     packed_config,
     domain_colour,
+    light_domain_colour,
+    dark_domain_colour,
     map_colour,
 ):
     # start_time = time.time()
@@ -1712,7 +1749,11 @@ def aio_area_figure(
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
     layout_opt = fig_config.get("layout_options")
-    dimension = False if fig_type in ["line", "map"] or compare == "TOTAL" else compare
+    dimension = (
+        False
+        if fig_type in ["count_bar", "line", "map"] or compare == "TOTAL"
+        else compare
+    )
     indicator_name = str(indicator_names.get(indicator, ""))
 
     if indicator not in packed_config:
@@ -1846,13 +1887,18 @@ def aio_area_figure(
                 categoryorder="array", categoryarray=packed_config[indicator]["yaxis"]
             )
 
+    if fig_type == "count_bar":
+        layout["xaxis"] = dict(tickfont_size=14, tickangle=None)
+
     hovertext = (
-        "%{customdata[0]:,}  </br><br>"
-        + "Country: %{customdata[1]}  </br>"
+        "Country: %{customdata[1]}  </br>"
         + "Year: %{customdata[2]}  </br><br>"
         + "Footnote: %{customdata[3]}  </br>"
         + "Primary Source: %{customdata[4]}  </br>"
     )
+
+    if "YES_NO" not in data.UNIT_MEASURE.values:
+        hovertext = "%{customdata[0]:,}  </br><br>" + hovertext
 
     if dimension:
         # lbassil: use the dimension name instead of the code
@@ -1879,22 +1925,48 @@ def aio_area_figure(
     # rename figure_type 'map': 'choropleth' (plotly express)
     if fig_type == "map":
         fig_type = "choropleth_mapbox"
-        options["color_continuous_scale"] = map_colour
-        options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
+        if "YES_NO" in data.UNIT_MEASURE.values:
+            options["color"] = "Status"
+            options["color_discrete_map"] = {"Yes": "#4e8722", "No": "#a8325d"}
+        else:
+            options["color_continuous_scale"] = map_colour
+            options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
+
     if fig_type == "bar":
-        if "IDX" in data.UNIT_MEASURE.values:
+        # turn off number formatting of data labels for indexes and fertility rate
+        if "IDX" in data.UNIT_MEASURE.values or "DM_FRATE_TOT" in data.CODE.values:
             options["text_auto"] = False
+
+    if fig_type == "count_bar":
+        # change to fig type to generate px.bar
+        fig_type = "bar"
 
     fig = getattr(px, fig_type)(data, **options)
     fig.update_layout(layout)
     # remove x-axis title but keep space below
     fig.update_layout(xaxis_title="")
-    if fig_type == "bar" and not dimension:
+    if fig_type == "bar" and not dimension and "YES_NO" not in data.UNIT_MEASURE.values:
         fig.update_traces(marker_color=domain_colour)
     if fig_type == "line":
         fig.update_traces(**traces)
 
     fig.update_traces(hovertemplate=hovertext)
+
+    if fig_type == "bar" and "YES_NO" in data.UNIT_MEASURE.values:
+        dfs = data.groupby("Status").count()
+        fig.add_trace(
+            go.Scatter(
+                x=dfs.index,
+                y=dfs["OBS_VALUE"],
+                text=dfs["OBS_VALUE"],
+                mode="text",
+                textposition="top center",
+                textfont=dict(
+                    size=14,
+                ),
+                showlegend=False,
+            )
+        )
     # countries not reporting
     not_rep_count = np.setdiff1d(selections["count_names"], data.Country_name.unique())
     # number of countries from selection

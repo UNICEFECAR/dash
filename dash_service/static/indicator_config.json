@@ -114,34 +114,44 @@
         }
     },
     "CR_SG_REG_CENSUSN": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_FPOS": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_NSDSFDDNR": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_NSDSFDGVT": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_NSDSFDOTHR": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_NSDSFND": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_SG_STT_NSDSIMPL": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_UN_CHLD_RIGHTS": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_UN_CHLD_SALE": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_UN_RIGHTS_DISAB": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "CR_VC_VOV_GDSD": {
         "SEX": {
@@ -1265,22 +1275,28 @@
         }
     },
     "EDUNF_ADMIN_L1_G2OR3_MAT": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_ADMIN_L1_G2OR3_REA": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_ADMIN_L1_GLAST_MAT": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_ADMIN_L1_GLAST_REA": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_ADMIN_L2_MAT": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_ADMIN_L2_REA": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "EDUNF_CR_L1": {
         "RESIDENCE": {
@@ -3700,10 +3716,12 @@
         }
     },
     "GN_MTNTY_LV_BNFTS": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "GN_PTNTY_LV_BNFTS": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "HT_ADOL_MT": {
         "SEX": {
@@ -4508,6 +4526,7 @@
             ]
         },
         "DTYPE": "str",
+        "NOMINAL": false,
         "SEX": {
             "AGE": [
                 "_T"
@@ -4528,6 +4547,7 @@
     },
     "HVA_EPI_INF_RT_0-14": {
         "DTYPE": "str",
+        "NOMINAL": false,
         "SEX": {
             "SEX": [
                 "F",
@@ -4542,6 +4562,7 @@
     },
     "HVA_EPI_INF_RT_10-19": {
         "DTYPE": "str",
+        "NOMINAL": false,
         "SEX": {
             "SEX": [
                 "F",
@@ -4566,6 +4587,7 @@
             ]
         },
         "DTYPE": "str",
+        "NOMINAL": false,
         "SEX": {
             "AGE": [
                 "_T"
@@ -4596,6 +4618,7 @@
             ]
         },
         "DTYPE": "str",
+        "NOMINAL": false,
         "SEX": {
             "AGE": [
                 "_T"
@@ -4615,10 +4638,12 @@
         }
     },
     "HVA_PED_ART_CVG": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": false
     },
     "HVA_PMTCT_ARV_CVG": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": false
     },
     "IM_MCV2": {
         "AGE": {
@@ -5282,6 +5307,7 @@
             ]
         },
         "DTYPE": "str",
+        "NOMINAL": false,
         "TOTAL": {
             "AGE": [
                 "_T"
@@ -6164,22 +6190,28 @@
         }
     },
     "PP_SG_NHR_IMPLN": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PP_SG_NHR_INTEXSTN": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PP_SG_NHR_NOAPPLN": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PP_SG_NHR_NOSTUSN": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PP_SG_REG_BRTH90N": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PP_SG_REG_DETH75N": {
-        "DTYPE": "str"
+        "DTYPE": "str",
+        "NOMINAL": true
     },
     "PT_ADLS_10-14_LBR_HC": {
         "SEX": {
