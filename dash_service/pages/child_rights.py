@@ -30,6 +30,7 @@ from dash_service.pages.transmonee import (
     breakdown_options,
     default_compare,
     aio_area_figure,
+    fig_options,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -419,14 +420,23 @@ def show_themes(selections, indicators_dict):
 
 @callback(
     Output({"type": "button_group", "index": f"{page_prefix}-AIO_AREA"}, "children"),
-    Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "options"),
-    Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "value"),
     Input(f"{page_prefix}-store", "data"),
     State(f"{page_prefix}-indicators", "data"),
     prevent_initial_call=True,
 )
 def set_aio_options(theme, indicators_dict):
     return aio_options(theme, indicators_dict, page_prefix)
+
+
+@callback(
+    Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "options"),
+    Output({"type": "area_types", "index": f"{page_prefix}-AIO_AREA"}, "value"),
+    [Input({"type": f"{page_prefix}-indicator_button", "index": ALL}, "active")],
+    State({"type": f"{page_prefix}-indicator_button", "index": ALL}, "id"),
+    prevent_initial_call=True,
+)
+def set_fig_options(is_active_button, buttons_id):
+    return fig_options(is_active_button, buttons_id, packed_config)
 
 
 @callback(
@@ -495,5 +505,7 @@ def apply_aio_area_figure(
         page_prefix,
         packed_config,
         domain_colour,
+        light_domain_colour,
+        dark_domain_colour,
         map_colour,
     )
