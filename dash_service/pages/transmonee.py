@@ -1439,7 +1439,7 @@ graphs_dict = {
                 "Residence_name",
             ],
             height=500,
-            text_auto=".1s",
+            text_auto=".3s",
         ),
         "layout_options": dict(
             xaxis_title={"standoff": 0},
@@ -1933,8 +1933,8 @@ def aio_area_figure(
             options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
 
     if fig_type == "bar":
-        # turn off number formatting of data labels for indexes and fertility rate
-        if "IDX" in data.UNIT_MEASURE.values or "DM_FRATE_TOT" in data.CODE.values:
+        # turn off number formatting of data labels under 100
+        if max(data.OBS_VALUE) <= 100:
             options["text_auto"] = False
 
     if fig_type == "count_bar":
