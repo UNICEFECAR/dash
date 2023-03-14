@@ -1,6 +1,5 @@
 import textwrap
 
-import dash
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 import pandas as pd
@@ -156,12 +155,6 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
                                                 page["name"],
                                                 className="ms-2",
                                                 href=page["href"],
-                                                # href=page["path"],
-                                                # href="#",
-                                                # id={
-                                                #     "type": "nav_link",
-                                                #     "index": f"{page['prj_slug']}&{page['slug']}&{page['lang']}",
-                                                # },
                                                 active="exact",
                                             ),
                                         ],
@@ -198,8 +191,6 @@ def layout(lang="en", **query_params):
 
     project_slug = query_params.get("prj", None)
     page_slug = query_params.get("page", None)
-
-    
 
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
