@@ -39,25 +39,40 @@ class ProjectView(ModelView):
         return is_admin()
 
 
-class PageView(ModelView):
+class DashboardView(ModelView):
     column_display_all_relations = True
     # column_formatters = {
     #     "content": json_formatter,
     # }
     column_list = (
         "project",
+        "page.title",
+        "page.slug",
+        # "content",
+        "geography",
+        "page.created_at",
+        "page.updated_at",
+    )
+
+    fields_order = (
+        "project",
         "title",
         "slug",
-        # "content",
+        "content",
         "geography",
         "created_at",
         "updated_at",
     )
 
+    form_create_rules = fields_order
+    form_edit_rules = fields_order
+
     form_widget_args = {
         "created_at": {"disabled": True},
         "updated_at": {"disabled": True},
     }
+
+    form_excluded_columns = ["page"]
 
     items = []
     upload_files_path = (
@@ -89,31 +104,40 @@ class PageView(ModelView):
             Page.project_id == flask_login.current_user.project_id
         )
 
-    def on_model_change(self, form, model, is_created):
-        # We're updating a Page, check if the slug has already been used in the project for a Data explorer
-        exists = db_utils().slug_exists_in_dataexplorer_prj(
-            form.project.data.slug, form.slug.data
-        )
-        if exists:
-            raise ValidationError(
-                f'Slug "{form.slug.data}" is already used, please select a new one'
-            )
+    # def create_model(self, form):
+    #     try:
+    #         return super().create_model(form)
+    #     except Exception as ex:
+    #         print(ex)
 
 
 class DataExplorerView(ModelView):
     column_display_all_relations = True
     column_list = (
         "project",
+        "page.title",
+        "page.slug",
+        "page.created_at",
+        "page.updated_at",
+    )
+
+    fields_order = (
+        "project",
         "title",
         "slug",
+        "content",
         "created_at",
         "updated_at",
     )
+    form_create_rules = fields_order
+    form_edit_rules = fields_order
 
     form_widget_args = {
         "created_at": {"disabled": True},
         "updated_at": {"disabled": True},
     }
+
+    form_excluded_columns = ["page"]
 
     def is_accessible(self):
         return flask_login.current_user.is_authenticated
@@ -131,16 +155,6 @@ class DataExplorerView(ModelView):
         return self.session.query(func.count("*")).filter(
             DataExplorer.project_id == flask_login.current_user.project_id
         )
-
-    def on_model_change(self, form, model, is_created):
-        # We're updating a DE, check if the slug has already been used in the project for a Page
-        exists = db_utils().slug_exists_in_page_prj(
-            form.project.data.slug, form.slug.data
-        )
-        if exists:
-            raise ValidationError(
-                f'Slug "{form.slug.data}" is already used, please select a new one'
-            )
 
 
 class UserView(ModelView):

@@ -5,8 +5,9 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from . import admin, default_settings, register_extensions
 from .extensions import admin, db, login_manager
-from .models import Page, Project, DataExplorer, User
-from .views import PageView, ProjectView, DataExplorerView, UserView
+from .models import Dashboard, Project, DataExplorer, User
+#from .views import PageView, ProjectView, DataExplorerView, UserView
+from .views import DashboardView, ProjectView, DataExplorerView, UserView
 from .layouts import base_layout
 
 from . import custom_router
@@ -40,7 +41,7 @@ register_extensions(server)
 
 # Flask-Admin
 admin.add_view(ProjectView(Project, db.session))
-admin.add_view(PageView(Page, db.session))
+admin.add_view(DashboardView(Dashboard, db.session))
 admin.add_view(DataExplorerView(DataExplorer, db.session))
 admin.add_view(UserView(User, db.session))
 

@@ -51,14 +51,6 @@ ID_OBS_VALUE = "OBS_VALUE"
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
 
-# dash.register_page(
-#     __name__,
-#     # path_template="/de/<project_slug>/<page_slug>",
-#     path_template="/de/<project_slug>/<dataexplorer_slug>",
-#     # path="/de/rosa/de_rosa",  # this is the default path and working example
-# )
-
-
 def layout(lang="en", **query_params):
 
     project_slug = query_params.get("prj", None)
