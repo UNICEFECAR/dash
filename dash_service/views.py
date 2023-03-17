@@ -46,12 +46,12 @@ class DashboardView(ModelView):
     # }
     column_list = (
         "project",
-        "page.title",
-        "page.slug",
+        "title",
+        "slug",
         # "content",
         "geography",
-        "page.created_at",
-        "page.updated_at",
+        "created_at",
+        "updated_at",
     )
 
     fields_order = (
@@ -115,10 +115,10 @@ class DataExplorerView(ModelView):
     column_display_all_relations = True
     column_list = (
         "project",
-        "page.title",
-        "page.slug",
-        "page.created_at",
-        "page.updated_at",
+        "title",
+        "slug",
+        "created_at",
+        "updated_at",
     )
 
     fields_order = (

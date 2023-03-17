@@ -2,6 +2,7 @@ from slugify import slugify
 from sqlalchemy_mixins import AllFeaturesMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.orm import column_property
 
 from .extensions import db
 
@@ -31,7 +32,7 @@ class Project(db.Model, AllFeaturesMixin):
 
 class Page(db.Model, AllFeaturesMixin):
     __tablename__ = "pages"
-    # __abstract__ = True
+
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
     project = db.relationship("Project", back_populates="pages")
@@ -65,7 +66,13 @@ class Page(db.Model, AllFeaturesMixin):
 class Dashboard(Page):
     __tablename__ = "dashboards"
 
-    id = db.Column(db.Integer, primary_key=True)
+    """
+    id = column_property(Column(Integer, primary_key=True), A.id)
+    a_id = Column(Integer, ForeignKey('a.id'))
+    
+    """
+    # id = db.Column(db.Integer, primary_key=True)
+    id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
     page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
     page = db.relationship("Page")
     content = db.Column(db.JSON, nullable=False)
@@ -75,13 +82,15 @@ class Dashboard(Page):
 class DataExplorer(Page, AllFeaturesMixin):
     __tablename__ = "dataexplorers"
 
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True)
+    id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
     page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
     page = db.relationship("Page")
     content = db.Column(db.JSON, nullable=False)
 
     def __repr__(self):
         return "<Data explorer %r>" % self.title
+
 
 class User(db.Model, AllFeaturesMixin):
     __tablename__ = "users"
