@@ -193,10 +193,6 @@ def layout(lang="en", **query_params):
     project_slug = query_params.get("prj", None)
     page_slug = query_params.get("page", None)
 
-    print("Slugs")
-    print(project_slug)
-    print(page_slug)
-
     if project_slug is None or page_slug is None:
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
@@ -204,8 +200,6 @@ def layout(lang="en", **query_params):
         return render_no_dashboard_cfg_found(project_slug, page_slug)
 
     all_pages = Dashboard.where(project___slug=project_slug).all()
-    print("all_pages")
-    print(all_pages)
     if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
 

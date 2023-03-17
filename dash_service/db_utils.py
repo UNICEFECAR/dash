@@ -37,22 +37,23 @@ class db_utils:
         #     .first()
         # )
         dashboard = (
-            Dashboard.query.with_entities(Dashboard.id).join(Page)
+            Dashboard.query.with_entities(Dashboard.id)
             .join(Project)
-            .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
-        )
+            .filter(and_(Project.slug == prj_slug, Dashboard.slug == page_slug))
+        ).first()
 
         if dashboard is not None:
             return db_utils.TYPE_DASHBOARD
 
         dataexplorer = (
-            DataExplorer.query.with_entities(Dashboard.id).join(Page)
+            DataExplorer.query.with_entities(DataExplorer.id)
             .join(Project)
-            .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
+            .filter(and_(Project.slug == prj_slug, DataExplorer.slug==page_slug))
         )
+
         if dataexplorer is not None:
             return db_utils.TYPE_DATAEXPLORER
-
+        
         return db_utils.TYPE_UNKNOWN
 
     # check if the slug exists in the Pages
