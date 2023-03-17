@@ -8,7 +8,6 @@ from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
 
-
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
     _LAST1OBS_LABEL = "Show latest data only"
@@ -60,6 +59,13 @@ class DataExplorerAIO(html.Div):
             "subcomponent": "de_unique_attribs",
             "aio_id": aio_id,
         }
+
+        de_indic_meta = lambda aio_id: {
+            "component": "DataExplorer",
+            "subcomponent": "de_indic_meta",
+            "aio_id": aio_id,
+        }
+
 
     ids = ids
 
@@ -117,6 +123,7 @@ class DataExplorerAIO(html.Div):
                 html.Div(children=filter_time),
                 html.Div(id=self.ids.de_filters(aio_id), children=[]),
                 html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
+                html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
             ],
         )
 
@@ -134,10 +141,10 @@ class DataExplorerAIO(html.Div):
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
             children=[
-                html.H1(
+                html.H4(
                     id=self.ids.de_table_title(aio_id),
                     children=[],
-                    className="row col-sm-12 col-lg-9",
+                    className="row col-sm-12 col-lg-9 text-primary",
                 ),
                 html.Div(
                     className="row",

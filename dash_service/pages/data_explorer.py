@@ -29,6 +29,10 @@ from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
 
+from dash_service.components_aio.data_explorer.data_explorer_indic_meta import (
+    DataExplorerIndicatorMetaAIO,
+)
+
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
 pd.set_option("display.width", 0)
@@ -51,6 +55,7 @@ ID_OBS_VALUE = "OBS_VALUE"
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
 
+
 def layout(lang="en", **query_params):
 
     project_slug = query_params.get("prj", None)
@@ -58,7 +63,7 @@ def layout(lang="en", **query_params):
 
     if project_slug is None or page_slug is None:
         # return render_page_template({}, "Validation Page", [], "", lang)
-        return html.Div(f"No data explorer found for project {project_slug}, page {page_slug}")
+        return render_no_de_cfg_found(project_slug, page_slug)
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     dataexpl = DataExplorer.where(
@@ -67,9 +72,9 @@ def layout(lang="en", **query_params):
 
     config = dataexpl.content
     t = dataexpl.title
-    
-    #override config from query params
-    qp_ignore_case = {k.lower():v for k,v in query_params.items()}
+
+    # override config from query params
+    qp_ignore_case = {k.lower(): v for k, v in query_params.items()}
 
     if "ag" in qp_ignore_case:
         config["data"]["agency"] = qp_ignore_case["ag"]
@@ -83,9 +88,25 @@ def layout(lang="en", **query_params):
         config["data"]["startperiod"] = qp_ignore_case["startperiod"]
     if "endperiod" in qp_ignore_case:
         config["data"]["endperiod"] = qp_ignore_case["endperiod"]
-    
 
     return render_page_template(config, lang)
+
+
+def render_no_de_cfg_found(prj, page):
+    if prj is None:
+        err = "No page found, prj parameter needed, e.g. prj=rosa"
+    if page is None:
+        err = "No page found, page parameter needed, e.g. page=rosa_de"
+    if prj is not None and page is not None:
+        err = f"No page found for parameters prj={prj}&page={page}"
+    template = html.Div(
+        dbc.Col(
+            [
+                dbc.Row(html.H3(err)),
+            ]
+        )
+    )
+    return template
 
 
 def render_page_template(
@@ -340,6 +361,7 @@ def get_code_name(code, dim_or_attrib):
         Output(DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
+        Output(DataExplorerAIO.ids.de_indic_meta(ELEM_DATAEXPLORER), "children"),
         Output(_STORE_REQUEST_CFG, "data"),
         Output(_STORE_LASTNOBS_CFG, "data"),
     ],
@@ -621,6 +643,8 @@ def selection_change(
     unique_dims_html = create_unique_dims_attrs_text(unique_dims)
     unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
 
+    indicators_meta = ["INDIC META"]
+
     return [
         tbl_data,
         tbl_cols_to_show,
@@ -629,6 +653,7 @@ def selection_change(
         unique_dims_html,
         unique_attrs_html,
         pvt_controls,
+indicators_meta,
         request_cfg,
         {"lastn": lastn},
     ]
