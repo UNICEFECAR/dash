@@ -93,6 +93,12 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "DM_ASYL_UASC",
+                "suffix": "persons",
+                "min_max": False,
+            },
+            {
+                "name": "",
                 "indicator": "MG_INTNL_MG_CNTRY_DEST_PS",
                 "suffix": "persons",
                 "min_max": False,
@@ -107,6 +113,7 @@ page_config = {
                 "DM_FRATE_TOT",
                 "DM_POP_NETM",
                 "DM_ASYL_FRST",
+                "DM_ASYL_UASC",
                 "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
             "default_graph": "bar",
@@ -142,6 +149,12 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "EC_SI_POV_GINI",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "EC_SL_UEM_TOTL_ZS",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -160,6 +173,7 @@ page_config = {
                 "EC_TEC_GRL_GOV_EXP",
                 "EC_NY_GDP_PCAP_PP_CD",
                 "EC_NY_GNP_PCAP_CD",
+                "EC_SI_POV_GINI",
                 "EC_SL_UEM_TOTL_ZS",
                 "EC_EAP_RT",
             ],
@@ -196,6 +210,24 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "EDU_FIN_EXP_L02",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_FIN_EXP_L1",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "HT_SH_XPD_GHED_GD_ZS",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "HT_SH_XPD_GHED_GD_ZS",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -211,6 +243,8 @@ page_config = {
             "graphs": graphs_dict,
             "indicators": [
                 "EDU_FIN_EXP_PT_GDP",
+                "EDU_FIN_EXP_L02",
+                "EDU_FIN_EXP_L1",
                 "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
             ],
@@ -298,18 +332,22 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "JJ_CHLD_VICTIM_CRIME_RATE",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
+                "indicator": "JJ_CHLD_COMPLAINT_HHRR",
+                "suffix": "children",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "JJ_CHLD_DISAB_COMPLAINT_HHRR",
+                "suffix": "children",
+                "min_max": False,
             },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
-            "indicators": [
-                "JJ_CHLD_VICTIM_CRIME_RATE",
-            ],
+            "indicators": ["JJ_CHLD_COMPLAINT_HHRR", "JJ_CHLD_DISAB_COMPLAINT_HHRR"],
             "default_graph": "bar",
-            "default": "JJ_CHLD_VICTIM_CRIME_RATE",
+            "default": "JJ_CHLD_COMPLAINT_HHRR",
         },
     },
 }

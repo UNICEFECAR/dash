@@ -158,6 +158,12 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "JJ_VC_PRS_UNSNT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
