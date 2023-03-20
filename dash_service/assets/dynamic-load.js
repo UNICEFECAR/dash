@@ -63,14 +63,23 @@ if (browserOk) {
     var qparam_prj = url_to_update.searchParams.get("prj");
     var qparam_page = url_to_update.searchParams.get("page");
 
-    //If the params are not in the query string then try to pull them from the host page config
+    //If the params are not in the query string then try to pull them from the hosting page config
     //This allows to override the hosting page config
-    if (typeof host_params !== 'undefined') {
-        if (qparam_prj == null && "prj" in host_params) {
-            qparam_prj = host_params["prj"]
+    if (typeof json_config !== 'undefined') {
+        json_config = json_config.replace(/ /g,'');
+        json_config = json_config.split("&");
+
+        var parsed_params={};
+        for (var i=0; i<json_config.length; i++){
+            var split_param = json_config[i].split("=");
+            parsed_params[split_param[0]]=split_param[1];
         }
-        if (qparam_page == null && "page" in host_params) {
-            qparam_page = host_params["page"]
+
+        if (qparam_prj == null && "prj" in parsed_params) {
+            qparam_prj = parsed_params["prj"]
+        }
+        if (qparam_page == null && "page" in parsed_params) {
+            qparam_page = parsed_params["page"]
         }
     }
 
