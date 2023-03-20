@@ -344,7 +344,7 @@ page_config = {
                 "HVA_PMTCT_ARV_CVG",
             ],
             "default_graph": "bar",
-            "default": "HVA_PMTCT_ARV_CVG",
+            "default": "HVA_EPI_LHIV_0-19",
         },
     },
 }

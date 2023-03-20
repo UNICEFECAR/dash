@@ -209,6 +209,12 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "EDUNF_ESL_L1",
+                "suffix": "children",
+                "min_max": False,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
@@ -224,6 +230,7 @@ page_config = {
                 "EDU_SDG_SCH_L1",
                 "EDU_SDG_SCH_L2",
                 "EDU_SDG_SCH_L3",
+                "EDUNF_ESL_L1",
             ],
             "default_graph": "bar",
             "default": "EDUNF_CR_L1",
@@ -232,12 +239,6 @@ page_config = {
     "EQU": {
         "NAME": "Learning quality and skills",
         "CARDS": [
-            {
-                "name": "",
-                "indicator": "EDUNF_ESL_L1",
-                "suffix": "children",
-                "min_max": False,
-            },
             {
                 "name": "",
                 "indicator": "EDUNF_RPTR_L1",
@@ -280,11 +281,16 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "EDU_SDG_YOUTH_NEET",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "EDUNF_ESL_L1",
                 "EDUNF_RPTR_L1",
                 "EDUNF_RPTR_L2",
                 "EDU_PISA_LOW_ACHIEVE_MAT",
@@ -292,9 +298,10 @@ page_config = {
                 "EDU_PISA_LOW_ACHIEVE_SCI",
                 "EDU_SDG_STU_L2_GLAST_MAT",
                 "EDU_SDG_STU_L2_GLAST_REA",
+                "EDU_SDG_YOUTH_NEET",
             ],
             "default_graph": "bar",
-            "default": "EDUNF_ESL_L1",
+            "default": "EDUNF_RPTR_L1",
         },
     },
     "ELE": {

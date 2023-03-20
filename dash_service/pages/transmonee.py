@@ -469,6 +469,14 @@ def only_dtype(config):
     return list(config.keys()) == ["DTYPE", "NOMINAL"]
 
 
+# function to check if a certain indicator is nominal data
+def nominal_data(config):
+    if only_dtype(config) and config["NOMINAL"] is True:
+        return True
+    else:
+        return False
+
+
 # alternative way to read in data, uses Daniels' data_access_sdmx class and json parser
 def get_data(
     indicators: list,
@@ -1674,7 +1682,7 @@ def fig_options(is_active_button, buttons_id, packed_config):
     indicator_config = indicators_config.get(indicator, {})
 
     # check if the indicator has is string type and give only bar and map as options
-    if indicator_config and only_dtype(indicator_config):
+    if indicator_config and nominal_data(indicator_config):
         area_types = [
             {"label": "Bar", "value": "count_bar"},
             {"label": "Map", "value": "map"},
@@ -1947,6 +1955,7 @@ def aio_area_figure(
     fig.update_layout(xaxis_title="")
     if fig_type == "bar" and not dimension and "YES_NO" not in data.UNIT_MEASURE.values:
         fig.update_traces(marker_color=domain_colour)
+        fig.update_traces(textposition="outside")
     if fig_type == "line":
         fig.update_traces(**traces)
 
