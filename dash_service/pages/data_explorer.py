@@ -52,6 +52,8 @@ ELEM_DATAEXPLORER_TABLE = "ELEM_DATAEXPLORER_TABLE"
 OBS_COUNT_LIMIT = 5000
 ID_OBS_VALUE = "OBS_VALUE"
 
+_CONCEPT_ID_INDICATOR = ["INDICATOR"]  # A list of possible indicaotrs' concept IDs
+
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
 
@@ -332,6 +334,12 @@ def update_pvt_controls(struct, uniq_dims_ids, selected_pvt_cfg):
         ret_pvt_controls.append(pvt_control)
 
     return ret_pvt_controls
+
+
+def update_indicators_meta(indics):
+    ret = DataExplorerIndicatorMetaAIO.render_indicators(indics)
+    
+    return ret
 
 
 def get_code_name(code, dim_or_attrib):
@@ -643,7 +651,16 @@ def selection_change(
     unique_dims_html = create_unique_dims_attrs_text(unique_dims)
     unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
 
-    indicators_meta = ["INDIC META"]
+    indic_idx = -1
+    sel_indics = None
+    for idx, d in enumerate(dims):
+        if d["id"] in _CONCEPT_ID_INDICATOR:
+            indic_idx = idx
+            break
+    if indic_idx >=0:
+        sel_indics = [{"id":ind, "name":get_code_name(ind, dims[indic_idx])} for ind in selections[idx]]
+
+    indicators_meta = update_indicators_meta(sel_indics)
 
     return [
         tbl_data,
@@ -653,7 +670,7 @@ def selection_change(
         unique_dims_html,
         unique_attrs_html,
         pvt_controls,
-indicators_meta,
+        indicators_meta,
         request_cfg,
         {"lastn": lastn},
     ]

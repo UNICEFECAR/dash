@@ -27,4 +27,14 @@ class DataExplorerIndicatorMetaAIO(html.Div):
             html.Div(className="font-weight-bold", children="Indicators metadata")
         ])
             
-        super().__init__(children=[ret])
+        super().__init__(children=[ret])    
+
+    @staticmethod
+    def render_indicators(indics_code_name):
+        if indics_code_name is None:
+            return None
+        html_items = [html.Div(indic["name"]) for indic in indics_code_name]
+        ret = html.Div(
+            children=html_items
+        )
+        return ret
