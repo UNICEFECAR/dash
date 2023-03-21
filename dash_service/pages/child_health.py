@@ -12,6 +12,7 @@ from dash import (
 import dash_bootstrap_components as dbc
 
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
@@ -22,14 +23,15 @@ from dash_service.pages.transmonee import (
     make_card,
     indicator_card,
     graphs_dict,
-    filters,
+    selections,
     themes,
     aio_options,
-    breakdown_options,
     active_button,
+    breakdown_options,
     default_compare,
     aio_area_figure,
     fig_options,
+    download_data,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -47,6 +49,7 @@ from dash_service.pages.transmonee import (
     get_card_popover_body,
     colours,
 )
+
 
 min_max_card_suffix = "min - max values"
 
@@ -116,6 +119,12 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "CME_MRY0",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "CME_MRY0T4",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -138,15 +147,37 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "MNCH_PNCMOM",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "NT_BW_LBW",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "FT_WHS_PBR",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
                 "CME_MRM0",
+                "CME_MRY0",
                 "CME_MRY0T4",
                 "CME_SBR",
                 "MNCH_SAB",
                 "MNCH_CSEC",
+                "MNCH_PNCMOM",
+                "NT_BW_LBW",
+                "FT_WHS_PBR",
             ],
             "default_graph": "bar",
             "default": "CME_MRM0",
@@ -173,6 +204,12 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "IM_MCV2",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
@@ -180,6 +217,7 @@ page_config = {
                 "HT_COVERAGE_DTP3",
                 "HT_DIST80DTP3_P",
                 "IM_MCV1",
+                # "IM_MCV2",
             ],
             "default_graph": "bar",
             "default": "HT_COVERAGE_DTP3",
@@ -277,12 +315,6 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "HVA_PMTCT_ARV_CVG",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
                 "indicator": "HVA_EPI_LHIV_0-19",
                 "suffix": "estimated children living with HIV",
                 "min_max": False,
@@ -299,17 +331,23 @@ page_config = {
                 "suffix": "estimated new infections",
                 "min_max": False,
             },
+            {
+                "name": "",
+                "indicator": "HVA_PMTCT_ARV_CVG",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "HVA_PMTCT_ARV_CVG",
                 "HVA_EPI_LHIV_0-19",
                 "HVA_PED_ART_NUM",
                 "HVA_EPI_INF_ANN_15-24",
+                "HVA_PMTCT_ARV_CVG",
             ],
             "default_graph": "bar",
-            "default": "HVA_PMTCT_ARV_CVG",
+            "default": "HVA_EPI_LHIV_0-19",
         },
     },
 }
@@ -339,6 +377,7 @@ def layout(page_slug=None, **query_parmas):
         [
             html.Br(),
             dcc.Store(id=f"{page_prefix}-store"),
+            dcc.Store(id=f"{page_prefix}-data-store"),
             dbc.Container(
                 fluid=True,
                 children=get_base_layout(
@@ -356,19 +395,11 @@ def layout(page_slug=None, **query_parmas):
 
 @callback(
     Output(f"{page_prefix}-store", "data"),
-    Output(f"{page_prefix}-country_selector", "checked"),
-    Output(f"{page_prefix}-collapse-years-button", "label"),
-    Output(f"{page_prefix}-collapse-countries-button", "label"),
-    [
-        Input(f"{page_prefix}-theme", "hash"),
-        Input(f"{page_prefix}-year_slider", "value"),
-        Input(f"{page_prefix}-country_selector", "checked"),
-        Input(f"{page_prefix}-programme-toggle", "value"),
-    ],
+    Input(f"{page_prefix}-theme", "hash"),
     State(f"{page_prefix}-indicators", "data"),
 )
-def apply_filters(theme, years_slider, country_selector, programme_toggle, indicator):
-    return filters(theme, years_slider, country_selector, programme_toggle, indicator)
+def apply_selections(theme, indicator):
+    return selections(theme, indicator)
 
 
 @callback(
@@ -441,14 +472,34 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
 
 
 @callback(
+    Output(f"{page_prefix}-download-csv-info", "data"),
+    Input(f"{page_prefix}-download_btn", "n_clicks"),
+    State(f"{page_prefix}-data-store", "data"),
+    prevent_initial_call=True,
+)
+def apply_download_data(n_clicks, data):
+    return download_data(n_clicks, data)
+
+
+@callback(
     [
+        Output(f"{page_prefix}-country_selector", "checked"),
+        Output(f"{page_prefix}-collapse-years-button", "label"),
+        Output(f"{page_prefix}-collapse-countries-button", "label"),
         Output({"type": "area", "index": f"{page_prefix}-AIO_AREA"}, "figure"),
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
         Output(f"{page_prefix}-aio_area_data_info", "children"),
         Output(f"{page_prefix}-no-data-hover-body", "children"),
+        Output(f"{page_prefix}-aio_area_graph_info", "children"),
+        Output(f"{page_prefix}-data-store", "data"),
     ],
-    Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
+    [
+        Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
+        Input(f"{page_prefix}-year_slider", "value"),
+        Input(f"{page_prefix}-country_selector", "checked"),
+        Input(f"{page_prefix}-programme-toggle", "value"),
+    ],
     [
         State(f"{page_prefix}-store", "data"),
         State(f"{page_prefix}-indicators", "data"),
@@ -458,10 +509,20 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
     prevent_initial_call=True,
 )
 def apply_aio_area_figure(
-    compare, selections, indicators_dict, buttons_properties, selected_type
+    compare,
+    years_slider,
+    country_selector,
+    programme_toggle,
+    selections,
+    indicators_dict,
+    buttons_properties,
+    selected_type,
 ):
     return aio_area_figure(
         compare,
+        years_slider,
+        country_selector,
+        programme_toggle,
         selections,
         indicators_dict,
         buttons_properties,

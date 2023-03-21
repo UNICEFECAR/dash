@@ -373,7 +373,7 @@ data_sources = {
     "UIS": "UNESCO Institute for Statistics",
     "NEW_UIS": "UNESCO Institute for Statistics",
     "UNDP": "United Nations Development Programme",
-    "TMEE": "Transformative Monitoring for Enhanced Equity",
+    "TMEE": "Transformative Monitoring for Enhanced Equity (TransMonEE)",
 }
 
 dict_topics_subtopics = {
@@ -467,6 +467,11 @@ def get_sector(subtopic):
 # function to check if the config of a certain indicator are only about its dtype and if its nominal data
 def only_dtype(config):
     return list(config.keys()) == ["DTYPE", "NOMINAL"]
+
+
+# function to check if a certain indicator is nominal data
+def nominal_data(config):
+    return only_dtype(config) and config["NOMINAL"]
 
 
 # alternative way to read in data, uses Daniels' data_access_sdmx class and json parser
@@ -998,14 +1003,22 @@ def get_base_layout(**kwargs):
                                         ),
                                         width="auto",
                                     ),
-                                    # removing button for moment
-                                    # dbc.Col(
-                                    # [
-                                    # html.Button("Download CSV", id="btn_csv"),
-                                    # dcc.Download(id="download-dataframe-csv"),
-                                    # ],
-                                    # width="auto",
-                                    # ),
+                                    dbc.Col(
+                                        [
+                                            html.Button(
+                                                "Download data",
+                                                id=f"{page_prefix}-download_btn",
+                                            ),
+                                            dcc.Download(
+                                                id=f"{page_prefix}-download-csv-info"
+                                            ),
+                                            dbc.Tooltip(
+                                                "Click to download the data displayed in graph as a CSV file.",
+                                                target=f"{page_prefix}-download_btn",
+                                            ),
+                                        ],
+                                        width="auto",
+                                    ),
                                 ],
                                 id=f"{page_prefix}-filter-row",
                                 justify="center",
@@ -1056,7 +1069,7 @@ def get_base_layout(**kwargs):
                                                                 ),
                                                             ],
                                                             style={
-                                                                "maxHeight": "400px",
+                                                                "maxHeight": "350px",
                                                                 "overflowY": "scroll",
                                                             },
                                                         ),
@@ -1114,6 +1127,9 @@ def get_base_layout(**kwargs):
                                                                         }
                                                                     )
                                                                 ]
+                                                            ),
+                                                            dcc.Markdown(
+                                                                id=f"{page_prefix}-aio_area_graph_info",
                                                             ),
                                                             html.Div(
                                                                 dbc.Alert(
@@ -1238,7 +1254,7 @@ def make_card(
 
 
 def indicator_card(
-    selections,
+    filters,
     name,
     numerator,
     suffix,
@@ -1265,8 +1281,8 @@ def indicator_card(
 
     filtered_data = get_data(
         indicators,
-        selections["years"],
-        selections["countries"],
+        filters["years"],
+        filters["countries"],
         breakdown,
         dimensions,
         latest_data=True,
@@ -1388,7 +1404,15 @@ def indicator_card(
         )
         indicator_min = min_format.format(min_val)
         indicator_max = max_format.format(max_val)
-        indicator_header = f"{indicator_min} - {indicator_max}"
+
+        if "%" in filtered_data["Unit_name"].values:
+            min_max_suffix = "%"
+        else:
+            min_max_suffix = ""
+
+        indicator_header = (
+            f"{indicator_min}{min_max_suffix} - {indicator_max}{min_max_suffix}"
+        )
     else:
         # string format for cards: thousands separator and number of decimals
         sum_format = (
@@ -1418,6 +1442,12 @@ def indicator_card(
         page_prefix,
         domain_colour,
     )
+
+
+def download_data(n_clicks, data):
+    download_df = pd.DataFrame.from_dict(data)
+    download_df["Indicator_name"] = download_df["CODE"].map(indicator_names)
+    return dcc.send_data_frame(download_df.to_csv, f"{download_df.CODE[0]}.csv")
 
 
 graphs_dict = {
@@ -1451,7 +1481,7 @@ graphs_dict = {
         "options": dict(
             x="Status",
             color="Status",
-            color_discrete_map={"Yes": "#4e8722", "No": "#a8325d"},
+            color_discrete_map={"Yes": "#1CABE2", "No": "#fcba03"},
             custom_data=[
                 "OBS_VALUE",
                 "Country_name",
@@ -1517,7 +1547,16 @@ graphs_dict = {
 }
 
 
-def filters(theme, years_slider, country_selector, programme_toggle, indicators):
+def selections(theme, indicators):
+    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
+    selections = dict(
+        theme=current_theme,
+        indicators_dict=indicators,
+    )
+    return selections
+
+
+def get_filters(years_slider, country_selector, programme_toggle):
     # start_time = time.time()
     ctx = callback_context
     selected = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -1548,21 +1587,13 @@ def filters(theme, years_slider, country_selector, programme_toggle, indicators)
     countries_selected_codes = [
         countries_iso3_dict[country] for country in countries_selected
     ]
-    current_theme = theme[1:].upper() if theme else next(iter(indicators.keys()))
-    selections = dict(
-        theme=current_theme,
-        indicators_dict=indicators,
+    filter_dict = dict(
         years=selected_years,
         countries=countries_selected_codes,
         count_names=countries_selected,
     )
     # print("filters: %s seconds" % (time.time() - start_time))
-    return (
-        selections,
-        country_selector,
-        f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
-        f"Filter by country: {country_text} selected",
-    )
+    return (filter_dict, country_selector, selected_years, country_text)
 
 
 def themes(selections, indicators_dict, page_prefix):
@@ -1601,13 +1632,6 @@ def aio_options(theme, indicators_dict, page_prefix):
             else ""
         )
 
-        # come back to this to fix indicator resetting when year/country is selected
-        # active_button = [
-        #   ind_code["index"]
-        #  for ind_code, truth in zip(buttons_id, is_active_button)
-        # if truth
-        # ][0]
-
         area_buttons = [
             dbc.Button(
                 indicator_names[code],
@@ -1615,9 +1639,6 @@ def aio_options(theme, indicators_dict, page_prefix):
                 color=f"{page_prefix}",
                 className="my-1",
                 active=code == default_option if default_option != "" else num == 0,
-                # active=code == active_button
-                # if active_button is not None
-                # else code == default_option,
             )
             for num, code in enumerate(area_indicators)
         ]
@@ -1674,7 +1695,7 @@ def fig_options(is_active_button, buttons_id, packed_config):
     indicator_config = indicators_config.get(indicator, {})
 
     # check if the indicator has is string type and give only bar and map as options
-    if indicator_config and only_dtype(indicator_config):
+    if indicator_config and nominal_data(indicator_config):
         area_types = [
             {"label": "Bar", "value": "count_bar"},
             {"label": "Map", "value": "map"},
@@ -1720,6 +1741,9 @@ def default_compare(compare_options, selected_type, indicators_dict, theme):
 
 def aio_area_figure(
     compare,
+    years_slider,
+    country_selector,
+    programme_toggle,
     selections,
     indicators_dict,
     buttons_properties,
@@ -1732,6 +1756,10 @@ def aio_area_figure(
     map_colour,
 ):
     # start_time = time.time()
+    filters, country_selector, selected_years, country_text = get_filters(
+        years_slider, country_selector, programme_toggle
+    )
+
     # assumes indicator is not empty
     indicator = [
         but_prop["props"]["id"]["index"]
@@ -1760,8 +1788,8 @@ def aio_area_figure(
         # query one indicator
         data = get_data(
             [indicator],
-            selections["years"],
-            selections["countries"],
+            filters["years"],
+            filters["countries"],
             compare,
             latest_data=False if fig_type == "line" else True,
         )
@@ -1770,8 +1798,8 @@ def aio_area_figure(
         # query packed indicators
         data = get_data(
             packed_config[indicator]["indicators"],
-            selections["years"],
-            selections["countries"],
+            filters["years"],
+            filters["countries"],
             compare,
             latest_data=False if fig_type == "line" else True,
         )
@@ -1814,7 +1842,7 @@ def aio_area_figure(
         []
         if not card_config or "CARDS" not in indicators_dict[selections["theme"]]
         else indicator_card(
-            selections,
+            filters,
             card_config[0]["name"],
             card_config[0]["indicator"],
             card_config[0]["suffix"],
@@ -1878,7 +1906,7 @@ def aio_area_figure(
         data.sort_values(by=["TIME_PERIOD", "Country_name"], inplace=True)
         layout["xaxis"] = dict(
             tickmode="linear",
-            tick0=selections["years"][0],
+            tick0=filters["years"][0],
             dtick=1,
             categoryorder="total ascending",
         )
@@ -1922,12 +1950,15 @@ def aio_area_figure(
         # sort by the compare value to have the legend in the right ascending order
         data.sort_values(by=[dimension], inplace=True)
 
+    graph_info = ""
     # rename figure_type 'map': 'choropleth' (plotly express)
     if fig_type == "map":
+        # map disclaimer text
+        graph_info = "Maps on this site do not reflect a position by UNICEF on the legal status of any country or territory or the delimitation of any frontiers."
         fig_type = "choropleth_mapbox"
         if "YES_NO" in data.UNIT_MEASURE.values:
             options["color"] = "Status"
-            options["color_discrete_map"] = {"Yes": "#4e8722", "No": "#a8325d"}
+            options["color_discrete_map"] = {"Yes": "#1CABE2", "No": "#fcba03"}
         else:
             options["color_continuous_scale"] = map_colour
             options["range_color"] = [data.OBS_VALUE.min(), data.OBS_VALUE.max()]
@@ -1947,6 +1978,8 @@ def aio_area_figure(
     fig.update_layout(xaxis_title="")
     if fig_type == "bar" and not dimension and "YES_NO" not in data.UNIT_MEASURE.values:
         fig.update_traces(marker_color=domain_colour)
+        if (data.OBS_VALUE == 0).any():
+            fig.update_traces(textposition="outside")
     if fig_type == "line":
         fig.update_traces(**traces)
 
@@ -1968,12 +2001,17 @@ def aio_area_figure(
             )
         )
     # countries not reporting
-    not_rep_count = np.setdiff1d(selections["count_names"], data.Country_name.unique())
+    not_rep_count = np.setdiff1d(filters["count_names"], data.Country_name.unique())
     # number of countries from selection
-    count_sel = len(selections["countries"])
+    count_sel = len(filters["countries"])
+
+    json_data = data.to_dict()
 
     # print("aio_area_figure: %s seconds" % (time.time() - start_time))
     return (
+        country_selector,
+        f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
+        f"Filter by country: {country_text} selected",
         fig,
         [
             html.Div(
@@ -2025,4 +2063,6 @@ def aio_area_figure(
             )
         ],
         dcc.Markdown(["- " + "\n- ".join(sorted(not_rep_count, key=str.lower))]),
+        graph_info,
+        json_data,
     )
