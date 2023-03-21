@@ -12,6 +12,7 @@ from dash import (
 import dash_bootstrap_components as dbc
 
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
@@ -22,14 +23,15 @@ from dash_service.pages.transmonee import (
     make_card,
     indicator_card,
     graphs_dict,
-    filters,
+    selections,
     themes,
     aio_options,
-    breakdown_options,
     active_button,
+    breakdown_options,
     default_compare,
     aio_area_figure,
     fig_options,
+    download_data,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -47,6 +49,7 @@ from dash_service.pages.transmonee import (
     get_card_popover_body,
     colours,
 )
+
 
 min_max_card_suffix = "min - max values"
 
@@ -385,6 +388,7 @@ def layout(page_slug=None, **query_parmas):
         [
             html.Br(),
             dcc.Store(id=f"{page_prefix}-store"),
+            dcc.Store(id=f"{page_prefix}-data-store"),
             dbc.Container(
                 fluid=True,
                 children=get_base_layout(
@@ -402,19 +406,11 @@ def layout(page_slug=None, **query_parmas):
 
 @callback(
     Output(f"{page_prefix}-store", "data"),
-    Output(f"{page_prefix}-country_selector", "checked"),
-    Output(f"{page_prefix}-collapse-years-button", "label"),
-    Output(f"{page_prefix}-collapse-countries-button", "label"),
-    [
-        Input(f"{page_prefix}-theme", "hash"),
-        Input(f"{page_prefix}-year_slider", "value"),
-        Input(f"{page_prefix}-country_selector", "checked"),
-        Input(f"{page_prefix}-programme-toggle", "value"),
-    ],
+    Input(f"{page_prefix}-theme", "hash"),
     State(f"{page_prefix}-indicators", "data"),
 )
-def apply_filters(theme, years_slider, country_selector, programme_toggle, indicator):
-    return filters(theme, years_slider, country_selector, programme_toggle, indicator)
+def apply_selections(theme, indicator):
+    return selections(theme, indicator)
 
 
 @callback(
@@ -487,14 +483,34 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
 
 
 @callback(
+    Output(f"{page_prefix}-download-csv-info", "data"),
+    Input(f"{page_prefix}-download_btn", "n_clicks"),
+    State(f"{page_prefix}-data-store", "data"),
+    prevent_initial_call=True,
+)
+def apply_download_data(n_clicks, data):
+    return download_data(n_clicks, data)
+
+
+@callback(
     [
+        Output(f"{page_prefix}-country_selector", "checked"),
+        Output(f"{page_prefix}-collapse-years-button", "label"),
+        Output(f"{page_prefix}-collapse-countries-button", "label"),
         Output({"type": "area", "index": f"{page_prefix}-AIO_AREA"}, "figure"),
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
         Output(f"{page_prefix}-aio_area_data_info", "children"),
         Output(f"{page_prefix}-no-data-hover-body", "children"),
+        Output(f"{page_prefix}-aio_area_graph_info", "children"),
+        Output(f"{page_prefix}-data-store", "data"),
     ],
-    Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
+    [
+        Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
+        Input(f"{page_prefix}-year_slider", "value"),
+        Input(f"{page_prefix}-country_selector", "checked"),
+        Input(f"{page_prefix}-programme-toggle", "value"),
+    ],
     [
         State(f"{page_prefix}-store", "data"),
         State(f"{page_prefix}-indicators", "data"),
@@ -504,10 +520,20 @@ def set_default_compare(compare_options, selected_type, indicators_dict, theme):
     prevent_initial_call=True,
 )
 def apply_aio_area_figure(
-    compare, selections, indicators_dict, buttons_properties, selected_type
+    compare,
+    years_slider,
+    country_selector,
+    programme_toggle,
+    selections,
+    indicators_dict,
+    buttons_properties,
+    selected_type,
 ):
     return aio_area_figure(
         compare,
+        years_slider,
+        country_selector,
+        programme_toggle,
         selections,
         indicators_dict,
         buttons_properties,
