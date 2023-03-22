@@ -7,6 +7,9 @@ from .data_explorer_table_aio import DataExplorerTableAIO
 from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
+from dash_service.components_aio.data_explorer.data_explorer_indic_meta import(
+    DataExplorerIndicatorMetaAIO
+)
 
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
@@ -60,11 +63,11 @@ class DataExplorerAIO(html.Div):
             "aio_id": aio_id,
         }
 
-        de_indic_meta = lambda aio_id: {
-            "component": "DataExplorer",
-            "subcomponent": "de_indic_meta",
-            "aio_id": aio_id,
-        }
+        # de_indic_meta = lambda aio_id: {
+        #     "component": "DataExplorer",
+        #     "subcomponent": "de_indic_meta",
+        #     "aio_id": aio_id,
+        # }
 
 
     ids = ids
@@ -123,7 +126,9 @@ class DataExplorerAIO(html.Div):
                 html.Div(children=filter_time),
                 html.Div(id=self.ids.de_filters(aio_id), children=[]),
                 html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
-                html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
+                DataExplorerIndicatorMetaAIO(aio_id)
+                #html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
+                #
             ],
         )
 

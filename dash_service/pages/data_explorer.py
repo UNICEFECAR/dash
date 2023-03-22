@@ -369,7 +369,7 @@ def get_code_name(code, dim_or_attrib):
         Output(DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
-        Output(DataExplorerAIO.ids.de_indic_meta(ELEM_DATAEXPLORER), "children"),
+        Output(DataExplorerIndicatorMetaAIO.ids.dataexplorer_indic_meta(ELEM_DATAEXPLORER), "children"),
         Output(_STORE_REQUEST_CFG, "data"),
         Output(_STORE_LASTNOBS_CFG, "data"),
     ],
