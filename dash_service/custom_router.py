@@ -1,5 +1,5 @@
 from dash import html, dcc, Input, Output, State
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse
 from .db_utils import db_utils
 
 from dash_service.pages import empty_renderer, dashboard, data_explorer
@@ -20,6 +20,7 @@ from dash.exceptions import PreventUpdate
 from dash_service.pages import empty_renderer
 from dash_service.pages import data_explorer
 from dash_service.pages import dashboard
+from flask import request
 
 
 class CustomRouter:
@@ -31,7 +32,6 @@ class CustomRouter:
         return False
 
     tm_layouts = {
-        "": home.layout,
         "child-cross-cutting": child_cross_cutting.layout,
         "child-education": child_education.layout,
         "child-health": child_health.layout,
@@ -59,6 +59,9 @@ class CustomRouter:
         def custom_router_callb(pathname, search, url_hash):
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location. pathname callback")
+            parsedurl = urlparse(request.base_url)
+            parsedurl = f"{parsedurl.scheme}://{parsedurl.netloc}"
+
             qparams = parse_qs(search.lstrip("?"))
 
             param_prj = ""
@@ -71,7 +74,10 @@ class CustomRouter:
                 param_prj = qparams["prj"][0]
 
             if param_prj == "tm":
-                layout_to_use = CustomRouter.tm_layouts[param_page]
+                if param_page == "":
+                    layout_to_use = home.layout(parsedurl)
+                else:
+                    layout_to_use = CustomRouter.tm_layouts[param_page]
             else:
                 page_type = db_utils().get_page_type(param_prj, param_page)
                 if page_type == db_utils.TYPE_DASHBOARD:
