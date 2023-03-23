@@ -660,7 +660,12 @@ def selection_change(
         ]
 
     indic_profiles_url = de_config.get("indic_profiles_url", None)
-    indic_profiles_url = "http://google.com/"
+    if (
+        "indic_profiles_enabled" in de_config
+        and de_config["indic_profiles_enabled"] == 0
+    ):
+        indic_profiles_url = None
+    # indic_profiles_url = "https://data.unicef.org/indicator-profile/"
     indicators_meta = DataExplorerIndicatorMetaAIO.render_indicators(
         indic_profiles_url, sel_indics
     )
