@@ -3,13 +3,17 @@
 }
 
 /*Data explorer*/
-.de_rangeslider {
-    width: 100%;
+.de_lastnobs input{
+    margin-right: 5px;
 }
 
 .div_de_filter {
     max-height: 250px;
     overflow-y: auto;
+}
+
+.indic_prof_link:hover{
+    color:#007bff !important;
 }
 
 /*Data explorer Data table*/

@@ -64,12 +64,6 @@ class DataExplorerAIO(html.Div):
             "aio_id": aio_id,
         }
 
-        # de_indic_meta = lambda aio_id: {
-        #     "component": "DataExplorer",
-        #     "subcomponent": "de_indic_meta",
-        #     "aio_id": aio_id,
-        # }
-
     ids = ids
 
     def __init__(self, aio_id=None, cfg=None, labels={}):
@@ -77,11 +71,9 @@ class DataExplorerAIO(html.Div):
             aio_id = str(uuid.uuid4())
 
         lastnobs = []
-        indicator_profile_url = None
         if cfg is not None:
             if cfg.get(DataExplorerAIO._CFG_LASTN, 0) != 0:
                 lastnobs = ["lastn"]
-            indicator_profile_url = cfg.get("indicator_profile_url", None)
 
         txt_lastnobs = labels.get(
             DataExplorerAIO._CFG_LASTN, DataExplorerAIO._LAST1OBS_LABEL
@@ -89,9 +81,11 @@ class DataExplorerAIO(html.Div):
 
         filter_lastnobs = dcc.Checklist(
             id=self.ids.de_lastnobs(aio_id),
+            className="row p-2 mb-2 de_lastnobs",
             options=[{"label": txt_lastnobs, "value": "lastn"}],
             value=lastnobs,
         )
+
 
         back_n_years = 10
         time_min = 2000
@@ -116,14 +110,14 @@ class DataExplorerAIO(html.Div):
             marks={time_min: str(time_min), time_max: str(time_max)},
             value=[time_start, time_end],
             id=self.ids.de_time_period(aio_id),
-            className="de_rangeslider",
+            className="row",
             allowCross=False,
             tooltip={"placement": "bottom", "always_visible": True},
         )
 
         left_col_elems = [
-            html.Div(children=filter_lastnobs),
-            html.Div(children=filter_time),
+            filter_lastnobs,
+            filter_time,
             html.Div(id=self.ids.de_filters(aio_id), children=[]),
             html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
             DataExplorerIndicatorMetaAIO(aio_id),
