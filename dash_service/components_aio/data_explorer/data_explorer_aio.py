@@ -117,8 +117,20 @@ class DataExplorerAIO(html.Div):
 
         left_col_elems = [
             filter_lastnobs,
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Time",
+                ),
             filter_time,
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Filters",
+                ),
             html.Div(id=self.ids.de_filters(aio_id), children=[]),
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Pivot",
+                ),
             html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
             DataExplorerIndicatorMetaAIO(aio_id),
         ]
