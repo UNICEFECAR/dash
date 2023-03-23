@@ -1,6 +1,5 @@
 # https://data.unicef.org/resources/data_explorer/unicef_f/?ag=UNICEF&df=GLOBAL_DATAFLOW&ver=1.0&dq=AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0.&startPeriod=2012&endPeriod=2022
 
-import dash
 from dash import callback, dcc, html
 from dash.exceptions import PreventUpdate
 from dash_service.models import DataExplorer, Project
@@ -336,12 +335,6 @@ def update_pvt_controls(struct, uniq_dims_ids, selected_pvt_cfg):
     return ret_pvt_controls
 
 
-def update_indicators_meta(indics):
-    ret = DataExplorerIndicatorMetaAIO.render_indicators(indics)
-    
-    return ret
-
-
 def get_code_name(code, dim_or_attrib):
     if "codes" in dim_or_attrib:
         return next(c for c in dim_or_attrib["codes"] if c["id"] == code)["name"]
@@ -369,7 +362,10 @@ def get_code_name(code, dim_or_attrib):
         Output(DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
-        Output(DataExplorerIndicatorMetaAIO.ids.dataexplorer_indic_meta(ELEM_DATAEXPLORER), "children"),
+        Output(
+            DataExplorerIndicatorMetaAIO.ids.dataexplorer_indic_meta(ELEM_DATAEXPLORER),
+            "children",
+        ),
         Output(_STORE_REQUEST_CFG, "data"),
         Output(_STORE_LASTNOBS_CFG, "data"),
     ],
@@ -657,10 +653,17 @@ def selection_change(
         if d["id"] in _CONCEPT_ID_INDICATOR:
             indic_idx = idx
             break
-    if indic_idx >=0:
-        sel_indics = [{"id":ind, "name":get_code_name(ind, dims[indic_idx])} for ind in selections[idx]]
+    if indic_idx >= 0:
+        sel_indics = [
+            {"id": ind, "name": get_code_name(ind, dims[indic_idx])}
+            for ind in selections[idx]
+        ]
 
-    indicators_meta = update_indicators_meta(sel_indics)
+    indic_profiles_url = de_config.get("indic_profiles_url", None)
+    indic_profiles_url = "http://google.com/"
+    indicators_meta = DataExplorerIndicatorMetaAIO.render_indicators(
+        indic_profiles_url, sel_indics
+    )
 
     return [
         tbl_data,

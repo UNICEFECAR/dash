@@ -7,9 +7,10 @@ from .data_explorer_table_aio import DataExplorerTableAIO
 from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
-from dash_service.components_aio.data_explorer.data_explorer_indic_meta import(
-    DataExplorerIndicatorMetaAIO
+from dash_service.components_aio.data_explorer.data_explorer_indic_meta import (
+    DataExplorerIndicatorMetaAIO,
 )
+
 
 class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
@@ -69,7 +70,6 @@ class DataExplorerAIO(html.Div):
         #     "aio_id": aio_id,
         # }
 
-
     ids = ids
 
     def __init__(self, aio_id=None, cfg=None, labels={}):
@@ -77,9 +77,11 @@ class DataExplorerAIO(html.Div):
             aio_id = str(uuid.uuid4())
 
         lastnobs = []
+        indicator_profile_url = None
         if cfg is not None:
             if cfg.get(DataExplorerAIO._CFG_LASTN, 0) != 0:
                 lastnobs = ["lastn"]
+            indicator_profile_url = cfg.get("indicator_profile_url", None)
 
         txt_lastnobs = labels.get(
             DataExplorerAIO._CFG_LASTN, DataExplorerAIO._LAST1OBS_LABEL
@@ -119,17 +121,19 @@ class DataExplorerAIO(html.Div):
             tooltip={"placement": "bottom", "always_visible": True},
         )
 
+        left_col_elems = [
+            html.Div(children=filter_lastnobs),
+            html.Div(children=filter_time),
+            html.Div(id=self.ids.de_filters(aio_id), children=[]),
+            html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
+            DataExplorerIndicatorMetaAIO(aio_id),
+        ]
+
         left_col = html.Div(
             className="col-sm-12 col-lg-3 bg-light",
-            children=[
-                html.Div(children=filter_lastnobs),
-                html.Div(children=filter_time),
-                html.Div(id=self.ids.de_filters(aio_id), children=[]),
-                html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
-                DataExplorerIndicatorMetaAIO(aio_id)
-                #html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
-                #
-            ],
+            children=left_col_elems
+            # html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
+            #
         )
 
         lbl_download_excel = "Download Excel"
@@ -140,7 +144,10 @@ class DataExplorerAIO(html.Div):
             lbl_download_csv = labels["download_csv"]
 
         btn_downloads = Downloads_tbl_AIO(
-            aio_id, lbl_excel=lbl_download_excel, lbl_csv=lbl_download_csv, additional_classes="float-right"
+            aio_id,
+            lbl_excel=lbl_download_excel,
+            lbl_csv=lbl_download_csv,
+            additional_classes="float-right",
         )
 
         table_col = html.Div(
