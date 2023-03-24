@@ -1,6 +1,5 @@
 # https://data.unicef.org/resources/data_explorer/unicef_f/?ag=UNICEF&df=GLOBAL_DATAFLOW&ver=1.0&dq=AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0.&startPeriod=2012&endPeriod=2022
 
-import dash
 from dash import callback, dcc, html
 from dash.exceptions import PreventUpdate
 from dash_service.models import DataExplorer, Project
@@ -29,6 +28,10 @@ from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
 
+from dash_service.components_aio.data_explorer.data_explorer_indic_meta import (
+    DataExplorerIndicatorMetaAIO,
+)
+
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
 pd.set_option("display.width", 0)
@@ -48,15 +51,10 @@ ELEM_DATAEXPLORER_TABLE = "ELEM_DATAEXPLORER_TABLE"
 OBS_COUNT_LIMIT = 5000
 ID_OBS_VALUE = "OBS_VALUE"
 
+_CONCEPT_ID_INDICATOR = ["INDICATOR"]  # A list of possible indicaotrs' concept IDs
+
 storeitem_sel_codes = "sel_codes"
 # storeitem_exp_filter = "expanded_filter"
-
-# dash.register_page(
-#     __name__,
-#     # path_template="/de/<project_slug>/<page_slug>",
-#     path_template="/de/<project_slug>/<dataexplorer_slug>",
-#     # path="/de/rosa/de_rosa",  # this is the default path and working example
-# )
 
 
 def layout(lang="en", **query_params):
@@ -66,7 +64,7 @@ def layout(lang="en", **query_params):
 
     if project_slug is None or page_slug is None:
         # return render_page_template({}, "Validation Page", [], "", lang)
-        return html.Div(f"No data explorer found for project {project_slug}, page {page_slug}")
+        return render_no_de_cfg_found(project_slug, page_slug)
 
     # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
     dataexpl = DataExplorer.where(
@@ -75,9 +73,9 @@ def layout(lang="en", **query_params):
 
     config = dataexpl.content
     t = dataexpl.title
-    
-    #override config from query params
-    qp_ignore_case = {k.lower():v for k,v in query_params.items()}
+
+    # override config from query params
+    qp_ignore_case = {k.lower(): v for k, v in query_params.items()}
 
     if "ag" in qp_ignore_case:
         config["data"]["agency"] = qp_ignore_case["ag"]
@@ -91,9 +89,25 @@ def layout(lang="en", **query_params):
         config["data"]["startperiod"] = qp_ignore_case["startperiod"]
     if "endperiod" in qp_ignore_case:
         config["data"]["endperiod"] = qp_ignore_case["endperiod"]
-    
 
     return render_page_template(config, lang)
+
+
+def render_no_de_cfg_found(prj, page):
+    if prj is None:
+        err = "No page found, prj parameter needed, e.g. prj=rosa"
+    if page is None:
+        err = "No page found, page parameter needed, e.g. page=rosa_de"
+    if prj is not None and page is not None:
+        err = f"No page found for parameters prj={prj}&page={page}"
+    template = html.Div(
+        dbc.Col(
+            [
+                dbc.Row(html.H3(err)),
+            ]
+        )
+    )
+    return template
 
 
 def render_page_template(
@@ -303,24 +317,6 @@ def get_default_pvt_config(struct):
     return ret
 
 
-def update_pvt_controls(struct, uniq_dims_ids, selected_pvt_cfg):
-    ret_pvt_controls = []
-
-    for dim in struct["dsd"]["dims"]:
-        visible = True
-        if dim["id"] in uniq_dims_ids:
-            visible = False
-        on_row = False
-        if selected_pvt_cfg[dim["id"]] == "R":
-            on_row = True
-        pvt_control = DataExplorerPivotAIO(
-            aio_id=dim["id"], label=dim["name"], onrow=on_row, visible=visible
-        )
-        ret_pvt_controls.append(pvt_control)
-
-    return ret_pvt_controls
-
-
 def get_code_name(code, dim_or_attrib):
     if "codes" in dim_or_attrib:
         return next(c for c in dim_or_attrib["codes"] if c["id"] == code)["name"]
@@ -348,6 +344,10 @@ def get_code_name(code, dim_or_attrib):
         Output(DataExplorerAIO.ids.de_unique_dims(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_unique_attribs(ELEM_DATAEXPLORER), "children"),
         Output(DataExplorerAIO.ids.de_pvt_control(ELEM_DATAEXPLORER), "children"),
+        Output(
+            DataExplorerIndicatorMetaAIO.ids.dataexplorer_indic_meta(ELEM_DATAEXPLORER),
+            "children",
+        ),
         Output(_STORE_REQUEST_CFG, "data"),
         Output(_STORE_LASTNOBS_CFG, "data"),
     ],
@@ -476,8 +476,8 @@ def selection_change(
             pvt_cfg[pvt_id["index"]] = selected_pvt_cfg[idx]
 
     uniq_dims_ids = [d for d in unique_dims.keys()]
-    pvt_controls = update_pvt_controls(
-        de_data_structure[data_struct_id], uniq_dims_ids, pvt_cfg
+    pvt_controls = DataExplorerPivotAIO.update_pvt_controls(
+        de_data_structure[data_struct_id]["dsd"]["dims"], uniq_dims_ids, pvt_cfg
     )
     on_rows = [
         {"id": d["id"], "name": d["name"]}
@@ -629,6 +629,29 @@ def selection_change(
     unique_dims_html = create_unique_dims_attrs_text(unique_dims)
     unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
 
+    indic_idx = -1
+    sel_indics = None
+    for idx, d in enumerate(dims):
+        if d["id"] in _CONCEPT_ID_INDICATOR:
+            indic_idx = idx
+            break
+    if indic_idx >= 0:
+        sel_indics = [
+            {"id": ind, "name": get_code_name(ind, dims[indic_idx])}
+            for ind in selections[idx]
+        ]
+
+    indic_profiles_url = de_config.get("indic_profiles_url", None)
+    if (
+        "indic_profiles_enabled" in de_config
+        and de_config["indic_profiles_enabled"] == 0
+    ):
+        indic_profiles_url = None
+    # indic_profiles_url = "https://data.unicef.org/indicator-profile/"
+    indicators_meta = DataExplorerIndicatorMetaAIO.render_indicators(
+        indic_profiles_url, sel_indics
+    )
+
     return [
         tbl_data,
         tbl_cols_to_show,
@@ -637,6 +660,7 @@ def selection_change(
         unique_dims_html,
         unique_attrs_html,
         pvt_controls,
+        indicators_meta,
         request_cfg,
         {"lastn": lastn},
     ]

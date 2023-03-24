@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from dash import callback, dcc, html
 from dash.dependencies import MATCH, Input, Output, State, ALL
-from dash_service.models import Page, Project
+from dash_service.models import Page, Project, Dashboard
 
 from dash_service.pages import get_data, years, get_geojson
 from dash_service.pages import (
@@ -22,6 +22,7 @@ from dash_service.pages import (
 )
 
 from flask import abort
+from sqlalchemy import and_
 
 from dash_service.components_aio.card_aio import CardAIO
 from dash_service.components_aio.map_aio import MapAIO
@@ -195,10 +196,9 @@ def layout(lang="en", **query_params):
         # project_slug and page_slug are None when this is called for validation
         # create a dummy page
         # return render_page_template({}, "Validation Page", [], "", lang, query_params)
-        all_configs = Page.query.all()
-        return render_no_dashboard_cfg_found(all_configs)
+        return render_no_dashboard_cfg_found(project_slug, page_slug)
 
-    all_pages = Page.where(project___slug=project_slug).all()
+    all_pages = Dashboard.where(project___slug=project_slug).all()
     if all_pages is None or len(all_pages) == 0:
         abort(404, description="No pages found for project")
 
@@ -207,39 +207,33 @@ def layout(lang="en", **query_params):
         for p in all_pages
     ]
 
-    # uses SmartQueryMixin documented here: https://github.com/absent1706/sqlalchemy-mixins#django-like-queries
-    page = Page.where(project___slug=project_slug, slug=page_slug).first_or_404()
+    dashboard = Dashboard.query.join(Project).filter(
+        and_(Page.slug == page_slug, Project.slug == project_slug)
+    ).first()
 
-    config = page.content
+    if dashboard is None:
+        return render_no_dashboard_cfg_found(project_slug, page_slug)
+
+    config = dashboard.content
+    geography = dashboard.geography
     main_title = config["main_title"]
 
     return render_page_template(
-        config, main_title, all_pages, page.geography, lang, query_params
+        config, main_title, all_pages, geography, lang, query_params
     )
 
 
-def render_no_dashboard_cfg_found(all_configs):
-    # pages = [f"prj={c.project.slug}&page={c.slug}" for c in all_configs]
-    pages = [
-        {
-            "title": f"Project: {c.project.name} - Page: {c.title}",
-            "qparams": f"?viz=ds&prj={c.project.slug}&page={c.slug}",
-        }
-        for c in all_configs
-    ]
-    pages.sort(key=lambda x: x["qparams"])
-
-    html_elems = [
-        html.Div(dcc.Link(children=c["title"], href=c["qparams"])) for c in pages
-    ]
-
+def render_no_dashboard_cfg_found(prj, page):
+    if prj is None:
+        err = "No page found, prj parameter needed, e.g. prj=brazil"
+    if page is None:
+        err = "No page found, page parameter needed, e.g. page=health"
+    if prj is not None and page is not None:
+        err = f"No page found for parameters prj={prj}&page={page}"
     template = html.Div(
         dbc.Col(
             [
-                dbc.Row(html.H2("No dashboard found")),
-                dbc.Row(html.H4("Available pages:")),
-                # html.Div([html.href(p) for p in pages]),
-                html.Div(html_elems),
+                dbc.Row(html.H3(err)),
             ]
         )
     )

@@ -7,6 +7,9 @@ from .data_explorer_table_aio import DataExplorerTableAIO
 from dash_service.components_aio.data_explorer.downloads_tbl_aio import (
     Downloads_tbl_AIO,
 )
+from dash_service.components_aio.data_explorer.data_explorer_indic_meta import (
+    DataExplorerIndicatorMetaAIO,
+)
 
 
 class DataExplorerAIO(html.Div):
@@ -78,9 +81,11 @@ class DataExplorerAIO(html.Div):
 
         filter_lastnobs = dcc.Checklist(
             id=self.ids.de_lastnobs(aio_id),
+            className="row p-2 mb-2 de_lastnobs",
             options=[{"label": txt_lastnobs, "value": "lastn"}],
             value=lastnobs,
         )
+
 
         back_n_years = 10
         time_min = 2000
@@ -105,19 +110,36 @@ class DataExplorerAIO(html.Div):
             marks={time_min: str(time_min), time_max: str(time_max)},
             value=[time_start, time_end],
             id=self.ids.de_time_period(aio_id),
-            className="de_rangeslider",
+            className="row",
             allowCross=False,
             tooltip={"placement": "bottom", "always_visible": True},
         )
 
+        left_col_elems = [
+            filter_lastnobs,
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Time",
+                ),
+            filter_time,
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Filters",
+                ),
+            html.Div(id=self.ids.de_filters(aio_id), children=[]),
+            html.Div(
+                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
+                    children="Pivot",
+                ),
+            html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
+            DataExplorerIndicatorMetaAIO(aio_id),
+        ]
+
         left_col = html.Div(
             className="col-sm-12 col-lg-3 bg-light",
-            children=[
-                html.Div(children=filter_lastnobs),
-                html.Div(children=filter_time),
-                html.Div(id=self.ids.de_filters(aio_id), children=[]),
-                html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
-            ],
+            children=left_col_elems
+            # html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
+            #
         )
 
         lbl_download_excel = "Download Excel"
@@ -128,16 +150,19 @@ class DataExplorerAIO(html.Div):
             lbl_download_csv = labels["download_csv"]
 
         btn_downloads = Downloads_tbl_AIO(
-            aio_id, lbl_excel=lbl_download_excel, lbl_csv=lbl_download_csv, additional_classes="float-right"
+            aio_id,
+            lbl_excel=lbl_download_excel,
+            lbl_csv=lbl_download_csv,
+            additional_classes="float-right",
         )
 
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
             children=[
-                html.H1(
+                html.H4(
                     id=self.ids.de_table_title(aio_id),
                     children=[],
-                    className="row col-sm-12 col-lg-9",
+                    className="row col-sm-12 col-lg-9 text-primary",
                 ),
                 html.Div(
                     className="row",

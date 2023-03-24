@@ -1,6 +1,8 @@
 from slugify import slugify
 from sqlalchemy_mixins import AllFeaturesMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.orm import column_property
 
 from .extensions import db
 
@@ -14,7 +16,7 @@ class Project(db.Model, AllFeaturesMixin):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
-    pages = db.relationship("Page")
+    pages = db.relationship("Page", back_populates="project")
 
     def __init__(self, name, description):
         self.name = name
@@ -33,11 +35,13 @@ class Page(db.Model, AllFeaturesMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
-    project = db.relationship("Project")
+    project = db.relationship("Project", back_populates="pages")
     title = db.Column(db.String(80), nullable=False)
-    slug = db.Column(db.String(80), unique=True, nullable=False)
-    content = db.Column(db.JSON, nullable=False)
-    geography = db.Column(db.String(80), nullable=True)
+    slug = db.Column(db.String(80), nullable=False)
+    __table_args__ = (
+        UniqueConstraint("project_id", "slug", name="_projectslug_pageslug_uc"),
+    )
+
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
@@ -59,19 +63,30 @@ class Page(db.Model, AllFeaturesMixin):
             target.slug = new_slug
 
 
-class DataExplorer(db.Model, AllFeaturesMixin):
+class Dashboard(Page):
+    __tablename__ = "dashboards"
+
+    """
+    id = column_property(Column(Integer, primary_key=True), A.id)
+    a_id = Column(Integer, ForeignKey('a.id'))
+    
+    """
+    # id = db.Column(db.Integer, primary_key=True)
+    id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
+    page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
+    page = db.relationship("Page")
+    content = db.Column(db.JSON, nullable=False)
+    geography = db.Column(db.String(80), nullable=True)
+
+
+class DataExplorer(Page, AllFeaturesMixin):
     __tablename__ = "dataexplorers"
 
-    id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
-    project = db.relationship("Project")
-    title = db.Column(db.String(80), nullable=False)
-    slug = db.Column(db.String(80), unique=True, nullable=False)
+    # id = db.Column(db.Integer, primary_key=True)
+    id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
+    page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
+    page = db.relationship("Page")
     content = db.Column(db.JSON, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    updated_at = db.Column(
-        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
-    )
 
     def __repr__(self):
         return "<Data explorer %r>" % self.title
@@ -112,7 +127,9 @@ class User(db.Model, AllFeaturesMixin):
         self.project_id = project_id
         self.name = name
         self.email = email
-        self.password = generate_password_hash(password,)
+        self.password = generate_password_hash(
+            password,
+        )
         self.is_admin = is_admin
         self.is_user_active = is_user_active
         self.created_at = created_at
@@ -134,9 +151,11 @@ class User(db.Model, AllFeaturesMixin):
     def __repr__(self):
         return f"<User {self.name}>"
 
-
-    def set_password(self, password_plaintext:str):
+    def set_password(self, password_plaintext: str):
         self.password = generate_password_hash(password_plaintext)
 
-    def verify_password(self, password_plaintext:str):
-        return check_password_hash(self.password, password_plaintext,)
+    def verify_password(self, password_plaintext: str):
+        return check_password_hash(
+            self.password,
+            password_plaintext,
+        )
