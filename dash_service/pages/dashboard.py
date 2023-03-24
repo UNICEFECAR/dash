@@ -140,7 +140,6 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
         id="header",
         className="header",
         children=[
-            html.Div(id="dd", children=[]),
             html.Div(
                 className="container-fluid",
                 children=[
@@ -318,7 +317,7 @@ def render_page_template(
                                     ),
                                     lbl_csv=get_multilang_value(
                                         translations["download_csv"], lang
-                                    )
+                                    ),
                                 )
                             ],
                             style={"display": "block"},
@@ -694,7 +693,7 @@ def main_figure(
     time_period = [min(selections["years"]), max(selections["years"])]
 
     lastnobs = None
-    if not show_historical_data or len(show_historical_data)==0:
+    if not show_historical_data or len(show_historical_data) == 0:
         show_historical_data = False
     else:
         show_historical_data = True
@@ -747,14 +746,14 @@ def main_figure(
     # the geoJson
     options["geojson"] = get_geojson(geoj)
     if not show_historical_data:
-        del(options["animation_frame"])
+        del options["animation_frame"]
     main_figure = px.choropleth_mapbox(df, **options)
     main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
     time_periods_in_df = ""
 
     if not show_historical_data:
-        
+
         time_periods_in_df = list(df["TIME_PERIOD"].unique())
         time_periods_in_df.sort()
         time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
