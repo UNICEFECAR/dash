@@ -317,24 +317,6 @@ def get_default_pvt_config(struct):
     return ret
 
 
-def update_pvt_controls(struct, uniq_dims_ids, selected_pvt_cfg):
-    ret_pvt_controls = []
-
-    for dim in struct["dsd"]["dims"]:
-        visible = True
-        if dim["id"] in uniq_dims_ids:
-            visible = False
-        on_row = False
-        if selected_pvt_cfg[dim["id"]] == "R":
-            on_row = True
-        pvt_control = DataExplorerPivotAIO(
-            aio_id=dim["id"], label=dim["name"], onrow=on_row, visible=visible
-        )
-        ret_pvt_controls.append(pvt_control)
-
-    return ret_pvt_controls
-
-
 def get_code_name(code, dim_or_attrib):
     if "codes" in dim_or_attrib:
         return next(c for c in dim_or_attrib["codes"] if c["id"] == code)["name"]
@@ -494,8 +476,8 @@ def selection_change(
             pvt_cfg[pvt_id["index"]] = selected_pvt_cfg[idx]
 
     uniq_dims_ids = [d for d in unique_dims.keys()]
-    pvt_controls = update_pvt_controls(
-        de_data_structure[data_struct_id], uniq_dims_ids, pvt_cfg
+    pvt_controls = DataExplorerPivotAIO.update_pvt_controls(
+        de_data_structure[data_struct_id]["dsd"]["dims"], uniq_dims_ids, pvt_cfg
     )
     on_rows = [
         {"id": d["id"], "name": d["name"]}
