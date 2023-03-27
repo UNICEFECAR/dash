@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 # register_page(__name__, path="/transmonee", order=0, title="TransMonEE Dashboard")
 
 
-def layout(base_url):
+def layout(base_url, req):
     ret = dbc.Container(
         [
             dbc.Row(
@@ -12,6 +12,7 @@ def layout(base_url):
                     html.Div(
                         [
                             html.Div(base_url),
+                            html.Div(f"Req secure {req.is_secure}"),
                             html.ObjectEl(
                                 html.Img(
                                     src=f"{base_url}/assets/SOCR_Diagram_Oct_2022_href.svg"

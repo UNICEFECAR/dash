@@ -80,7 +80,7 @@ class CustomRouter:
 
             if param_prj == "tm":
                 if param_page == "":
-                    layout_to_use = home.layout(parsedurl)
+                    layout_to_use = home.layout(parsedurl, request)
                 else:
                     layout_to_use = CustomRouter.tm_layouts[param_page]
             else:
