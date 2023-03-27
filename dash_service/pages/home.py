@@ -11,6 +11,7 @@ def layout(base_url):
                 [
                     html.Div(
                         [
+                            html.Div(base_url),
                             html.ObjectEl(
                                 html.Img(
                                     src=f"{base_url}/assets/SOCR_Diagram_Oct_2022_href.svg"

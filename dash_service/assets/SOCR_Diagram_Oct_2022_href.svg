@@ -472,7 +472,7 @@
 
 <a
    id="a16403"
-   href="/transmonee/child-cross-cutting#ecd"
+   xlink:href="/transmonee/child-cross-cutting#ecd"
    target="_top"
    xlink:title="Early childhood development"
    xlink:show="Early childhood development"><g
@@ -611,7 +611,7 @@
 
 <a
    id="a16436"
-   href="/transmonee/child-cross-cutting#oda"
+   xlink:href="/transmonee/child-cross-cutting#oda"
    target="_top"
    xlink:title="Adolescents"
    xlink:show="Adolescents"><g
@@ -686,7 +686,7 @@
 
 <a
    id="a16486"
-   href="/transmonee/child-cross-cutting#env"
+   xlink:href="/transmonee/child-cross-cutting#env"
    target="_top"
    xlink:title="Environment and climate change"
    xlink:show="Environment and climate change"><g
@@ -878,7 +878,7 @@
 
 <a
    id="a16526"
-   href="/transmonee/child-cross-cutting#rsk"
+   xlink:href="/transmonee/child-cross-cutting#rsk"
    target="_top"
    xlink:title="Risks and humanitarian situation"
    xlink:show="Risks and humanitarian situation"><g
@@ -1029,7 +1029,7 @@
 </g></a>
 <a
    id="a16365"
-   href="/transmonee/child-cross-cutting"
+   xlink:href="/transmonee/child-cross-cutting"
    target="_top"
    xlink:title="Cross-Cutting"
    xlink:show="Cross-Cutting"><g
@@ -1296,7 +1296,7 @@
 </g>
 <a
    id="a15162"
-   href="/transmonee/child-rights"
+   xlink:href="/transmonee/child-rights"
    target="_top"
    xlink:title="Child Rights Landscape and Governance"
    xlink:show="Child Rights Landscape and Governance"><g
@@ -1604,7 +1604,7 @@
 
 <a
    id="a16416"
-   href="/transmonee/child-cross-cutting#gnd"
+   xlink:href="/transmonee/child-cross-cutting#gnd"
    target="_top"
    xlink:title="Gender"
    xlink:show="Gender"><g
@@ -1661,7 +1661,7 @@
    id="path2206" />
 <a
    id="a15180"
-   href="/transmonee/child-rights#dem"
+   xlink:href="/transmonee/child-rights#dem"
    target="_top"
    xlink:title="Demographics"
    xlink:show="Demographics"><g
@@ -1726,7 +1726,7 @@
 </g></a>
 <a
    id="a15268"
-   href="/transmonee/child-rights#ple"
+   xlink:href="/transmonee/child-rights#ple"
    target="_top"
    xlink:title="Political economy"
    xlink:show="Political economy"><g
@@ -1833,7 +1833,7 @@
 </g></a>
 <a
    id="a15305"
-   href="/transmonee/child-rights#mig"
+   xlink:href="/transmonee/child-rights#mig"
    target="_top"
    xlink:title="Migration and displacement"
    xlink:show="Migration and displacement"><g
@@ -1972,7 +1972,7 @@
 </g></a>
 <a
    id="a15336"
-   href="/transmonee/child-rights#crg"
+   xlink:href="/transmonee/child-rights#crg"
    target="_top"
    xlink:title="Child rights governance"
    xlink:show="Child rights governance"><g
@@ -2087,7 +2087,7 @@
 </g></a>
 <a
    id="a15370"
-   href="/transmonee/child-rights#spe"
+   xlink:href="/transmonee/child-rights#spe"
    target="_top"
    xlink:title="Public spending on children"
    xlink:show="Public spending on children"><g
@@ -2214,7 +2214,7 @@
 </g></a>
 <a
    id="a15395"
-   href="/transmonee/child-rights#dta"
+   xlink:href="/transmonee/child-rights#dta"
    target="_top"
    xlink:title="Data on children"
    xlink:show="Data on children"><g
@@ -2305,7 +2305,7 @@
 </g></a>
 <a
    id="a15414"
-   href="/transmonee/child-rights#rem"
+   xlink:href="/transmonee/child-rights#rem"
    target="_top"
    xlink:title="Right to remedy"
    xlink:show="Right to remedy"><g
@@ -2388,7 +2388,7 @@
 </g>
 <a
    id="a15549"
-   href="/transmonee/child-health#imm"
+   xlink:href="/transmonee/child-health#imm"
    target="_top"
    xlink:title="Immunization"
    xlink:show="Immunization"><path
@@ -2465,7 +2465,7 @@
    id="polyline2288" />
 	</g></a><a
    id="a15567"
-   href="/transmonee/child-health#nut"
+   xlink:href="/transmonee/child-health#nut"
    target="_top"
    xlink:title="Nutrition"
    xlink:show="Nutrition"><path
@@ -2527,7 +2527,7 @@
    id="polyline2294" />
 	</g></a><a
    id="a15527"
-   href="/transmonee/child-health#mnh"
+   xlink:href="/transmonee/child-health#mnh"
    target="_top"
    xlink:title="Maternal, newborn and child health"
    xlink:show="Maternal, newborn and child health"><path
@@ -2673,7 +2673,7 @@
    id="path2300" />
 	</g></a><a
    id="a15488"
-   href="/transmonee/child-health#hsm"
+   xlink:href="/transmonee/child-health#hsm"
    target="_top"
    xlink:title="Health System"
    xlink:show="Health System"><path
@@ -2744,7 +2744,7 @@
    id="polyline2306" />
 	</g></a><a
    id="a16203"
-   href="/transmonee/child-protection#vio"
+   xlink:href="/transmonee/child-protection#vio"
    target="_top"
    xlink:title="Violence against children and women"
    xlink:show="Violence against children and women"><path
@@ -2918,7 +2918,7 @@
    id="polyline2312" />
 	</g></a><a
    id="a16239"
-   href="/transmonee/child-protection#cpc"
+   xlink:href="/transmonee/child-protection#cpc"
    target="_top"
    xlink:title="Children without parental care"
    xlink:show="Children without parental care"><path
@@ -3052,7 +3052,7 @@
    id="polyline2318" />
 	</g></a><a
    id="a16268"
-   href="/transmonee/child-protection#jus"
+   xlink:href="/transmonee/child-protection#jus"
    target="_top"
    xlink:title="Justice for children"
    xlink:show="Justice for children"><path
@@ -3158,7 +3158,7 @@
    id="polyline2324" />
 	</g></a><a
    id="a16322"
-   href="/transmonee/child-protection#mar"
+   xlink:href="/transmonee/child-protection#mar"
    target="_top"
    xlink:title="Child marriage and other harmful practices"
    xlink:show="Child marriage and other harmful practices"><path
@@ -3356,7 +3356,7 @@
    id="polyline2330" />
 	</g></a><a
    id="a16349"
-   href="/transmonee/child-protection#lab"
+   xlink:href="/transmonee/child-protection#lab"
    target="_top"
    xlink:title="Child exploitation"
    xlink:show="Child exploitation"><path
@@ -3453,7 +3453,7 @@
    id="path2336" />
 	</g></a><a
    id="a16017"
-   href="/transmonee/child-education#esy"
+   xlink:href="/transmonee/child-education#esy"
    target="_top"
    xlink:title="Education system"
    xlink:show="Education system"><path
@@ -3542,7 +3542,7 @@
    id="line2342" />
 	</g></a><a
    id="a16056"
-   href="/transmonee/child-education#epa"
+   xlink:href="/transmonee/child-education#epa"
    target="_top"
    xlink:title="Education access and participation"
    xlink:show="Education access and participation"><path
@@ -3690,7 +3690,7 @@
 	</g></a>
 <a
    id="a15670"
-   href="/transmonee/child-health#hiv"
+   xlink:href="/transmonee/child-health#hiv"
    target="_top"
    xlink:title="HIV and AIDS"
    xlink:show="HIV and AIDS"><path
@@ -3745,7 +3745,7 @@
    id="polyline2356" />
 	</g></a><a
    id="a15654"
-   href="/transmonee/child-health#ado"
+   xlink:href="/transmonee/child-health#ado"
    target="_top"
    xlink:title="Adolescent physical, mental and reproductive health"
    xlink:show="Adolescent physical, mental and reproductive health"><path
@@ -3952,7 +3952,7 @@
    id="polyline2362" />
 	</g></a><a
    id="a15729"
-   href="/transmonee/child-poverty#sps"
+   xlink:href="/transmonee/child-poverty#sps"
    target="_top"
    xlink:title="Social protection system"
    xlink:show="Social protection system"><path
@@ -4063,7 +4063,7 @@
    id="path2368" />
 	</g></a><a
    id="a15773"
-   href="/transmonee/child-poverty#mat"
+   xlink:href="/transmonee/child-poverty#mat"
    target="_top"
    xlink:title="Child poverty and material deprivation"
    xlink:show="Child poverty and material deprivation"><path
@@ -4228,7 +4228,7 @@
    id="polyline2374" />
 	</g></a><a
    id="a15809"
-   href="/transmonee/child-poverty#wsh"
+   xlink:href="/transmonee/child-poverty#wsh"
    target="_top"
    xlink:title="Water, sanitation and hygiene"
    xlink:show="Water, sanitation and hygiene"><path
@@ -4359,7 +4359,7 @@
    id="polyline2380" />
 	</g></a><a
    id="a15881"
-   href="/transmonee/child-participation#reg"
+   xlink:href="/transmonee/child-participation#reg"
    target="_top"
    xlink:title="Birth registration and identity"
    xlink:show="Birth registration and identity"><path
@@ -4532,7 +4532,7 @@
    id="polyline2398" />
 	</g><a
    id="a15971"
-   href="/transmonee/child-participation#ict"
+   xlink:href="/transmonee/child-participation#ict"
    target="_top"
    xlink:title="Information, internet and protection of privacy"
    xlink:show="Information, internet and protection of privacy"><path
@@ -4726,7 +4726,7 @@
    id="path2404" />
 	</g></a><a
    id="a16124"
-   href="/transmonee/child-education#ele"
+   xlink:href="/transmonee/child-education#ele"
    target="_top"
    xlink:title="Leisure and culture"
    xlink:show="Leisure and culture"><path
@@ -4853,7 +4853,7 @@
    id="line2410" />
 	</g></a><a
    id="a16088"
-   href="/transmonee/child-education#equ"
+   xlink:href="/transmonee/child-education#equ"
    target="_top"
    xlink:title="Learning quality and skills"
    xlink:show="Learning quality and skills"><path
@@ -4973,7 +4973,7 @@
 	</g></a>
 <a
    id="a15839"
-   href="/transmonee/child-participation"
+   xlink:href="/transmonee/child-participation"
    target="_top"
    xlink:title="Participation and Civil Rights"
    xlink:show="Participation and Civil Rights"><g
@@ -5089,7 +5089,7 @@
 </g></a>
 <a
    id="a16157"
-   href="/transmonee/child-protection"
+   xlink:href="/transmonee/child-protection"
    target="_top"
    xlink:title="Family Environment and Protection"
    xlink:show="Family Environment and Protection"><g
@@ -5217,7 +5217,7 @@
 </g></a>
 <a
    id="a15993"
-   href="/transmonee/child-education"
+   xlink:href="/transmonee/child-education"
    target="_top"
    xlink:title="Education and Leisure"
    xlink:show="Education and Leisure"><g
@@ -5301,7 +5301,7 @@
 </g></a>
 <a
    id="a15435"
-   href="/transmonee/child-health"
+   xlink:href="/transmonee/child-health"
    target="_top"
    xlink:title="Health and Nutrition"
    xlink:show="Health and Nutrition"><g
@@ -5381,7 +5381,7 @@
 </g></a>
 <a
    id="a15699"
-   href="/transmonee/child-poverty"
+   xlink:href="/transmonee/child-poverty"
    target="_top"
    xlink:title="Poverty and Social Protection"
    xlink:show="Poverty and Social Protection"><g
