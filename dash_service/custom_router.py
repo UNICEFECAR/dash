@@ -59,8 +59,13 @@ class CustomRouter:
         def custom_router_callb(pathname, search, url_hash):
             if pathname is None:
                 raise PreventUpdate("Ignoring first Location. pathname callback")
+
             parsedurl = urlparse(request.base_url)
-            parsedurl = f"{parsedurl.scheme}://{parsedurl.netloc}"
+            parsed_scheme = parsedurl.scheme
+            if request.is_secure and parsed_scheme == "http":
+                parsed_scheme = "https"
+
+            parsedurl = f"{parsed_scheme}://{parsedurl.netloc}"
 
             qparams = parse_qs(search.lstrip("?"))
 
