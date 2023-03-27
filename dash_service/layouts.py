@@ -92,13 +92,13 @@ def main_default_layout():
 def base_layout():
     return html.Div(
         id="mainContainer",
+        # className="has-bootstrap",
         children=[
             dcc.Store(id="store"),
-            dbc.Container(
-                fluid=True,
+            html.Div(
+                className="container-fluid",
                 children=[
-                    # dash.page_container,
-                    dbc.Col(id="MAIN_CONTAINER"),
+                    html.Div(id="MAIN_CONTAINER"),
                     dcc.Location(id="dash-location", refresh=False),
                 ],
             ),

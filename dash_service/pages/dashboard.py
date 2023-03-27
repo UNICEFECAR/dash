@@ -124,7 +124,7 @@ dash.register_page(
 # Creates the top menu (pages) html elements
 def make_page_nav(pages, query_params, vertical=False, **kwargs):
     nav_links = []
-
+    #Create a list of name - href objects
     for p in pages:
         url_params = [
             "prj=" + p["prj_slug"],
@@ -136,42 +136,34 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
             if qp not in ["prj", "page", "lang", "hash"]:
                 url_params.append(qp + "=" + query_params[qp])
         nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
+    #create all the ul - li - A structure for each link
+    nav_link_ul = [
+        html.Ul(
+            className="navbar-nav mr-auto mt-0",
+            children=[
+                html.Li(
+                    className="nav-item",
+                    children=[
+                        html.A(
+                            className="nav-link text-primary",
+                            href=nlink["href"],
+                            children=nlink["name"],
+                        )
+                    ],
+                )
+            ],
+        )
+        for nlink in nav_links
+    ]
 
     return html.Header(
-        id="header",
-        className="header",
+        className="row shadow p-3 mb-5 bg-white",
         children=[
-            html.Div(
-                className="container-fluid",
-                children=[
-                    html.Div(
-                        className="row",
-                        children=[
-                            dbc.Nav(
-                                [
-                                    dbc.NavItem(
-                                        [
-                                            dbc.NavLink(
-                                                page["name"],
-                                                className="ms-2",
-                                                href=page["href"],
-                                                active="exact",
-                                            ),
-                                        ],
-                                    )
-                                    for page in nav_links
-                                ],
-                                vertical=vertical,
-                                pills=True,
-                                justified=True,
-                                className="col-12",
-                            )
-                        ],
-                    )
-                ],
-            ),
+            html.Nav(
+                className="navbar navbar-expand-lg navbar-light",
+                children=nav_link_ul,
+            )
         ],
-        **kwargs,
     )
 
 
@@ -207,9 +199,11 @@ def layout(lang="en", **query_params):
         for p in all_pages
     ]
 
-    dashboard = Dashboard.query.join(Project).filter(
-        and_(Page.slug == page_slug, Project.slug == project_slug)
-    ).first()
+    dashboard = (
+        Dashboard.query.join(Project)
+        .filter(and_(Page.slug == page_slug, Project.slug == project_slug))
+        .first()
+    )
 
     if dashboard is None:
         return render_no_dashboard_cfg_found(project_slug, page_slug)
@@ -331,6 +325,35 @@ def render_page_template(
     )
     return template
 
+'''
+def render_heading(main_title) -> html.Div:
+    return html.Div(
+        className="heading",
+        style={"padding": 36},
+        children=[
+            html.Div(
+                className="heading-content",
+                children=[
+                    html.Div(
+                        className="heading-panel",
+                        style={"padding": 20},
+                        children=[
+                            html.H1(
+                                main_title,
+                                id="main_title",
+                                className="heading-title",
+                            ),
+                            html.P(
+                                id="subtitle",
+                                className="heading-subtitle",
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+'''
 
 def render_heading(main_title) -> html.Div:
     return html.Div(
@@ -359,7 +382,6 @@ def render_heading(main_title) -> html.Div:
             )
         ],
     )
-
 
 def render_themes() -> html.Div:
     return dbc.Row(
