@@ -18,7 +18,7 @@ def layout(base_url, req):
                                     src=f"{base_url}/assets/SOCR_Diagram_Oct_2022_href.svg"
                                 ),
                                 type="image/svg+xml",
-                                data=f"{base_url}/assets/SOCR_Diagram_Oct_2022_href.svg",
+                                data=f"{base_url.replace('http://','https://')}/assets/SOCR_Diagram_Oct_2022_href.svg",
                                 className="px-2",
                                 style={
                                     "width": "80%",
