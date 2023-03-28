@@ -35,6 +35,7 @@ def layout(base_url):
                 justify="center",
                 align="center",
             ),
+            html.Script()
         ],
         fluid=True,
     )

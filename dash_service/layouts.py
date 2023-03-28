@@ -92,7 +92,7 @@ def main_default_layout():
 def base_layout():
     return html.Div(
         id="mainContainer",
-        # className="has-bootstrap",
+        className="has-bootstrap",
         children=[
             dcc.Store(id="store"),
             html.Div(
