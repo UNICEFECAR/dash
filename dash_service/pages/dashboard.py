@@ -277,26 +277,38 @@ def render_page_template(
                     ),
                     html.Div(className="row mt-3", id="cards_row"),
                     html.Br(),
-                    dbc.CardDeck(
-                        [
-                            MapAIO(
-                                ELEM_ID_MAIN,
-                                plot_cfg=cfg_plot,
-                                info_title=get_multilang_value(
-                                    translations["sources"], lang
-                                ),
-                                lbl_show_hist=get_multilang_value(
-                                    translations["show_historical"], lang
-                                ),
-                                lbl_excel=get_multilang_value(
-                                    translations["download_excel"], lang
-                                ),
-                                lbl_csv=get_multilang_value(
-                                    translations["download_csv"], lang
-                                ),
-                            )
-                        ],
-                        style={"display": "block"},
+                    # dbc.CardDeck(
+                    #     [
+                    #         MapAIO(
+                    #             ELEM_ID_MAIN,
+                    #             plot_cfg=cfg_plot,
+                    #             info_title=get_multilang_value(
+                    #                 translations["sources"], lang
+                    #             ),
+                    #             lbl_show_hist=get_multilang_value(
+                    #                 translations["show_historical"], lang
+                    #             ),
+                    #             lbl_excel=get_multilang_value(
+                    #                 translations["download_excel"], lang
+                    #             ),
+                    #             lbl_csv=get_multilang_value(
+                    #                 translations["download_csv"], lang
+                    #             ),
+                    #         )
+                    #     ],
+                    #     style={"display": "block"},
+                    # ),
+                    MapAIO(
+                        ELEM_ID_MAIN,
+                        plot_cfg=cfg_plot,
+                        info_title=get_multilang_value(translations["sources"], lang),
+                        lbl_show_hist=get_multilang_value(
+                            translations["show_historical"], lang
+                        ),
+                        lbl_excel=get_multilang_value(
+                            translations["download_excel"], lang
+                        ),
+                        lbl_csv=get_multilang_value(translations["download_csv"], lang),
                     ),
                     html.Br(),
                     html.Div(id="div_charts", className="row row-cols-1 row-cols-lg-2"),
