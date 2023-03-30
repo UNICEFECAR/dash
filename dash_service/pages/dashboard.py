@@ -265,35 +265,17 @@ def render_page_template(
             dcc.Location(id="theme"),
             make_page_nav(all_pages, query_params),
             html.Br(),
-            # dbc.Col(
             html.Div(
                 [
-                    # render_heading(main_title),
                     HeadingAIO(main_title, aio_id=ELEM_ID_HEADING),
                     html.Div(
                         className="bg-light",
-                        # dbc.Row(
                         children=[
-                            # dbc.Col(
-                            #   [
                             render_themes(),
                             render_years(lang),
-                            #     ]
-                            # ),
                         ],
-                        # sticky="top",
-                        # className="bg-light",
                     ),
-                    # ),
-                    dbc.Row(
-                        [
-                            dbc.CardDeck(
-                                id="cards_row",
-                                className="mt-3",
-                            ),
-                        ],
-                        justify="center",
-                    ),
+                    html.Div(className="row mt-3", id="cards_row"),
                     html.Br(),
                     dbc.CardDeck(
                         [
@@ -359,7 +341,6 @@ def render_themes() -> html.Div:
     return html.Div(className="row", children=ret)
 
 
-
 def render_years(lang) -> html.Div:
     ret = html.Div(
         className="d-flex justify-content-center",
@@ -369,9 +350,7 @@ def render_years(lang) -> html.Div:
                 id="collapse-years-button",
                 className="m-2",
                 color="info",
-                # block=True,
                 children=[
-                    # dbc.Card(
                     html.Div(
                         style={"minWidth": "500px"},
                         className="overflow-auto",
@@ -396,8 +375,6 @@ def render_years(lang) -> html.Div:
     )
 
     return html.Div(className="row", children=ret)
-
-
 
 
 # Triggered when the theme or year slider changes
@@ -536,14 +513,19 @@ def show_cards(data_struct, selections, page_config, lang):
 
         info_head = get_multilang_value(translations["sources"], lang)
         cards.append(
-            CardAIO(
-                aio_id=f"card-{num}",
-                value=value,
-                suffix=label,
-                info_head=info_head,
-                info_body=data_source,
-                time_period=time_period,
-                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang),
+            html.Div(
+                className="col",
+                children=CardAIO(
+                    aio_id=f"card-{num}",
+                    value=value,
+                    suffix=label,
+                    info_head=info_head,
+                    info_body=data_source,
+                    time_period=time_period,
+                    lbl_time_period=get_multilang_value(
+                        translations["TIME_PERIOD"], lang
+                    ),
+                ),
             )
         )
 

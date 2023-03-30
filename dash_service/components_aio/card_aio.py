@@ -7,8 +7,7 @@ import dash_bootstrap_components as dbc
 # return html.I(className=f"{className} mx-1")
 
 
-class CardAIO(dbc.Card):
-    _value_style = {"textAlign": "center", "color": "#1cabe2"}
+class CardAIO(html.Div):
     # A set of functions that create pattern-matching callbacks of the subcomponents
     class ids:
         card = lambda aio_id: {
@@ -31,63 +30,54 @@ class CardAIO(dbc.Card):
         time_period="",
         lbl_time_period="Time period",
     ):
-        # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
-        if aio_id is None:
-            aio_id = str(uuid.uuid4())
 
-        # Create the card body
+        card_children = []
 
-        card_body = dbc.CardBody(
-            [
-                html.H1(
-                    value,
-                    className="display-4",
-                    style=CardAIO._value_style,
-                ),
-                html.H4(suffix, className="card-title"),
+        card_body = html.Div(
+            className="card-body",
+            children=[
+                html.Span(className="fs-1 text-primary justify-content-center d-sm-flex p-2", children=value),
+                html.Span(className="fs-4 justify-content-center d-sm-flex p-2", children=suffix),
             ],
-            style={"textAlign": "center"},
         )
-
-        card_children = [card_body]
+        card_children.append(card_body)
 
         card_footer = []
 
-        if time_period != "":
+        # Add the time period
+        if time_period.strip() != "":
             time_p = html.Div(
-                lbl_time_period + ": " + time_period,
-
-                className="text-primary font-weight-bold float-left",
+                className="text-primary fw-bold float-start",
+                children=[f"{lbl_time_period}: {time_period}"]
             )
             card_footer.append(time_p)
 
         # if there is an info body add the "i" icon and the popup window
         if info_body is not None and info_body != "":
             popover_icon = html.Div(
-                html.I(className="fas fa-info-circle mx-1 float-right"),
-                id=f"card-info_icon{aio_id}",
-
+                children=[
+                    html.I(
+                        id=f"card-info_icon{aio_id}",
+                        className="fas fa-info-circle float-end",
+                    ),
+                    dbc.Popover(
+                        target=f"card-info_icon{aio_id}",
+                        trigger="hover",
+                        children=[
+                            dbc.PopoverHeader(info_head),
+                            dbc.PopoverBody(info_body),
+                        ],
+                    ),
+                ],
             )
             card_footer.append(popover_icon)
 
-            popover_window = dbc.Popover(
-                [
-                    dbc.PopoverHeader(info_head),
-                    dbc.PopoverBody(info_body),
-                ],
-                target=f"card-info_icon{aio_id}",
-                trigger="hover",
-            )
-
-            card_footer.append(popover_window)
-
         if len(card_footer) > 0:
-            card_children.append(html.Div(className="container", children=card_footer))
+            card_children.append(html.Div(className="align-middle m-3", children=card_footer))
 
         # Define the component's layout
         super().__init__(
             id=self.ids.card(aio_id),
-            color="primary",
-            outline=True,
+            className="card col h-100",
             children=card_children,
         )
