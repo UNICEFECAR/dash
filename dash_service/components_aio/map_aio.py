@@ -126,37 +126,36 @@ class MapAIO(dbc.CardDeck):
                 ),
                 dcc.Loading([dcc.Graph(id=self.ids.graph(aio_id), config=plot_cfg)]),
                 html.Div(
-                    className="row",
+                    className="row mx-2 mt-3",
                     children=[
                         html.Div(
-                            className="float-start",
+                            className="col",
                             children=[
                                 DownloadsAIO(
                                     aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv
                                 )
                             ],
                         ),
-                        # Icon wrapper: a workaround to link the popover that wouldn't work with aio created IDs
                         html.Div(
                             id=self.ids.info_icon(aio_id),
-                            # className="float-right",
+                            className="col",
                             children=[
                                 html.I(
                                     id="map_aio_inf_icon_" + aio_id,
                                     className="fas fa-info-circle float-end",
                                 ),
+                                dbc.Popover(
+                                    [
+                                        dbc.PopoverHeader(info_title),
+                                        dbc.PopoverBody(id=self.ids.info_text(aio_id)),
+                                    ],
+                                    id="hover",
+                                    target="map_aio_inf_icon_" + aio_id,
+                                    trigger="hover",
+                                ),
                             ],
                         ),
                     ],
-                ),
-                dbc.Popover(
-                    [
-                        dbc.PopoverHeader(info_title),
-                        dbc.PopoverBody(id=self.ids.info_text(aio_id)),
-                    ],
-                    id="hover",
-                    target="map_aio_inf_icon_" + aio_id,
-                    trigger="hover",
                 ),
             ]
         )
