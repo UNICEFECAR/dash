@@ -9,7 +9,7 @@ from .downloads_aio import DownloadsAIO
 # return html.I(className=f"{className} mx-1")
 
 
-class MapAIO(dbc.CardDeck):
+class MapAIO(dbc.Card):
 
     _header_style = {"fontWeight": "bold"}
 
@@ -102,13 +102,15 @@ class MapAIO(dbc.CardDeck):
                         html.Div(
                             className="float-start col",
                             children=[
-                                dbc.Checklist(
-                                    options=[{"label": lbl_show_hist, "value": 1}],
-                                    value=[],
+                                dbc.Switch(
+                                    # options=[{"label": lbl_show_hist, "value": 1}],
+                                    # value=[],
+                                    # id=self.ids.toggle_historical(aio_id),
+                                    # style={"display": "block"},
+                                    # className="float-start col",
                                     id=self.ids.toggle_historical(aio_id),
-                                    switch=True,
-                                    style={"display": "block"},
-                                    className="float-start col",
+                                    label=lbl_show_hist,
+                                    value=False
                                 )
                             ],
                         ),

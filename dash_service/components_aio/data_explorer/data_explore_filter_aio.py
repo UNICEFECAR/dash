@@ -8,31 +8,10 @@ import time
 
 
 class DataExplorerFilterAIO(html.Div):
-    CLASSNAME_VISIBLE = "row col-12 div_de_filter d-block"
-    CLASSNAME_HIDDEN = "row col-12 div_de_filter d-none"
-
     class ids:
         dataexplorerfilter = lambda aio_id: {
             "component": "DataExplorerFilterAIO",
             "subcomponent": "dataexplorerfilter",
-            "aio_id": aio_id,
-        }
-
-        dataexplorerfilter_button = lambda aio_id: {
-            "component": "DataExplorerFilterAIO",
-            "subcomponent": "dataexplorerfilter_button",
-            "aio_id": aio_id,
-        }
-
-        dataexplorerfilter_body = lambda aio_id: {
-            "component": "DataExplorerFilterAIO",
-            "subcomponent": "dataexplorerfilter_body",
-            "aio_id": aio_id,
-        }
-
-        dataexplorerfilter_tree = lambda aio_id: {
-            "component": "DataExplorerFilterAIO",
-            "subcomponent": "dataexplorerfilter_tree",
             "aio_id": aio_id,
         }
 
@@ -63,8 +42,7 @@ class DataExplorerFilterAIO(html.Div):
     def __init__(
         self,
         aio_id=None,
-        label="",
-        items=[],
+        filters=None,
         expanded=False,
         selected=None,
         lbl_sel_all="All",
@@ -72,62 +50,35 @@ class DataExplorerFilterAIO(html.Div):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
-        accordion = dbc.Button(
-            id=self.ids.dataexplorerfilter_button(aio_id),
-            type="button",
-            color="link",
-            className="row col-12",
-            children=[label],
-        )
+        accordionItems = []
 
-        # is expanded? Show
-        classname = DataExplorerFilterAIO.CLASSNAME_VISIBLE
-        if not expanded:
-            classname = DataExplorerFilterAIO.CLASSNAME_HIDDEN
+        for f in filters:
+            sel = []
+            if f["id"] in selected:
+                sel = selected[f["id"]]
+            tree_items = DataExplorerFilterAIO._get_tree_items(f["codes"])
+            tree = dash_treeview_antd.TreeView(
+                id={"type": "filter_tree", "index": aio_id},
+                checkable=True,
+                multiple=True,
+                checked=sel,
+                expanded=["_root_" + aio_id],
+                data={
+                    "title": lbl_sel_all,
+                    "key": "_root_" + aio_id,
+                    "children": tree_items,
+                },
+            )
+            tree_div = html.Div(
+                className="overflow-auto m-0 p-0 div_de_filter",
+                children=tree,
+            )
+            accitem = dbc.AccordionItem(
+                title=f["name"], children=tree_div, class_name="accordion-no-padding"
+            )
+            accordionItems.append(accitem)
 
-        tree = None
+        accordion = dbc.Accordion(accordionItems)
 
-        # start_time = time.time()
-        tree_items = DataExplorerFilterAIO._get_tree_items(items)
 
-        # print(
-        #     "--- %s seconds taken by the filter selection tree ---"
-        #     % (time.time() - start_time)
-        # )
-
-        # print("selected")
-        # print(selected)
-
-        tree = dash_treeview_antd.TreeView(
-            id={"type": "filter_tree", "index": aio_id},
-            checkable=True,
-            multiple=True,
-            checked=selected,
-            expanded=["_root_" + aio_id],
-            data={
-                "title": lbl_sel_all,
-                "key": "_root_" + aio_id,
-                "children": tree_items,
-            },
-        )
-
-        acc_body = html.Div(
-            id=self.ids.dataexplorerfilter_body(aio_id),
-            className=classname,
-            children=[tree],
-        )
-
-        # title = html.Div(children=[label])
-
-        super().__init__(children=[accordion, acc_body])
-
-    @callback(
-        Output(ids.dataexplorerfilter_body(MATCH), "className"),
-        Input(ids.dataexplorerfilter_button(MATCH), "n_clicks"),
-        State(ids.dataexplorerfilter_body(MATCH), "className"),
-        prevent_initial_call=True,
-    )
-    def show_hide_tree(n_clicks, className):
-        if className == DataExplorerFilterAIO.CLASSNAME_VISIBLE:
-            return DataExplorerFilterAIO.CLASSNAME_HIDDEN
-        return DataExplorerFilterAIO.CLASSNAME_VISIBLE
+        super().__init__(children=[accordion], className="p-0 m-0")

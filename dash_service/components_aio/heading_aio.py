@@ -39,7 +39,7 @@ class HeadingAIO(html.Div):
 
         # Create the heading
         ret = html.Div(
-            className="heading col-xs-12 p-4",
+            className="heading col p-4",
             children=[
                 html.Div(
                     className="heading-content",

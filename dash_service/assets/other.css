@@ -3,7 +3,7 @@
 }
 
 /*Data explorer*/
-.de_lastnobs input{
+.de_lastnobs input {
     margin-right: 5px;
 }
 
@@ -12,12 +12,19 @@
     overflow-y: auto;
 }
 
-.de_pivot_control input{
-    margin-right: 5px;
+.div_de_filter li{
+    margin-bottom: 1px;
+    margin-top: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 
-.indic_prof_link:hover{
-    color:#007bff !important;
+.indic_prof_link:hover {
+    color: #007bff !important;
+}
+
+.accordion-no-padding .accordion-body {
+    padding: 0;
 }
 
 /*Data explorer Data table*/
@@ -28,8 +35,13 @@
     max-height: inherit !important;
 }
 
-.dash-table-container {max-height: calc(100vh - 250px)}
-div.dt-table-container__row.dt-table-container__row-1 {min-height: 150px;}
+.dash-table-container {
+    max-height: calc(100vh - 250px)
+}
+
+div.dt-table-container__row.dt-table-container__row-1 {
+    min-height: 150px;
+}
 
 /*Allows the pivot table to span the whole column size*/
 .dash-spreadsheet.dash-freeze-left {

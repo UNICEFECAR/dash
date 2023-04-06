@@ -141,7 +141,7 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
     # create all the ul - li - A structure for each link
     nav_link_ul = [
         html.Ul(
-            className="navbar-nav mr-auto mt-0",
+            className="navbar-nav mt-0 d-flex",
             children=[
                 html.Li(
                     className="nav-item",
@@ -162,7 +162,7 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
         className="row shadow p-3 mb-5 bg-white",
         children=[
             html.Nav(
-                className="navbar navbar-expand-lg navbar-light",
+                className="navbar navbar-expand-lg navbar-light justify-content-evenly",
                 children=nav_link_ul,
             )
         ],
@@ -277,27 +277,7 @@ def render_page_template(
                     ),
                     html.Div(className="row mt-3", id="cards_row"),
                     html.Br(),
-                    # dbc.CardDeck(
-                    #     [
-                    #         MapAIO(
-                    #             ELEM_ID_MAIN,
-                    #             plot_cfg=cfg_plot,
-                    #             info_title=get_multilang_value(
-                    #                 translations["sources"], lang
-                    #             ),
-                    #             lbl_show_hist=get_multilang_value(
-                    #                 translations["show_historical"], lang
-                    #             ),
-                    #             lbl_excel=get_multilang_value(
-                    #                 translations["download_excel"], lang
-                    #             ),
-                    #             lbl_csv=get_multilang_value(
-                    #                 translations["download_csv"], lang
-                    #             ),
-                    #         )
-                    #     ],
-                    #     style={"display": "block"},
-                    # ),
+
                     MapAIO(
                         ELEM_ID_MAIN,
                         plot_cfg=cfg_plot,
@@ -320,25 +300,6 @@ def render_page_template(
         ],
     )
     return template
-
-
-def render_themes_old() -> html.Div:
-    return dbc.Row(
-        [
-            dbc.ButtonGroup(
-                id="themes",
-            ),
-        ],
-        id="theme-row",
-        # width=4,
-        className="my-2",
-        # no_gutters=True,
-        justify="center",
-        style={
-            "verticalAlign": "center",
-            "display": "flex",
-        },
-    )
 
 
 def render_themes() -> html.Div:
@@ -663,10 +624,6 @@ def main_figure(
     time_period = [min(selections["years"]), max(selections["years"])]
 
     lastnobs = None
-    if not show_historical_data or len(show_historical_data) == 0:
-        show_historical_data = False
-    else:
-        show_historical_data = True
     if not show_historical_data:
         lastnobs = 1
 

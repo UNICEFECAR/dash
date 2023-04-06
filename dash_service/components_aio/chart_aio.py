@@ -79,10 +79,13 @@ class ChartAIO(html.Div):
                     ],
                 ),
                 html.Div(
-                    className="row my-2 col",
+                    className="row my-2",
                     children=[
                         dbc.RadioItems(
-                            id=self.ids.chart_types(aio_id), options=[], inline=True
+                            id=self.ids.chart_types(aio_id),
+                            options=[],
+                            inline=True,
+                            style={"display": "inline-block"},
                         )
                     ],
                 ),
@@ -91,17 +94,16 @@ class ChartAIO(html.Div):
                     className="row",
                     children=[
                         html.Div(
-                            className="col",
+                            className="col-9",
                             children=[
                                 DownloadsAIO(
                                     aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv
                                 )
                             ],
                         ),
-
                         html.Div(
                             id=self.ids.info_icon(aio_id),
-                            className="col",
+                            className="col-3",
                             children=[
                                 html.I(
                                     id="chart_aio_inf_icon_" + aio_id,
@@ -112,16 +114,20 @@ class ChartAIO(html.Div):
                         ),
                     ],
                 ),
-                html.Div(className="has-bootstrap", children=[
-                dbc.Popover(
-                    [
-                        dbc.PopoverHeader(info_title),
-                        dbc.PopoverBody(id=self.ids.info_text(aio_id)),
+                html.Div(
+                    className="has-bootstrap",
+                    children=[
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader(info_title),
+                                dbc.PopoverBody(id=self.ids.info_text(aio_id)),
+                            ],
+                            id="hover",
+                            target="chart_aio_inf_icon_" + aio_id,
+                            trigger="hover",
+                        )
                     ],
-                    id="hover",
-                    target="chart_aio_inf_icon_" + aio_id,
-                    trigger="hover",
-                )]),
+                ),
             ]
         )
 
