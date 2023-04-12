@@ -30,21 +30,45 @@ class DataExplorerPivotAIO(html.Div):
         if onrow:
             sel = "R"
 
-        control = [
-            html.Div(className="row", children=[label]),
-            dcc.RadioItems(
-                [{"label": lblRow, "value": "R"}, {"label": lblCol, "value": "C"}],
-                sel,
-                id={"type": "pvt_control", "index": aio_id},
-                inline=True,
-                className="row col-12 de_pivot_control",
-                style={
-                    "display": "flex",
-                    "align-items": "center",
-                    "justifyContent": "center",
-                },
-            ),
-        ]
+        # control = [
+        #     html.Div(className="row", children=[label]),
+        #     dcc.RadioItems(
+        #         [{"label": lblRow, "value": "R"}, {"label": lblCol, "value": "C"}],
+        #         sel,
+        #         id={"type": "pvt_control", "index": aio_id},
+        #         inline=True,
+        #         className="row col-12 de_pivot_control",
+        #         style={
+        #             "display": "flex",
+        #             "align-items": "center",
+        #             "justifyContent": "center",
+        #         },
+        #     ),
+        # ]
+
+        print("sel")
+        print(sel)
+
+        control = html.Div(
+            className="row",
+            children=[
+                html.Div(className="col-sm-12 col-md-7", children=[label]),
+                html.Div(
+                    className="col-sm-12 col-md-5 force-inline-controls",
+                    children=[
+                        dbc.RadioItems(
+                            id={"type": "pvt_control", "index": aio_id},
+                            options=[
+                                {"label": "", "value": "R"},
+                                {"label": "", "value": "C"},
+                            ],
+                            style={"display": "inline-block"},
+                            inline=True
+                        )
+                    ],
+                ),
+            ],
+        )
 
         if visible:
             display = "block"

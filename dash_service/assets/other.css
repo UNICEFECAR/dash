@@ -19,6 +19,10 @@
     padding-bottom: 1px;
 }
 
+.force-inline-controls .form-check{
+    display: inline-flex;
+}
+
 .indic_prof_link:hover {
     color: #007bff !important;
 }

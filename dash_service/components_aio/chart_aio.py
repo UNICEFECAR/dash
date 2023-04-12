@@ -79,13 +79,12 @@ class ChartAIO(html.Div):
                     ],
                 ),
                 html.Div(
-                    className="row my-2",
+                    className="row my-2 force-inline-controls",
                     children=[
                         dbc.RadioItems(
                             id=self.ids.chart_types(aio_id),
                             options=[],
-                            inline=True,
-                            style={"display": "inline-block"},
+                            inline=True
                         )
                     ],
                 ),
@@ -115,7 +114,6 @@ class ChartAIO(html.Div):
                     ],
                 ),
                 html.Div(
-                    className="has-bootstrap",
                     children=[
                         dbc.Popover(
                             [
