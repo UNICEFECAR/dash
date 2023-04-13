@@ -106,7 +106,7 @@ class ChartAIO(html.Div):
                             children=[
                                 html.I(
                                     id="chart_aio_inf_icon_" + aio_id,
-                                    className="fas fa-info-circle mx-1 float-end ",
+                                    className="fas fa-info-circle mx-1 float-end",
                                     style={"padding-right": "30px"},
                                 ),
                             ],

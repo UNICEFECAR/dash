@@ -46,25 +46,25 @@ class DataExplorerPivotAIO(html.Div):
         #     ),
         # ]
 
-        print("sel")
-        print(sel)
-
         control = html.Div(
             className="row",
             children=[
                 html.Div(className="col-sm-12 col-md-7", children=[label]),
                 html.Div(
                     className="col-sm-12 col-md-5 force-inline-controls",
-                    children=[
+                    children=[html.I(className="fa fa-arrows-alt-h"),
                         dbc.RadioItems(
                             id={"type": "pvt_control", "index": aio_id},
+                            value=sel,
                             options=[
                                 {"label": "", "value": "R"},
                                 {"label": "", "value": "C"},
                             ],
                             style={"display": "inline-block"},
                             inline=True
-                        )
+                        ),
+                        
+                        html.I(className="fa fa-arrows-alt-v")
                     ],
                 ),
             ],
