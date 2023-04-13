@@ -1136,7 +1136,7 @@ def get_base_layout(**kwargs):
                                                                     color="secondary",
                                                                 ),
                                                                 id=f"{page_prefix}-aio_area_data_info",
-                                                                className="float-left",
+                                                                className="float-start",
                                                             ),
                                                             dbc.Popover(
                                                                 [
@@ -1164,7 +1164,7 @@ def get_base_layout(**kwargs):
                                                                     color="secondary",
                                                                 ),
                                                                 id=f"{page_prefix}-aio_area_area_info",
-                                                                className="float-right",
+                                                                className="float-end",
                                                             ),
                                                         ],
                                                     ),
@@ -1643,6 +1643,7 @@ def aio_options(theme, indicators_dict, page_prefix):
             for num, code in enumerate(area_indicators)
         ]
     # print("aio_options: %s seconds" % (time.time() - start_time))
+    #return html.Div(className="force-inline-controls", children=area_buttons)
     return area_buttons
 
 
