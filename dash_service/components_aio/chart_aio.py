@@ -79,12 +79,13 @@ class ChartAIO(html.Div):
                     ],
                 ),
                 html.Div(
-                    className="row my-2 force-inline-controls",
+                    className="row my-2",
                     children=[
                         dbc.RadioItems(
                             id=self.ids.chart_types(aio_id),
                             options=[],
-                            inline=True
+                            inline=True,
+                            class_name="force-inline-control"
                         )
                     ],
                 ),

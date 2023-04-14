@@ -2,10 +2,6 @@ from dash import html
 import uuid
 import dash_bootstrap_components as dbc
 
-# def fa(className):
-# """A convenience component for adding Font Awesome icons"""
-# return html.I(className=f"{className} mx-1")
-
 
 class CardAIO(html.Div):
     # A set of functions that create pattern-matching callbacks of the subcomponents
@@ -36,8 +32,14 @@ class CardAIO(html.Div):
         card_body = html.Div(
             className="card-body",
             children=[
-                html.Span(className="fs-1 text-primary justify-content-center d-sm-flex p-2", children=value),
-                html.Span(className="fs-4 justify-content-center d-sm-flex p-2", children=suffix),
+                html.Span(
+                    className="fs-1 text-primary justify-content-center d-sm-flex p-2",
+                    children=value,
+                ),
+                html.Span(
+                    className="fs-4 justify-content-center d-sm-flex p-2",
+                    children=suffix,
+                ),
             ],
         )
         card_children.append(card_body)
@@ -48,7 +50,7 @@ class CardAIO(html.Div):
         if time_period.strip() != "":
             time_p = html.Div(
                 className="text-primary fw-bold float-start",
-                children=[f"{lbl_time_period}: {time_period}"]
+                children=[f"{lbl_time_period}: {time_period}"],
             )
             card_footer.append(time_p)
 
@@ -73,7 +75,9 @@ class CardAIO(html.Div):
             card_footer.append(popover_icon)
 
         if len(card_footer) > 0:
-            card_children.append(html.Div(className="align-middle m-3", children=card_footer))
+            card_children.append(
+                html.Div(className="align-middle m-3", children=card_footer)
+            )
 
         # Define the component's layout
         super().__init__(

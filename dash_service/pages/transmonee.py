@@ -994,11 +994,11 @@ def get_base_layout(**kwargs):
                                                 "type": "area_types",
                                                 "index": f"{page_prefix}-AIO_AREA",
                                             },
-                                            className="custom-control-input-crg",
-                                            labelStyle={
-                                                "paddingLeft": 0,
-                                                "marginLeft": "-20px",
-                                            },
+                                            className="custom-control-input-crg force-inline-control align-middle",
+                                            # labelStyle={
+                                            #     "paddingLeft": 0,
+                                            #     "marginLeft": "-20px",
+                                            # },
                                             inline=True,
                                         ),
                                         width="auto",
@@ -1101,10 +1101,11 @@ def get_base_layout(**kwargs):
                                                                                     inputStyle={
                                                                                         "color": domain_colour
                                                                                     },
-                                                                                    labelStyle={
-                                                                                        "paddingLeft": 0,
-                                                                                        "marginLeft": "-20px",
-                                                                                    },
+                                                                                    # labelStyle={
+                                                                                    #     "paddingLeft": 0,
+                                                                                    #     "marginLeft": "-20px",
+                                                                                    # },
+                                                                                    class_name="force-inline-control",
                                                                                     inline=True,
                                                                                 ),
                                                                                 width="auto",

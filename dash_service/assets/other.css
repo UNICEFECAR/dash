@@ -19,9 +19,18 @@
     padding-bottom: 1px;
 }
 
-.force-inline-controls .form-check{
+/*To force inline controls*/
+.force-inline-control{
     display: inline-flex;
+    align-items: normal;
+    margin-bottom: 0;
 }
+
+.force-inline-control label{
+    align-items: normal;
+    margin-bottom: 0;
+}
+/*To force inline controls END*/
 
 .indic_prof_link:hover {
     color: #007bff !important;
@@ -155,12 +164,6 @@ div.dt-table-container__row.dt-table-container__row-1 {
     border-color: #3e7c49
 }
 
-/* #han-filter-row div{
-    display: inline;
-}  */
-.form-check-inline {
-    display: inline !important;
-}
 /* colour theme for POV domain*/
 
 .btn-pov {
