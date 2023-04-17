@@ -32,6 +32,17 @@
 }
 /*To force inline controls END*/
 
+/*Fix switches*/
+.form-switch .form-check-input{
+    /*background-color: #fff;*/
+    background-repeat: no-repeat;
+}
+
+.has-bootstrap [type=checkbox]:checked:after{
+    background-color: unset;
+}
+/*Fix switches END*/
+
 .indic_prof_link:hover {
     color: #007bff !important;
 }
