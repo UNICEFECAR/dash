@@ -1,0 +1,325 @@
+
+/* colour theme for CRG domain*/
+.theme_buttons .btn-crg {
+    color: white;
+    background-color: #ab86b1;
+    border-color: #ab86b1;
+}
+
+.theme_buttons .btn-crg.focus,
+.theme_buttons .btn-crg:focus,
+.theme_buttons .btn-crg:hover {
+    color: white;
+    background-color: #562061;
+    border-color: #562061
+}
+
+.theme_buttons .btn-crg:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-crg:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-crg.dropdown-toggle {
+    color: white;
+    background-color: #562061;
+    border-color: #562061
+}
+
+.theme_buttons .btn-crg-sub {
+    color: #562061;
+    background-color: white;
+    border-color: #562061;
+    border-width: 3px;
+}
+
+.theme_buttons .btn-crg-sub.focus,
+.theme_buttons .btn-crg-sub:focus,
+.theme_buttons .btn-crg-sub:hover {
+    color: white;
+    background-color: #562061;
+    border-color: #562061
+}
+
+.theme_buttons .btn-crg-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-crg-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-crg-sub.dropdown-toggle {
+    color: white;
+    background-color: #562061;
+    border-color: #562061
+}
+
+/* colour theme for HAN domain*/
+
+.theme_buttons .btn-han {
+    color: white;
+    background-color: #8cb99a;
+    border-color: #8cb99a;
+}
+
+.theme_buttons .btn-han.focus,
+.theme_buttons .btn-han:focus,
+.theme_buttons .btn-han:hover {
+    color: white;
+    background-color: #3e7c49;
+    border-color: #3e7c49
+}
+
+.theme_buttons .btn-han:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-han:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-han.dropdown-toggle {
+    color: white;
+    background-color: #3e7c49;
+    border-color: #3e7c49
+}
+
+.theme_buttons .btn-han-sub {
+    color: #3e7c49;
+    background-color: white;
+    border-color: #3e7c49;
+    border-style: solid;
+    border-width: 3px;
+}
+
+.theme_buttons .btn-han-sub.focus,
+.theme_buttons .btn-han-sub:focus,
+.theme_buttons .btn-han-sub:hover {
+    color: white;
+    background-color: #3e7c49;
+    border-color: #3e7c49
+}
+
+.theme_buttons .btn-han-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-han-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-han-sub.dropdown-toggle {
+    color: white;
+    background-color: #3e7c49;
+    border-color: #3e7c49
+}
+
+/* colour theme for POV domain*/
+
+.theme_buttons .btn-pov {
+    color: white;
+    background-color: #7fcdef;
+    border-color: #7fcdef;
+}
+
+.theme_buttons .btn-pov.focus,
+.theme_buttons .btn-pov:focus,
+.theme_buttons .btn-pov:hover {
+    color: white;
+    background-color: #4c8cbb;
+    border-color: #4c8cbb
+}
+
+.theme_buttons .btn-pov:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-pov:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-pov.dropdown-toggle {
+    color: white;
+    background-color: #4c8cbb;
+    border-color: #4c8cbb
+}
+
+.theme_buttons .btn-pov-sub {
+    color: #4c8cbb;
+    background-color: white;
+    border-color: #4c8cbb;
+}
+
+.theme_buttons .btn-pov-sub.focus,
+.theme_buttons .btn-pov-sub:focus,
+.theme_buttons .btn-pov-sub:hover {
+    color: white;
+    background-color: #4c8cbb;
+    border-color: #4c8cbb
+}
+
+.theme_buttons .btn-pov-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-pov-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-pov-sub.dropdown-toggle {
+    color: white;
+    background-color: #4c8cbb;
+    border-color: #4c8cbb
+}
+
+
+/* colour theme for EDU domain*/
+
+.theme_buttons .btn-edu {
+    color: white;
+    background-color: #7e9acd;
+    border-color: #7e9acd;
+}
+
+.theme_buttons .btn-edu.focus,
+.theme_buttons .btn-edu:focus,
+.theme_buttons .btn-edu:hover {
+    color: white;
+    background-color: #37568f;
+    border-color: #37568f
+}
+
+.theme_buttons .btn-edu:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-edu:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-edu.dropdown-toggle {
+    color: white;
+    background-color: #37568f;
+    border-color: #37568f
+}
+
+.theme_buttons .btn-edu-sub {
+    color: #37568f;
+    background-color: white;
+    border-color: #37568f;
+}
+
+.theme_buttons .btn-edu-sub.focus,
+.theme_buttons .btn-edu-sub:focus,
+.theme_buttons .btn-edu-sub:hover {
+    color: white;
+    background-color: #37568f;
+    border-color: #37568f
+}
+
+.theme_buttons .btn-edu-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-edu-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-edu-sub.dropdown-toggle {
+    color: white;
+    background-color: #37568f;
+    border-color: #37568f
+}
+
+/* colour theme for CHP domain*/
+
+.theme_buttons .btn-chp {
+    color: white;
+    background-color: #eeca8b;
+    border-color: #eeca8b;
+}
+
+.theme_buttons .btn-chp.focus,
+.theme_buttons .btn-chp:focus,
+.theme_buttons .btn-chp:hover {
+    color: white;
+    background-color: #e5ae4c;
+    border-color: #e5ae4c
+}
+
+.theme_buttons .btn-chp:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-chp:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-chp.dropdown-toggle {
+    color: white;
+    background-color: #e5ae4c;
+    border-color: #e5ae4c
+}
+
+.theme_buttons .btn-chp-sub {
+    color: #e5ae4c;
+    background-color: white;
+    border-color: #e5ae4c;
+}
+
+.theme_buttons .btn-chp-sub.focus,
+.theme_buttons .btn-chp-sub:focus,
+.theme_buttons .btn-chp-sub:hover {
+    color: white;
+    background-color: #e5ae4c;
+    border-color: #e5ae4c
+}
+
+.theme_buttons .btn-chp-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-chp-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-chp-sub.dropdown-toggle {
+    color: white;
+    background-color: #e5ae4c;
+    border-color: #e5ae4c
+}
+
+/* colour theme for PAR domain*/
+
+.theme_buttons .btn-par {
+    color: white;
+    background-color: #ca8ca4;
+    border-color: #ca8ca4;
+}
+
+.theme_buttons .btn-par.focus,
+.theme_buttons .btn-par:focus,
+.theme_buttons .btn-par:hover {
+    color: white;
+    background-color: #861c3f;
+    border-color: #861c3f
+}
+
+.theme_buttons .btn-par:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-par:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-par.dropdown-toggle {
+    color: white;
+    background-color: #861c3f;
+    border-color: #861c3f
+}
+
+.theme_buttons .btn-par-sub {
+    color: #861c3f;
+    background-color: white;
+    border-color: #861c3f;
+}
+
+.theme_buttons .btn-par-sub.focus,
+.theme_buttons .btn-par-sub:focus,
+.theme_buttons .btn-par-sub:hover {
+    color: white;
+    background-color: #861c3f;
+    border-color: #861c3f
+}
+
+.theme_buttons .btn-par-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-par-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-par-sub.dropdown-toggle {
+    color: white;
+    background-color: #861c3f;
+    border-color: #861c3f
+}
+
+/* colour theme for CCI domain*/
+
+.theme_buttons .btn-cci {
+    color: white;
+    background-color: #f39a77;
+    border-color: #f39a77;
+}
+
+.theme_buttons .btn-cci.focus,
+.theme_buttons .btn-cci:focus,
+.theme_buttons .btn-cci:hover {
+    color: white;
+    background-color: #ec5e24;
+    border-color: #ec5e24
+}
+
+.theme_buttons .btn-cci:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-cci:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-cci.dropdown-toggle {
+    color: white;
+    background-color: #ec5e24;
+    border-color: #ec5e24
+}
+
+.theme_buttons .btn-cci-sub {
+    color: #ec5e24;
+    background-color: white;
+    border-color: #ec5e24;
+}
+
+.theme_buttons .btn-cci-sub.focus,
+.theme_buttons .btn-cci-sub:focus,
+.theme_buttons .btn-cci-sub:hover {
+    color: white;
+    background-color: #ec5e24;
+    border-color: #ec5e24
+}
+
+.theme_buttons .btn-cci-sub:not(:disabled):not(.disabled).active,
+.theme_buttons .btn-cci-sub:not(:disabled):not(.disabled):active,
+.theme_buttons .show>.btn-cci-sub.dropdown-toggle {
+    color: white;
+    background-color: #ec5e24;
+    border-color: #ec5e24
+}

@@ -908,7 +908,7 @@ def get_base_layout(**kwargs):
                                     width="auto",
                                 ),
                                 id=f"{page_prefix}-theme-row",
-                                className="my-2",
+                                className="my-2 theme_buttons",
                                 justify="center",
                                 align="center",
                                 style=themes_row_style,
@@ -1066,6 +1066,7 @@ def get_base_layout(**kwargs):
                                                                         "marginBottom": "20px",
                                                                         "width": "95%",
                                                                     },
+                                                                    class_name="theme_buttons"
                                                                 ),
                                                             ],
                                                             style={
@@ -1202,9 +1203,9 @@ def make_card(
     card = [
         dbc.CardBody(
             [
-                html.H1(
+                html.Span(
                     indicator_header,
-                    className="display-5",
+                    className="fs-1 w-bold",
                     style={
                         "textAlign": "center",
                         "color": domain_colour,
