@@ -856,7 +856,7 @@ def get_base_layout(**kwargs):
                                                 id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle",
                                                 style={
-                                                    "margin-bottom": "0px",
+                                                    "marginBottom": "0px",
                                                 },
                                             ),
                                             html.H1(
@@ -864,7 +864,7 @@ def get_base_layout(**kwargs):
                                                 className="heading-title",
                                                 style={
                                                     "color": domain_colour,
-                                                    "margin-top": "5px",
+                                                    "marginTop": "5px",
                                                 },
                                             ),
                                         ],
@@ -883,7 +883,7 @@ def get_base_layout(**kwargs):
                                 html.Img(
                                     id="wheel-icon",
                                     src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg"),
-                                    style={"background-color": "white"},
+                                    style={"backgroundColor": "white"},
                                 ),
                                 href="/transmonee",
                             ),
@@ -1117,7 +1117,7 @@ def get_base_layout(**kwargs):
                                                                 style={
                                                                     "paddingBottom": 10,
                                                                     "display": "flex",
-                                                                    "justify-content": "flex-end",
+                                                                    "justifyContent": "flex-end",
                                                                 },
                                                             ),
                                                             dcc.Loading(
