@@ -30,21 +30,31 @@ class DataExplorerPivotAIO(html.Div):
         if onrow:
             sel = "R"
 
-        control = [
-            html.Div(className="row", children=[label]),
-            dcc.RadioItems(
-                [{"label": lblRow, "value": "R"}, {"label": lblCol, "value": "C"}],
-                sel,
-                id={"type": "pvt_control", "index": aio_id},
-                inline=True,
-                className="row col-12 de_pivot_control",
-                style={
-                    "display": "flex",
-                    "align-items": "center",
-                    "justifyContent": "center",
-                },
-            ),
-        ]
+        icon_pvt_rows = html.I(className="fa fa-arrows-alt-h")
+        icon_pvt_cols = html.I(className="fa fa-arrows-alt-v")
+
+        control = html.Div(
+            className="row",
+            children=[
+                html.Div(className="col-sm-12 col-md-6", children=[label]),
+                html.Div(
+                    className="col-sm-12 col-md-6",
+                    children=[
+                        dbc.RadioItems(
+                            id={"type": "pvt_control", "index": aio_id},
+                            value=sel,
+                            options=[
+                                {"label": icon_pvt_rows, "value": "R"},
+                                {"label": icon_pvt_cols, "value": "C"},
+                            ],
+                            # style={"display": "inline-block"},
+                            className="force-inline-control",
+                            inline=True,
+                        ),
+                    ],
+                ),
+            ],
+        )
 
         if visible:
             display = "block"

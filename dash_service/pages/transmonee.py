@@ -856,7 +856,7 @@ def get_base_layout(**kwargs):
                                                 id=f"{page_prefix}-subtitle",
                                                 className="heading-subtitle",
                                                 style={
-                                                    "margin-bottom": "0px",
+                                                    "marginBottom": "0px",
                                                 },
                                             ),
                                             html.H1(
@@ -864,7 +864,7 @@ def get_base_layout(**kwargs):
                                                 className="heading-title",
                                                 style={
                                                     "color": domain_colour,
-                                                    "margin-top": "5px",
+                                                    "marginTop": "5px",
                                                 },
                                             ),
                                         ],
@@ -883,7 +883,7 @@ def get_base_layout(**kwargs):
                                 html.Img(
                                     id="wheel-icon",
                                     src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg"),
-                                    style={"background-color": "white"},
+                                    style={"backgroundColor": "white"},
                                 ),
                                 href="/transmonee",
                             ),
@@ -908,7 +908,7 @@ def get_base_layout(**kwargs):
                                     width="auto",
                                 ),
                                 id=f"{page_prefix}-theme-row",
-                                className="my-2",
+                                className="my-2 theme_buttons",
                                 justify="center",
                                 align="center",
                                 style=themes_row_style,
@@ -994,11 +994,11 @@ def get_base_layout(**kwargs):
                                                 "type": "area_types",
                                                 "index": f"{page_prefix}-AIO_AREA",
                                             },
-                                            className="custom-control-input-crg",
-                                            labelStyle={
-                                                "paddingLeft": 0,
-                                                "marginLeft": "-20px",
-                                            },
+                                            className="custom-control-input-crg force-inline-control align-middle",
+                                            # labelStyle={
+                                            #     "paddingLeft": 0,
+                                            #     "marginLeft": "-20px",
+                                            # },
                                             inline=True,
                                         ),
                                         width="auto",
@@ -1066,6 +1066,7 @@ def get_base_layout(**kwargs):
                                                                         "marginBottom": "20px",
                                                                         "width": "95%",
                                                                     },
+                                                                    class_name="theme_buttons"
                                                                 ),
                                                             ],
                                                             style={
@@ -1101,10 +1102,11 @@ def get_base_layout(**kwargs):
                                                                                     inputStyle={
                                                                                         "color": domain_colour
                                                                                     },
-                                                                                    labelStyle={
-                                                                                        "paddingLeft": 0,
-                                                                                        "marginLeft": "-20px",
-                                                                                    },
+                                                                                    # labelStyle={
+                                                                                    #     "paddingLeft": 0,
+                                                                                    #     "marginLeft": "-20px",
+                                                                                    # },
+                                                                                    class_name="force-inline-control",
                                                                                     inline=True,
                                                                                 ),
                                                                                 width="auto",
@@ -1115,7 +1117,7 @@ def get_base_layout(**kwargs):
                                                                 style={
                                                                     "paddingBottom": 10,
                                                                     "display": "flex",
-                                                                    "justify-content": "flex-end",
+                                                                    "justifyContent": "flex-end",
                                                                 },
                                                             ),
                                                             dcc.Loading(
@@ -1136,7 +1138,7 @@ def get_base_layout(**kwargs):
                                                                     color="secondary",
                                                                 ),
                                                                 id=f"{page_prefix}-aio_area_data_info",
-                                                                className="float-left",
+                                                                className="float-start",
                                                             ),
                                                             dbc.Popover(
                                                                 [
@@ -1164,7 +1166,7 @@ def get_base_layout(**kwargs):
                                                                     color="secondary",
                                                                 ),
                                                                 id=f"{page_prefix}-aio_area_area_info",
-                                                                className="float-right",
+                                                                className="float-end",
                                                             ),
                                                         ],
                                                     ),
@@ -1201,9 +1203,9 @@ def make_card(
     card = [
         dbc.CardBody(
             [
-                html.H1(
+                html.Span(
                     indicator_header,
-                    className="display-5",
+                    className="fs-1 w-bold",
                     style={
                         "textAlign": "center",
                         "color": domain_colour,
@@ -1643,6 +1645,7 @@ def aio_options(theme, indicators_dict, page_prefix):
             for num, code in enumerate(area_indicators)
         ]
     # print("aio_options: %s seconds" % (time.time() - start_time))
+    #return html.Div(className="force-inline-controls", children=area_buttons)
     return area_buttons
 
 

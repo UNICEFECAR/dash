@@ -1,4 +1,6 @@
 # https://data.unicef.org/resources/data_explorer/unicef_f/?ag=UNICEF&df=GLOBAL_DATAFLOW&ver=1.0&dq=AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0.&startPeriod=2012&endPeriod=2022
+# https://dash.plotly.com/dash-ag-grid
+
 
 from dash import callback, dcc, html
 from dash.exceptions import PreventUpdate
@@ -46,6 +48,7 @@ _STORE_LASTNOBS_CFG = "de_lastnobs_config"
 LABELS = {DataExplorerAIO._CFG_LASTN: "Show latest data only"}
 ELEM_DATAEXPLORER = "ELEM_DATAEXPLORER"
 ELEM_DATAEXPLORER_TABLE = "ELEM_DATAEXPLORER_TABLE"
+ELEM_DATAEXPLORER_FILTERS = "ELEM_DATAEXPLORER_FILTERS"
 
 # TODO Move this in a cfg
 OBS_COUNT_LIMIT = 5000
@@ -204,17 +207,22 @@ def structure_and_filters(de_data_structure, de_config, lang):
 
     struct = de_data_structure[data_struct_id]
 
-    ret_filters = []
-    for dim in struct["dsd"]["dims"]:
-        if not dim["is_time"]:
-            filter = DataExplorerFilterAIO(
-                aio_id=dim["id"],
-                label=dim["name"],
-                expanded=False,
-                items=dim["codes"],
-                selected=sel_codes[dim["id"]],
-            )
-            ret_filters.append(filter)
+    # ret_filters = []
+    # for dim in struct["dsd"]["dims"]:
+    #     if not dim["is_time"]:
+    #         filter = DataExplorerFilterAIO(
+    #             aio_id=dim["id"],
+    #             label=dim["name"],
+    #             expanded=False,
+    #             items=dim["codes"],
+    #             selected=sel_codes[dim["id"]],
+    #         )
+    #         ret_filters.append(filter)
+
+    filters_to_show = [dim for dim in struct["dsd"]["dims"] if not dim["is_time"]]
+    filters = DataExplorerFilterAIO(
+        aio_id=ELEM_DATAEXPLORER_FILTERS, filters=filters_to_show, selected=sel_codes
+    )
 
     #    ret_pvt_controls = []
 
@@ -223,7 +231,7 @@ def structure_and_filters(de_data_structure, de_config, lang):
         lastnobservations = ["lastn"]
 
     # return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
-    return [dataflow_title], ret_filters, lastnobservations
+    return [dataflow_title], filters, lastnobservations
 
 
 def pivot_data(df, on_rows, on_cols):

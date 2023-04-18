@@ -28,6 +28,7 @@ from dash_service.components_aio.card_aio import CardAIO
 from dash_service.components_aio.map_aio import MapAIO
 from dash_service.components_aio.chart_aio import ChartAIO
 from dash_service.components_aio.downloads_aio import DownloadsAIO
+from dash_service.components_aio.heading_aio import HeadingAIO
 
 # pd.set_option("display.max_columns", None)
 # pd.set_option("display.max_rows", None)
@@ -46,6 +47,7 @@ DEFAULT_LABELS = ["OBS_VALUE", "TIME_PERIOD", "REF_AREA"]
 ELEM_ID_CARDS = "CARDS"
 ELEM_ID_MAIN = "MAIN"
 ELEM_ID_CHARTS = "CHARTS"
+ELEM_ID_HEADING = "HEADING"
 
 CFG_N_THEMES = "THEMES"
 
@@ -124,7 +126,7 @@ dash.register_page(
 # Creates the top menu (pages) html elements
 def make_page_nav(pages, query_params, vertical=False, **kwargs):
     nav_links = []
-
+    # Create a list of name - href objects
     for p in pages:
         url_params = [
             "prj=" + p["prj_slug"],
@@ -136,42 +138,34 @@ def make_page_nav(pages, query_params, vertical=False, **kwargs):
             if qp not in ["prj", "page", "lang", "hash"]:
                 url_params.append(qp + "=" + query_params[qp])
         nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
+    # create all the ul - li - A structure for each link
+    nav_link_ul = [
+        html.Ul(
+            className="navbar-nav mt-0 d-flex",
+            children=[
+                html.Li(
+                    className="nav-item",
+                    children=[
+                        html.A(
+                            className="nav-link text-primary",
+                            href=nlink["href"],
+                            children=nlink["name"],
+                        )
+                    ],
+                )
+            ],
+        )
+        for nlink in nav_links
+    ]
 
     return html.Header(
-        id="header",
-        className="header",
+        className="row shadow p-3 mb-5 bg-white",
         children=[
-            html.Div(
-                className="container-fluid",
-                children=[
-                    html.Div(
-                        className="row",
-                        children=[
-                            dbc.Nav(
-                                [
-                                    dbc.NavItem(
-                                        [
-                                            dbc.NavLink(
-                                                page["name"],
-                                                className="ms-2",
-                                                href=page["href"],
-                                                active="exact",
-                                            ),
-                                        ],
-                                    )
-                                    for page in nav_links
-                                ],
-                                vertical=vertical,
-                                pills=True,
-                                justified=True,
-                                className="col-12",
-                            )
-                        ],
-                    )
-                ],
-            ),
+            html.Nav(
+                className="navbar navbar-expand-lg navbar-light justify-content-evenly",
+                children=nav_link_ul,
+            )
         ],
-        **kwargs,
     )
 
 
@@ -207,9 +201,11 @@ def layout(lang="en", **query_params):
         for p in all_pages
     ]
 
-    dashboard = Dashboard.query.join(Project).filter(
-        and_(Page.slug == page_slug, Project.slug == project_slug)
-    ).first()
+    dashboard = (
+        Dashboard.query.join(Project)
+        .filter(and_(Page.slug == page_slug, Project.slug == project_slug))
+        .first()
+    )
 
     if dashboard is None:
         return render_no_dashboard_cfg_found(project_slug, page_slug)
@@ -269,129 +265,69 @@ def render_page_template(
             dcc.Location(id="theme"),
             make_page_nav(all_pages, query_params),
             html.Br(),
-            dbc.Col(
-                html.Div(
-                    [
-                        render_heading(main_title),
-                        dbc.Row(
-                            children=[
-                                dbc.Col(
-                                    [
-                                        render_themes(),
-                                        render_years(lang),
-                                    ]
-                                ),
-                            ],
-                            # sticky="top",
-                            className="bg-light",
+            html.Div(
+                [
+                    HeadingAIO(main_title, aio_id=ELEM_ID_HEADING),
+                    html.Div(
+                        className="bg-light",
+                        children=[
+                            render_themes(),
+                            render_years(lang),
+                        ],
+                    ),
+                    html.Div(className="row mt-3", id="cards_row"),
+                    html.Br(),
+
+                    MapAIO(
+                        ELEM_ID_MAIN,
+                        plot_cfg=cfg_plot,
+                        info_title=get_multilang_value(translations["sources"], lang),
+                        lbl_show_hist=get_multilang_value(
+                            translations["show_historical"], lang
                         ),
-                        dbc.Row(
-                            [
-                                dbc.CardDeck(
-                                    id="cards_row",
-                                    className="mt-3",
-                                ),
-                            ],
-                            justify="center",
+                        lbl_excel=get_multilang_value(
+                            translations["download_excel"], lang
                         ),
-                        html.Br(),
-                        dbc.CardDeck(
-                            [
-                                MapAIO(
-                                    ELEM_ID_MAIN,
-                                    plot_cfg=cfg_plot,
-                                    info_title=get_multilang_value(
-                                        translations["sources"], lang
-                                    ),
-                                    lbl_show_hist=get_multilang_value(
-                                        translations["show_historical"], lang
-                                    ),
-                                    lbl_excel=get_multilang_value(
-                                        translations["download_excel"], lang
-                                    ),
-                                    lbl_csv=get_multilang_value(
-                                        translations["download_csv"], lang
-                                    ),
-                                )
-                            ],
-                            style={"display": "block"},
-                        ),
-                        html.Br(),
-                        html.Div(
-                            id="div_charts", className="row row-cols-1 row-cols-lg-2"
-                        ),
-                        # Test automation (Selenium) handle
-                        html.Div(
-                            id="_page_load", children=[], style={"display": "none"}
-                        ),
-                    ]
-                )
-            ),
+                        lbl_csv=get_multilang_value(translations["download_csv"], lang),
+                    ),
+                    html.Br(),
+                    html.Div(id="div_charts", className="row row-cols-1 row-cols-lg-2"),
+                    # Test automation (Selenium) handle
+                    html.Div(id="_page_load", children=[], style={"display": "none"}),
+                ]
+            )
+            # ),
         ],
     )
     return template
 
 
-def render_heading(main_title) -> html.Div:
-    return html.Div(
-        className="heading",
-        style={"padding": 36},
-        children=[
-            html.Div(
-                className="heading-content",
-                children=[
-                    html.Div(
-                        className="heading-panel",
-                        style={"padding": 20},
-                        children=[
-                            html.H1(
-                                main_title,
-                                id="main_title",
-                                className="heading-title",
-                            ),
-                            html.P(
-                                id="subtitle",
-                                className="heading-subtitle",
-                            ),
-                        ],
-                    ),
-                ],
-            )
-        ],
-    )
-
-
 def render_themes() -> html.Div:
-    return dbc.Row(
-        [
+    ret = html.Div(
+        className="d-flex justify-content-center",
+        children=[
             dbc.ButtonGroup(
                 id="themes",
             ),
         ],
-        id="theme-row",
-        # width=4,
-        className="my-2",
-        # no_gutters=True,
-        justify="center",
-        style={
-            "verticalAlign": "center",
-            "display": "flex",
-        },
     )
+    return html.Div(className="row", children=ret)
 
 
 def render_years(lang) -> html.Div:
-    return dbc.Row(
-        [
+    ret = html.Div(
+        className="d-flex justify-content-center",
+        children=[
             dbc.DropdownMenu(
                 label=f"{get_multilang_value(translations['years'], lang)}: {years[0]} - {years[-1]}",
                 id="collapse-years-button",
                 className="m-2",
                 color="info",
-                # block=True,
                 children=[
-                    dbc.Card(
-                        dcc.RangeSlider(
+                    html.Div(
+                        style={"minWidth": "500px"},
+                        className="overflow-auto",
+                        children=dcc.RangeSlider(
                             id="year_slider",
                             min=0,
                             max=len(years) - 1,
@@ -404,19 +340,14 @@ def render_years(lang) -> html.Div:
                                 len(years) - 1,
                             ],
                         ),
-                        style={
-                            "maxHeight": "250px",
-                            "minWidth": "500px",
-                        },
-                        className="overflow-auto",
-                        body=True,
-                    ),
+                    )
                 ],
             )
         ],
         id="filter-row",
-        justify="center",
     )
+
+    return html.Div(className="row", children=ret)
 
 
 # Triggered when the theme or year slider changes
@@ -481,7 +412,8 @@ def download_structures(selections, page_config, lang):
 
 # this callback updates on selection changed: it needs the selected page
 @callback(
-    Output("subtitle", "children"),
+    # Output("subtitle", "children"),
+    Output(HeadingAIO.ids.subtitle(ELEM_ID_HEADING), "children"),
     Output("themes", "children"),
     [
         Input("store", "data"),
@@ -554,14 +486,19 @@ def show_cards(data_struct, selections, page_config, lang):
 
         info_head = get_multilang_value(translations["sources"], lang)
         cards.append(
-            CardAIO(
-                aio_id=f"card-{num}",
-                value=value,
-                suffix=label,
-                info_head=info_head,
-                info_body=data_source,
-                time_period=time_period,
-                lbl_time_period=get_multilang_value(translations["TIME_PERIOD"], lang),
+            html.Div(
+                className="col",
+                children=CardAIO(
+                    aio_id=f"card-{num}",
+                    value=value,
+                    suffix=label,
+                    info_head=info_head,
+                    info_body=data_source,
+                    time_period=time_period,
+                    lbl_time_period=get_multilang_value(
+                        translations["TIME_PERIOD"], lang
+                    ),
+                ),
             )
         )
 
@@ -687,10 +624,6 @@ def main_figure(
     time_period = [min(selections["years"]), max(selections["years"])]
 
     lastnobs = None
-    if not show_historical_data or len(show_historical_data) == 0:
-        show_historical_data = False
-    else:
-        show_historical_data = True
     if not show_historical_data:
         lastnobs = 1
 

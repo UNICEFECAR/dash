@@ -72,38 +72,60 @@ class ChartAIO(html.Div):
 
         card_body = dbc.CardBody(
             children=[
-                dcc.Dropdown(id=self.ids.ddl(aio_id), className="dcc_control"),
-                html.Br(),
-                dbc.RadioItems(
-                    id=self.ids.chart_types(aio_id), inline=True, options=[]
+                html.Div(
+                    className="row my-2",
+                    children=[
+                        dcc.Dropdown(id=self.ids.ddl(aio_id), className="dcc_control")
+                    ],
+                ),
+                html.Div(
+                    className="row my-2",
+                    children=[
+                        dbc.RadioItems(
+                            id=self.ids.chart_types(aio_id),
+                            options=[],
+                            inline=True,
+                            class_name="force-inline-control"
+                        )
+                    ],
                 ),
                 dcc.Loading([dcc.Graph(id=self.ids.chart(aio_id), config=plot_cfg)]),
                 html.Div(
-                    className="fload_left",
+                    className="row",
                     children=[
-                        DownloadsAIO(aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv)
-                    ],
-                ),
-                # Icon wrapper: a workaround to link the popover that wouldn't work with aio created IDs
-                html.Div(
-                    id=self.ids.info_icon(aio_id),
-                    className="float-right",
-                    children=[
-                        html.I(
-                            id="chart_aio_inf_icon_" + aio_id,
-                            className="fas fa-info-circle mx-1",
-                            style={"padding-right": "30px"},
+                        html.Div(
+                            className="col-9",
+                            children=[
+                                DownloadsAIO(
+                                    aio_id, lbl_excel=lbl_excel, lbl_csv=lbl_csv
+                                )
+                            ],
+                        ),
+                        html.Div(
+                            id=self.ids.info_icon(aio_id),
+                            className="col-3",
+                            children=[
+                                html.I(
+                                    id="chart_aio_inf_icon_" + aio_id,
+                                    className="fas fa-info-circle mx-1 float-end",
+                                    style={"padding-right": "30px"},
+                                ),
+                            ],
                         ),
                     ],
                 ),
-                dbc.Popover(
-                    [
-                        dbc.PopoverHeader(info_title),
-                        dbc.PopoverBody(id=self.ids.info_text(aio_id)),
+                html.Div(
+                    children=[
+                        dbc.Popover(
+                            [
+                                dbc.PopoverHeader(info_title),
+                                dbc.PopoverBody(id=self.ids.info_text(aio_id)),
+                            ],
+                            id="hover",
+                            target="chart_aio_inf_icon_" + aio_id,
+                            trigger="hover",
+                        )
                     ],
-                    id="hover",
-                    target="chart_aio_inf_icon_" + aio_id,
-                    trigger="hover",
                 ),
             ]
         )
