@@ -65,6 +65,7 @@ translations = {
     "show_historical": {"en": "Show historical data", "pt": "Mostrar série histórica"},
     "bar": {"en": "Bar", "pt": "Gráfico em colunas"},
     "line": {"en": "Line", "pt": "Gráfico em linhas"},
+    "scatter": {"en": "Scatter", "pt": "Scatter PT"},
     "download_excel": {"en": "Download Excel", "pt": "Download Excel"},
     "download_csv": {"en": "Download CSV", "pt": "Download CSV"},
     "OBS_VALUE": {"en": "Value", "pt": "Valores"},
@@ -277,7 +278,6 @@ def render_page_template(
                     ),
                     html.Div(className="row mt-3", id="cards_row"),
                     html.Br(),
-
                     MapAIO(
                         ELEM_ID_MAIN,
                         plot_cfg=cfg_plot,
@@ -405,7 +405,11 @@ def download_structures(selections, page_config, lang):
         for chart in theme_node[ELEM_ID_CHARTS]:
             if "data" in chart:
                 for data_node in chart["data"]:
-                    add_structure(data_structures, data_node, lang)
+                    if "multi_indicator" in data_node:
+                        for multi_indic_node in data_node["multi_indicator"]:
+                            add_structure(data_structures, multi_indic_node, lang)
+                    else:
+                        add_structure(data_structures, data_node, lang)
 
     return data_structures
 
@@ -539,10 +543,26 @@ def get_ddl_values(data_node, data_structures, column_id, lang):
         # is it there a label? Override the one read from the data
         if not is_string_empty(data_cfg):
             lbl = get_multilang_value(data_cfg["label"], lang)
+        elif "multi_indicator" in data_cfg:
+            labels = []
+            for multi_cfg in data_cfg["multi_indicator"]:
+                tmp_lbl = get_code_from_structure_and_dq(
+                    data_structures, multi_cfg, column_id
+                )["name"]
+                labels.append(tmp_lbl)
+            lbl = " - ".join(labels)
+
         else:
+            # codes_found = get_code_from_structure_and_dq(
+            #     data_structures, data_cfg, column_id
+            # )
+            # if isinstance(codes_found, list):
+            #     lbl = " - ".join([c["name"] for c in codes_found])
+            # else:
             lbl = get_code_from_structure_and_dq(data_structures, data_cfg, column_id)[
                 "name"
             ]
+
         items.append({"label": lbl, "value": str(idx)})
         if idx == 0:
             default_item = str(idx)
@@ -725,13 +745,18 @@ def set_options_charts(data_structures, selection, config, component_id, lang):
     chart_types = []
 
     if "graphs" in chart_cfg:
-        chart_types = [
-            {
-                "label": get_multilang_value(translations[type_key.lower()], lang),
-                "value": type_key,
-            }
-            for type_key in chart_cfg["graphs"].keys()
-        ]
+        chart_types = []
+        for type_key in chart_cfg["graphs"].keys():
+            type_lbl = type_key
+            if type_key.lower() in translations:
+                type_lbl = get_multilang_value(translations[type_key.lower()], lang)
+            chart_types.append(
+                {
+                    "label": type_lbl,
+                    "value": type_key,
+                }
+            )
+
     default_graph = chart_cfg.get("default_graph", "")
     if len(chart_types) == 1:
         chart_style = {"visibility": "hidden"}
@@ -775,11 +800,39 @@ def update_charts(
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
 
-    struct_id = get_structure_id(data_cfg)
-    if chart_type == "line":
-        df = get_data(data_cfg, years=time_period)
+    df = pd.DataFrame()
+    indicator_name = ""
+    indic_labels = {}
+    if "multi_indicator" in data_cfg:
+        tmp_inidic_label = []
+        for multi_indic_cfg in data_cfg["multi_indicator"]:
+            data_chunk = get_data(multi_indic_cfg, years=time_period)
+            struct_id = get_structure_id(multi_indic_cfg)
+            data_chunk = merge_with_codelist(
+                data_chunk, data_structures, struct_id, ID_REF_AREA
+            )
+            data_chunk = merge_with_codelist(
+                data_chunk, data_structures, struct_id, ID_DATA_SOURCE
+            )
+            indic_code = get_code_from_structure_and_dq(
+                data_structures, multi_indic_cfg, ID_INDICATOR
+            )
+            indic_labels[indic_code["id"]] = indic_code["name"]
+            tmp_inidic_label.append(indic_code["name"])
+            df = pd.concat([df, data_chunk])
+        tmp_inidic_label = list(set(tmp_inidic_label))  # remove duplicates
+        indicator_name = " - ".join(tmp_inidic_label)
     else:
-        df = get_data(data_cfg, years=time_period, lastnobservations=1)
+        if chart_type == "line":
+            df = get_data(data_cfg, years=time_period)
+        else:
+            df = get_data(data_cfg, years=time_period, lastnobservations=1)
+        struct_id = get_structure_id(data_cfg)
+        df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
+        df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
+        indicator_name = get_code_from_structure_and_dq(
+            data_structures, data_cfg, ID_INDICATOR
+        )["name"]
 
     # check if the dataframe is empty meaning no data to display as per the user's selection
     if df.empty:
@@ -788,8 +841,8 @@ def update_charts(
     df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE], errors="coerce")
     df[ID_TIME_PERIOD] = pd.to_numeric(df[ID_TIME_PERIOD], errors="coerce")
 
-    df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
-    df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
+    # df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
+    # df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
 
     source = ""
     display_source = {"display": "none"}
@@ -806,27 +859,33 @@ def update_charts(
     options["labels"] = get_labels(
         data_structures, struct_id, df.columns, lang, translations
     )
+    for k, v in indic_labels.items():
+        options["labels"][k] = v
 
     if "label" in chart_cfg["data"][int(ddl_value)]:
         indicator_name = get_multilang_value(
             chart_cfg["data"][int(ddl_value)]["label"], lang
         )
-    else:
-        indicator_name = get_code_from_structure_and_dq(
-            data_structures, data_cfg, ID_INDICATOR
-        )["name"]
 
     # set the chart title, wrap the text when the indicator name is too long
-
     chart_title = textwrap.wrap(
         indicator_name,
         width=74,
     )
     chart_title = "<br>".join(chart_title)
+
     xaxis = {"categoryorder": "total descending"}
     if chart_type == "line":
         xaxis["tickformat"] = "d"
-        # xaxis["dtick"]: 0
+    elif chart_type == "scatter":
+        keep_cols = ["REF_AREA", "_L_REF_AREA"]
+        df_scatter = pd.pivot_table(
+            df, values=ID_OBS_VALUE, index=keep_cols, columns=[ID_INDICATOR]
+        )
+        df = df_scatter.reset_index()
+
+        options["hover_data"] = ["_L_REF_AREA"]
+
     # set the layout to center the chart title and change its font size and color
     layout = go.Layout(
         title=chart_title,
