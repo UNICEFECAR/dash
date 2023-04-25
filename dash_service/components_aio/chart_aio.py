@@ -108,7 +108,7 @@ class ChartAIO(html.Div):
                                 html.I(
                                     id="chart_aio_inf_icon_" + aio_id,
                                     className="fas fa-info-circle mx-1 float-end",
-                                    style={"padding-right": "30px"},
+                                    style={"paddingRight": "30px"},
                                 ),
                             ],
                         ),
@@ -136,6 +136,6 @@ class ChartAIO(html.Div):
         super().__init__(
             id=self.ids.card(aio_id),
             className="col",
-            style={"margin-bottom": "20px"},
+            style={"marginBottom": "20px"},
             children=[card],
         )

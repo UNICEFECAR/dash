@@ -33,9 +33,16 @@ def get_data(cfg_data, years=None, lastnobservations=None, labels="id"):
 
     startperiod = None
     endperiod = None
+    
+
     if years is not None:
         startperiod = years[0]
         endperiod = years[1]
+
+    if "startperiod" in cfg_data:
+        startperiod = cfg_data["startperiod"]
+    if "endperiod" in cfg_data:
+        endperiod = cfg_data["endperiod"]
     df = api_access.get_data(
         cfg_data["agency"],
         cfg_data["id"],
@@ -188,6 +195,7 @@ def is_string_empty(container_node, label_id="label"):
 
 
 def get_multilang_value(label_node, preferred_language="en"):
+
     if isinstance(label_node, str):
         return label_node
     if isinstance(label_node, dict):

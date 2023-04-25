@@ -55,6 +55,8 @@ def page_login():
             message = "Login error"
         elif "err_nocred" in req_args["msg"]:
             message = "Email or password cannot be empty"
+        elif "err_nouser" in req_args["msg"]:
+            message = "User not found"
 
     return render_template("login.html", message=message)
 
@@ -73,6 +75,8 @@ def do_login():
         return redirect("/login?msg=err_nocred")
 
     user = User.query.filter(User.email == arg_email).first()
+    if user is None:
+        return redirect("/login?msg=err_nouser")
     if user.verify_password(arg_pwd):
         flask_login.login_user(user)
         return redirect("/admin")
