@@ -60,11 +60,11 @@
 }
 
 .dash-table-container {
-    max-height: calc(100vh - 250px)
+    height: calc(100vh - 450px)
 }
 
 div.dt-table-container__row.dt-table-container__row-1 {
-    min-height: 150px;
+    height: calc(100vh - 450px)
 }
 
 /*Allows the pivot table to span the whole column size*/

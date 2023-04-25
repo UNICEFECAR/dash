@@ -102,11 +102,11 @@ def render_no_de_cfg_found(prj, page):
     if prj is not None and page is not None:
         err = f"No page found for parameters prj={prj}&page={page}"
     template = html.Div(
-        dbc.Col(
+        children=dbc.Col(
             [
                 dbc.Row(html.H3(err)),
             ]
-        )
+        ),
     )
     return template
 
@@ -132,7 +132,6 @@ def render_page_template(
     # return
 
     template = html.Div(
-        className="container-fluid",
         children=[
             dcc.Store(id=_STORE_LANG, data=lang),
             dcc.Store(id=_STORE_CONFIG, data=config),
@@ -204,7 +203,6 @@ def structure_and_filters(de_data_structure, de_config, lang):
                     sel_codes[dims[i]["id"]] = sel_filter[i]
 
     struct = de_data_structure[data_struct_id]
-
 
     filters_to_show = [dim for dim in struct["dsd"]["dims"] if not dim["is_time"]]
     filters = DataExplorerFilterAIO(
@@ -286,6 +284,7 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
     )
 
     return df_t
+
 
 # Gets the default pvt cfg (it is now default, should get it from the SDMX annotations)
 def get_default_pvt_config(struct):

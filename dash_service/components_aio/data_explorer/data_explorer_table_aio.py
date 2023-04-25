@@ -17,21 +17,12 @@ class DataExplorerTableAIO(html.Div):
             "aio_id": aio_id,
         }
 
-        dataexplorertable_summary = lambda aio_id: {
-            "component": "dataexplorertable",
-            "subcomponent": "dataexplorertable_summary",
-            "aio_id": aio_id,
-        }
-
     ids = ids
 
     def __init__(self, aio_id=None, className=None):
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
-        div_summary = html.Div(
-            id=self.ids.dataexplorertable_summary(aio_id), children=[]
-        )
 
         dtable = dash_table.DataTable(
             id=self.ids.dataexplorertable_tbl(aio_id),
@@ -53,4 +44,4 @@ class DataExplorerTableAIO(html.Div):
             style_data_conditional=[],
         )
 
-        super().__init__(children=[div_summary, dtable])
+        super().__init__(children=[dtable], className="mt-3")

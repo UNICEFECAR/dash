@@ -207,7 +207,7 @@ class DataExplorerAIO(html.Div):
                     ],
                 ),
                 # The Table
-                DataExplorerTableAIO(aio_id, className="row col-sm-12"),
+                DataExplorerTableAIO(aio_id, className="col-sm-12 mt-5"),
             ],
         )
 
