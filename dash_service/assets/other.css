@@ -4,7 +4,7 @@
 
 /*Data explorer*/
 .de_lastnobs input {
-    margin-right: 5px;
+    margin-bottom: 0;
 }
 
 .div_de_filter {
@@ -70,4 +70,15 @@ div.dt-table-container__row.dt-table-container__row-1 {
 /*Allows the pivot table to span the whole column size*/
 .dash-spreadsheet.dash-freeze-left {
     max-width: none !important;
+}
+
+/*The filters tree (dash-treeview-antd)*/
+.ant-tree li {
+    padding: 0;
+    margin-bottom: 0;
+
+}
+.has-bootstrap ul li{
+    padding: 0;
+    margin-bottom: 0;
 }

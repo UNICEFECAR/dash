@@ -23,12 +23,6 @@ class DataExplorerTableAIO(html.Div):
             "aio_id": aio_id,
         }
 
-        dataexplorertable_summary2 = lambda aio_id: {
-            "component": "dataexplorertable",
-            "subcomponent": "dataexplorertable_summary2",
-            "aio_id": aio_id,
-        }
-
     ids = ids
 
     def __init__(self, aio_id=None, className=None):
