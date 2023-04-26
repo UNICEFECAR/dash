@@ -16,6 +16,22 @@ class DataExplorerAIO(html.Div):
     _CFG_LASTN = "lastnobservations"
     _LAST1OBS_LABEL = "Show latest data only"
 
+    _class_filter_section = "p-1 mb-2 mt-4 bg-primary text-white w fw-bold text-center"
+
+    def get_uniq_indic_attrib_elem(uniq_vals):
+        ret = []
+        # for idx, v in enumerate(uniq_vals.values()):
+        #     ret.append(html.B(v["name"] + ": "))
+        #     ret.append(v["value"])
+        #     if idx != len(uniq_vals) - 1:
+        #         ret.append(" - ")
+
+        for v in uniq_vals.values():
+            ret.append(html.Span(className="badge rounded-pill bg-secondary me-1", children=v["name"]))
+            ret.append(html.Span(children=v["value"]))
+            ret.append(html.Br())
+        return ret
+
     class ids:
         dataexplorer = lambda aio_id: {
             "component": "DataExplorer",
@@ -79,13 +95,13 @@ class DataExplorerAIO(html.Div):
             DataExplorerAIO._CFG_LASTN, DataExplorerAIO._LAST1OBS_LABEL
         )
 
-        filter_lastnobs = dcc.Checklist(
+        filter_lastnobs = dbc.Checklist(
             id=self.ids.de_lastnobs(aio_id),
-            className="row p-2 mb-2 de_lastnobs",
+            className="p-2 mb-2 de_lastnobs",
             options=[{"label": txt_lastnobs, "value": "lastn"}],
             value=lastnobs,
+            switch=True
         )
-
 
         back_n_years = 10
         time_min = 2000
@@ -110,7 +126,7 @@ class DataExplorerAIO(html.Div):
             marks={time_min: str(time_min), time_max: str(time_max)},
             value=[time_start, time_end],
             id=self.ids.de_time_period(aio_id),
-            className="row",
+            className="",
             allowCross=False,
             tooltip={"placement": "bottom", "always_visible": True},
         )
@@ -118,25 +134,25 @@ class DataExplorerAIO(html.Div):
         left_col_elems = [
             filter_lastnobs,
             html.Div(
-                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
-                    children="Time",
-                ),
+                className=DataExplorerAIO._class_filter_section,
+                children="Time",
+            ),
             filter_time,
             html.Div(
-                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
-                    children="Filters",
-                ),
+                className=DataExplorerAIO._class_filter_section,
+                children="Filters",
+            ),
             html.Div(id=self.ids.de_filters(aio_id), children=[]),
             html.Div(
-                    className="row p-1 mb-2 mt-4 bg-primary text-white w font-weight-bold",
-                    children="Pivot",
-                ),
+                className=DataExplorerAIO._class_filter_section,
+                children="Pivot",
+            ),
             html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
             DataExplorerIndicatorMetaAIO(aio_id),
         ]
 
         left_col = html.Div(
-            className="col-sm-12 col-lg-3 bg-light",
+            className="col-sm-12 col-lg-3 bg-light p-0",
             children=left_col_elems
             # html.Div(id=self.ids.de_indic_meta(aio_id), children=[]),
             #
@@ -156,36 +172,42 @@ class DataExplorerAIO(html.Div):
             additional_classes="float-right",
         )
 
+        # the right column, containing title, downlaods, table...
         table_col = html.Div(
             className="col-sm-12 col-lg-9",
             children=[
+                # The title
                 html.H4(
                     id=self.ids.de_table_title(aio_id),
                     children=[],
-                    className="row col-sm-12 col-lg-9 text-primary",
+                    className="col-sm-12 col-lg-9 text-primary mt-3",
                 ),
+                # The list of common dims/attribs,
                 html.Div(
                     className="row",
                     children=[
                         html.Div(
                             className="col-sm-9",
-                            # style={"backgroundColor": "red"},
                             children=[
                                 html.Div(
-                                    id=self.ids.de_unique_dims(aio_id), children=[]
+                                    id=self.ids.de_unique_dims(aio_id),
+                                    children=[],
+                                    className="mb-2",
                                 ),
                                 html.Div(
                                     id=self.ids.de_unique_attribs(aio_id), children=[]
                                 ),
                             ],
                         ),
+                        # The download buttons
                         html.Div(
                             className="col-sm-3",
                             children=[btn_downloads],
                         ),
                     ],
                 ),
-                DataExplorerTableAIO(aio_id, className="row col-sm-12"),
+                # The Table
+                DataExplorerTableAIO(aio_id, className="col-sm-12 mt-5"),
             ],
         )
 

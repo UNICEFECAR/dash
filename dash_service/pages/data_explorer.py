@@ -1,6 +1,4 @@
-# https://data.unicef.org/resources/data_explorer/unicef_f/?ag=UNICEF&df=GLOBAL_DATAFLOW&ver=1.0&dq=AFG+ITA.CME_MRY0T4+DM_POP_TOT+WS_PPL_W-SM+CME_MRY0.&startPeriod=2012&endPeriod=2022
 # https://dash.plotly.com/dash-ag-grid
-
 
 from dash import callback, dcc, html
 from dash.exceptions import PreventUpdate
@@ -104,11 +102,11 @@ def render_no_de_cfg_found(prj, page):
     if prj is not None and page is not None:
         err = f"No page found for parameters prj={prj}&page={page}"
     template = html.Div(
-        dbc.Col(
+        children=dbc.Col(
             [
                 dbc.Row(html.H3(err)),
             ]
-        )
+        ),
     )
     return template
 
@@ -134,7 +132,6 @@ def render_page_template(
     # return
 
     template = html.Div(
-        className="container-fluid",
         children=[
             dcc.Store(id=_STORE_LANG, data=lang),
             dcc.Store(id=_STORE_CONFIG, data=config),
@@ -207,30 +204,15 @@ def structure_and_filters(de_data_structure, de_config, lang):
 
     struct = de_data_structure[data_struct_id]
 
-    # ret_filters = []
-    # for dim in struct["dsd"]["dims"]:
-    #     if not dim["is_time"]:
-    #         filter = DataExplorerFilterAIO(
-    #             aio_id=dim["id"],
-    #             label=dim["name"],
-    #             expanded=False,
-    #             items=dim["codes"],
-    #             selected=sel_codes[dim["id"]],
-    #         )
-    #         ret_filters.append(filter)
-
     filters_to_show = [dim for dim in struct["dsd"]["dims"] if not dim["is_time"]]
     filters = DataExplorerFilterAIO(
         aio_id=ELEM_DATAEXPLORER_FILTERS, filters=filters_to_show, selected=sel_codes
     )
 
-    #    ret_pvt_controls = []
-
     lastnobservations = []
     if "lastnobservations" in de_config and de_config["lastnobservations"] > 0:
         lastnobservations = ["lastn"]
 
-    # return [dataflow_title], ret_filters, lastnobservations, ret_pvt_controls
     return [dataflow_title], filters, lastnobservations
 
 
@@ -302,16 +284,6 @@ def pivot_tooltips(df, on_rows, on_cols, struct, struct_id):
     )
 
     return df_t
-
-
-def create_unique_dims_attrs_text(uniq_vals):
-    ret = []
-    for idx, v in enumerate(uniq_vals.values()):
-        ret.append(html.B(v["name"] + ": "))
-        ret.append(v["value"])
-        if idx != len(uniq_vals) - 1:
-            ret.append(" - ")
-    return ret
 
 
 # Gets the default pvt cfg (it is now default, should get it from the SDMX annotations)
@@ -634,8 +606,8 @@ def selection_change(
             }
         )
 
-    unique_dims_html = create_unique_dims_attrs_text(unique_dims)
-    unique_attrs_html = create_unique_dims_attrs_text(unique_attribs)
+    unique_dims_html = DataExplorerAIO.get_uniq_indic_attrib_elem(unique_dims)
+    unique_attrs_html = DataExplorerAIO.get_uniq_indic_attrib_elem(unique_attribs)
 
     indic_idx = -1
     sel_indics = None
