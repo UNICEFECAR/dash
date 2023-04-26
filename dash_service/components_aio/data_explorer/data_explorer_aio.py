@@ -147,7 +147,7 @@ class DataExplorerAIO(html.Div):
                 className=DataExplorerAIO._class_filter_section,
                 children="Pivot",
             ),
-            html.Div(id=self.ids.de_pvt_control(aio_id), children=[]),
+            html.Div(id=self.ids.de_pvt_control(aio_id), children=[], className="px-2"),
             DataExplorerIndicatorMetaAIO(aio_id),
         ]
 
@@ -207,7 +207,7 @@ class DataExplorerAIO(html.Div):
                     ],
                 ),
                 # The Table
-                DataExplorerTableAIO(aio_id, className="col-sm-12 mt-5"),
+                DataExplorerTableAIO(aio_id, className="col-sm-12"),
             ],
         )
 

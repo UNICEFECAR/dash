@@ -49,7 +49,7 @@ class db_utils:
             DataExplorer.query.with_entities(DataExplorer.id)
             .join(Project)
             .filter(and_(Project.slug == prj_slug, DataExplorer.slug==page_slug))
-        )
+        ).first()
 
         if dataexplorer is not None:
             return db_utils.TYPE_DATAEXPLORER
