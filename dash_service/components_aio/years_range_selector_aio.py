@@ -4,14 +4,28 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import datetime
 
+from dash import Input, Output, State, html, callback, MATCH
+
 
 class YearsRangeSelectorAIO(html.Div):
     # _value_style = {"textAlign": "center", "color": "#1cabe2"}
     # A set of functions that create pattern-matching callbacks of the subcomponents
     class ids:
-        years_range_sel_ddl = lambda aio_id: {
+        years_range = lambda aio_id: {
             "component": "YearsRangeSelectorAIO",
-            "subcomponent": "years_range_sel_ddl",
+            "subcomponent": "years_range",
+            "aio_id": aio_id,
+        }
+
+        years_range_open_collapse_btn = lambda aio_id: {
+            "component": "YearsRangeSelectorAIO",
+            "subcomponent": "years_range_open_collapse_btn",
+            "aio_id": aio_id,
+        }
+
+        years_range_open_collapse_elem = lambda aio_id: {
+            "component": "YearsRangeSelectorAIO",
+            "subcomponent": "years_range_open_collapse_elem",
             "aio_id": aio_id,
         }
 
@@ -37,49 +51,50 @@ class YearsRangeSelectorAIO(html.Div):
         if sel_year_max is None:
             sel_year_max = min(year_max, datetime.datetime.now().year)
 
-        years = list(range(year_min, year_max))
-
-        # ret = dbc.DropdownMenu(
-        #     label=f"{years_label}: {sel_year_min} - {sel_year_max}",
-        #     id=self.ids.years_range_sel_ddl(aio_id),
-        #     color="info",
-        #     children=[
-        #             html.Div(
-        #                 style={"minWidth": "500px"},
-        #                 className="overflow-auto",
-        #                 children=dcc.RangeSlider(
-        #                     id="year_slider",
-        #                     min=0,
-        #                     max=year_max - year_min - 1,
-        #                     step=None,
-        #                     marks={
-        #                         index: str(year) for index, year in enumerate(years)
-        #                     },
-        #                     value=[
-        #                         0,
-        #                         len(years) - 1,
-        #                     ],
-        #                 ),
-        #             )
-        #         ]
-        # )
-
-        ret = dcc.RangeSlider(
-            id="year_slider",
-            min=year_min,
-            max=year_max,
-            step=1,
-            #marks={index: str(year) for index, year in enumerate(years)},
-            marks={i: '{}'.format(i) for i in range(year_min, year_max)},
-            value=[
-                sel_year_min,
-                sel_year_max,
-            ],
-            tooltip={"placement": "bottom", "always_visible": True}
-        )
+        ret = [
+            html.Div(
+                className="d-flex justify-content-center",
+                children=dbc.Button(
+                    id=self.ids.years_range_open_collapse_btn(aio_id),
+                    class_name="btn btn-primary dropdown-toggle",
+                    n_clicks=0,
+                    children=f"{years_label}: {sel_year_min} - {sel_year_max}",
+                ),
+            ),
+            dbc.Collapse(
+                dbc.Card(
+                    dbc.CardBody(
+                        dcc.RangeSlider(
+                            className="w-100",
+                            id=self.ids.years_range(aio_id),
+                            min=year_min,
+                            max=year_max,
+                            step=1,
+                            marks={year_min: str(year_min), year_max: str(year_min)},
+                            value=[
+                                sel_year_min,
+                                sel_year_max,
+                            ],
+                            tooltip={"placement": "bottom", "always_visible": True},
+                        )
+                    )
+                ),
+                id=self.ids.years_range_open_collapse_elem(aio_id),
+                is_open=False,
+            ),
+        ]
 
         # Define the component's layout
         super().__init__(
-            #className="d-flex justify-content-center",
             children=ret,
         )
+
+    @callback(
+        Output(ids.years_range_open_collapse_elem(MATCH), "is_open"),
+        [Input(ids.years_range_open_collapse_btn(MATCH), "n_clicks")],
+        [State(ids.years_range_open_collapse_elem(MATCH), "is_open")],
+    )
+    def toggle_collapse(n, is_open):
+        if n:
+            return not is_open
+        return is_open

@@ -72,11 +72,14 @@ class MapAIO(dbc.Card):
     def __init__(
         self,
         aio_id=None,
+        title="",
         plot_cfg=None,
         info_title="",
         lbl_show_hist="Show historical data",
         lbl_excel="Download Excel",
         lbl_csv="Download CSV",
+        dropdownlist_options=None,
+        dropdownlist_value=None,
     ):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
@@ -85,7 +88,7 @@ class MapAIO(dbc.Card):
         card_header = dbc.CardHeader(
             id=self.ids.card_title(aio_id),
             style=MapAIO._header_style,
-            children=[],
+            children=[title],
         )
 
         card_body = dbc.CardBody(
@@ -93,8 +96,8 @@ class MapAIO(dbc.Card):
                 dcc.Dropdown(
                     id=self.ids.ddl(aio_id),
                     className="row m-2",
-                    options=[],
-                    value="",
+                    options=dropdownlist_options,
+                    value=dropdownlist_value,
                 ),
                 html.Div(
                     className="row my-2",
@@ -103,14 +106,9 @@ class MapAIO(dbc.Card):
                             className="float-start col",
                             children=[
                                 dbc.Switch(
-                                    # options=[{"label": lbl_show_hist, "value": 1}],
-                                    # value=[],
-                                    # id=self.ids.toggle_historical(aio_id),
-                                    # style={"display": "block"},
-                                    # className="float-start col",
                                     id=self.ids.toggle_historical(aio_id),
                                     label=lbl_show_hist,
-                                    value=False
+                                    value=False,
                                 )
                             ],
                         ),

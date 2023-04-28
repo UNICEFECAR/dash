@@ -209,3 +209,12 @@ def get_multilang_value(label_node, preferred_language="en"):
 
 def parse_sdmx_data_query(dq: str) -> list:
     return parse_data_query(dq)
+
+def is_float(to_test)->bool:
+    if to_test is None:
+        return False
+    try:
+        float(to_test)
+        return True
+    except ValueError:
+        return False

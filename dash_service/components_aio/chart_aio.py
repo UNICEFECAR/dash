@@ -55,19 +55,28 @@ class ChartAIO(html.Div):
     def __init__(
         self,
         aio_id=None,
+        title="",
         plot_cfg=None,
         info_title="",
         lbl_excel="Download Excel",
         lbl_csv="Download CSV",
+        dropdownlist_options=None,
+        dropdownlist_value=None,
+        chart_types=[],
+        default_graph=None,
     ):
 
         if aio_id is None:
             aio_id = str(uuid.uuid4())
 
+        chart_type_visibility = ""
+        if chart_types is None or len(chart_types) < 2:
+            chart_type_visibility = "d-none"
+
         card_header = dbc.CardHeader(
             id=self.ids.card_title(aio_id),
             style=ChartAIO._header_style,
-            children=[],
+            children=[title],
         )
 
         card_body = dbc.CardBody(
@@ -75,21 +84,36 @@ class ChartAIO(html.Div):
                 html.Div(
                     className="row my-2",
                     children=[
-                        dcc.Dropdown(id=self.ids.ddl(aio_id), className="dcc_control")
-                    ],
-                ),
-                html.Div(
-                    className="row my-2",
-                    children=[
-                        dbc.RadioItems(
-                            id=self.ids.chart_types(aio_id),
-                            options=[],
-                            inline=True,
-                            class_name="force-inline-control"
+                        dcc.Dropdown(
+                            id=self.ids.ddl(aio_id),
+                            className="dcc_control",
+                            options=dropdownlist_options,
+                            value=dropdownlist_value,
                         )
                     ],
                 ),
-                dcc.Loading([dcc.Graph(id=self.ids.chart(aio_id), config=plot_cfg)]),
+                html.Div(
+                    className="row my-2 " + chart_type_visibility,
+                    children=[
+                        dbc.RadioItems(
+                            id=self.ids.chart_types(aio_id),
+                            options=chart_types,
+                            value=default_graph,
+                            inline=True,
+                            class_name="force-inline-control",
+                        )
+                    ],
+                ),
+                dcc.Loading(
+                    
+                    children=[
+                        dcc.Graph(
+                            id=self.ids.chart(aio_id),
+                            config=plot_cfg,
+                            style={"min-height": "100px"},
+                        )
+                    ],
+                ),
                 html.Div(
                     className="row",
                     children=[
@@ -135,7 +159,6 @@ class ChartAIO(html.Div):
         # Define the component's layout
         super().__init__(
             id=self.ids.card(aio_id),
-            className="col",
-            style={"marginBottom": "20px"},
+            #className="col",
             children=[card],
         )
