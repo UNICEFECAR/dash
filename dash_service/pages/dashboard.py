@@ -34,6 +34,8 @@ from dash_service.components_aio.heading_aio import HeadingAIO
 from dash_service.components_aio.pages_navigation_aio import PagesNavigationAIO
 from dash_service.components_aio.years_range_selector_aio import YearsRangeSelectorAIO
 
+import copy
+
 # pd.set_option("display.max_columns", None)
 # pd.set_option("display.max_rows", None)
 # pd.set_option("display.width", 0)
@@ -254,6 +256,13 @@ def _get_elem_id(row, col):
     return f"{DBELEM}{row}_{col}"
 
 
+def _get_elem_cfg_pos(elem_id):
+    return {
+        "row": int(elem_id.split("_")[1]),
+        "col": int(elem_id.split("_")[2]),
+    }
+
+
 def _elem_generator(theme):
     if "ROWS" in theme:
         for idx_row, row in enumerate(theme["ROWS"]):
@@ -264,12 +273,6 @@ def _elem_generator(theme):
                     "elem": elem,
                     "elem_id": _get_elem_id(idx_row, idx_elem),
                 }
-                # dashboard_row_contents.append(
-                #     html.Div(className="col", children=[f"{idx_row}-{idx_elem}: {elem_type}"], id=_get_elem_id(idx_row,idx_elem))
-                # )
-            # dashboard_row = html.Div(className="row", children=dashboard_row_contents)
-            # dashboard_contents.append(dashboard_row)
-
 
 # Triggered when the selection state changes
 @callback(
@@ -312,39 +315,6 @@ def show_themes(selections, config):
             )
             for num, (key, value) in enumerate(config[CFG_N_THEMES].items())
         ]
-
-    # dashboard_contents = []
-
-    # elem_rows = {}
-    # for elem_info in _elem_generator(theme_node):
-    #     idx_key = str(elem_info["idx_row"])
-    #     if not idx_key in elem_rows:
-    #         elem_rows[idx_key] = []
-
-    #     elem_rows[idx_key].append(
-    #         html.Div(
-    #             className="col",
-    #             children=[f"{elem_info['idx_row']}-{elem_info['idx_elem']}"],
-    #             id=elem_info["elem_id"],
-    #         )
-    #     )
-
-    # for elem_row_k in sorted(elem_rows.keys()):
-    #     dashboard_contents.append(
-    #         html.Div(className="row", children=elem_rows[elem_row_k])
-    #     )
-
-    # idx_row = -1
-    # if "ROWS" in theme:
-    #     for idx_row, row in enumerate(theme["ROWS"]):
-    #         dashboard_row_contents=[]
-    #         for idx_elem, elem in enumerate(row["elements"]):
-    #             elem_type = elem.get("type", "No type")
-    #             dashboard_row_contents.append(
-    #                 html.Div(className="col", children=[f"{idx_row}-{idx_elem}: {elem_type}"], id=_get_elem_id(idx_row,idx_elem))
-    #             )
-    #         dashboard_row = html.Div(className="row", children=dashboard_row_contents)
-    #         dashboard_contents.append(dashboard_row)
 
     return subtitle, theme_buttons
 
@@ -453,7 +423,7 @@ def get_ddl_values(data_node, data_structures, column_id, lang):
 
 def _create_chart_placeholder(data_struct, page_config, elem_info, lang):
     elem = elem_info["elem"]
-    title = elem.get("label","")
+    title = elem.get("label", "")
     # The dropdownlist elements
     ddl_items, default_item = get_ddl_values(
         elem["data"], data_struct, ID_INDICATOR, lang
@@ -476,7 +446,7 @@ def _create_chart_placeholder(data_struct, page_config, elem_info, lang):
 
     ret = ChartAIO(
         aio_id=elem_info["elem_id"],
-        title = title,
+        title=title,
         plot_cfg=cfg_plot,
         info_title=get_multilang_value(translations["sources"], lang),
         lbl_excel=get_multilang_value(translations["download_excel"], lang),
@@ -492,21 +462,21 @@ def _create_chart_placeholder(data_struct, page_config, elem_info, lang):
 
 def _create_map_placeholder(data_struct, page_config, elem_info, lang):
     elem = elem_info["elem"]
-    title = elem.get("label","")
+    title = elem.get("label", "")
     ddl_items, default_item = get_ddl_values(
         elem["data"], data_struct, ID_INDICATOR, lang
     )
 
     ret = MapAIO(
         aio_id=elem_info["elem_id"],
-        title = title,
+        title=title,
         plot_cfg=cfg_plot,
         info_title=get_multilang_value(translations["sources"], lang),
         lbl_show_hist=get_multilang_value(translations["show_historical"], lang),
         lbl_excel=get_multilang_value(translations["download_excel"], lang),
         lbl_csv=get_multilang_value(translations["download_csv"], lang),
         dropdownlist_options=ddl_items,
-        dropdownlist_value=default_item
+        dropdownlist_value=default_item,
     )
 
     return html.Div(className="col", children=ret)
@@ -595,10 +565,8 @@ def update_charts(
     ddl_value, chart_type, data_structures, selection, page_config, component_id, lang
 ):
     selected_theme = selection["theme"]
-    elem_cfg_pos = {
-        "row": int(component_id["aio_id"].split("_")[1]),
-        "col": int(component_id["aio_id"].split("_")[2]),
-    }
+    elem_cfg_pos = _get_elem_cfg_pos(component_id["aio_id"])
+
     # find the elem matching the updated item in the page config
     elem = page_config[CFG_N_THEMES][selected_theme]["ROWS"][elem_cfg_pos["row"]][
         "elements"
@@ -697,16 +665,111 @@ def update_charts(
     if traces:
         fig.update_traces(**traces)
 
-    chart_idx = int(component_id["aio_id"].split("_")[1])
-
     return fig, source, display_source
 
-    print("elem")
-    print(elem)
 
-    # find the data node in the cgf for the indicator selected
-
+# Triggered when the Map area changes: show historical data is changed or indicator selected
+@callback(
+    Output(MapAIO.ids.graph(MATCH), "figure"),
+    Output(MapAIO.ids.info_text(MATCH), "children"),
+    Output(MapAIO.ids.info_icon(MATCH), "style"),
+    Output(MapAIO.ids.map_timpe_period(MATCH), "children"),
+    [
+        Input(MapAIO.ids.ddl(MATCH), "value"),
+        Input(MapAIO.ids.toggle_historical(MATCH), "value"),
+        # Input("data_structures", "data"),
+    ],
+    [
+        Input("data_structures", "data"),
+        State("sel_state", "data"),
+        State("page_config", "data"),
+        State("geoj", "data"),
+        State(MapAIO.ids.card_title(MATCH), "id"),
+        State("lang", "data"),
+    ],
+)
+def update_maps(
+    ddl_value,
+    show_historical_data,
+    data_structs,
+    selections,
+    page_config,
+    geoj,
+    component_id,
+    lang,
+):
+    # Ret
     fig = None
     source = None
     display_source = None
-    return fig, source, display_source
+    time_periods_in_df = None
+
+    selected_theme = selections["theme"]
+    elem_cfg_pos = _get_elem_cfg_pos(component_id["aio_id"])
+    # find the elem matching the updated item in the page config
+    elem = page_config[CFG_N_THEMES][selected_theme]["ROWS"][elem_cfg_pos["row"]][
+        "elements"
+    ][elem_cfg_pos["col"]]
+    # find the data node in the configuration for the user's selection
+    elem_data_node = elem["data"][int(ddl_value)]
+    elem_options_node = copy.deepcopy(elem["options"])
+
+    time_period = [min(selections["years"]), max(selections["years"])]
+    lastnobs = None
+    if not show_historical_data:
+        lastnobs = 1
+
+    df = get_data(elem_data_node, years=time_period, lastnobservations=lastnobs)
+    if df.empty:
+        return EMPTY_CHART, "", "", ""
+
+    # we need the ref_area and data source codelists (DATA_SOURCE can be coded)
+    # get and merge the ref area labels
+    struct_id = get_structure_id(elem_data_node)
+    df = merge_with_codelist(df, data_structs, struct_id, ID_REF_AREA)
+    if ID_DATA_SOURCE in df.columns:
+        df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
+    df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE])
+    df = df.sort_values(by=ID_TIME_PERIOD, ascending=True)
+
+    # The data sources, hide the icon if data source is ""
+    source = ""
+    display_source = {"display": "none"}
+    if ID_DATA_SOURCE in df.columns:
+        # use the _L_ column that has been generated at the "merge_with_codelist" step
+        source = ", ".join(list(df[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
+    if source != "":
+        display_source = {"display": "visible"}
+
+    # Generate the labels for the chart from the data structure, override with translations
+    elem_options_node["labels"] = get_labels(
+        data_structs, struct_id, df.columns, lang, translations
+    )
+
+    # This chart has hodes some data in the Hover, also hide the label columns for coded dimensions (are added when merged with codelists)
+    if "hover_data" in elem_options_node:
+        hover_keys = list(elem_options_node["hover_data"].keys())
+        for hover_k in hover_keys:
+            if LABEL_COL_PREFIX + hover_k in df.columns:
+                if elem_options_node["hover_data"][hover_k]:
+                    elem_options_node["hover_data"][hover_k] = False
+                    elem_options_node["hover_data"][LABEL_COL_PREFIX + hover_k] = True
+                else:
+                    elem_options_node["hover_data"][LABEL_COL_PREFIX + hover_k] = False
+
+    # the geoJson
+    elem_options_node["geojson"] = get_geojson(geoj)
+    if not show_historical_data:
+        del elem_options_node["animation_frame"]
+    main_figure = px.choropleth_mapbox(df, **elem_options_node)
+    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
+
+    time_periods_in_df = ""
+
+    if not show_historical_data:
+
+        time_periods_in_df = list(df["TIME_PERIOD"].unique())
+        time_periods_in_df.sort()
+        time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
+
+    return main_figure, source, display_source, time_periods_in_df
