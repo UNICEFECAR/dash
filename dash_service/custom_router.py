@@ -2,7 +2,7 @@ from dash import html, dcc, Input, Output, State
 from urllib.parse import parse_qs, urlparse
 from .db_utils import db_utils
 
-from dash_service.pages import empty_renderer, dashboard, data_explorer
+from dash_service.pages import empty_renderer, dashboard, data_explorer, menu_page
 from dash_service.pages import (
     child_cross_cutting,
     child_education,
@@ -84,6 +84,8 @@ class CustomRouter:
                     layout_to_use = dashboard.layout
                 elif page_type == db_utils.TYPE_DATAEXPLORER:
                     layout_to_use = data_explorer.layout
+                elif page_type == db_utils.TYPE_MENU:
+                    layout_to_use = menu_page.layout
 
             if CustomRouter._is_component(layout_to_use):
                 layout = layout_to_use
