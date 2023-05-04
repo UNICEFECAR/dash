@@ -263,16 +263,17 @@ def _get_elem_cfg_pos(elem_id):
     }
 
 
-def _elem_generator(theme):
-    if "ROWS" in theme:
-        for idx_row, row in enumerate(theme["ROWS"]):
-            for idx_elem, elem in enumerate(row["elements"]):
-                yield {
-                    "idx_row": idx_row,
-                    "idx_elem": idx_elem,
-                    "elem": elem,
-                    "elem_id": _get_elem_id(idx_row, idx_elem),
-                }
+# def _elem_generator(theme):
+#     if "ROWS" in theme:
+#         for idx_row, row in enumerate(theme["ROWS"]):
+#             for idx_elem, elem in enumerate(row["elements"]):
+#                 yield {
+#                     "idx_row": idx_row,
+#                     "idx_elem": idx_elem,
+#                     "elem": elem,
+#                     "elem_id": _get_elem_id(idx_row, idx_elem),
+#                 }
+
 
 # Triggered when the selection state changes
 @callback(
@@ -362,7 +363,7 @@ def _create_card(data_struct, page_config, elem_info, lang):
             "name"
         ]
     else:
-        get_multilang_value(elem["label"], lang)
+        label = get_multilang_value(elem["label"], lang)
 
     if data_node is not None:
         # we only need the most recent datapoint, no labels, just the value
@@ -378,7 +379,7 @@ def _create_card(data_struct, page_config, elem_info, lang):
                 data_source = df.iloc[0][ID_DATA_SOURCE]
 
     ret = html.Div(
-        className="col",
+        # className="col",
         children=CardAIO(
             aio_id=elem_info["elem_id"],
             value=value,
@@ -457,7 +458,8 @@ def _create_chart_placeholder(data_struct, page_config, elem_info, lang):
         default_graph=default_graph,
     )
 
-    return html.Div(className="col", children=ret)
+    # return html.Div(className="col", children=ret)
+    return html.Div(children=ret)
 
 
 def _create_map_placeholder(data_struct, page_config, elem_info, lang):
@@ -479,7 +481,8 @@ def _create_map_placeholder(data_struct, page_config, elem_info, lang):
         dropdownlist_value=default_item,
     )
 
-    return html.Div(className="col", children=ret)
+    # return html.Div(className="col", children=ret)
+    return html.Div(children=ret)
 
 
 def _create_elem(data_struct, page_config, elem_info, lang):
@@ -511,17 +514,54 @@ def _create_elem(data_struct, page_config, elem_info, lang):
     [State("sel_state", "data"), State("page_config", "data"), State("lang", "data")],
 )
 def create_elements(data_struct, selections, page_config, lang):
+    bootstrap_cols_map = {
+        "1": "col",
+        "2": "col-6",
+        "3": "col-4",
+        "4": "col-3",
+        "5": "col-2",
+        "6": "col-2",
+    }
     theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
     dashboard_contents = []
 
     elem_rows = {}
-    for elem_info in _elem_generator(theme_node):
+
+    """
+    def _elem_generator(theme):
+    if "ROWS" in theme:
+        for idx_row, row in enumerate(theme["ROWS"]):
+            for idx_elem, elem in enumerate(row["elements"]):
+                yield {
+                    "idx_row": idx_row,
+                    "idx_elem": idx_elem,
+                    "elem": elem,
+                    "elem_id": _get_elem_id(idx_row, idx_elem),
+                }
+                """
+    elems_to_create = []
+    if "ROWS" in theme_node:
+        for idx_row, row in enumerate(theme_node["ROWS"]):
+            for idx_elem, elem in enumerate(row["elements"]):
+                elems_to_create.append(
+                    {
+                        "idx_row": idx_row,
+                        "idx_elem": idx_elem,
+                        "elem": elem,
+                        "elem_id": _get_elem_id(idx_row, idx_elem),
+                        "elem_per_row": len(row["elements"]),
+                    }
+                )
+
+    for elem_info in elems_to_create:
         idx_key = str(elem_info["idx_row"])
         if not idx_key in elem_rows:
             elem_rows[idx_key] = []
 
+        bs_col = bootstrap_cols_map.get(str(elem_info["elem_per_row"]), "col-1")
         elem = _create_elem(data_struct, page_config, elem_info, lang)
+        elem = html.Div(className=bs_col, children=elem)
         elem_rows[idx_key].append(elem)
 
     for elem_row_k in sorted(elem_rows.keys()):

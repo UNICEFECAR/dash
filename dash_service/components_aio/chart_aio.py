@@ -82,7 +82,7 @@ class ChartAIO(html.Div):
         card_body = dbc.CardBody(
             children=[
                 html.Div(
-                    className="row my-2",
+                    className="my-2",
                     children=[
                         dcc.Dropdown(
                             id=self.ids.ddl(aio_id),
@@ -93,7 +93,7 @@ class ChartAIO(html.Div):
                     ],
                 ),
                 html.Div(
-                    className="row my-2 " + chart_type_visibility,
+                    className="my-2" + chart_type_visibility,
                     children=[
                         dbc.RadioItems(
                             id=self.ids.chart_types(aio_id),
@@ -110,7 +110,9 @@ class ChartAIO(html.Div):
                         dcc.Graph(
                             id=self.ids.chart(aio_id),
                             config=plot_cfg,
-                            style={"min-height": "100px"},
+                            #style={"min-height": "100px"},
+                            #style={"width": "200px"},
+                            #style={"width": "inherit"},
                         )
                     ],
                 ),
