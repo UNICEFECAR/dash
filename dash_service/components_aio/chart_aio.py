@@ -71,7 +71,7 @@ class ChartAIO(html.Div):
 
         chart_type_visibility = ""
         if chart_types is None or len(chart_types) < 2:
-            chart_type_visibility = "d-none"
+            chart_type_visibility = " d-none"
 
         card_header = dbc.CardHeader(
             id=self.ids.card_title(aio_id),

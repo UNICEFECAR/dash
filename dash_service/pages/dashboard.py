@@ -516,11 +516,11 @@ def _create_elem(data_struct, page_config, elem_info, lang):
 def create_elements(data_struct, selections, page_config, lang):
     bootstrap_cols_map = {
         "1": "col",
-        "2": "col-6",
-        "3": "col-4",
-        "4": "col-3",
-        "5": "col-2",
-        "6": "col-2",
+        "2": "col-lg-6 col-sm-12",
+        "3": "col-lg-4 col-sm-12",
+        "4": "col-lg-3 col-sm-12",
+        "5": "col-lg-2 col-sm-6",
+        "6": "col-lg-2 col-sm-6",
     }
     theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
@@ -673,8 +673,9 @@ def update_charts(
     # set the chart title, wrap the text when the indicator name is too long
     chart_title = textwrap.wrap(
         indicator_name,
-        width=74,
+        width=55,
     )
+
     chart_title = "<br>".join(chart_title)
 
     xaxis = {"categoryorder": "total descending"}
