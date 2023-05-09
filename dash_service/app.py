@@ -5,9 +5,10 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 
 from . import admin, default_settings, register_extensions
 from .extensions import admin, db, login_manager
-from .models import Dashboard, Project, DataExplorer, User
-#from .views import PageView, ProjectView, DataExplorerView, UserView
-from .views import DashboardView, ProjectView, DataExplorerView, UserView
+from .models import Dashboard, Project, DataExplorer, MenuPage, User
+
+# from .views import PageView, ProjectView, DataExplorerView, UserView
+from .views import DashboardView, ProjectView, DataExplorerView, UserView, MenuPageView
 from .layouts import base_layout
 
 from . import custom_router
@@ -43,6 +44,7 @@ register_extensions(server)
 admin.add_view(ProjectView(Project, db.session))
 admin.add_view(DashboardView(Dashboard, db.session))
 admin.add_view(DataExplorerView(DataExplorer, db.session))
+admin.add_view(MenuPageView(MenuPage, db.session))
 admin.add_view(UserView(User, db.session))
 
 
@@ -174,7 +176,8 @@ def after_request(response):
     return response
 
 
-cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
+
 
 with server.app_context():
     app.layout = base_layout()
+    cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
