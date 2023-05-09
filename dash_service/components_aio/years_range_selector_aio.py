@@ -41,6 +41,7 @@ class YearsRangeSelectorAIO(html.Div):
         sel_year_max=None,
         years_label="Years",
         aio_id=None,
+        additional_classes = None
     ):
         # Allow developers to pass in their own `aio_id` if they're binding their own callback to a particular component.
         if aio_id is None:
@@ -84,9 +85,13 @@ class YearsRangeSelectorAIO(html.Div):
             ),
         ]
 
+        if additional_classes is None:
+            className=""
+        else:
+            className=additional_classes
         # Define the component's layout
         super().__init__(
-            children=ret,
+            children=ret,className=className
         )
 
     @callback(

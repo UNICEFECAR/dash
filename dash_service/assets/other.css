@@ -85,9 +85,9 @@ div.dt-table-container__row.dt-table-container__row-1 {
 
 /*Start drupal fixes*/
 .has-bootstrap .dropdown{
-    max-width: auto;
+    max-width: 300px;
 }
 
 .has-bootstrap .card{
-    max-width: auto;
+    max-width: unset;
 }

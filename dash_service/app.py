@@ -180,4 +180,4 @@ def after_request(response):
 
 with server.app_context():
     app.layout = base_layout()
-    cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
+    cust_rout = custom_router.CustomRouter(app, "dash_main_container")

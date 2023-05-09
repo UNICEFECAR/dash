@@ -98,7 +98,7 @@ def base_layout():
             html.Div(
                 className="container-fluid",
                 children=[
-                    html.Div(id="MAIN_CONTAINER"),
+                    html.Div(id="dash_main_container"),
                     dcc.Location(id="dash-location", refresh=False),
                 ],
             ),

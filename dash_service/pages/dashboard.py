@@ -185,7 +185,7 @@ def render_page_template(
     if "main_title" in page_config:
         elem_main_title = HeadingAIO(page_config["main_title"], aio_id=ELEM_ID_HEADING)
 
-    elem_years_selector = YearsRangeSelectorAIO(aio_id=ELEM_ID_YEARS_RANGE_SEL)
+    elem_years_selector = YearsRangeSelectorAIO(aio_id=ELEM_ID_YEARS_RANGE_SEL, additional_classes="pb-2")
 
     ret = html.Div(
         [
@@ -261,19 +261,6 @@ def _get_elem_cfg_pos(elem_id):
         "row": int(elem_id.split("_")[1]),
         "col": int(elem_id.split("_")[2]),
     }
-
-
-# def _elem_generator(theme):
-#     if "ROWS" in theme:
-#         for idx_row, row in enumerate(theme["ROWS"]):
-#             for idx_elem, elem in enumerate(row["elements"]):
-#                 yield {
-#                     "idx_row": idx_row,
-#                     "idx_elem": idx_elem,
-#                     "elem": elem,
-#                     "elem_id": _get_elem_id(idx_row, idx_elem),
-#                 }
-
 
 # Triggered when the selection state changes
 @callback(
@@ -528,18 +515,6 @@ def create_elements(data_struct, selections, page_config, lang):
 
     elem_rows = {}
 
-    """
-    def _elem_generator(theme):
-    if "ROWS" in theme:
-        for idx_row, row in enumerate(theme["ROWS"]):
-            for idx_elem, elem in enumerate(row["elements"]):
-                yield {
-                    "idx_row": idx_row,
-                    "idx_elem": idx_elem,
-                    "elem": elem,
-                    "elem_id": _get_elem_id(idx_row, idx_elem),
-                }
-                """
     elems_to_create = []
     if "ROWS" in theme_node:
         for idx_row, row in enumerate(theme_node["ROWS"]):
