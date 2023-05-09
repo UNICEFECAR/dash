@@ -176,7 +176,8 @@ def after_request(response):
     return response
 
 
-cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
+
 
 with server.app_context():
     app.layout = base_layout()
+    cust_rout = custom_router.CustomRouter(app, "MAIN_CONTAINER")
