@@ -51,14 +51,13 @@ class CustomRouter:
 
         @app.callback(
             [Output(html_container_id, "children")],
-            [Input("dash-location", "hash"), Input("dash-location", "search")],
-            #[State("dash-location", "hash")],
+            [Input("dash-location", "pathname"), Input("dash-location", "search")],
+            [State("dash-location", "hash")],
             prevent_initial_call=True
         )
-        #def custom_router_callb(pathname, search, url_hash):
-        def custom_router_callb(search, url_hash):
-            # if pathname is None:
-            #     raise PreventUpdate("Ignoring first Location. pathname callback")
+        def custom_router_callb(pathname, search, url_hash):
+            if pathname is None:
+                raise PreventUpdate("Ignoring first Location. pathname callback")
 
             parsedurl = urlparse(request.base_url)
             parsed_scheme = parsedurl.scheme
