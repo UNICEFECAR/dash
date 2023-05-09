@@ -82,3 +82,12 @@ div.dt-table-container__row.dt-table-container__row-1 {
     padding: 0;
     margin-bottom: 0;
 }
+
+/*Start drupal fixes*/
+.has-bootstrap .dropdown{
+    max-width: 300px;
+}
+
+.has-bootstrap .card{
+    max-width: unset;
+}

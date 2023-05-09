@@ -71,7 +71,6 @@ class Dashboard(Page):
     a_id = Column(Integer, ForeignKey('a.id'))
     
     """
-    # id = db.Column(db.Integer, primary_key=True)
     id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
     page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
     page = db.relationship("Page")
@@ -82,7 +81,6 @@ class Dashboard(Page):
 class DataExplorer(Page, AllFeaturesMixin):
     __tablename__ = "dataexplorers"
 
-    # id = db.Column(db.Integer, primary_key=True)
     id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
     page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
     page = db.relationship("Page")
@@ -90,6 +88,17 @@ class DataExplorer(Page, AllFeaturesMixin):
 
     def __repr__(self):
         return "<Data explorer %r>" % self.title
+    
+class MenuPage(Page, AllFeaturesMixin):
+    __tablename__ = "menupages"
+
+    id = column_property(db.Column(db.Integer, primary_key=True), Page.id)
+    page_id = db.Column(db.Integer, db.ForeignKey("pages.id"))
+    page = db.relationship("Page")
+    content = db.Column(db.JSON, nullable=False)
+
+    def __repr__(self):
+        return "<Manu page %r>" % self.title
 
 
 class User(db.Model, AllFeaturesMixin):

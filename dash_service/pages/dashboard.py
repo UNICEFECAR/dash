@@ -3,6 +3,7 @@ import textwrap
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import numbers
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -10,7 +11,7 @@ from dash import callback, dcc, html
 from dash.dependencies import MATCH, Input, Output, State, ALL
 from dash_service.models import Page, Project, Dashboard
 
-from dash_service.pages import get_data, years, get_geojson
+from dash_service.pages import get_data, is_float, years, get_geojson
 from dash_service.pages import (
     add_structure,
     get_structure_id,
@@ -21,6 +22,7 @@ from dash_service.pages import (
     is_string_empty,
 )
 
+
 from flask import abort
 from sqlalchemy import and_
 
@@ -29,6 +31,10 @@ from dash_service.components_aio.map_aio import MapAIO
 from dash_service.components_aio.chart_aio import ChartAIO
 from dash_service.components_aio.downloads_aio import DownloadsAIO
 from dash_service.components_aio.heading_aio import HeadingAIO
+from dash_service.components_aio.pages_navigation_aio import PagesNavigationAIO
+from dash_service.components_aio.years_range_selector_aio import YearsRangeSelectorAIO
+
+import copy
 
 # pd.set_option("display.max_columns", None)
 # pd.set_option("display.max_rows", None)
@@ -41,15 +47,18 @@ ID_OBS_VALUE = "OBS_VALUE"
 ID_DATA_SOURCE = "DATA_SOURCE"
 ID_TIME_PERIOD = "TIME_PERIOD"
 LABEL_COL_PREFIX = "_L_"
-# DEFAULT_LABELS = {"OBS_VALUE": "Value", "TIME_PERIOD": "Time"}
 DEFAULT_LABELS = ["OBS_VALUE", "TIME_PERIOD", "REF_AREA"]
 
+ELEM_ID_PAGE_NAV = "PAGE_NAV"
+ELEM_ID_YEARS_RANGE_SEL = "YEARS_RANGE_SEL"
 ELEM_ID_CARDS = "CARDS"
 ELEM_ID_MAIN = "MAIN"
 ELEM_ID_CHARTS = "CHARTS"
 ELEM_ID_HEADING = "HEADING"
 
 CFG_N_THEMES = "THEMES"
+
+DBELEM = "DBELEM_"
 
 
 # set defaults
@@ -113,263 +122,127 @@ EMPTY_CHART = {
     }
 }
 
-"""
-# This hooks into Dash's multipage functionality and allows us to specify the URL pattern
-# https://dash.plotly.com/urls
-dash.register_page(
-    __name__,
-    # path_template="/<project_slug>/<page_slug>",
-    path_template="/",
-    # path="/brazil/child-education",  # this is the default path and working example
-)
-"""
-
-# Creates the top menu (pages) html elements
-def make_page_nav(pages, query_params, vertical=False, **kwargs):
-    nav_links = []
-    # Create a list of name - href objects
-    for p in pages:
-        url_params = [
-            "prj=" + p["prj_slug"],
-            "page=" + p["slug"],
-        ]
-        if p["lang"] != "en":
-            url_params.append("lang=" + p["lang"])
-        for qp in query_params:
-            if qp not in ["prj", "page", "lang", "hash"]:
-                url_params.append(qp + "=" + query_params[qp])
-        nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
-    # create all the ul - li - A structure for each link
-    nav_link_ul = [
-        html.Ul(
-            className="navbar-nav mt-0 d-flex",
-            children=[
-                html.Li(
-                    className="nav-item",
-                    children=[
-                        html.A(
-                            className="nav-link text-primary",
-                            href=nlink["href"],
-                            children=nlink["name"],
-                        )
-                    ],
-                )
-            ],
-        )
-        for nlink in nav_links
-    ]
-
-    return html.Header(
-        className="row shadow p-3 mb-5 bg-white",
-        children=[
-            html.Nav(
-                className="navbar navbar-expand-lg navbar-light justify-content-evenly",
-                children=nav_link_ul,
+# Gets the element that will be rendered on the navigation bar
+def get_page_nav_items(page_config, project_slug, lang):
+    nav_type = None
+    if "page_nav" in page_config and "type" in page_config["page_nav"]:
+        nav_type = page_config["page_nav"]["type"]
+    if nav_type is None:
+        nav_type = "all"
+    if nav_type == "all":
+        nav_items = (
+            Dashboard.query.with_entities(
+                Dashboard.slug, Dashboard.title, Project.slug.label("prj_slug")
             )
-        ],
-    )
+            .join(Project)
+            .filter(Project.slug == project_slug)
+            .all()
+        )
+
+    ret = [
+        {"name": ni.title, "prj_slug": ni.prj_slug, "slug": ni.slug, "lang": lang}
+        for ni in nav_items
+    ]
+    return ret
 
 
+# The entry point, retrieves the page from the storage and renderes the page
 def layout(lang="en", **query_params):
     """
-    Handler for Dash's multipage functionality.
-    This function is called with the URL parameters and returns the layout for that page.
-    TODO: This could also support query parameters if needed for addtional SDMX filters.
-
-    Args:
-        project_name (str): The name of the project in the admin
-        page_slug (str): The slug of the page in the admin
-
-    Returns:
-        html.Div: The rendered page
+    Returns the page layout
     """
 
     project_slug = query_params.get("prj", None)
     page_slug = query_params.get("page", None)
 
-    if project_slug is None or page_slug is None:
-        # project_slug and page_slug are None when this is called for validation
-        # create a dummy page
-        # return render_page_template({}, "Validation Page", [], "", lang, query_params)
-        return render_no_dashboard_cfg_found(project_slug, page_slug)
-
-    all_pages = Dashboard.where(project___slug=project_slug).all()
-    if all_pages is None or len(all_pages) == 0:
-        abort(404, description="No pages found for project")
-
-    all_pages = [
-        {"name": p.title, "prj_slug": p.project.slug, "slug": p.slug, "lang": lang}
-        for p in all_pages
-    ]
-
-    dashboard = (
+    db_config = (
         Dashboard.query.join(Project)
         .filter(and_(Page.slug == page_slug, Project.slug == project_slug))
         .first()
     )
 
-    if dashboard is None:
-        return render_no_dashboard_cfg_found(project_slug, page_slug)
+    page_config = db_config.content
+    geography = db_config.geography
 
-    config = dashboard.content
-    geography = dashboard.geography
-    main_title = config["main_title"]
+    nav_links = get_page_nav_items(page_config, project_slug, lang)
 
-    return render_page_template(
-        config, main_title, all_pages, geography, lang, query_params
-    )
-
-
-def render_no_dashboard_cfg_found(prj, page):
-    if prj is None:
-        err = "No page found, prj parameter needed, e.g. prj=brazil"
-    if page is None:
-        err = "No page found, page parameter needed, e.g. page=health"
-    if prj is not None and page is not None:
-        err = f"No page found for parameters prj={prj}&page={page}"
-    template = html.Div(
-        dbc.Col(
-            [
-                dbc.Row(html.H3(err)),
-            ]
-        )
-    )
-    return template
+    return render_page_template(page_config, nav_links, geography, lang, query_params)
 
 
 def render_page_template(
-    page_config: dict,
-    main_title: str,
-    all_pages: dict,
-    geoj: str,
-    lang,
-    query_params,
-    **kwargs,
+    page_config: dict, nav_links: list, geojson: str, lang: str, query_params
 ) -> html.Div:
-    """Renders the page template based on the page config and other parameters
 
-    Args:
-        page_config (dict): page config from the database
-        main_title (_type_): main title of the page
-        all_pages (_dict_): the links to the page to add to the navbar
+    elem_page_nav = None
+    elem_main_title = None
+    elem_years_selector = None
 
-    Returns:
-        html.Div: The dash Div representing the redenderd page against the config
-    """
+    if nav_links is not None and len(nav_links) > 0:
+        elem_page_nav = PagesNavigationAIO(
+            nav_links, query_params, aio_id=ELEM_ID_PAGE_NAV
+        )
 
-    template = html.Div(
+    if "main_title" in page_config:
+        elem_main_title = HeadingAIO(page_config["main_title"], aio_id=ELEM_ID_HEADING)
+
+    elem_years_selector = YearsRangeSelectorAIO(aio_id=ELEM_ID_YEARS_RANGE_SEL, additional_classes="pb-2")
+
+    ret = html.Div(
         [
-            dcc.Store(id="lang", data=lang),
-            dcc.Store(id="page_config", data=page_config),
-            dcc.Store(id="geoj", data=geoj),
-            dcc.Store(id="data_structures", data={}, storage_type="session"),
-            dcc.Location(id="theme"),
-            make_page_nav(all_pages, query_params),
-            html.Br(),
+            dcc.Store(id="lang", data=lang),  # stores the language
+            dcc.Store(id="sel_state", data=None),  # stores the language
+            dcc.Store(id="page_config", data=page_config),  # stores the page config
+            dcc.Store(id="geoj", data=geojson),  # stores the geoJson
+            dcc.Store(
+                id="data_structures", data={}, storage_type="session"
+            ),  # stores the data structure for caching
+            dcc.Location(
+                id="theme"
+            ),  # controls the location hash (e.g. education#theme)
+            elem_page_nav,
+            elem_main_title,
             html.Div(
-                [
-                    HeadingAIO(main_title, aio_id=ELEM_ID_HEADING),
-                    html.Div(
-                        className="bg-light",
-                        children=[
-                            render_themes(),
-                            render_years(lang),
-                        ],
-                    ),
-                    html.Div(className="row mt-3", id="cards_row"),
-                    html.Br(),
-                    MapAIO(
-                        ELEM_ID_MAIN,
-                        plot_cfg=cfg_plot,
-                        info_title=get_multilang_value(translations["sources"], lang),
-                        lbl_show_hist=get_multilang_value(
-                            translations["show_historical"], lang
-                        ),
-                        lbl_excel=get_multilang_value(
-                            translations["download_excel"], lang
-                        ),
-                        lbl_csv=get_multilang_value(translations["download_csv"], lang),
-                    ),
-                    html.Br(),
-                    html.Div(id="div_charts", className="row row-cols-1 row-cols-lg-2"),
-                    # Test automation (Selenium) handle
-                    html.Div(id="_page_load", children=[], style={"display": "none"}),
-                ]
-            )
-            # ),
-        ],
-    )
-    return template
-
-
-def render_themes() -> html.Div:
-    ret = html.Div(
-        className="d-flex justify-content-center",
-        children=[
-            dbc.ButtonGroup(
-                id="themes",
-            ),
-        ],
-    )
-    return html.Div(className="row", children=ret)
-
-
-def render_years(lang) -> html.Div:
-    ret = html.Div(
-        className="d-flex justify-content-center",
-        children=[
-            dbc.DropdownMenu(
-                label=f"{get_multilang_value(translations['years'], lang)}: {years[0]} - {years[-1]}",
-                id="collapse-years-button",
-                className="m-2",
-                color="info",
+                className="bg-light mt-2",
                 children=[
                     html.Div(
-                        style={"minWidth": "500px"},
-                        className="overflow-auto",
-                        children=dcc.RangeSlider(
-                            id="year_slider",
-                            min=0,
-                            max=len(years) - 1,
-                            step=None,
-                            marks={
-                                index: str(year) for index, year in enumerate(years)
-                            },
-                            value=[
-                                0,
-                                len(years) - 1,
-                            ],
-                        ),
-                    )
+                        className="d-flex justify-content-center py-2",
+                        children=[dbc.ButtonGroup(id="theme_buttons")],
+                    ),
+                    elem_years_selector,
                 ],
-            )
-        ],
-        id="filter-row",
+            ),
+            html.Div(id="dashboard_contents", className="mt-2", children=[]),
+        ]
     )
 
-    return html.Div(className="row", children=ret)
+    return ret
 
 
 # Triggered when the theme or year slider changes
 # It only updates the state of the selection: theme and year
 @callback(
-    Output("store", "data"),
-    Output("collapse-years-button", "label"),
+    Output("sel_state", "data"),
+    Output(
+        YearsRangeSelectorAIO.ids.years_range_open_collapse_btn(
+            ELEM_ID_YEARS_RANGE_SEL
+        ),
+        "children",
+    ),
     [
         Input("theme", "hash"),
-        Input("year_slider", "value"),
+        Input(
+            YearsRangeSelectorAIO.ids.years_range(ELEM_ID_YEARS_RANGE_SEL),
+            "value",
+        ),
     ],
     [State("page_config", "data"), State("lang", "data")],
 )
-def apply_filters(theme, years_slider, store_page_config, lang):
+def new_selection_state(theme, years_slider, page_config, lang):
 
-    theme = (
-        theme[1:].upper()
-        if theme
-        else next(iter(store_page_config[CFG_N_THEMES].keys()))
-    )
-
-    selected_years = years[years_slider[0] : years_slider[1] + 1]
+    # removes the leading # if a theme has been selected, the first theme available otherwise
+    theme = theme[1:].upper() if theme else next(iter(page_config[CFG_N_THEMES].keys()))
+    # The selected years range
+    selected_years = [years_slider[0], years_slider[1]]
 
     selections = dict(theme=theme, years=selected_years)
 
@@ -379,9 +252,64 @@ def apply_filters(theme, years_slider, store_page_config, lang):
     )
 
 
+def _get_elem_id(row, col):
+    return f"{DBELEM}{row}_{col}"
+
+
+def _get_elem_cfg_pos(elem_id):
+    return {
+        "row": int(elem_id.split("_")[1]),
+        "col": int(elem_id.split("_")[2]),
+    }
+
+# Triggered when the selection state changes
+@callback(
+    Output(HeadingAIO.ids.subtitle(ELEM_ID_HEADING), "children"),
+    Output("theme_buttons", "children"),
+    # Output("dashboard_contents", "children"),
+    [
+        Input("sel_state", "data"),
+    ],
+    State("page_config", "data"),
+)
+def show_themes(selections, config):
+    # Gets the theme's name to fill the Subtitle
+    if (
+        selections is None
+        or selections["theme"] is None
+        or selections["theme"].strip() == ""
+    ):
+        theme_key = list(config[CFG_N_THEMES].keys())[0]
+        theme_node = config[CFG_N_THEMES][theme_key]
+    else:
+        theme_key = selections["theme"]
+        theme_node = config[CFG_N_THEMES][selections["theme"]]
+
+    subtitle = theme_node.get("NAME", "")
+
+    # Creates the Themes' buttons
+    # hide the buttons when only one option is available
+    if len(config[CFG_N_THEMES].items()) == 1:
+        theme_buttons = None
+    else:
+        theme_buttons = [
+            dbc.Button(
+                value["NAME"],
+                id=key,
+                color=colours[num],
+                className="theme mx-1",
+                href=f"#{key.lower()}",
+                active=theme_key == key,
+            )
+            for num, (key, value) in enumerate(config[CFG_N_THEMES].items())
+        ]
+
+    return subtitle, theme_buttons
+
+
 @callback(
     Output("data_structures", "data"),
-    [Input("store", "data")],
+    [Input("sel_state", "data")],
     [State("page_config", "data"), State("lang", "data")],
 )
 # Downloads all the DSD for the data.
@@ -391,148 +319,66 @@ def download_structures(selections, page_config, lang):
 
     theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
-    # cards
-    for card in theme_node[ELEM_ID_CARDS]:
-        add_structure(data_structures, card["data"], lang)
-
-    # Main
-    if ELEM_ID_MAIN in theme_node and "data" in theme_node[ELEM_ID_MAIN]:
-        for data_node in theme_node[ELEM_ID_MAIN]["data"]:
-            add_structure(data_structures, data_node, lang)
-
-    # areas
-    if ELEM_ID_CHARTS in theme_node:
-        for chart in theme_node[ELEM_ID_CHARTS]:
-            if "data" in chart:
-                for data_node in chart["data"]:
-                    if "multi_indicator" in data_node:
-                        for multi_indic_node in data_node["multi_indicator"]:
-                            add_structure(data_structures, multi_indic_node, lang)
-                    else:
-                        add_structure(data_structures, data_node, lang)
+    if "ROWS" in theme_node:
+        for row in theme_node["ROWS"]:
+            if "elements" in row:
+                for elem in row["elements"]:
+                    if "data" in elem:
+                        if isinstance(elem["data"], dict):
+                            add_structure(data_structures, elem["data"], lang)
+                        elif isinstance(elem["data"], list):
+                            for data_elem in elem["data"]:
+                                add_structure(data_structures, data_elem, lang)
 
     return data_structures
 
 
-# this callback updates on selection changed: it needs the selected page
-@callback(
-    # Output("subtitle", "children"),
-    Output(HeadingAIO.ids.subtitle(ELEM_ID_HEADING), "children"),
-    Output("themes", "children"),
-    [
-        Input("store", "data"),
-    ],
-    State("page_config", "data"),
-)
-def show_themes(selections, config):
-    if (
-        selections is None
-        or selections["theme"] is None
-        or selections["theme"].strip() == ""
-    ):
-        theme_key = list(config[CFG_N_THEMES].keys())[0]
-        theme = config[CFG_N_THEMES][theme_key]
+def _create_card(data_struct, page_config, elem_info, lang):
+    elem = elem_info["elem"]
+    data_node = None
+    if "data" in elem:
+        data_node = elem["data"]
+    value = "-"
+    label = ""
+    data_source = ""
+    time_period = ""
+    lbl_sources = get_multilang_value(translations["sources"], lang)
+    lbl_time_period = get_multilang_value(translations["TIME_PERIOD"], lang)
+
+    if is_string_empty(elem, "label"):
+        label = get_code_from_structure_and_dq(data_struct, data_node, ID_INDICATOR)[
+            "name"
+        ]
     else:
-        theme_key = selections["theme"]
-        theme = config[CFG_N_THEMES][selections["theme"]]
+        label = get_multilang_value(elem["label"], lang)
 
-    subtitle = theme.get("NAME")
+    if data_node is not None:
+        # we only need the most recent datapoint, no labels, just the value
+        df = get_data(data_node, lastnobservations=1, labels="id")
 
-    # hide the buttons when only one option is available
-    if len(config[CFG_N_THEMES].items()) == 1:
-        return subtitle, []
-
-    buttons = [
-        dbc.Button(
-            value["NAME"],
-            id=key,
-            color=colours[num],
-            className="theme mx-1",
-            href=f"#{key.lower()}",
-            active=theme_key == key,
-        )
-        for num, (key, value) in enumerate(config[CFG_N_THEMES].items())
-    ]
-    return subtitle, buttons
-
-
-@callback(
-    Output("cards_row", "children"),
-    [Input("data_structures", "data")],
-    [State("store", "data"), State("page_config", "data"), State("lang", "data")],
-)
-def show_cards(data_struct, selections, page_config, lang):
-    selected_theme = selections["theme"]
-    cards = []
-    for num, card in enumerate(
-        page_config[CFG_N_THEMES][selected_theme][ELEM_ID_CARDS]
-    ):
-        config = card["data"]
-        value = "-"
-        data_source = ""
-        time_period = ""
-
-        # if suffix has not been overridden pull it from the indicator
-        if is_string_empty(card):
-            label = get_code_from_structure_and_dq(data_struct, config, ID_INDICATOR)[
-                "name"
-            ]
-        else:
-            label = get_multilang_value(card["label"], lang)
-
-        # we jsut need the most recent datapoint, no labels, just the value
-        df = get_data(config, lastnobservations=1, labels="id")
         if len(df) > 0:
             value = df.iloc[0][ID_OBS_VALUE]
+            if "round" in elem and is_float(value):
+                value = round(float(value), elem["round"])
+
             time_period = df.iloc[0][ID_TIME_PERIOD]
             if ID_DATA_SOURCE in df.columns:
                 data_source = df.iloc[0][ID_DATA_SOURCE]
 
-        info_head = get_multilang_value(translations["sources"], lang)
-        cards.append(
-            html.Div(
-                className="col",
-                children=CardAIO(
-                    aio_id=f"card-{num}",
-                    value=value,
-                    suffix=label,
-                    info_head=info_head,
-                    info_body=data_source,
-                    time_period=time_period,
-                    lbl_time_period=get_multilang_value(
-                        translations["TIME_PERIOD"], lang
-                    ),
-                ),
-            )
-        )
+    ret = html.Div(
+        # className="col",
+        children=CardAIO(
+            aio_id=elem_info["elem_id"],
+            value=value,
+            suffix=label,
+            info_head=lbl_sources,
+            info_body=data_source,
+            time_period=time_period,
+            lbl_time_period=lbl_time_period,
+        ),
+    )
 
-    return cards
-
-
-# Creates the charts placeholders, triggered after the page config has been created
-@callback(
-    Output("div_charts", "children"),
-    [Input("store", "data")],
-    [State("page_config", "data"), State("lang", "data")],
-)
-def show_charts(selections, page_config, lang):
-    charts_count = 0
-    selected_theme = selections["theme"]
-    if ELEM_ID_CHARTS in page_config[CFG_N_THEMES][selected_theme]:
-        charts_count = len(page_config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS])
-
-    charts = [
-        ChartAIO(
-            aio_id=f"CHART_{i}",
-            plot_cfg=cfg_plot,
-            info_title=get_multilang_value(translations["sources"], lang),
-            lbl_excel=get_multilang_value(translations["download_excel"], lang),
-            lbl_csv=get_multilang_value(translations["download_csv"], lang),
-        )
-        for i in range(charts_count)
-    ]
-
-    return charts
+    return ret
 
 
 # loops the data node and returns the options for the dropdownlists: options + default value
@@ -553,12 +399,6 @@ def get_ddl_values(data_node, data_structures, column_id, lang):
             lbl = " - ".join(labels)
 
         else:
-            # codes_found = get_code_from_structure_and_dq(
-            #     data_structures, data_cfg, column_id
-            # )
-            # if isinstance(codes_found, list):
-            #     lbl = " - ".join([c["name"] for c in codes_found])
-            # else:
             lbl = get_code_from_structure_and_dq(data_structures, data_cfg, column_id)[
                 "name"
             ]
@@ -569,38 +409,142 @@ def get_ddl_values(data_node, data_structures, column_id, lang):
     return items, default_item
 
 
-# Triggered when the selection changes. Updates the main area dropdown list.
+def _create_chart_placeholder(data_struct, page_config, elem_info, lang):
+    elem = elem_info["elem"]
+    title = elem.get("label", "")
+    # The dropdownlist elements
+    ddl_items, default_item = get_ddl_values(
+        elem["data"], data_struct, ID_INDICATOR, lang
+    )
+
+    # The chart types
+    chart_types = []
+    if "graphs" in elem:
+        for type_key in elem["graphs"].keys():
+            type_lbl = type_key
+            if type_key.lower() in translations:
+                type_lbl = get_multilang_value(translations[type_key.lower()], lang)
+            chart_types.append(
+                {
+                    "label": type_lbl,
+                    "value": type_key,
+                }
+            )
+    default_graph = elem.get("default_graph", "")
+
+    ret = ChartAIO(
+        aio_id=elem_info["elem_id"],
+        title=title,
+        plot_cfg=cfg_plot,
+        info_title=get_multilang_value(translations["sources"], lang),
+        lbl_excel=get_multilang_value(translations["download_excel"], lang),
+        lbl_csv=get_multilang_value(translations["download_csv"], lang),
+        dropdownlist_options=ddl_items,
+        dropdownlist_value=default_item,
+        chart_types=chart_types,
+        default_graph=default_graph,
+    )
+
+    # return html.Div(className="col", children=ret)
+    return html.Div(children=ret)
+
+
+def _create_map_placeholder(data_struct, page_config, elem_info, lang):
+    elem = elem_info["elem"]
+    title = elem.get("label", "")
+    ddl_items, default_item = get_ddl_values(
+        elem["data"], data_struct, ID_INDICATOR, lang
+    )
+
+    ret = MapAIO(
+        aio_id=elem_info["elem_id"],
+        title=title,
+        plot_cfg=cfg_plot,
+        info_title=get_multilang_value(translations["sources"], lang),
+        lbl_show_hist=get_multilang_value(translations["show_historical"], lang),
+        lbl_excel=get_multilang_value(translations["download_excel"], lang),
+        lbl_csv=get_multilang_value(translations["download_csv"], lang),
+        dropdownlist_options=ddl_items,
+        dropdownlist_value=default_item,
+    )
+
+    # return html.Div(className="col", children=ret)
+    return html.Div(children=ret)
+
+
+def _create_elem(data_struct, page_config, elem_info, lang):
+    elem = elem_info["elem"]
+    ret = None
+    if not "type" in elem:
+        ret = html.Div(
+            className="col",
+            children=[
+                f"No type for elem at row {elem_info['idx_row']} - position {elem_info['idx_elem']}"
+            ],
+            id=elem_info["elem_id"],
+        )
+        return ret
+
+    if elem["type"] == "card":
+        ret = _create_card(data_struct, page_config, elem_info, lang)
+    elif elem["type"] == "chart":
+        ret = _create_chart_placeholder(data_struct, page_config, elem_info, lang)
+    elif elem["type"] == "map":
+        ret = _create_map_placeholder(data_struct, page_config, elem_info, lang)
+
+    return ret
+
+
 @callback(
-    Output(MapAIO.ids.card_title(ELEM_ID_MAIN), "children"),
-    Output(MapAIO.ids.ddl(ELEM_ID_MAIN), "options"),
-    Output(MapAIO.ids.ddl(ELEM_ID_MAIN), "value"),
-    Input("data_structures", "data"),
-    [
-        State("store", "data"),
-        State("page_config", "data"),
-        State("lang", "data"),
-    ],
+    Output("dashboard_contents", "children"),
+    [Input("data_structures", "data")],
+    [State("sel_state", "data"), State("page_config", "data"), State("lang", "data")],
 )
-def set_options_main(data_structures, selection, config, lang):
-    selected_theme = selection["theme"]
+def create_elements(data_struct, selections, page_config, lang):
+    bootstrap_cols_map = {
+        "1": "col",
+        "2": "col-lg-6 col-sm-12",
+        "3": "col-lg-4 col-sm-12",
+        "4": "col-lg-3 col-sm-12",
+        "5": "col-lg-2 col-sm-6",
+        "6": "col-lg-2 col-sm-6",
+    }
+    theme_node = page_config[CFG_N_THEMES][selections["theme"]]
 
-    # The main area title
-    name = ""
-    main_node = config[CFG_N_THEMES][selected_theme].get(ELEM_ID_MAIN, None)
+    dashboard_contents = []
 
-    if not is_string_empty(main_node):
-        name = get_multilang_value(main_node["label"], lang)
+    elem_rows = {}
 
-    # Find the data nodes to fill the ddl
-    ddl_items = []
-    default_item = ""
-    if main_node is not None and "data" in main_node:
-        ddl_items, default_item = get_ddl_values(
-            main_node["data"], data_structures, ID_INDICATOR, lang
+    elems_to_create = []
+    if "ROWS" in theme_node:
+        for idx_row, row in enumerate(theme_node["ROWS"]):
+            for idx_elem, elem in enumerate(row["elements"]):
+                elems_to_create.append(
+                    {
+                        "idx_row": idx_row,
+                        "idx_elem": idx_elem,
+                        "elem": elem,
+                        "elem_id": _get_elem_id(idx_row, idx_elem),
+                        "elem_per_row": len(row["elements"]),
+                    }
+                )
+
+    for elem_info in elems_to_create:
+        idx_key = str(elem_info["idx_row"])
+        if not idx_key in elem_rows:
+            elem_rows[idx_key] = []
+
+        bs_col = bootstrap_cols_map.get(str(elem_info["elem_per_row"]), "col-1")
+        elem = _create_elem(data_struct, page_config, elem_info, lang)
+        elem = html.Div(className=bs_col, children=elem)
+        elem_rows[idx_key].append(elem)
+
+    for elem_row_k in sorted(elem_rows.keys()):
+        dashboard_contents.append(
+            html.Div(className="row mb-4", children=elem_rows[elem_row_k])
         )
 
-    # return name, area_options, area_types, default_option, default_graph
-    return name, ddl_items, default_item
+    return dashboard_contents
 
 
 # Util function: creates the label node for the chart configs
@@ -615,157 +559,6 @@ def get_labels(data_structs, struct_id, df_cols, lang, lbl_override):
     return labels
 
 
-# Triggered when the Map area changes: show historical data is changed or indicator selected
-@callback(
-    Output(MapAIO.ids.graph(ELEM_ID_MAIN), "figure"),
-    Output(MapAIO.ids.info_text(ELEM_ID_MAIN), "children"),
-    Output(MapAIO.ids.info_icon(ELEM_ID_MAIN), "style"),
-    Output(MapAIO.ids.map_timpe_period(ELEM_ID_MAIN), "children"),
-    [
-        Input(MapAIO.ids.ddl(ELEM_ID_MAIN), "value"),
-        Input(MapAIO.ids.toggle_historical(ELEM_ID_MAIN), "value"),
-        Input("data_structures", "data"),
-    ],
-    [
-        State("store", "data"),
-        State("page_config", "data"),
-        State("geoj", "data"),
-        State("lang", "data"),
-    ],
-)
-def main_figure(
-    ddl_value, show_historical_data, data_structs, selections, config, geoj, lang
-):
-
-    # find the data node in the configuration for the user's selection
-    current_theme = selections["theme"]
-    data_cfg = config[CFG_N_THEMES][current_theme][ELEM_ID_MAIN]["data"][int(ddl_value)]
-
-    time_period = [min(selections["years"]), max(selections["years"])]
-
-    lastnobs = None
-    if not show_historical_data:
-        lastnobs = 1
-
-    df = get_data(data_cfg, years=time_period, lastnobservations=lastnobs)
-
-    if df.empty:
-        return EMPTY_CHART, ""
-
-    # we need the ref_area and data source codelists (DATA_SOURCE can be coded)
-    # get and merge the ref area labels
-    struct_id = get_structure_id(data_cfg)
-    df = merge_with_codelist(df, data_structs, struct_id, ID_REF_AREA)
-    if ID_DATA_SOURCE in df.columns:
-        df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
-    df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE])
-    df = df.sort_values(by=ID_TIME_PERIOD, ascending=True)
-
-    # The data sources, hide the icon if data source is ""
-    source = ""
-    display_source = {"display": "none"}
-    if ID_DATA_SOURCE in df.columns:
-        # use the _L_ column that has been generated at the "merge_with_codelist" step
-        source = ", ".join(list(df[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
-    if source != "":
-        display_source = {"display": "visible"}
-
-    # Add the labels for all the dimensions
-    # get the options node (shorted code)
-    options = config[CFG_N_THEMES][current_theme][ELEM_ID_MAIN]["options"]
-
-    # Generate the labels for the chart from the data structure, override with translations
-    options["labels"] = get_labels(
-        data_structs, struct_id, df.columns, lang, translations
-    )
-
-    # This chart has hodes some data in the Hover, also hide the label columns for coded dimensions (are added when merged with codelists)
-    if "hover_data" in options:
-        hover_keys = list(options["hover_data"].keys())
-        for hover_k in hover_keys:
-            if LABEL_COL_PREFIX + hover_k in df.columns:
-                if options["hover_data"][hover_k]:
-                    options["hover_data"][hover_k] = False
-                    options["hover_data"][LABEL_COL_PREFIX + hover_k] = True
-                else:
-                    options["hover_data"][LABEL_COL_PREFIX + hover_k] = False
-
-    # the geoJson
-    options["geojson"] = get_geojson(geoj)
-    if not show_historical_data:
-        del options["animation_frame"]
-    main_figure = px.choropleth_mapbox(df, **options)
-    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
-
-    time_periods_in_df = ""
-
-    if not show_historical_data:
-
-        time_periods_in_df = list(df["TIME_PERIOD"].unique())
-        time_periods_in_df.sort()
-        time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
-
-    return main_figure, source, display_source, time_periods_in_df
-
-
-# Triggered when the selection changes. Updates the charts ddls.
-@callback(
-    Output(ChartAIO.ids.card_title(MATCH), "children"),
-    Output(ChartAIO.ids.ddl(MATCH), "options"),
-    Output(ChartAIO.ids.ddl(MATCH), "value"),
-    Output(ChartAIO.ids.chart_types(MATCH), "options"),
-    Output(ChartAIO.ids.chart_types(MATCH), "value"),
-    Output(ChartAIO.ids.chart_types(MATCH), "style"),
-    Input("data_structures", "data"),
-    [
-        State("store", "data"),
-        State("page_config", "data"),
-        State(ChartAIO.ids.card_title(MATCH), "id"),
-        State("lang", "data"),
-    ],
-)
-def set_options_charts(data_structures, selection, config, component_id, lang):
-    selected_theme = selection["theme"]
-
-    # The card index
-    chart_idx = int(component_id["aio_id"].split("_")[1])
-    chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
-    card_label = ""
-    if not is_string_empty(chart_cfg):
-        card_label = get_multilang_value(chart_cfg["label"], lang)
-
-    # Find the data nodes to fill the ddl
-    ddl_items = []
-    default_item = ""
-    ddl_items, default_item = get_ddl_values(
-        chart_cfg["data"], data_structures, ID_INDICATOR, lang
-    )
-
-    # the chart types
-    chart_types = []
-
-    if "graphs" in chart_cfg:
-        chart_types = []
-        for type_key in chart_cfg["graphs"].keys():
-            type_lbl = type_key
-            if type_key.lower() in translations:
-                type_lbl = get_multilang_value(translations[type_key.lower()], lang)
-            chart_types.append(
-                {
-                    "label": type_lbl,
-                    "value": type_key,
-                }
-            )
-
-    default_graph = chart_cfg.get("default_graph", "")
-    if len(chart_types) == 1:
-        chart_style = {"visibility": "hidden"}
-    else:
-        chart_style = {"visibility": "visible"}
-
-    return card_label, ddl_items, default_item, chart_types, default_graph, chart_style
-
-
 # Triggered when the selection changes. Updates the charts.
 @callback(
     Output(ChartAIO.ids.chart(MATCH), "figure"),
@@ -777,73 +570,58 @@ def set_options_charts(data_structures, selection, config, component_id, lang):
     ],
     [
         State("data_structures", "data"),
-        State("store", "data"),
+        State("sel_state", "data"),
         State("page_config", "data"),
         State(ChartAIO.ids.card_title(MATCH), "id"),
         State("lang", "data"),
     ],
 )
 def update_charts(
-    ddl_value, chart_type, data_structures, selection, config, component_id, lang
+    ddl_value, chart_type, data_structures, selection, page_config, component_id, lang
 ):
     selected_theme = selection["theme"]
-    chart_idx = int(component_id["aio_id"].split("_")[1])
-    chart_cfg = config[CFG_N_THEMES][selected_theme][ELEM_ID_CHARTS][chart_idx]
+    elem_cfg_pos = _get_elem_cfg_pos(component_id["aio_id"])
+
+    # find the elem matching the updated item in the page config
+    elem = page_config[CFG_N_THEMES][selected_theme]["ROWS"][elem_cfg_pos["row"]][
+        "elements"
+    ][elem_cfg_pos["col"]]
 
     # find the data node in the configuration for the user's selection
-    data_cfg = chart_cfg["data"][int(ddl_value)]
+    data_cfg = elem["data"][int(ddl_value)]
+    # the selected time period
     time_period = [min(selection["years"]), max(selection["years"])]
+    # Fallback to a default chart type if not selected
     if chart_type is None or chart_type == "":
-        chart_type = chart_cfg.get(["default_graph"], "bar")
+        chart_type = elem.get(["default_graph"], "bar")
 
-    fig_config = chart_cfg["graphs"][chart_type]
+    fig_config = elem["graphs"][chart_type]
     options = fig_config.get("options")
     traces = fig_config.get("trace_options")
 
     df = pd.DataFrame()
     indicator_name = ""
     indic_labels = {}
-    if "multi_indicator" in data_cfg:
-        tmp_inidic_label = []
-        for multi_indic_cfg in data_cfg["multi_indicator"]:
-            data_chunk = get_data(multi_indic_cfg, years=time_period)
-            struct_id = get_structure_id(multi_indic_cfg)
-            data_chunk = merge_with_codelist(
-                data_chunk, data_structures, struct_id, ID_REF_AREA
-            )
-            data_chunk = merge_with_codelist(
-                data_chunk, data_structures, struct_id, ID_DATA_SOURCE
-            )
-            indic_code = get_code_from_structure_and_dq(
-                data_structures, multi_indic_cfg, ID_INDICATOR
-            )
-            indic_labels[indic_code["id"]] = indic_code["name"]
-            tmp_inidic_label.append(indic_code["name"])
-            df = pd.concat([df, data_chunk])
-        tmp_inidic_label = list(set(tmp_inidic_label))  # remove duplicates
-        indicator_name = " - ".join(tmp_inidic_label)
-    else:
-        if chart_type == "line":
-            df = get_data(data_cfg, years=time_period)
-        else:
-            df = get_data(data_cfg, years=time_period, lastnobservations=1)
-        struct_id = get_structure_id(data_cfg)
-        df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
-        df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
-        indicator_name = get_code_from_structure_and_dq(
-            data_structures, data_cfg, ID_INDICATOR
-        )["name"]
 
-    # check if the dataframe is empty meaning no data to display as per the user's selection
+    if chart_type == "line":
+        df = get_data(data_cfg, years=time_period)
+    else:
+        df = get_data(data_cfg, years=time_period, lastnobservations=1)
+    struct_id = get_structure_id(data_cfg)
+    # Assign labels to codes
+    df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
+    df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
+    indicator_name = get_code_from_structure_and_dq(
+        data_structures, data_cfg, ID_INDICATOR
+    )["name"]
+
     if df.empty:
         return EMPTY_CHART, ""
 
     df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE], errors="coerce")
     df[ID_TIME_PERIOD] = pd.to_numeric(df[ID_TIME_PERIOD], errors="coerce")
 
-    # df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
-    # df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
-
+    # The source icon and information
     source = ""
     display_source = {"display": "none"}
     if LABEL_COL_PREFIX + ID_DATA_SOURCE in df.columns:
@@ -851,27 +629,28 @@ def update_charts(
     if source != "":
         display_source = {"display": "visible"}
 
+    # Change the labels to the option codes (in options we have REF_AREA, TIME_PERIOD replace with the concept's label)
     options_to_check_for_label = ["x", "y", "text", "color", "hover_name"]
     for o in options_to_check_for_label:
         if o in options and LABEL_COL_PREFIX + options[o] in df.columns:
             options[o] = LABEL_COL_PREFIX + options[o]
-
     options["labels"] = get_labels(
         data_structures, struct_id, df.columns, lang, translations
     )
     for k, v in indic_labels.items():
         options["labels"][k] = v
 
-    if "label" in chart_cfg["data"][int(ddl_value)]:
+    if "label" in elem["data"][int(ddl_value)]:
         indicator_name = get_multilang_value(
-            chart_cfg["data"][int(ddl_value)]["label"], lang
+            elem["data"][int(ddl_value)]["label"], lang
         )
 
     # set the chart title, wrap the text when the indicator name is too long
     chart_title = textwrap.wrap(
         indicator_name,
-        width=74,
+        width=55,
     )
+
     chart_title = "<br>".join(chart_title)
 
     xaxis = {"categoryorder": "total descending"}
@@ -902,90 +681,111 @@ def update_charts(
     if traces:
         fig.update_traces(**traces)
 
-    chart_idx = int(component_id["aio_id"].split("_")[1])
-
     return fig, source, display_source
 
 
-# Data downloads
-
-# TODO There is a lot of code shared with the area_figure function. Merge it!
-# This callback is used to return data when the user clicks on the download CSV button
+# Triggered when the Map area changes: show historical data is changed or indicator selected
 @callback(
-    Output(DownloadsAIO.ids.dcc_down_excel(MATCH), "data"),
-    # reset the n_clicks after each click to prevent triggering at each theme change
-    Output(DownloadsAIO.ids.btn_down_excel(MATCH), "n_clicks"),
-    Output(DownloadsAIO.ids.btn_down_csv(MATCH), "n_clicks"),
+    Output(MapAIO.ids.graph(MATCH), "figure"),
+    Output(MapAIO.ids.info_text(MATCH), "children"),
+    Output(MapAIO.ids.info_icon(MATCH), "style"),
+    Output(MapAIO.ids.map_timpe_period(MATCH), "children"),
     [
-        Input(DownloadsAIO.ids.btn_down_excel(MATCH), "n_clicks"),
-        Input(DownloadsAIO.ids.btn_down_csv(MATCH), "n_clicks"),
+        Input(MapAIO.ids.ddl(MATCH), "value"),
+        Input(MapAIO.ids.toggle_historical(MATCH), "value"),
+        # Input("data_structures", "data"),
     ],
     [
-        Input("store", "data"),
+        Input("data_structures", "data"),
+        State("sel_state", "data"),
         State("page_config", "data"),
-        State(DownloadsAIO.ids.btn_down_excel(MATCH), "id"),
-        State(MapAIO.ids.ddl(ELEM_ID_MAIN), "value"),
-        State(ChartAIO.ids.ddl(ALL), "value"),
-        State(ChartAIO.ids.chart_types(ALL), "value"),
+        State("geoj", "data"),
+        State(MapAIO.ids.card_title(MATCH), "id"),
+        State("lang", "data"),
     ],
 )
-def download_data_callb(
-    n_clicks_excel,
-    n_clicks_csv,
+def update_maps(
+    ddl_value,
+    show_historical_data,
+    data_structs,
     selections,
-    page_cfg,
-    source_element,
-    map_selection,
-    chart_selection,
-    chart_type,
+    page_config,
+    geoj,
+    component_id,
+    lang,
 ):
+    # Ret
+    fig = None
+    source = None
+    display_source = None
+    time_periods_in_df = None
 
-    source_id = source_element["aio_id"]
-    # # First render, do not trigger!
-    if n_clicks_excel is None and n_clicks_csv is None:
-        raise PreventUpdate
-
-    df = download_data(
-        selections, page_cfg, source_id, map_selection, chart_selection, chart_type
-    )
-
-    # Excel clicked
-    if n_clicks_excel is not None:
-        return dcc.send_data_frame(df.to_excel, "data.xlsx", index=False), None, None
-    elif n_clicks_csv is not None:
-        return dcc.send_data_frame(df.to_csv, "data.csv", index=False), None, None
-
-
-def download_data(selections, page_cfg, source_id, map_sel, chart_sel, chart_type):
-
-    data_node = None
-    if source_id.startswith("CHART_"):
-        chart_idx = int(source_id.split("_")[1])
-        theme_node = page_cfg[CFG_N_THEMES][selections["theme"]][ELEM_ID_CHARTS][
-            chart_idx
-        ]
-        data_node_idx = int(chart_sel[chart_idx])
-        data_node = theme_node["data"][data_node_idx]
-        chart_type = chart_type[chart_idx]
-    elif source_id == (ELEM_ID_MAIN):
-        theme_node = page_cfg[CFG_N_THEMES][selections["theme"]][ELEM_ID_MAIN]
-        data_node = theme_node["data"][int(map_sel)]
+    selected_theme = selections["theme"]
+    elem_cfg_pos = _get_elem_cfg_pos(component_id["aio_id"])
+    # find the elem matching the updated item in the page config
+    elem = page_config[CFG_N_THEMES][selected_theme]["ROWS"][elem_cfg_pos["row"]][
+        "elements"
+    ][elem_cfg_pos["col"]]
+    # find the data node in the configuration for the user's selection
+    elem_data_node = elem["data"][int(ddl_value)]
+    elem_options_node = copy.deepcopy(elem["options"])
 
     time_period = [min(selections["years"]), max(selections["years"])]
-
     lastnobs = None
-    if chart_type == "bar":
-        lastnobs = True
-    data = get_data(
-        data_node, years=time_period, labels="both", lastnobservations=lastnobs
+    if not show_historical_data:
+        lastnobs = 1
+
+    df = get_data(elem_data_node, years=time_period, lastnobservations=lastnobs)
+    if df.empty:
+        return EMPTY_CHART, "", "", ""
+
+    # we need the ref_area and data source codelists (DATA_SOURCE can be coded)
+    # get and merge the ref area labels
+    struct_id = get_structure_id(elem_data_node)
+    df = merge_with_codelist(df, data_structs, struct_id, ID_REF_AREA)
+    if ID_DATA_SOURCE in df.columns:
+        df = merge_with_codelist(df, data_structs, struct_id, ID_DATA_SOURCE)
+    df[ID_OBS_VALUE] = pd.to_numeric(df[ID_OBS_VALUE])
+    df = df.sort_values(by=ID_TIME_PERIOD, ascending=True)
+
+    # The data sources, hide the icon if data source is ""
+    source = ""
+    display_source = {"display": "none"}
+    if ID_DATA_SOURCE in df.columns:
+        # use the _L_ column that has been generated at the "merge_with_codelist" step
+        source = ", ".join(list(df[LABEL_COL_PREFIX + ID_DATA_SOURCE].unique()))
+    if source != "":
+        display_source = {"display": "visible"}
+
+    # Generate the labels for the chart from the data structure, override with translations
+    elem_options_node["labels"] = get_labels(
+        data_structs, struct_id, df.columns, lang, translations
     )
 
-    return data
+    # This chart has hodes some data in the Hover, also hide the label columns for coded dimensions (are added when merged with codelists)
+    if "hover_data" in elem_options_node:
+        hover_keys = list(elem_options_node["hover_data"].keys())
+        for hover_k in hover_keys:
+            if LABEL_COL_PREFIX + hover_k in df.columns:
+                if elem_options_node["hover_data"][hover_k]:
+                    elem_options_node["hover_data"][hover_k] = False
+                    elem_options_node["hover_data"][LABEL_COL_PREFIX + hover_k] = True
+                else:
+                    elem_options_node["hover_data"][LABEL_COL_PREFIX + hover_k] = False
 
+    # the geoJson
+    elem_options_node["geojson"] = get_geojson(geoj)
+    if not show_historical_data:
+        del elem_options_node["animation_frame"]
+    main_figure = px.choropleth_mapbox(df, **elem_options_node)
+    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
 
-@callback(
-    Output("_page_load", "children"),
-    [Input("data_structures", "data")],
-)
-def page_loaded(data_struct):
-    return [html.Div(id="_page_load_ok")]
+    time_periods_in_df = ""
+
+    if not show_historical_data:
+
+        time_periods_in_df = list(df["TIME_PERIOD"].unique())
+        time_periods_in_df.sort()
+        time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
+
+    return main_figure, source, display_source, time_periods_in_df

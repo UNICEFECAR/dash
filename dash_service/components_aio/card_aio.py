@@ -82,6 +82,6 @@ class CardAIO(html.Div):
         # Define the component's layout
         super().__init__(
             id=self.ids.card(aio_id),
-            className="card col h-100",
+            className="card",
             children=card_children,
         )

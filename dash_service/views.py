@@ -9,10 +9,8 @@ from flask_admin.contrib.sqla.view import func
 import flask_login
 from jinja2.utils import markupsafe
 from .extensions import admin
-from .models import Page, DataExplorer, User
+from .models import Page, DataExplorer, MenuPage
 from sqlalchemy.sql import func
-from .db_utils import db_utils
-from wtforms.validators import ValidationError
 
 
 def is_admin():
@@ -104,12 +102,6 @@ class DashboardView(ModelView):
             Page.project_id == flask_login.current_user.project_id
         )
 
-    # def create_model(self, form):
-    #     try:
-    #         return super().create_model(form)
-    #     except Exception as ex:
-    #         print(ex)
-
 
 class DataExplorerView(ModelView):
     column_display_all_relations = True
@@ -154,6 +146,51 @@ class DataExplorerView(ModelView):
             return self.session.query(func.count("*"))
         return self.session.query(func.count("*")).filter(
             DataExplorer.project_id == flask_login.current_user.project_id
+        )
+
+class MenuPageView(ModelView):
+    column_display_all_relations = True
+    column_list = (
+        "project",
+        "title",
+        "slug",
+        "created_at",
+        "updated_at",
+    )
+
+    fields_order = (
+        "project",
+        "title",
+        "slug",
+        "content",
+        "created_at",
+        "updated_at",
+    )
+    form_create_rules = fields_order
+    form_edit_rules = fields_order
+
+    form_widget_args = {
+        "created_at": {"disabled": True},
+        "updated_at": {"disabled": True},
+    }
+
+    form_excluded_columns = ["page"]
+
+    def is_accessible(self):
+        return flask_login.current_user.is_authenticated
+
+    def get_query(self):
+        if is_admin():
+            return self.session.query(self.model)
+        return self.session.query(self.model).filter(
+            MenuPage.project_id == flask_login.current_user.project_id
+        )
+
+    def get_count_query(self):
+        if is_admin():
+            return self.session.query(func.count("*"))
+        return self.session.query(func.count("*")).filter(
+            MenuPage.project_id == flask_login.current_user.project_id
         )
 
 

@@ -1,4 +1,4 @@
-from .models import Page, DataExplorer, Project, Dashboard
+from .models import Page, DataExplorer, Project, Dashboard, MenuPage
 from sqlalchemy import and_, func
 from .extensions import db
 
@@ -7,35 +7,9 @@ class db_utils:
     TYPE_UNKNOWN = -1
     TYPE_DATAEXPLORER = 0
     TYPE_DASHBOARD = 1
-
-    # def get_page_type(self, prj_slug, page_slug):
-    #     # look for the proj and page slugs in the Dashboard table
-    #     p = (
-    #         Page.query.join(Project)
-    #         .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
-    #         .first()
-    #     )
-    #     if p is not None:
-    #         return db_utils.TYPE_DASHBOARD
-
-    #     p = (
-    #         DataExplorer.query.join(Project)
-    #         .filter(and_(Project.slug == prj_slug, DataExplorer.slug == page_slug))
-    #         .first()
-    #     )
-    #     if p is not None:
-    #         return db_utils.TYPE_DATAEXPLORER
-
-    #     return db_utils.TYPE_UNKNOWN
+    TYPE_MENU = 2
 
     def get_page_type(self, prj_slug, page_slug):
-
-        # look for the proj and page slugs in the Dashboard table
-        # p = (
-        #     Page.query.join(Project)
-        #     .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
-        #     .first()
-        # )
         dashboard = (
             Dashboard.query.with_entities(Dashboard.id)
             .join(Project)
@@ -49,43 +23,17 @@ class db_utils:
             DataExplorer.query.with_entities(DataExplorer.id)
             .join(Project)
             .filter(and_(Project.slug == prj_slug, DataExplorer.slug==page_slug))
-        )
+        ).first()
 
         if dataexplorer is not None:
             return db_utils.TYPE_DATAEXPLORER
         
+        menupage = (
+            MenuPage.query.with_entities(MenuPage.id)
+            .join(Project)
+            .filter(and_(Project.slug == prj_slug, MenuPage.slug==page_slug))
+        ).first()
+        if menupage is not None:
+            return db_utils.TYPE_MENU
+        
         return db_utils.TYPE_UNKNOWN
-
-    # check if the slug exists in the Pages
-    def slug_exists_in_page_prj(
-        self,
-        prj_slug,
-        page_slug,
-    ):
-
-        page_slug_count = (
-            db.session.query(func.count(Page.id))
-            .join(Project)
-            .filter(and_(Project.slug == prj_slug, Page.slug == page_slug))
-            .scalar()
-        )
-        if page_slug_count > 0:
-            return True
-        return False
-
-    # check if the slug exists in the Data explorers
-    def slug_exists_in_dataexplorer_prj(
-        self,
-        prj_slug,
-        de_slug,
-    ):
-
-        de_slug_count = (
-            db.session.query(func.count(DataExplorer.id))
-            .join(Project)
-            .filter(and_(Project.slug == prj_slug, DataExplorer.slug == de_slug))
-            .scalar()
-        )
-        if de_slug_count > 0:
-            return True
-        return False
