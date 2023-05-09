@@ -77,6 +77,9 @@ class CustomRouter:
             if "prj" in qparams and len(qparams["prj"]) > 0:
                 param_prj = qparams["prj"][0]
 
+            kwargs = MultiDict(qparams)
+            kwargs["hash"] = url_hash
+
             if param_prj == "tm":
                 if param_page == "":
                     layout_to_use = home.layout(parsedurl, request)
@@ -85,11 +88,11 @@ class CustomRouter:
             else:
                 page_type = db_utils().get_page_type(param_prj, param_page)
                 if page_type == db_utils.TYPE_DASHBOARD:
-                    layout_to_use = dashboard.layout
+                    layout_to_use = dashboard.layout(**kwargs)
                 elif page_type == db_utils.TYPE_DATAEXPLORER:
-                    layout_to_use = data_explorer.layout
+                    layout_to_use = data_explorer.layout(**kwargs)
                 elif page_type == db_utils.TYPE_MENU:
-                    layout_to_use = menu_page.layout
+                    layout_to_use = menu_page.layout(**kwargs)
 
             if CustomRouter._is_component(layout_to_use):
                 layout = layout_to_use

@@ -12,7 +12,7 @@
     overflow-y: auto;
 }
 
-.div_de_filter li{
+.div_de_filter li {
     margin-bottom: 1px;
     margin-top: 1px;
     padding-top: 1px;
@@ -20,27 +20,29 @@
 }
 
 /*To force inline controls*/
-.force-inline-control{
+.force-inline-control {
     display: inline-flex;
     align-items: normal;
     margin-bottom: 0;
 }
 
-.force-inline-control label{
+.force-inline-control label {
     align-items: normal;
     margin-bottom: 0;
 }
+
 /*To force inline controls END*/
 
 /*Fix switches*/
-.form-switch .form-check-input{
+.form-switch .form-check-input {
     /*background-color: #fff;*/
     background-repeat: no-repeat;
 }
 
-.has-bootstrap [type=checkbox]:checked:after{
+.has-bootstrap [type=checkbox]:checked:after {
     background-color: unset;
 }
+
 /*Fix switches END*/
 
 .indic_prof_link:hover {
@@ -78,16 +80,19 @@ div.dt-table-container__row.dt-table-container__row-1 {
     margin-bottom: 0;
 
 }
-.has-bootstrap ul li{
+
+.has-bootstrap ul li {
     padding: 0;
     margin-bottom: 0;
 }
 
 /*Start drupal fixes*/
-.has-bootstrap .dropdown{
+.has-bootstrap .dropdown {
     max-width: 300px;
 }
 
-.has-bootstrap .card{
+.has-bootstrap .card {
     max-width: unset;
+    grid-template-columns: unset;
+    grid-gap: unset;
 }
