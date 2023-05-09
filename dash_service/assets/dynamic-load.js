@@ -101,6 +101,18 @@ if (browserOk) {
         document.body.appendChild(dashRenderer);
     }
 
+    function fix_drupal_css() {
+        var el = document.querySelector("#block-mainpagecontent > article > div.main-content-cntr.selectric-small > div > div > div > section > div > div.field.paragraph.field_component_sec_blocks.odd-t.entity_reference_revisions > div > div > div > div > div");
+        if (el) {
+            el.classList.remove("custom-embe", "embed-large");
+        }
+        el = document.querySelector("#block-mainpagecontent > article > div.main-content-cntr.selectric-small > div > div > div > section > div").classList.remove("container");
+        if (el) {
+            el.classList.remove("container");
+            el.classList.add("container-fluid");
+        }
+    }
+
     //load the json and adds to the page in the callback function
     if (typeof remote_files_path !== "undefined") {
 
@@ -178,7 +190,7 @@ if (browserOk) {
                         scriptElement.innerHTML = script.innerHTML;
                     }
                     //each injected script has an onload function, when the loaded scripts == withSrc then trigger LoadDash
-                    scriptElement.onload = function () { loadedScripts += 1; if (loadedScripts >= withSrc) { loadDash() } };
+                    scriptElement.onload = function () { loadedScripts += 1; if (loadedScripts >= withSrc) { loadDash(); fix_drupal_css() } };
                     document.body.appendChild(scriptElement);
                 }
             });
