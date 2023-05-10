@@ -217,7 +217,7 @@ def render_page_template(
 
     return ret
 
-
+'''
 # Triggered when the theme or year slider changes
 # It only updates the state of the selection: theme and year
 @callback(
@@ -789,3 +789,6 @@ def update_maps(
         time_periods_in_df = f"{get_multilang_value(translations['TIME_PERIOD'], lang)}: {', '.join(time_periods_in_df)}"
 
     return main_figure, source, display_source, time_periods_in_df
+
+
+'''
