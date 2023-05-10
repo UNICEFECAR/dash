@@ -29,6 +29,7 @@ class PagesNavigationAIO(html.Header):
             return None
 
         nav_links = []
+
         qparams_to_remove = ["prj", "page", "lang", "hash"]
         cleaned_qparams = [qp for qp in query_params if qp not in qparams_to_remove]
 
@@ -37,7 +38,7 @@ class PagesNavigationAIO(html.Header):
             if p["lang"] != "en":
                 url_params.append("lang=" + p["lang"])
             for qp in cleaned_qparams:
-                url_params.append(qp + "=" + cleaned_qparams[qp])
+                url_params.append(qp + "=" + query_params[qp])
             nav_links.append({"name": p["name"], "href": "?" + "&".join(url_params)})
 
         # create all the ul - li - A structure for each link
