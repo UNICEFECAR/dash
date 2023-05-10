@@ -141,9 +141,7 @@ def layout(lang="en", **query_params):
     page_config = db_config.content
     geography = db_config.geography
 
-    return html.Div("HERE")
-
-    #return render_page_template(page_config, geography, lang, query_params, project_slug)
+    return render_page_template(page_config, geography, lang, query_params, project_slug)
 
 # Gets the element that will be rendered on the navigation bar
 def get_page_nav_items(page_config, project_slug, lang):
