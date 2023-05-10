@@ -91,6 +91,10 @@ div.dt-table-container__row.dt-table-container__row-1 {
     max-width: 300px;
 }
 
+.has-bootstrap .card {
+    max-width: unset;
+}
+
 .has-bootstrap .col-3 {
     max-width: unset;
     grid-template-columns: unset;
