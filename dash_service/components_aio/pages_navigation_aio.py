@@ -62,7 +62,7 @@ class PagesNavigationAIO(html.Header):
         ]
 
         nav = html.Nav(
-            className="navbar navbar-expand-lg navbar-light justify-content-evenly",
+            className="navbar navbar-expand-lg navbar-light justify-content-evenly shadow-none",
             children=nav_link_ul,
         )
 
