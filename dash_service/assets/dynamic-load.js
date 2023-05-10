@@ -111,11 +111,6 @@ if (browserOk) {
             el.classList.remove("container");
             el.classList.add("container-fluid");
         }
-
-        var meta = document.createElement("meta");
-        meta.httpEquiv = "Content-Security-Policy";
-        meta.content = "object-src 'self' https://dash-service.azurewebsites.net/assets/;";
-        document.getElementsByTagName('head')[0].appendChild(meta);
     }
 
     //load the json and adds to the page in the callback function
