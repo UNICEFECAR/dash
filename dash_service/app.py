@@ -172,6 +172,7 @@ def after_request(response):
         "Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS"
     )
     response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    response.headers.add("Content-Security-Policy", "img-src data: w3.org/svg/2000")
 
     return response
 
