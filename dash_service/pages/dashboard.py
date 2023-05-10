@@ -122,6 +122,29 @@ EMPTY_CHART = {
     }
 }
 
+
+# The entry point, retrieves the page from the storage and renderes the page
+def layout(lang="en", **query_params):
+    """
+    Returns the page layout
+    """
+
+    project_slug = query_params.get("prj", None)
+    page_slug = query_params.get("page", None)
+
+    db_config = (
+        Dashboard.query.join(Project)
+        .filter(and_(Page.slug == page_slug, Project.slug == project_slug))
+        .first()
+    )
+
+    page_config = db_config.content
+    geography = db_config.geography
+
+    return html.Div("HERE")
+
+    #return render_page_template(page_config, geography, lang, query_params, project_slug)
+
 # Gets the element that will be rendered on the navigation bar
 def get_page_nav_items(page_config, project_slug, lang):
     nav_type = None
@@ -146,36 +169,15 @@ def get_page_nav_items(page_config, project_slug, lang):
     return ret
 
 
-# The entry point, retrieves the page from the storage and renderes the page
-def layout(lang="en", **query_params):
-    """
-    Returns the page layout
-    """
-
-    project_slug = query_params.get("prj", None)
-    page_slug = query_params.get("page", None)
-
-    db_config = (
-        Dashboard.query.join(Project)
-        .filter(and_(Page.slug == page_slug, Project.slug == project_slug))
-        .first()
-    )
-
-    page_config = db_config.content
-    geography = db_config.geography
-
-    nav_links = get_page_nav_items(page_config, project_slug, lang)
-
-    return render_page_template(page_config, nav_links, geography, lang, query_params)
-
-
 def render_page_template(
-    page_config: dict, nav_links: list, geojson: str, lang: str, query_params
+    page_config: dict, geojson: str, lang: str, query_params, project_slug:str
 ) -> html.Div:
 
     elem_page_nav = None
     elem_main_title = None
     elem_years_selector = None
+
+    nav_links = get_page_nav_items(page_config, project_slug, lang)
 
     if nav_links is not None and len(nav_links) > 0:
         elem_page_nav = PagesNavigationAIO(
