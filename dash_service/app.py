@@ -172,7 +172,7 @@ def after_request(response):
         "Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS"
     )
     response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-    response.headers.add("Content-Security-Policy", "object-src data: 'unsafe-eval'")
+    response.headers.add("Content-Security-Policy", "object-src 'self' *.youtube.com")
 
     return response
 
