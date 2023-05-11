@@ -57,7 +57,7 @@ class YearsRangeSelectorAIO(html.Div):
                 className="d-flex justify-content-center",
                 children=dbc.Button(
                     id=self.ids.years_range_open_collapse_btn(aio_id),
-                    class_name="btn btn-primary dropdown-toggle",
+                    class_name="btn btn-secondary dropdown-toggle",
                     n_clicks=0,
                     children=f"{years_label}: {sel_year_min} - {sel_year_max}",
                 ),

@@ -63,8 +63,22 @@ DBELEM = "DBELEM_"
 
 # set defaults
 pio.templates.default = "plotly_white"
-px.defaults.color_continuous_scale = px.colors.sequential.BuGn
+# px.defaults.color_continuous_scale = px.colors.sequential.BuGn
+UNICEF_color_continuous_scale = [
+    "#002759",
+    "#00377D",
+    "#0058AB",
+    "#0083CF",
+    "#1CABE2",
+    "#69DBFF",
+    "#A3EAFF",
+    "#CFF4FF",
+]
 px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
+px.defaults.color_continuous_scale = UNICEF_color_continuous_scale
+
+default_font_family = "Roboto"
+default_font_size = 12
 
 
 # move this elsewhere
@@ -96,14 +110,10 @@ cfg_plot = {
 }
 
 colours = [
-    "primary",
     "success",
     "warning",
     "danger",
-    "secondary",
-    "info",
-    "success",
-    "danger",
+    "info"
 ]
 
 EMPTY_CHART = {
@@ -141,7 +151,10 @@ def layout(lang="en", **query_params):
     page_config = db_config.content
     geography = db_config.geography
 
-    return render_page_template(page_config, geography, lang, query_params, project_slug)
+    return render_page_template(
+        page_config, geography, lang, query_params, project_slug
+    )
+
 
 # Gets the element that will be rendered on the navigation bar
 def get_page_nav_items(page_config, project_slug, lang):
@@ -168,7 +181,7 @@ def get_page_nav_items(page_config, project_slug, lang):
 
 
 def render_page_template(
-    page_config: dict, geojson: str, lang: str, query_params, project_slug:str
+    page_config: dict, geojson: str, lang: str, query_params, project_slug: str
 ) -> html.Div:
 
     elem_page_nav = None
@@ -185,7 +198,9 @@ def render_page_template(
     if "main_title" in page_config:
         elem_main_title = HeadingAIO(page_config["main_title"], aio_id=ELEM_ID_HEADING)
 
-    elem_years_selector = YearsRangeSelectorAIO(aio_id=ELEM_ID_YEARS_RANGE_SEL, additional_classes="pb-2")
+    elem_years_selector = YearsRangeSelectorAIO(
+        aio_id=ELEM_ID_YEARS_RANGE_SEL, additional_classes="pb-2"
+    )
 
     ret = html.Div(
         [
@@ -262,6 +277,7 @@ def _get_elem_cfg_pos(elem_id):
         "col": int(elem_id.split("_")[2]),
     }
 
+
 # Triggered when the selection state changes
 @callback(
     Output(HeadingAIO.ids.subtitle(ELEM_ID_HEADING), "children"),
@@ -296,7 +312,7 @@ def show_themes(selections, config):
             dbc.Button(
                 value["NAME"],
                 id=key,
-                color=colours[num],
+                color=colours[num%len(colours)],
                 className="theme mx-1",
                 href=f"#{key.lower()}",
                 active=theme_key == key,
@@ -669,7 +685,7 @@ def update_charts(
     layout = go.Layout(
         title=chart_title,
         title_x=0.5,
-        font=dict(family="Arial", size=12),
+        font=dict(family=default_font_family, size=default_font_size),
         legend=dict(x=0.9, y=0.5),
         xaxis=xaxis,
         modebar={"orientation": "v"},
@@ -775,10 +791,16 @@ def update_maps(
 
     # the geoJson
     elem_options_node["geojson"] = get_geojson(geoj)
+    if "color_continuous_scale" not in elem_options_node:
+        elem_options_node["color_continuous_scale"] = UNICEF_color_continuous_scale
+
     if not show_historical_data:
         del elem_options_node["animation_frame"]
     main_figure = px.choropleth_mapbox(df, **elem_options_node)
-    main_figure.update_layout(margin={"r": 0, "t": 1, "l": 2, "b": 1})
+    main_figure.update_layout(
+        margin={"r": 0, "t": 1, "l": 2, "b": 1},
+        font=dict(family=default_font_family, size=default_font_size),
+    )
 
     time_periods_in_df = ""
 
