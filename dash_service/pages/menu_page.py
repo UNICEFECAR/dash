@@ -71,7 +71,7 @@ def _create_button(link, color=None):
         style={
             "width":"170px",
             "height":"130px",
-            "background-color": color,
+            "backgroundColor": color,
         },
         children=[
             html.I(className=icon_class),
@@ -97,7 +97,7 @@ def create_links_row(row):
     if "title" in row:
         cardHeader = html.Div(
             className="card-header fs-4 fw-bold",
-            style={"background-color": secondary, "color": color},
+            style={"backgroundColor": secondary, "color": color},
             children=row["title"],
         )
 
@@ -113,7 +113,7 @@ def create_links_row(row):
 
     row_card = html.Div(
         className="card mb-3",
-        style={"background-color": secondary},
+        style={"backgroundColor": secondary},
         children=[cardHeader, html.Div(className="card-body", children=ch)],
     )
 

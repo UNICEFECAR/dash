@@ -74,11 +74,11 @@ class DataExplorerFilterAIO(html.Div):
                 children=tree,
             )
             accitem = dbc.AccordionItem(
-                title=f["name"], children=tree_div, class_name="accordion-no-padding"
+                title=f["name"], children=tree_div, class_name="accordion-no-padding", item_id=f"de_acc_{f['id']}"
             )
             accordionItems.append(accitem)
 
-        accordion = dbc.Accordion(accordionItems)
+        accordion = dbc.Accordion(accordionItems, id="_de_acc")
 
 
         super().__init__(children=[accordion], className="p-0 m-0")

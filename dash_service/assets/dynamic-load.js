@@ -106,7 +106,7 @@ if (browserOk) {
         if (el) {
             el.classList.remove("custom-embe", "embed-large");
         }
-        el = document.querySelector("#block-mainpagecontent > article > div.main-content-cntr.selectric-small > div > div > div > section > div").classList.remove("container");
+        el = document.querySelector("#block-mainpagecontent > article > div.main-content-cntr.selectric-small > div > div > div > section > div");
         if (el) {
             el.classList.remove("container");
             el.classList.add("container-fluid");
