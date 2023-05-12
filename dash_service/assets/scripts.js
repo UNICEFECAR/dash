@@ -1,18 +1,18 @@
-$(".theme").click(function () {
-    $(".theme").removeClass("active");
-    $(this).addClass("active");
+jQuery(".theme").click(function () {
+    jQuery(".theme").removeClass("active");
+    jQuery(this).addClass("active");
 });
 
-$(document).ready(function () {
-    $(window).scroll(function () {
-        if ($(this).scrollTop() > 300) {
-            $('.scroll-top').fadeIn();
+jQuery(document).ready(function () {
+    jQuery(window).scroll(function () {
+        if (jQuery(this).scrollTop() > 300) {
+            jQuery('.scroll-top').fadeIn();
         } else {
-            $('.scroll-top').fadeOut();
+            jQuery('.scroll-top').fadeOut();
         }
     });
-    $(document).on('click', '#btnScroll', function () {
-        $("html, body").animate({
+    jQuery(document).on('click', '#btnScroll', function () {
+        jQuery("html, body").animate({
             scrollTop: 0
         }, 300);
         return false;
