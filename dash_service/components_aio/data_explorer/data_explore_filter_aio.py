@@ -82,7 +82,7 @@ class DataExplorerFilterAIO(html.Div):
             accordionItems.append(accitem)
 
         accordion = dbc.Accordion(
-            accordionItems, id="_de_acc", persistence_type="session", persistence=True
+            accordionItems, id="_de_acc", flush=True
         )
 
         super().__init__(children=[accordion], className="p-0 m-0")

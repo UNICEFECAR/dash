@@ -162,11 +162,15 @@ if (browserOk) {
 
                 //load jquery as first element to fix issue with Accordion
                 var scripts_order = [];
-                if (jquery_idx>0){
-                    scripts_order[0]=jquery_idx;
+                if (typeof jQuery == 'undefined') {
+                    //no JQuery, add it
+                    if (jquery_idx > 0) {
+                        scripts_order[0] = jquery_idx;
+                    }
                 }
+
                 for (var i = 0; i < scripts.length; i++) {
-                    if (i==jquery_idx){
+                    if (i == jquery_idx) {
                         continue;
                     }
                     scripts_order.push(i);
