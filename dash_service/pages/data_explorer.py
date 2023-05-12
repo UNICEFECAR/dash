@@ -140,6 +140,10 @@ def render_page_template(
             dcc.Store(id=_STORE_LASTNOBS_CFG, data=None),
             de,
             html.Div(id="div_loaded", children=["..."]),
+            html.Div(
+                className="footer menu-link-accordion--collapse",
+                children=["Collapse"],
+            ),
         ],
     )
 
