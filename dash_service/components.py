@@ -11,7 +11,7 @@ def fa(className):
     """A convenience component for adding Font Awesome icons"""
     return html.I(className=f"{className} mx-1")
 
-
+'''
 @component
 def make_brand(**kwargs):
     return html.Header(
@@ -36,8 +36,8 @@ def make_brand(**kwargs):
             ),
         ],
     )
-
-
+'''
+'''
 @component
 def make_nav(pages, vertical=False, **kwargs):
     return html.Header(
@@ -76,3 +76,4 @@ def make_nav(pages, vertical=False, **kwargs):
         ],
         **kwargs,
     )
+'''

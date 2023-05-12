@@ -172,8 +172,6 @@ if (browserOk) {
                     scripts_order.push(i);
                 }
 
-                console.log(scripts_order)
-
                 for (var i = 0; i < scripts.length; i++) {
                     var script = scripts[scripts_order[i]];
                     var src = script.getAttribute('src');

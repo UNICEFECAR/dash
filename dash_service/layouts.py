@@ -6,10 +6,10 @@ import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 
-from .components import make_brand, make_nav
+#from .components import make_brand, make_nav
 from .components import fa
 
-
+'''
 def main_layout_header():
     """Dash layout with a top-header"""
     return html.Div(
@@ -25,8 +25,9 @@ def main_layout_header():
             dbc.Container(dbc.Row(dbc.Col(dash.page_container)), fluid=True),
         ]
     )
+'''
 
-
+'''
 def main_layout_sidebar():
     """Dash layout with a sidebar"""
     return html.Div(
@@ -48,8 +49,9 @@ def main_layout_sidebar():
             ),
         ]
     )
+'''
 
-
+'''
 def main_default_layout():
 
     return html.Div(
@@ -87,7 +89,7 @@ def main_default_layout():
         ],
         id="mainContainer",
     )
-
+'''
 
 def base_layout():
     return html.Div(

@@ -86,7 +86,7 @@ UNICEF_color_qualitative = [
     "#FFC20E",
     "#FFF09C",
 ]
-#px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
+# px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
 px.defaults.color_discrete_sequence = UNICEF_color_qualitative
 px.defaults.color_continuous_scale = UNICEF_color_continuous_scale
 
@@ -690,7 +690,7 @@ def update_charts(
         options["hover_data"] = ["_L_REF_AREA"]
 
     if "color_discrete_sequence" not in options:
-        options["color_discrete_sequence"]=UNICEF_color_qualitative
+        options["color_discrete_sequence"] = UNICEF_color_qualitative
 
     # set the layout to center the chart title and change its font size and color
     layout = go.Layout(
