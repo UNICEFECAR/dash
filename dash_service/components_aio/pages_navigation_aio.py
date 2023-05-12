@@ -50,9 +50,10 @@ class PagesNavigationAIO(html.Header):
                         className="nav-item",
                         children=[
                             html.A(
-                                className="nav-link text-primary fw-bold shadow-none",
+                                className="nav-link text-primary fw-bold",
                                 href=nlink["href"],
                                 children=nlink["name"],
+                                style={"text-shadow": "none"},
                             )
                         ],
                     )
