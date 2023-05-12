@@ -134,8 +134,6 @@ def render_page_template(
         html.Div: The dash Div representing the redenderd page against the config
     """
 
-    print(page_config)
-
     if "main_title" in page_config:
         elem_main_title = HeadingAIO(page_config["main_title"], aio_id="menu_page_head")
 
