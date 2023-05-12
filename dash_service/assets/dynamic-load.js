@@ -148,15 +148,34 @@ if (browserOk) {
                 var loadedScripts = 0;
                 var withSrc = 0;
 
+                var jquery_idx = -1
+
                 for (var i = 0; i < scripts.length; i++) {
                     var src = scripts[i].getAttribute('src');
                     if (src && !src.includes('dynamic-load.js')) {
                         withSrc += 1;
                     }
+                    if (src && src.includes('jquery')) {
+                        jquery_idx = i;
+                    }
                 }
 
+                //load jquery as first element to fix issue with Accordion
+                var scripts_order = [];
+                if (jquery_idx>0){
+                    scripts_order[0]=jquery_idx;
+                }
                 for (var i = 0; i < scripts.length; i++) {
-                    var script = scripts[i];
+                    if (i==jquery_idx){
+                        continue;
+                    }
+                    scripts_order.push(i);
+                }
+
+                console.log(scripts_order)
+
+                for (var i = 0; i < scripts.length; i++) {
+                    var script = scripts[scripts_order[i]];
                     var src = script.getAttribute('src');
                     var id = script.getAttribute('id');
                     var type = script.getAttribute('type');

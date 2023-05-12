@@ -74,7 +74,20 @@ UNICEF_color_continuous_scale = [
     "#A3EAFF",
     "#CFF4FF",
 ]
-px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
+UNICEF_color_qualitative = [
+    "#0058AB",
+    "#1CABE2",
+    "#00833D",
+    "#80BD41",
+    "#6A1E74",
+    "#961A49",
+    "#E2231A",
+    "#F26A21",
+    "#FFC20E",
+    "#FFF09C",
+]
+#px.defaults.color_discrete_sequence = px.colors.qualitative.Dark24
+px.defaults.color_discrete_sequence = UNICEF_color_qualitative
 px.defaults.color_continuous_scale = UNICEF_color_continuous_scale
 
 default_font_family = "Roboto"
@@ -109,12 +122,7 @@ cfg_plot = {
     "displaylogo": False,
 }
 
-colours = [
-    "success",
-    "warning",
-    "danger",
-    "info"
-]
+colours = ["success", "warning", "danger", "info"]
 
 EMPTY_CHART = {
     "layout": {
@@ -312,7 +320,7 @@ def show_themes(selections, config):
             dbc.Button(
                 value["NAME"],
                 id=key,
-                color=colours[num%len(colours)],
+                color=colours[num % len(colours)],
                 className="theme mx-1",
                 href=f"#{key.lower()}",
                 active=theme_key == key,
@@ -680,6 +688,9 @@ def update_charts(
         df = df_scatter.reset_index()
 
         options["hover_data"] = ["_L_REF_AREA"]
+
+    if "color_discrete_sequence" not in options:
+        options["color_discrete_sequence"]=UNICEF_color_qualitative
 
     # set the layout to center the chart title and change its font size and color
     layout = go.Layout(
