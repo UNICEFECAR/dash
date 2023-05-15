@@ -1,4 +1,4 @@
-from dash import html, dcc, callback
+from dash import html, dcc, callback, ctx
 from dash.dependencies import MATCH, Input, Output, State, ALL
 import dash_bootstrap_components as dbc
 import uuid
@@ -52,7 +52,7 @@ class DataExplorerFilterAIO(html.Div):
 
         accordionItems = []
 
-        for f in filters:
+        for idx, f in enumerate(filters):
             sel = []
             if f["id"] in selected:
                 sel = selected[f["id"]]
@@ -73,16 +73,86 @@ class DataExplorerFilterAIO(html.Div):
                 className="overflow-auto m-0 p-0 div_de_filter",
                 children=tree,
             )
-            accitem = dbc.AccordionItem(
-                title=f["name"],
-                children=tree_div,
-                class_name="accordion-no-padding",
-                item_id=f"de_acc_{f['id']}",
+            # accitem = dbc.AccordionItem(
+            #     title=f["name"],
+            #     children=tree_div,
+            #     class_name="accordion-no-padding",
+            #     item_id=f"de_acc_{f['id']}",
+            # )
+
+            #head_btn_id = f"de_acc_btn_{f['id']}"
+            head_btn_id = f['id']
+            #body_id = f"de_acc_body_{f['id']}"
+            is_show = ""
+            if idx == 0:
+                is_show = " show"
+
+            accitem = html.Div(
+                className="accordion-item",
+                children=[
+                    html.Div(
+                        className="accordion-header",
+                        id="_de_acc_head_" + f["id"],
+                        children=[
+                            html.Button(
+                                id={"type": "de_filter_acc_btn", "index": head_btn_id},
+                                className="accordion-button",
+                                type="button",
+                                children=f["name"],
+                                **{"aria-expanded":"false",
+                                   "data-bs-toggle":"collapse"}
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        className="accordion-collapse collapse" + is_show,
+                        **{
+                            "aria-labelledby": "_de_acc_head_" + f["id"],
+                            "data-bs-parent": "#_de_acc",
+                        },
+                        id={"type": "de_filter_acc_body", "index": head_btn_id},
+                        children=[
+                            html.Div(className="accordion-body", children=[tree_div])
+                            # html.Div(className="accordion-body", children=[f["id"]])
+                        ],
+                    ),
+                ],
             )
             accordionItems.append(accitem)
 
-        accordion = dbc.Accordion(
-            accordionItems, id="_de_acc", persistence_type="session", persistence=True
+        # accordion = dbc.Accordion(
+        #     accordionItems, id="_de_acc", persistence_type="session", persistence=True
+        # )
+        accordion = html.Div(
+            className="accordion", id="_de_acc", children=accordionItems
         )
 
         super().__init__(children=[accordion], className="p-0 m-0")
+
+    @callback(
+        Output({"type": "de_filter_acc_body", "index": ALL}, "className"),
+        Input({"type": "de_filter_acc_btn", "index": ALL}, "n_clicks"),
+        State({"type": "de_filter_acc_body", "index": ALL}, "className"),
+        State({"type": "de_filter_acc_body", "index": ALL}, "id"),
+
+        prevent_initial_call=True,
+    )
+    def de_acc_toggle(n_clicks, classNames,ids):
+        ret = []
+        button_id = ctx.triggered_id
+        cl_name="accordion-collapse collapse"
+        cl_name_show = "accordion-collapse collapse show"
+
+        for idx in range(len(ids)):
+            #this button has been clicked
+            if button_id["index"]==ids[idx]["index"]:
+                #toggle
+                if "show" in classNames[idx]:
+                    ret.append(cl_name)
+                else:
+                    ret.append(cl_name_show)
+            else:
+                ret.append(cl_name)
+
+        return ret
+
