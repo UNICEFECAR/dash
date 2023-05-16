@@ -71,13 +71,19 @@ page_config = {
             },
             {
                 "name": "",
+                "indicator": "PV_SI_COV_MATNL",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
                 "indicator": "PV_SI_COV_DISAB",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
             {
                 "name": "",
-                "indicator": "PV_SI_COV_MATNL",
+                "indicator": "PV_SI_COV_UEMP",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -87,15 +93,30 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "PV_SI_COV_POOR",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EC_EXP_FAM_CHLD_EXP",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
                 "PV_SI_COV_BENFTS",
                 "PV_SI_COV_CHLD",
-                "PV_SI_COV_DISAB",
                 "PV_SI_COV_MATNL",
+                "PV_SI_COV_DISAB",
+                "PV_SI_COV_UEMP",
                 "PV_SI_COV_VULN",
+                "PV_SI_COV_POOR",
+                "EC_EXP_FAM_CHLD_EXP",
             ],
             "default_graph": "bar",
             "default": "PV_SI_COV_BENFTS",
@@ -106,7 +127,7 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PV_SI_POV_UMIC",
+                "indicator": "SI_POV_UMIC",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -124,19 +145,19 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "PV_SD_MDP_CSMP",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "PV_SEV_MAT_DPRT",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
                 "indicator": "PV_SEV_MAT_SOC_DPRT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PV_AROPRT",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PV_INABLE_PROTEIN",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -144,15 +165,15 @@ page_config = {
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "PV_SI_POV_UMIC",
+                "SI_POV_UMIC",
                 "PV_SDG_SI_POV_NAHC",
                 "PV_AROPE",
-                "PV_SD_MDP_CSMP",
-                "PV_SEV_MAT_DPRT",
                 "PV_SEV_MAT_SOC_DPRT",
+                "PV_AROPRT",
+                "PV_INABLE_PROTEIN",
             ],
             "default_graph": "bar",
-            "default": "PV_SI_POV_UMIC",
+            "default": "SI_POV_UMIC",
         },
     },
     "WSH": {
