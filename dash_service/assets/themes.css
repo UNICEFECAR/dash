@@ -1,4 +1,3 @@
-
 /* colour theme for CRG domain*/
 .theme_buttons .btn-crg {
     color: white;
@@ -75,6 +74,10 @@
     border-color: #3e7c49;
     border-style: solid;
     border-width: 3px;
+    text-transform: capitalize;
+    display: flex;
+    align-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-han-sub.focus,
