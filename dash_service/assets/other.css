@@ -12,6 +12,10 @@
     overflow-y: auto;
 }
 
+.div_de_filter ul {
+    margin: 0;
+}
+
 .div_de_filter li {
     margin-bottom: 1px;
     margin-top: 1px;
