@@ -566,7 +566,7 @@ def get_data(
     )
 
     # keep three decimals for indexes
-    if "IDX" in data.UNIT_MEASURE.values:
+    if "IDX" in data.UNIT_MEASURE.values or "HVA_EPI_INF_RT_0-14" in data.CODE.values:
         data.OBS_VALUE = data.OBS_VALUE.round(3)
     # keep one decimal for fertility rate
     elif "DM_FRATE_TOT" in data.CODE.values:
@@ -1066,7 +1066,7 @@ def get_base_layout(**kwargs):
                                                                         "marginBottom": "20px",
                                                                         "width": "95%",
                                                                     },
-                                                                    class_name="theme_buttons"
+                                                                    class_name="theme_buttons",
                                                                 ),
                                                             ],
                                                             style={
@@ -1126,7 +1126,15 @@ def get_base_layout(**kwargs):
                                                                         id={
                                                                             "type": "area",
                                                                             "index": f"{page_prefix}-AIO_AREA",
-                                                                        }
+                                                                        },
+                                                                        config={
+                                                                            "modeBarButtonsToRemove": [
+                                                                                "select2d",
+                                                                                "lasso2d",
+                                                                                "autoScale",
+                                                                            ],
+                                                                            "displaylogo": False,
+                                                                        },
                                                                     )
                                                                 ]
                                                             ),
@@ -1517,7 +1525,7 @@ graphs_dict = {
             render_mode="svg",
             height=500,
         ),
-        "trace_options": dict(mode="lines", line=dict(width=0.8)),
+        "trace_options": dict(mode="markers+lines", line=dict(width=0.8)),
         "layout_options": dict(
             xaxis_title={"standoff": 10},
             margin_t=40,
@@ -1645,7 +1653,7 @@ def aio_options(theme, indicators_dict, page_prefix):
             for num, code in enumerate(area_indicators)
         ]
     # print("aio_options: %s seconds" % (time.time() - start_time))
-    #return html.Div(className="force-inline-controls", children=area_buttons)
+    # return html.Div(className="force-inline-controls", children=area_buttons)
     return area_buttons
 
 
@@ -1703,7 +1711,7 @@ def fig_options(is_active_button, buttons_id, packed_config):
             {"label": "Bar", "value": "count_bar"},
             {"label": "Map", "value": "map"},
         ]
-        default_graph = "count_bar"
+        default_graph = "map"
     else:
         area_types = [
             {"label": "Bar", "value": "bar"},
@@ -1981,10 +1989,14 @@ def aio_area_figure(
     fig.update_layout(xaxis_title="")
     if fig_type == "bar" and not dimension and "YES_NO" not in data.UNIT_MEASURE.values:
         fig.update_traces(marker_color=domain_colour)
-        if (data.OBS_VALUE == 0).any():
-            fig.update_traces(textposition="outside")
+        # if (data.OBS_VALUE == 0).any():
+        # fig.update_traces(textposition="outside")
     if fig_type == "line":
         fig.update_traces(**traces)
+
+    if fig_type == "choropleth_mapbox":
+        # Remove the colorbar title
+        fig.update_layout(coloraxis_colorbar_title="")
 
     fig.update_traces(hovertemplate=hovertext)
 

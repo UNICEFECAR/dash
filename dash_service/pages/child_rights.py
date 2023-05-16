@@ -54,7 +54,7 @@ min_max_card_suffix = "min - max values"
 
 page_config = {
     "DEM": {
-        "NAME": "Demographics and population movements",
+        "NAME": "Demographics",
         "CARDS": [
             {
                 "name": "",
@@ -87,24 +87,6 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
-            {
-                "name": "",
-                "indicator": "DM_ASYL_FRST",
-                "suffix": "persons",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "DM_ASYL_UASC",
-                "suffix": "persons",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "MG_INTNL_MG_CNTRY_DEST_PS",
-                "suffix": "persons",
-                "min_max": False,
-            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
@@ -114,9 +96,6 @@ page_config = {
                 "DM_BRTS",
                 "DM_FRATE_TOT",
                 "DM_POP_NETM",
-                "DM_ASYL_FRST",
-                "DM_ASYL_UASC",
-                "MG_INTNL_MG_CNTRY_DEST_PS",
             ],
             "default_graph": "bar",
             "default": "DM_CHLD_POP",
@@ -240,6 +219,12 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
+            {
+                "name": "",
+                "indicator": "EC_EXP_FAM_CHLD_EXP",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
@@ -249,6 +234,7 @@ page_config = {
                 "EDU_FIN_EXP_L1",
                 "HT_SH_XPD_GHED_GD_ZS",
                 "EC_SP_GOV_EXP_GDP",
+                "EC_EXP_FAM_CHLD_EXP",
             ],
             "default_graph": "bar",
             "default": "EDU_FIN_EXP_PT_GDP",
