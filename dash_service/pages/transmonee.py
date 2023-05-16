@@ -377,6 +377,24 @@ data_sources = {
 }
 
 dict_topics_subtopics = {
+    "Child Rights Landscape and Governance": [
+        "Demographics",
+        "Political economy",
+        "Migration and displacement",
+        "Access to Justice",
+        "Data on children",
+        "Public spending on children",
+        "Child rights governance",
+    ],
+    "Health and Nutrition": [
+        "Health system",
+        "Maternal, newborn and child health",
+        "Immunization",
+        "Nutrition",
+        "Adolescent physical, mental, and reproductive health",
+        "HIV/AIDS",
+        "Water, sanitation and hygiene",
+    ],
     "Education, Leisure, and Culture": [
         "Education access and participation",
         "Learning quality and skills",
@@ -389,33 +407,33 @@ dict_topics_subtopics = {
         "Child marriage and other harmful practices",
         "Child labour and other forms of exploitation",
     ],
-    "Health and Nutrition": [
-        "Health system",
-        "Maternal, newborn and child health",
-        "Immunization",
-        "Nutrition",
-        "Adolescent physical, mental, and reproductive health",
-        "HIV/AIDS",
-        "Water, sanitation and hygiene",
-    ],
-    "Poverty and Social Protection": [
-        "Child poverty and material deprivation",
-        "Social protection system",
-    ],
-    "Child Rights Landscape and Governance": [
-        "Demographics",
-        "Political economy",
-        "Migration and displacement",
-        "Access to Justice",
-        "Data on children",
-        "Public spending on children",
-        "Child rights governance",
-    ],
     "Participation and Civil Rights": [
         "Birth registration and identity",
         "Information, internet and protection of privacy",
         "Leisure and culture",
     ],
+    "Poverty and Adequate Standard of Living": [
+        "Child poverty and material deprivation",
+        "Social protection system",
+    ],
+    "Cross-Cutting": [
+        "Disability",
+        "Early childhood development",
+        "Adolescents",
+        "Gender",
+        "Environment and climate change",
+        "Disaster, conflict and displacement",
+    ],
+}
+
+domain_pages = {
+    "Child Rights Landscape and Governance": "child-rights",
+    "Health and Nutrition": "child-health",
+    "Education, Leisure, and Culture": "child-education",
+    "Family Environment and Protection": "child-protection",
+    "Participation and Civil Rights": "child-participation",
+    "Poverty and Adequate Standard of Living": "child-poverty",
+    "Cross-Cutting": "child-cross-cutting",
 }
 
 
@@ -832,6 +850,7 @@ def get_base_layout(**kwargs):
     themes_row_style = {"verticalAlign": "center", "display": "flex"}
     countries_filter_style = {"display": "block"}
     page_prefix = kwargs.get("page_prefix")
+    page_path = kwargs.get("page_path")
     domain_colour = kwargs.get("domain_colour")
 
     return html.Div(
@@ -851,15 +870,21 @@ def get_base_layout(**kwargs):
                                         className="heading-panel",
                                         style={"padding": 20},
                                         children=[
-                                            html.P(
-                                                main_subtitle,
-                                                id=f"{page_prefix}-subtitle",
+                                            dcc.Dropdown(
+                                                id=f"{page_prefix}-topic-dropdown",
+                                                options=[
+                                                    {"label": key, "value": value}
+                                                    for key, value in domain_pages.items()
+                                                ],
+                                                value=page_path,
                                                 className="heading-subtitle",
                                                 style={
                                                     "marginBottom": "0px",
                                                 },
+                                                clearable=False,
+                                                maxHeight=100,
                                             ),
-                                            html.H1(
+                                            html.H2(
                                                 id=f"{page_prefix}-main_title",
                                                 className="heading-title",
                                                 style={

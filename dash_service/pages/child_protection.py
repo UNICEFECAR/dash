@@ -301,6 +301,7 @@ packed_config = {}
 #     # order=6,
 # )
 page_prefix = "chp"
+page_path = "child-protection"
 domain_colour = "#e5ae4c"
 light_domain_colour = "#f4daaf"
 dark_domain_colour = "#9c6b16"
@@ -320,6 +321,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Family Environment and Protection",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -327,6 +329,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(

@@ -32,6 +32,7 @@ from dash_service.pages.transmonee import (
     aio_area_figure,
     fig_options,
     download_data,
+    dict_topics_subtopics,
     fa,
     unicef_country_prog,
     programme_country_indexes,
@@ -323,6 +324,7 @@ packed_config = {}
 #     # order=7,
 # )
 page_prefix = "cci"
+page_path = "child-cross-cutting"
 domain_colour = "#ec5e24"
 light_domain_colour = "##f7b9a1"
 dark_domain_colour = "#5e2008"
@@ -342,6 +344,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Cross-Cutting",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -349,6 +352,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(

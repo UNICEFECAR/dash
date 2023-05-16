@@ -331,6 +331,7 @@ packed_config = {}
 #     # order=5,
 # )
 page_prefix = "edu"
+page_path = "child-education"
 domain_colour = "#37568f"
 light_domain_colour = "#bdcbe5"
 dark_domain_colour = "#1d2c49"
@@ -350,6 +351,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Education, Leisure and Culture",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -357,6 +359,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(

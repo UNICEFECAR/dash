@@ -53,7 +53,7 @@ class CustomRouter:
             [Output(html_container_id, "children")],
             [Input("dash-location", "pathname"), Input("dash-location", "search")],
             [State("dash-location", "hash")],
-            prevent_initial_call=True
+            prevent_initial_call=True,
         )
         def custom_router_callb(pathname, search, url_hash):
             if pathname is None:

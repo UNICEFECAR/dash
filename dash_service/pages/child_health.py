@@ -404,6 +404,7 @@ packed_config = {}
 #     # order=2,
 # )
 page_prefix = "han"
+page_path = "child-health"
 domain_colour = "#3e7c49"
 light_domain_colour = "#e0f0e3"
 dark_domain_colour = "#24472a"
@@ -426,6 +427,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Health and Nutrition",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -433,6 +435,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(
