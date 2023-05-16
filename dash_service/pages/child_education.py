@@ -59,30 +59,6 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "EDUNF_ADMIN_L1_GLAST_MAT",
-                "suffix": "countries",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "EDUNF_ADMIN_L1_GLAST_REA",
-                "suffix": "countries",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "EDUNF_ADMIN_L2_MAT",
-                "suffix": "countries",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "EDUNF_ADMIN_L2_REA",
-                "suffix": "countries",
-                "min_max": False,
-            },
-            {
-                "name": "",
                 "indicator": "EDU_FIN_EXP_PT_GDP",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
@@ -123,24 +99,49 @@ page_config = {
                 "suffix": "countries guaranteeing at least one year",
                 "min_max": False,
             },
+            {
+                "name": "",
+                "indicator": "EDUNF_ADMIN_L1_GLAST_MAT",
+                "suffix": "countries",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDUNF_ADMIN_L1_GLAST_REA",
+                "suffix": "countries",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDUNF_ADMIN_L2_MAT",
+                "suffix": "countries",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDUNF_ADMIN_L2_REA",
+                "suffix": "countries",
+                "min_max": False,
+            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
+                "EDU_FIN_EXP_PT_GDP",
+                # taking these indicators out for the moment as they are no longer being published
+                # "EDU_FIN_EXP_L02",
+                # "EDU_FIN_EXP_L1",
+                # "EDU_FIN_EXP_L2",
+                # "EDU_FIN_EXP_L3",
+                "EDU_SDG_FREE_EDU_L02",
+                "EDU_SDG_COMP_EDU_L02",
                 "EDUNF_ADMIN_L1_GLAST_MAT",
                 "EDUNF_ADMIN_L1_GLAST_REA",
                 "EDUNF_ADMIN_L2_MAT",
                 "EDUNF_ADMIN_L2_REA",
-                "EDU_FIN_EXP_PT_GDP",
-                "EDU_FIN_EXP_L02",
-                "EDU_FIN_EXP_L1",
-                "EDU_FIN_EXP_L2",
-                "EDU_FIN_EXP_L3",
-                "EDU_SDG_FREE_EDU_L02",
-                "EDU_SDG_COMP_EDU_L02",
             ],
             "default_graph": "bar",
-            "default": "EDUNF_ADMIN_L1_GLAST_MAT",
+            "default": "EDU_FIN_EXP_PT_GDP",
         },
     },
     "EPA": {
@@ -233,7 +234,6 @@ page_config = {
                 "EDU_SDG_SCH_L1",
                 "EDU_SDG_SCH_L2",
                 "EDU_SDG_SCH_L3",
-                "EDUNF_ESL_L1",
             ],
             "default_graph": "bar",
             "default": "EDUNF_CR_L1",
@@ -242,18 +242,6 @@ page_config = {
     "EQU": {
         "NAME": "Learning quality and skills",
         "CARDS": [
-            {
-                "name": "",
-                "indicator": "EDUNF_RPTR_L1",
-                "suffix": "children",
-                "min_max": False,
-            },
-            {
-                "name": "",
-                "indicator": "EDUNF_RPTR_L2",
-                "suffix": "adolescents",
-                "min_max": False,
-            },
             {
                 "name": "",
                 "indicator": "EDU_PISA_LOW_ACHIEVE_MAT",
@@ -294,8 +282,6 @@ page_config = {
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
-                "EDUNF_RPTR_L1",
-                "EDUNF_RPTR_L2",
                 "EDU_PISA_LOW_ACHIEVE_MAT",
                 "EDU_PISA_LOW_ACHIEVE_REA",
                 "EDU_PISA_LOW_ACHIEVE_SCI",
@@ -304,7 +290,7 @@ page_config = {
                 "EDU_SDG_YOUTH_NEET",
             ],
             "default_graph": "bar",
-            "default": "EDUNF_RPTR_L1",
+            "default": "EDU_PISA_LOW_ACHIEVE_MAT",
         },
     },
     "ELE": {
@@ -335,38 +321,7 @@ page_config = {
     },
 }
 
-# customization of plots requested by Siraj
-packed_config = {
-    "packed_EXP": {
-        "indicators": [
-            "EDU_FIN_EXP_L02",
-            "EDU_FIN_EXP_L1",
-            "EDU_FIN_EXP_L2",
-            "EDU_FIN_EXP_L3",
-            "EDU_FIN_EXP_L4",
-            "EDU_FIN_EXP_L5T8",
-        ],
-        "card_key": "EDU_FIN_EXP_L02",
-        "mapping": {
-            "CODE": {
-                "CODE": {
-                    "EDU_FIN_EXP_L02": "Pre-primary",
-                    "EDU_FIN_EXP_L1": "Primary",
-                    "EDU_FIN_EXP_L2": "Lower-secondary",
-                    "EDU_FIN_EXP_L3": "Upper-secondary",
-                    "EDU_FIN_EXP_L4": "Post-secondary",
-                    "EDU_FIN_EXP_L5T8": "Tertiary",
-                }
-            },
-        },
-        "options": {
-            "bar": {
-                "color": "CODE",
-                "barmode": "relative",
-            }
-        },
-    }
-}
+packed_config = {}
 
 # register_page(
 #     __name__,
