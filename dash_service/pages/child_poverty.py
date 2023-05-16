@@ -221,6 +221,7 @@ packed_config = {}
 #     # order=3,
 # )
 page_prefix = "pov"
+page_path = "child-poverty"
 domain_colour = "#4c8cbb"
 light_domain_colour = "#c0d7e7"
 dark_domain_colour = "#1c374a"
@@ -240,6 +241,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Poverty and Adequate Standard of Living",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -247,6 +249,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(

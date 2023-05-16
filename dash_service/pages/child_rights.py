@@ -377,6 +377,7 @@ packed_config = {
 #     # order=1,
 # )
 page_prefix = "crg"
+page_path = "child-rights"
 domain_colour = "#562061"
 light_domain_colour = "#e7c9ed"
 dark_domain_colour = "#44194d"
@@ -396,6 +397,7 @@ def layout(page_slug=None, **query_parmas):
                     indicators=page_config,
                     main_subtitle="Child Rights Landscape and Governance",
                     page_prefix=page_prefix,
+                    page_path=page_path,
                     domain_colour=domain_colour,
                 ),
             ),
@@ -403,6 +405,17 @@ def layout(page_slug=None, **query_parmas):
         ],
         id="mainContainer",
     )
+
+
+# callback to navigate to different domain
+@callback(
+    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "hash"),
+    [Input(f"{page_prefix}-topic-dropdown", "value")],
+    prevent_initial_call=True,
+)
+def update_url(value):
+    return f"/transmonee/{value}", ""
 
 
 @callback(
