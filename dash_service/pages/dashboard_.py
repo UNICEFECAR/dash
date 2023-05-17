@@ -400,7 +400,7 @@ def download_structures(selections, page_config, lang):
         for data_node in theme_node[ELEM_ID_MAIN]["data"]:
             add_structure(data_structures, data_node, lang)
 
-    # areas
+    # charts
     if ELEM_ID_CHARTS in theme_node:
         for chart in theme_node[ELEM_ID_CHARTS]:
             if "data" in chart:

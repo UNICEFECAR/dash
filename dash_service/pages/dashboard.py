@@ -352,7 +352,15 @@ def download_structures(selections, page_config, lang):
                             add_structure(data_structures, elem["data"], lang)
                         elif isinstance(elem["data"], list):
                             for data_elem in elem["data"]:
-                                add_structure(data_structures, data_elem, lang)
+
+
+                                if "multi_indicator" in data_elem:
+                                    for multi_indic_node in data_elem["multi_indicator"]:
+                                        add_structure(data_structures, multi_indic_node, lang)
+                                else:
+
+
+                                    add_structure(data_structures, data_elem, lang)
 
     return data_structures
 
@@ -627,17 +635,38 @@ def update_charts(
     indicator_name = ""
     indic_labels = {}
 
-    if chart_type == "line":
-        df = get_data(data_cfg, years=time_period)
+    if "multi_indicator" in data_cfg:
+        tmp_inidic_label = []
+        for multi_indic_cfg in data_cfg["multi_indicator"]:
+            data_chunk = get_data(multi_indic_cfg, years=time_period)
+            struct_id = get_structure_id(multi_indic_cfg)
+            data_chunk = merge_with_codelist(
+                data_chunk, data_structures, struct_id, ID_REF_AREA
+            )
+            data_chunk = merge_with_codelist(
+                data_chunk, data_structures, struct_id, ID_DATA_SOURCE
+            )
+            indic_code = get_code_from_structure_and_dq(
+                data_structures, multi_indic_cfg, ID_INDICATOR
+            )
+            indic_labels[indic_code["id"]] = indic_code["name"]
+            tmp_inidic_label.append(indic_code["name"])
+            df = pd.concat([df, data_chunk])
+        tmp_inidic_label = list(set(tmp_inidic_label))  # remove duplicates
+        indicator_name = " - ".join(tmp_inidic_label)
     else:
-        df = get_data(data_cfg, years=time_period, lastnobservations=1)
-    struct_id = get_structure_id(data_cfg)
-    # Assign labels to codes
-    df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
-    df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
-    indicator_name = get_code_from_structure_and_dq(
-        data_structures, data_cfg, ID_INDICATOR
-    )["name"]
+
+        if chart_type == "line":
+            df = get_data(data_cfg, years=time_period)
+        else:
+            df = get_data(data_cfg, years=time_period, lastnobservations=1)
+        struct_id = get_structure_id(data_cfg)
+        # Assign labels to codes
+        df = merge_with_codelist(df, data_structures, struct_id, ID_REF_AREA)
+        df = merge_with_codelist(df, data_structures, struct_id, ID_DATA_SOURCE)
+        indicator_name = get_code_from_structure_and_dq(
+            data_structures, data_cfg, ID_INDICATOR
+        )["name"]
 
     if df.empty:
         return EMPTY_CHART, ""
