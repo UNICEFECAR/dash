@@ -555,6 +555,7 @@ def apply_update_country_selection(country_group, country_selection):
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
         Output(f"{page_prefix}-aio_area_data_info_rep", "children"),
+        Output(f"{page_prefix}-data-hover-body", "children"),
         Output(f"{page_prefix}-aio_area_data_info_nonrep", "children"),
         Output(f"{page_prefix}-no-data-hover-body", "children"),
         Output(f"{page_prefix}-aio_area_graph_info", "children"),

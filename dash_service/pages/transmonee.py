@@ -530,8 +530,9 @@ domain_pages = {
 
 
 def get_card_popover_body(sources):
-    """This function is used to generate the list of countries that are part of the card's
-        displayed result; it displays the countries as a list, each on a separate line
+    """
+    This function is used to generate the list of countries that are part of the card's
+    displayed result; it displays the countries as a list, each on a separate line
 
     Args:
         sources (_type_): _description_
@@ -546,7 +547,7 @@ def get_card_popover_body(sources):
         # sort by values if numeric else by country
         sort_col = "OBS_VALUE" if numeric else "Country_name"
         for index, source_info in sources.sort_values(by=sort_col).iterrows():
-            country_list.append(f"- {index[0]}, {source_info[0]} ({index[1]})")
+            country_list.append(f"- {index[0]}: {source_info[0]} ({index[1]})")
         card_countries = "\n".join(country_list)
         return card_countries
     else:
@@ -1298,11 +1299,11 @@ def get_base_layout(**kwargs):
                                                                 [
                                                                     dbc.PopoverHeader(
                                                                         html.P(
-                                                                            "Countries with  data for selected years"
+                                                                            "     Countries without data for selected years"
                                                                         )
                                                                     ),
                                                                     dbc.PopoverBody(
-                                                                        id=f"{page_prefix}-no-data-hover-body",
+                                                                        id=f"{page_prefix}-data-hover-body",
                                                                         style={
                                                                             "height": "200px",
                                                                             "overflowY": "auto",
@@ -1310,7 +1311,7 @@ def get_base_layout(**kwargs):
                                                                         },
                                                                     ),
                                                                 ],
-                                                                id=f"{page_prefix}-no-data-hover",
+                                                                id=f"{page_prefix}-data-hover",
                                                                 target=f"{page_prefix}-aio_area_data_info_rep",
                                                                 placement="top-start",
                                                                 trigger="hover",
@@ -1395,46 +1396,25 @@ def make_card(
                 ),
                 html.H4(suffix, className="card-title"),
                 html.P(name, className="lead"),
-                html.Div(
-                    fa("fas fa-info-circle"),
-                    id=f"{page_prefix}-indicator_card_info",
-                    style={
-                        "position": "absolute",
-                        "bottom": "10px",
-                        "right": "10px",
-                    },
-                ),
+                # html.Div(
+                #   fa("fas fa-info-circle"),
+                #  id=f"{page_prefix}-indicator_card_info",
+                # style={
+                #    "position": "absolute",
+                #   "bottom": "10px",
+                #  "right": "10px",
+                # },
+                # ),
             ],
             style={
                 "textAlign": "center",
             },
         ),
-        dbc.Popover(
-            [
-                dbc.PopoverHeader(
-                    html.A(
-                        html.P(f"Source(s): {indicator_sources}"),
-                        href=source_link,
-                        target="_blank",
-                    )
-                ),
-                dbc.PopoverBody(
-                    dcc.Markdown(get_card_popover_body(numerator_pairs)),
-                    style={
-                        "height": "200px",
-                        "overflowY": "auto",
-                        "whiteSpace": "pre-wrap",
-                    },
-                ),
-            ],
-            id=f"{page_prefix}-hover",
-            target=f"{page_prefix}-indicator_card_info",
-            trigger="hover",
-        ),
     ]
+
     # print("make_card: %s seconds" % (time.time() - start_time))
 
-    return card
+    return card, get_card_popover_body(numerator_pairs)
 
 
 def indicator_card(
@@ -2252,7 +2232,7 @@ def aio_area_figure(
                 ],
             )
         ],
-        ind_card,
+        ind_card[0],
         [
             html.Div(
                 [
@@ -2276,6 +2256,7 @@ def aio_area_figure(
                 ]
             )
         ],
+        ind_card[1],
         [
             html.Div(
                 [
