@@ -16,8 +16,7 @@ import time
 
 
 import dash_bootstrap_components as dbc
-import dash_treeview_antd
-from dash import dcc, html, get_asset_url, callback_context
+from dash import dcc, html, get_asset_url, callback_context, no_update
 
 
 from dash_service.components import fa
@@ -263,31 +262,6 @@ countries = list(countries_iso3_dict.keys())
 # create a list of country names in the same order as the countries_iso3_dict
 country_codes = list(reversed_countries_iso3_dict.keys())
 
-unicef_country_prog = [
-    "Albania",
-    "Armenia",
-    "Azerbaijan",
-    "Belarus",
-    "Bosnia and Herzegovina",
-    "Bulgaria",
-    "Croatia",
-    "Georgia",
-    "Greece",
-    "Kazakhstan",
-    "Kosovo (UN SC resolution 1244)",
-    "Kyrgyzstan",
-    "Montenegro",
-    "North Macedonia",
-    "Republic of Moldova",
-    "Romania",
-    "Serbia",
-    "Tajikistan",
-    "Türkiye",
-    "Turkmenistan",
-    "Ukraine",
-    "Uzbekistan",
-]
-
 country_selections = [
     {
         "label": "Eastern Europe and Central Asia",
@@ -355,6 +329,124 @@ country_selections = [
         ],
     },
 ]
+
+
+unicef_country_prog = [
+    "Albania",
+    "Armenia",
+    "Azerbaijan",
+    "Belarus",
+    "Bosnia and Herzegovina",
+    "Bulgaria",
+    "Croatia",
+    "Georgia",
+    "Greece",
+    "Kazakhstan",
+    "Kosovo (UN SC resolution 1244)",
+    "Kyrgyzstan",
+    "Montenegro",
+    "North Macedonia",
+    "Republic of Moldova",
+    "Romania",
+    "Serbia",
+    "Tajikistan",
+    "Türkiye",
+    "Turkmenistan",
+    "Ukraine",
+    "Uzbekistan",
+]
+
+eu_countries = [
+    "Austria",
+    "Belgium",
+    "Bulgaria",
+    "Croatia",
+    "Cyprus",
+    "Czech Republic",
+    "Denmark",
+    "Estonia",
+    "Finland",
+    "France",
+    "Germany",
+    "Greece",
+    "Hungary",
+    "Ireland",
+    "Italy",
+    "Latvia",
+    "Lithuania",
+    "Luxembourg",
+    "Malta",
+    "Netherlands",
+    "Poland",
+    "Portugal",
+    "Romania",
+    "Slovakia",
+    "Slovenia",
+    "Spain",
+    "Sweden",
+]
+
+efta_countries = ["Iceland", "Liechtenstein", "Norway", "Switzerland"]
+
+
+all_countries = [
+    "Albania",
+    "Andorra",
+    "Armenia",
+    "Austria",
+    "Azerbaijan",
+    "Belarus",
+    "Belgium",
+    "Bosnia and Herzegovina",
+    "Bulgaria",
+    "Croatia",
+    "Cyprus",
+    "Czech Republic",
+    "Denmark",
+    "Estonia",
+    "Finland",
+    "France",
+    "Georgia",
+    "Germany",
+    "Greece",
+    "Holy See",
+    "Hungary",
+    "Iceland",
+    "Ireland",
+    "Italy",
+    "Kazakhstan",
+    "Kosovo (UN SC resolution 1244)",
+    "Kyrgyzstan",
+    "Latvia",
+    "Liechtenstein",
+    "Lithuania",
+    "Luxembourg",
+    "Malta",
+    "Monaco",
+    "Montenegro",
+    "Netherlands",
+    "North Macedonia",
+    "Norway",
+    "Poland",
+    "Portugal",
+    "Republic of Moldova",
+    "Romania",
+    "Russian Federation",
+    "San Marino",
+    "Serbia",
+    "Slovakia",
+    "Slovenia",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "Tajikistan",
+    "Türkiye",
+    "Turkmenistan",
+    "Ukraine",
+    "United Kingdom",
+    "Uzbekistan",
+]
+
 
 data_sources = {
     "CDDEM": "CountDown 2030",
@@ -473,6 +565,53 @@ def get_search_countries(add_all):
     if add_all:
         countries_list.insert(0, all_countries)
     return countries_list
+
+
+def update_country_dropdown(country_group):
+    if country_group == "unicef":
+        options = [
+            {"label": country, "value": country} for country in unicef_country_prog
+        ]
+    elif country_group == "eu":
+        options = [{"label": country, "value": country} for country in eu_countries]
+    elif country_group == "efta":
+        options = [{"label": country, "value": country} for country in efta_countries]
+    else:
+        options = [{"label": country, "value": country} for country in all_countries]
+
+    options_with_all = [
+        {
+            "label": "Select all",
+            "value": "all_values",
+        }
+    ] + options
+
+    return options_with_all, "all_values"
+
+
+def update_country_selection(country_group, country_selection):
+    # Assign callback context to identify which input was triggered
+    ctx = callback_context
+    # Get input id
+    # As well as the explicitly defined input there is an initial call when app first loads with an empty trigger id
+    inputId = ctx.triggered[0]["prop_id"].split(".")[0]
+    # Check callback not triggered by dropdown item selection
+    if "country-filter" not in inputId:
+        return update_country_dropdown(country_group)
+    # Callback triggered by dropdown item selection
+    else:
+        # Check if:
+        # all_values has been added and other items still in selection
+        if country_selection[-1] == "all_values" and len(country_selection) > 1:
+            # No update to dropdown options, return only all_values
+            return no_update, ["all_values"]
+        # Additional item has been added and all_values still in selection
+        elif country_selection[0] == "all_values" and len(country_selection) > 1:
+            # No update to dropdown options, return only newly selected item
+            return no_update, [country_selection[1]]
+        else:
+            # No update to dropdown options or value
+            return no_update, no_update
 
 
 def get_sector(subtopic):
@@ -747,49 +886,6 @@ def get_filtered_dataset(
     return data
 
 
-# create two dicts, one for display tree and one with the index of all possible selections
-selection_index = collections.OrderedDict({"0": countries})
-selection_tree = dict(title="Select All", key="0", children=[])
-for num1, group in enumerate(country_selections):
-    parent = dict(title=group["label"], key=f"0-{num1}", children=[])
-    group_countries = []
-
-    for num2, region in enumerate(group["value"]):
-        child_region = dict(
-            title=region["label"] if "label" in region else region,
-            key=f"0-{num1}-{num2}",
-            children=[],
-        )
-        parent.get("children").append(child_region)
-        if "value" in region:
-            selection_index[f"0-{num1}-{num2}"] = (
-                region["value"]
-                if isinstance(region["value"], list)
-                else [region["value"]]
-            )
-            for num3, country in enumerate(region["value"]):
-                child_country = dict(title=country, key=f"0-{num1}-{num2}-{num3}")
-                if len(region["value"]) > 1:
-                    # only create child nodes for more then one child
-                    child_region.get("children").append(child_country)
-                    selection_index[f"0-{num1}-{num2}-{num3}"] = [country]
-                group_countries.append(country)
-        else:
-            selection_index[f"0-{num1}-{num2}"] = [region]
-            group_countries.append(region)
-
-    selection_index[f"0-{num1}"] = group_countries
-    selection_tree.get("children").append(parent)
-
-programme_country_indexes = [
-    next(
-        key
-        for key, value in selection_index.items()
-        if value[0] == item and len(value) == 1
-    )
-    for item in unicef_country_prog
-]
-
 # path to excel data dictionary in repo
 github_url = "https://github.com/UNICEFECAR/data-etl/raw/proto_API/tmee/data_in/data_dictionary/indicator_dictionary_TM_v8.xlsx"
 data_dict_content = requests.get(github_url).content
@@ -976,41 +1072,63 @@ def get_base_layout(**kwargs):
                                         width="auto",
                                     ),
                                     dbc.Col(
-                                        dbc.DropdownMenu(
-                                            label=f"Filter by country: {len(countries)} selected",
-                                            id=f"{page_prefix}-collapse-countries-button",
-                                            className="m-2",
-                                            color="secondary",
-                                            style=countries_filter_style,
-                                            children=[
-                                                dbc.Card(
-                                                    dash_treeview_antd.TreeView(
-                                                        id=f"{page_prefix}-country_selector",
-                                                        multiple=True,
-                                                        checkable=True,
-                                                        checked=["0"],
-                                                        expanded=["0"],
-                                                        data=selection_tree,
-                                                    ),
-                                                    className="overflow-auto",
-                                                    body=True,
-                                                ),
-                                            ],
-                                        ),
+                                        [
+                                            html.P(
+                                                "Filter by country group:",
+                                                style={"margin-bottom": "10px"},
+                                            ),
+                                            dcc.Dropdown(
+                                                id=f"{page_prefix}-country-group",
+                                                options=[
+                                                    {
+                                                        "label": "All countries",
+                                                        "value": "all",
+                                                    },
+                                                    {
+                                                        "label": "UNICEF programme countries",
+                                                        "value": "unicef",
+                                                    },
+                                                    {
+                                                        "label": "EU countries",
+                                                        "value": "eu",
+                                                    },
+                                                    {
+                                                        "label": "EFTA countries",
+                                                        "value": "efta",
+                                                    },
+                                                ],
+                                                value="all",
+                                                placeholder="Select country group",
+                                                style={"width": "250px"},
+                                            ),
+                                        ],
                                         width="auto",
                                     ),
                                     dbc.Col(
-                                        dbc.Checklist(
-                                            options=[
-                                                {
-                                                    "label": "Show only UNICEF programme countries"
-                                                }
-                                            ],
-                                            style={"color": "DeepSkyBlue"},
-                                            value=[],
-                                            id=f"{page_prefix}-programme-toggle",
-                                            switch=True,
-                                        ),
+                                        [
+                                            html.P(
+                                                "Filter by country:",
+                                                style={"margin-bottom": "10px"},
+                                            ),
+                                            dcc.Dropdown(
+                                                id=f"{page_prefix}-country-filter",
+                                                options=[
+                                                    {
+                                                        "label": "Select all",
+                                                        "value": "all_values",
+                                                    }
+                                                ]
+                                                + [
+                                                    {"label": country, "value": country}
+                                                    for country in all_countries
+                                                ],
+                                                value=["all_values"],
+                                                placeholder="Select country",
+                                                multi=True,
+                                                clearable=False,
+                                                style={"width": "300px"},
+                                            ),
+                                        ],
                                         width="auto",
                                     ),
                                     dbc.Col(
@@ -1170,14 +1288,17 @@ def get_base_layout(**kwargs):
                                                                 dbc.Alert(
                                                                     color="secondary",
                                                                 ),
-                                                                id=f"{page_prefix}-aio_area_data_info",
+                                                                id=f"{page_prefix}-aio_area_data_info_rep",
                                                                 className="float-start",
+                                                                style={
+                                                                    "padding-right": "15px"
+                                                                },
                                                             ),
                                                             dbc.Popover(
                                                                 [
                                                                     dbc.PopoverHeader(
                                                                         html.P(
-                                                                            "Countries without data"
+                                                                            "Countries with  data for selected years"
                                                                         )
                                                                     ),
                                                                     dbc.PopoverBody(
@@ -1190,7 +1311,35 @@ def get_base_layout(**kwargs):
                                                                     ),
                                                                 ],
                                                                 id=f"{page_prefix}-no-data-hover",
-                                                                target=f"{page_prefix}-aio_area_data_info",
+                                                                target=f"{page_prefix}-aio_area_data_info_rep",
+                                                                placement="top-start",
+                                                                trigger="hover",
+                                                            ),
+                                                            html.Div(
+                                                                dbc.Alert(
+                                                                    color="secondary",
+                                                                ),
+                                                                id=f"{page_prefix}-aio_area_data_info_nonrep",
+                                                                className="float-start",
+                                                            ),
+                                                            dbc.Popover(
+                                                                [
+                                                                    dbc.PopoverHeader(
+                                                                        html.P(
+                                                                            "     Countries without data for selected years"
+                                                                        )
+                                                                    ),
+                                                                    dbc.PopoverBody(
+                                                                        id=f"{page_prefix}-no-data-hover-body",
+                                                                        style={
+                                                                            "height": "200px",
+                                                                            "overflowY": "auto",
+                                                                            "whiteSpace": "pre-wrap",
+                                                                        },
+                                                                    ),
+                                                                ],
+                                                                id=f"{page_prefix}-no-data-hover",
+                                                                target=f"{page_prefix}-aio_area_data_info_nonrep",
                                                                 placement="top-start",
                                                                 trigger="hover",
                                                             ),
@@ -1591,44 +1740,36 @@ def selections(theme, indicators):
     return selections
 
 
-def get_filters(years_slider, country_selector, programme_toggle):
+def get_filters(years_slider, countries, country_group):
     # start_time = time.time()
-    ctx = callback_context
-    selected = ctx.triggered[0]["prop_id"].split(".")[0]
-    countries_selected = set()
-    if programme_toggle and "programme-toggle" in selected:
-        countries_selected = unicef_country_prog
-        country_selector = programme_country_indexes
-    # Add the condition to know when the user unchecks the UNICEF country programs!
-    elif not country_selector or (
-        not programme_toggle and "programme-toggle" in selected
-    ):
-        countries_selected = countries
-        # Add this to check all the items in the selection tree
-        country_selector = ["0"]
-    else:
-        for index in country_selector:
-            countries_selected.update(selection_index[index])
-            if countries_selected == countries:
-                # if all countries are all selected then stop
-                break
 
-    countries_selected = list(countries_selected)
-    country_text = f"{len(countries_selected)}"
+    if "all_values" in countries:
+        if country_group == "unicef":
+            countries = unicef_country_prog
+        elif country_group == "eu":
+            countries = eu_countries
+        elif country_group == "efta":
+            countries = efta_countries
+        else:
+            countries = all_countries
+
+    filter_countries = countries
+    country_text = f"{len(filter_countries)}"
     # need to include the last selected year as it was exluded in the previous method
     selected_years = years[years_slider[0] : years_slider[1] + 1]
 
     # Use the dictionary to return the values of the selected countries based on the SDMX ISO3 codes
     countries_selected_codes = [
-        countries_iso3_dict[country] for country in countries_selected
+        countries_iso3_dict[country] for country in filter_countries
     ]
     filter_dict = dict(
         years=selected_years,
         countries=countries_selected_codes,
-        count_names=countries_selected,
+        count_names=filter_countries,
     )
     # print("filters: %s seconds" % (time.time() - start_time))
-    return (filter_dict, country_selector, selected_years, country_text)
+    print(filter_countries)
+    return (filter_dict, filter_countries, selected_years, country_text)
 
 
 def themes(selections, indicators_dict, page_prefix):
@@ -1778,8 +1919,8 @@ def default_compare(compare_options, selected_type, indicators_dict, theme):
 def aio_area_figure(
     compare,
     years_slider,
-    country_selector,
-    programme_toggle,
+    countries,
+    country_group,
     selections,
     indicators_dict,
     buttons_properties,
@@ -1793,7 +1934,9 @@ def aio_area_figure(
 ):
     # start_time = time.time()
     filters, country_selector, selected_years, country_text = get_filters(
-        years_slider, country_selector, programme_toggle
+        years_slider,
+        countries,
+        country_group,
     )
 
     # assumes indicator is not empty
@@ -2045,13 +2188,14 @@ def aio_area_figure(
     # number of countries from selection
     count_sel = len(filters["countries"])
 
+    # countries reporting
+    rep_count = count_sel - len(not_rep_count)
+
     json_data = data.to_dict()
 
     # print("aio_area_figure: %s seconds" % (time.time() - start_time))
     return (
-        country_selector,
         f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
-        f"Filter by country: {country_text} selected",
         fig,
         [
             html.Div(
@@ -2083,7 +2227,30 @@ def aio_area_figure(
             html.Div(
                 [
                     html.P(
-                        "Countries without data for selected years: ",
+                        "Countries with data: ",
+                        style={
+                            "display": "inline-block",
+                            "textDecoration": "underline",
+                            "fontWeight": "bold",
+                        },
+                    ),
+                    html.P(
+                        f" {rep_count} / {count_sel}",
+                        style={
+                            "display": "inline-block",
+                            "fontWeight": "bold",
+                            "color": domain_colour,
+                            "whiteSpace": "pre",
+                        },
+                    ),
+                ]
+            )
+        ],
+        [
+            html.Div(
+                [
+                    html.P(
+                        "Countries without data: ",
                         style={
                             "display": "inline-block",
                             "textDecoration": "underline",

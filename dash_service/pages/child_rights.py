@@ -32,11 +32,10 @@ from dash_service.pages.transmonee import (
     aio_area_figure,
     fig_options,
     download_data,
+    update_country_selection,
     fa,
     unicef_country_prog,
-    programme_country_indexes,
     countries,
-    selection_index,
     years,
     countries_iso3_dict,
     get_filtered_dataset,
@@ -507,14 +506,26 @@ def apply_download_data(n_clicks, data):
 
 
 @callback(
+    Output(f"{page_prefix}-country-filter", "options"),
+    Output(f"{page_prefix}-country-filter", "value"),
     [
-        Output(f"{page_prefix}-country_selector", "checked"),
+        Input(f"{page_prefix}-country-group", "value"),
+        Input(f"{page_prefix}-country-filter", "value"),
+    ],
+    prevent_initial_call=True,
+)
+def apply_update_country_selection(country_group, country_selection):
+    return update_country_selection(country_group, country_selection)
+
+
+@callback(
+    [
         Output(f"{page_prefix}-collapse-years-button", "label"),
-        Output(f"{page_prefix}-collapse-countries-button", "label"),
         Output({"type": "area", "index": f"{page_prefix}-AIO_AREA"}, "figure"),
         Output(f"{page_prefix}-aio_area_area_info", "children"),
         Output(f"{page_prefix}-indicator_card", "children"),
-        Output(f"{page_prefix}-aio_area_data_info", "children"),
+        Output(f"{page_prefix}-aio_area_data_info_rep", "children"),
+        Output(f"{page_prefix}-aio_area_data_info_nonrep", "children"),
         Output(f"{page_prefix}-no-data-hover-body", "children"),
         Output(f"{page_prefix}-aio_area_graph_info", "children"),
         Output(f"{page_prefix}-data-store", "data"),
@@ -522,8 +533,8 @@ def apply_download_data(n_clicks, data):
     [
         Input({"type": "area_breakdowns", "index": f"{page_prefix}-AIO_AREA"}, "value"),
         Input(f"{page_prefix}-year_slider", "value"),
-        Input(f"{page_prefix}-country_selector", "checked"),
-        Input(f"{page_prefix}-programme-toggle", "value"),
+        Input(f"{page_prefix}-country-filter", "value"),
+        Input(f"{page_prefix}-country-group", "value"),
     ],
     [
         State(f"{page_prefix}-store", "data"),
@@ -536,8 +547,8 @@ def apply_download_data(n_clicks, data):
 def apply_aio_area_figure(
     compare,
     years_slider,
-    country_selector,
-    programme_toggle,
+    countries,
+    country_group,
     selections,
     indicators_dict,
     buttons_properties,
@@ -546,8 +557,8 @@ def apply_aio_area_figure(
     return aio_area_figure(
         compare,
         years_slider,
-        country_selector,
-        programme_toggle,
+        countries,
+        country_group,
         selections,
         indicators_dict,
         buttons_properties,
