@@ -1299,7 +1299,7 @@ def get_base_layout(**kwargs):
                                                                 [
                                                                     dbc.PopoverHeader(
                                                                         html.P(
-                                                                            "     Countries without data for selected years"
+                                                                            "     Countries with data for selected years"
                                                                         )
                                                                     ),
                                                                     dbc.PopoverBody(
