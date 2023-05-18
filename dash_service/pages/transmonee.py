@@ -1939,70 +1939,100 @@ def aio_area_figure(
         country_group,
     )
 
-    # assumes indicator is not empty
-    indicator = [
-        but_prop["props"]["id"]["index"]
-        for but_prop in buttons_properties
-        if but_prop["props"]["active"] is True
-    ][0]
+    try:
+        # assumes indicator is not empty
+        indicator = [
+            but_prop["props"]["id"]["index"]
+            for but_prop in buttons_properties
+            if but_prop["props"]["active"] is True
+        ][0]
 
-    area = "AIO_AREA"
-    default_graph = indicators_dict[selections["theme"]][area].get(
-        "default_graph", "line"
-    )
-
-    fig_type = selected_type if selected_type else default_graph
-    fig_config = indicators_dict[selections["theme"]][area]["graphs"][fig_type].copy()
-    options = fig_config.get("options")
-    traces = fig_config.get("trace_options")
-    layout_opt = fig_config.get("layout_options")
-    dimension = (
-        False
-        if fig_type in ["count_bar", "line", "map"] or compare == "TOTAL"
-        else compare
-    )
-    indicator_name = str(indicator_names.get(indicator, ""))
-
-    if indicator not in packed_config:
-        # query one indicator
-        data = get_data(
-            [indicator],
-            filters["years"],
-            filters["countries"],
-            compare,
-            latest_data=False if fig_type == "line" else True,
+        area = "AIO_AREA"
+        default_graph = indicators_dict[selections["theme"]][area].get(
+            "default_graph", "line"
         )
 
-    else:
-        # query packed indicators
-        data = get_data(
-            packed_config[indicator]["indicators"],
-            filters["years"],
-            filters["countries"],
-            compare,
-            latest_data=False if fig_type == "line" else True,
+        fig_type = selected_type if selected_type else default_graph
+        fig_config = indicators_dict[selections["theme"]][area]["graphs"][
+            fig_type
+        ].copy()
+        options = fig_config.get("options")
+        traces = fig_config.get("trace_options")
+        layout_opt = fig_config.get("layout_options")
+        dimension = (
+            False
+            if fig_type in ["count_bar", "line", "map"] or compare == "TOTAL"
+            else compare
         )
+        indicator_name = str(indicator_names.get(indicator, ""))
 
-        # map columns
-        if "mapping" in packed_config[indicator]:
-            for key_col in packed_config[indicator]["mapping"]:
-                map_col = next(iter(packed_config[indicator]["mapping"][key_col]))
-                data[map_col] = data[key_col].map(
-                    packed_config[indicator]["mapping"][key_col][map_col]
-                )
-        if "agg" in packed_config[indicator]:
-            # aggregation depends in different plot types
-            if fig_type in packed_config[indicator]["agg"]:
-                data = eval(packed_config[indicator]["agg"][fig_type])
+        if indicator not in packed_config:
+            # query one indicator
+            data = get_data(
+                [indicator],
+                filters["years"],
+                filters["countries"],
+                compare,
+                latest_data=False if fig_type == "line" else True,
+            )
 
-    # check if the dataframe is empty meaning no data to display as per the user's selection
-    if data.empty:
-        return EMPTY_CHART, "", [], [], []
-    else:
-        data.sort_values(
-            "OBS_VALUE",
-            ascending=False if data.OBS_VALUE.dtype.kind in "iufc" else True,
-            inplace=True,
+        else:
+            # query packed indicators
+            data = get_data(
+                packed_config[indicator]["indicators"],
+                filters["years"],
+                filters["countries"],
+                compare,
+                latest_data=False if fig_type == "line" else True,
+            )
+
+            # map columns
+            if "mapping" in packed_config[indicator]:
+                for key_col in packed_config[indicator]["mapping"]:
+                    map_col = next(iter(packed_config[indicator]["mapping"][key_col]))
+                    data[map_col] = data[key_col].map(
+                        packed_config[indicator]["mapping"][key_col][map_col]
+                    )
+            if "agg" in packed_config[indicator]:
+                # aggregation depends in different plot types
+                if fig_type in packed_config[indicator]["agg"]:
+                    data = eval(packed_config[indicator]["agg"][fig_type])
+
+        # check if the dataframe is empty meaning no data to display as per the user's selection
+        if data.empty:
+            return (
+                f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
+                EMPTY_CHART,
+                "",
+                [],
+                [],
+                [],
+                "",
+                [],
+                [],
+            )
+        else:
+            data.sort_values(
+                "OBS_VALUE",
+                ascending=False if data.OBS_VALUE.dtype.kind in "iufc" else True,
+                inplace=True,
+            )
+
+    except requests.exceptions.HTTPError as err:
+        error_message = html.Div(
+            f"Error retrieving data: {err}",
+            style={"color": "red", "font-weight": "bold", "margin-bottom": "10px"},
+        )
+        return (
+            f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
+            EMPTY_CHART,
+            "",
+            [],
+            [],
+            [],
+            "",
+            [],
+            [],
         )
 
     # indicator card
