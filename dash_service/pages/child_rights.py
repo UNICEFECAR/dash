@@ -169,14 +169,14 @@ page_config = {
                 "indicator": "PP_SG_NHR_NOAPPLN",
                 "suffix": "countries with 'D' status",
                 "min_max": False,
-                "data_provided": True,
+                # "data_provided": True,
             },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
-            "indicators": ["packed_CRG"],
-            "default_graph": "bar",
-            "default": "packed_CRG",
+            "indicators": ["PP_SG_NHR_NOAPPLN"],
+            "default_graph": "map",
+            "default": "PP_SG_NHR_NOAPPLN",
         },
     },
     "SPE": {

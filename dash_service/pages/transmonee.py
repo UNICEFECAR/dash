@@ -57,7 +57,7 @@ EMPTY_CHART = {
         "yaxis": {"visible": False},
         "annotations": [
             {
-                "text": "Data request failed: reclick indicator button.<br>If this message keeps appearing,<br>then no data is available for the selected filters.",
+                "text": "No data is available for the selected filters.",
                 "xref": "paper",
                 "yref": "paper",
                 "showarrow": False,
@@ -1198,25 +1198,29 @@ def get_base_layout(**kwargs):
                                             [
                                                 dbc.Col(
                                                     [
-                                                        html.Div(
+                                                        dcc.Loading(
                                                             [
-                                                                dbc.ButtonGroup(
-                                                                    id={
-                                                                        "type": "button_group",
-                                                                        "index": f"{page_prefix}-AIO_AREA",
-                                                                    },
-                                                                    vertical=True,
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.ButtonGroup(
+                                                                            id={
+                                                                                "type": "button_group",
+                                                                                "index": f"{page_prefix}-AIO_AREA",
+                                                                            },
+                                                                            vertical=True,
+                                                                            style={
+                                                                                "marginBottom": "20px",
+                                                                                "width": "95%",
+                                                                            },
+                                                                            class_name="theme_buttons",
+                                                                        ),
+                                                                    ],
                                                                     style={
-                                                                        "marginBottom": "20px",
-                                                                        "width": "95%",
+                                                                        "maxHeight": "350px",
+                                                                        "overflowY": "scroll",
                                                                     },
-                                                                    class_name="theme_buttons",
                                                                 ),
                                                             ],
-                                                            style={
-                                                                "maxHeight": "350px",
-                                                                "overflowY": "scroll",
-                                                            },
                                                         ),
                                                         html.Br(),
                                                         dbc.Card(
@@ -1280,7 +1284,7 @@ def get_base_layout(**kwargs):
                                                                             "displaylogo": False,
                                                                         },
                                                                     )
-                                                                ]
+                                                                ],
                                                             ),
                                                             dcc.Markdown(
                                                                 id=f"{page_prefix}-aio_area_graph_info",
@@ -1364,7 +1368,10 @@ def get_base_layout(**kwargs):
                                 ]
                             ),
                         ],
-                        id={"type": "area_parent", "index": f"{page_prefix}-AIO_AREA"},
+                        id={
+                            "type": "area_parent",
+                            "index": f"{page_prefix}-AIO_AREA",
+                        },
                     )
                 )
             ),
@@ -1430,42 +1437,59 @@ def indicator_card(
     page_prefix=None,
     domain_colour="#1cabe2",
 ):
-    # start_time = time.time()
-    indicators = numerator.split(",")
+    try:
+        # start_time = time.time()
+        indicators = numerator.split(",")
 
-    # TODO: Change to use albertos config
-    # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
-    breakdown = "TOTAL"
-    # define the empty dimensions dict to be filled based on the card data filters
-    dimensions = {}
-    if age_group is not None:
-        dimensions["AGE"] = [age_group]
-    if sex_code is not None:
-        dimensions["SEX"] = [sex_code]
+        # TODO: Change to use albertos config
+        # lbassil: had to change this to cater for 2 dimensions set to the indicator card like age and sex
+        breakdown = "TOTAL"
+        # define the empty dimensions dict to be filled based on the card data filters
+        dimensions = {}
+        if age_group is not None:
+            dimensions["AGE"] = [age_group]
+        if sex_code is not None:
+            dimensions["SEX"] = [sex_code]
 
-    filtered_data = get_data(
-        indicators,
-        filters["years"],
-        filters["countries"],
-        breakdown,
-        dimensions,
-        latest_data=True,
-    )
+        filtered_data = get_data(
+            indicators,
+            filters["years"],
+            filters["countries"],
+            breakdown,
+            dimensions,
+            latest_data=True,
+        )
 
-    df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
-    unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
-    indicator_sources = (
-        "; ".join(list(unique_indicator_sources))
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    source_link = (
-        df_indicator_sources["Source_Link"].unique()[0]
-        if len(unique_indicator_sources) > 0
-        else ""
-    )
-    # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
-    if filtered_data.empty:
+        df_indicator_sources = df_sources[df_sources["Code"].isin(indicators)]
+        unique_indicator_sources = df_indicator_sources["Source_Full"].unique()
+        indicator_sources = (
+            "; ".join(list(unique_indicator_sources))
+            if len(unique_indicator_sources) > 0
+            else ""
+        )
+        source_link = (
+            df_indicator_sources["Source_Link"].unique()[0]
+            if len(unique_indicator_sources) > 0
+            else ""
+        )
+        # lbassil: add this check because we are getting an exception where there is no data; i.e. no totals for all dimensions mostly age for the selected indicator
+        if filtered_data.empty:
+            indicator_header = "No data"
+            indicator_sources = "NA"
+            suffix = ""
+            numerator_pairs = []
+            return make_card(
+                name,
+                suffix,
+                indicator_sources,
+                source_link,
+                indicator_header,
+                numerator_pairs,
+                page_prefix,
+                domain_colour,
+            )[0]
+
+    except requests.exceptions.HTTPError as err:
         indicator_header = "No data"
         indicator_sources = "NA"
         suffix = ""
@@ -1479,7 +1503,7 @@ def indicator_card(
             numerator_pairs,
             page_prefix,
             domain_colour,
-        )
+        )[0]
 
     # select last value for each country
     indicator_values = (
@@ -1986,6 +2010,7 @@ def aio_area_figure(
                 "",
                 [],
                 [],
+                "",
                 [],
                 "",
                 [],
@@ -1999,16 +2024,13 @@ def aio_area_figure(
             )
 
     except requests.exceptions.HTTPError as err:
-        error_message = html.Div(
-            f"Error retrieving data: {err}",
-            style={"color": "red", "font-weight": "bold", "margin-bottom": "10px"},
-        )
         return (
             f"Filter by years: {selected_years[0]} - {selected_years[-1]}",
             EMPTY_CHART,
             "",
             [],
             [],
+            "",
             [],
             "",
             [],
