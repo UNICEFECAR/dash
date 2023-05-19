@@ -11,6 +11,8 @@ from jinja2.utils import markupsafe
 from .extensions import admin
 from .models import Page, DataExplorer, MenuPage
 from sqlalchemy.sql import func
+from wtforms.fields import PasswordField
+from wtforms import validators
 
 
 def is_admin():
@@ -148,6 +150,7 @@ class DataExplorerView(ModelView):
             DataExplorer.project_id == flask_login.current_user.project_id
         )
 
+
 class MenuPageView(ModelView):
     column_display_all_relations = True
     column_list = (
@@ -195,6 +198,23 @@ class MenuPageView(ModelView):
 
 
 class UserView(ModelView):
+    #On create form add the DataRequired validator
+    def create_form(self, obj=None):
+        form = super().create_form(obj)
+        form.password2.validators = [validators.DataRequired()]
+        # , [validators.DataRequired()]
+
+        return form
+    #On edit form add the leave blank to keep old password message
+    def edit_form(self, obj=None):
+        form = super().edit_form(obj)
+
+        form.password2.description = (
+            "Type a new passoword to change it, leave blank otherwise"
+        )
+
+        return form
+
     column_display_all_relations = True
     column_list = (
         "id",
@@ -208,18 +228,52 @@ class UserView(ModelView):
         "updated_at",
     )
 
+    # The order of the fileds
+    form_columns = (
+        "project",
+        "name",
+        "email",
+        # "password",
+        "password2",
+        "is_admin",
+        "is_user_active",
+        "created_at",
+        "updated_at",
+    )
+
     form_widget_args = {
         "created_at": {"disabled": True},
         "updated_at": {"disabled": True},
     }
 
+
+    #Create a password2 field to prevent the form overwriting the old password
+    form_excluded_columns = "password"
+    form_extra_fields = {"password2": PasswordField("Password")}
+
     def on_model_change(self, form, instance, is_created):
+
+        # if is_created:
+        #     instance.set_password(form.password.data)
+        # else:
+        #     old_pwd = form.password.object_data
+        #     if old_pwd != instance.password:
+        #         instance.set_password(form.password.data)
+
+        #User created? add the pwd
         if is_created:
-            instance.set_password(form.password.data)
+            instance.set_password(form.password2.data)
+        #User edited? If password2 filed is empty kepp old pwd, replace otherwise
         else:
-            old_pwd = form.password.object_data
-            if old_pwd != instance.password:
-                instance.set_password(form.password.data)
+            old_hashed_pwd = instance.password
+            if form.password2.data.strip()!="":
+                instance.set_password(form.password2.data)
+            else:
+                instance.password=old_hashed_pwd
+
+        
+
+        #raise Exception("prevent update")
 
     def is_accessible(self):
         return is_admin()
