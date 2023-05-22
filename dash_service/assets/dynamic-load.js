@@ -113,7 +113,7 @@ if (browserOk) {
         }
         el = document.getElementsByClassName("custom-embed");
         if (el){
-            el.classList.remove("embed-small");
+            el[0].classList.remove("embed-small");
         }
     }
 
