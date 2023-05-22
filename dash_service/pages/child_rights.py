@@ -33,20 +33,6 @@ from dash_service.pages.transmonee import (
     fig_options,
     download_data,
     update_country_selection,
-    fa,
-    unicef_country_prog,
-    countries,
-    years,
-    countries_iso3_dict,
-    get_filtered_dataset,
-    df_sources,
-    indicator_names,
-    indicators_config,
-    EMPTY_CHART,
-    DEFAULT_LABELS,
-    dimension_names,
-    get_card_popover_body,
-    colours,
 )
 
 min_max_card_suffix = "min - max values"
@@ -166,17 +152,17 @@ page_config = {
         "CARDS": [
             {
                 "name": "",
-                "indicator": "PP_SG_NHR_NOAPPLN",
-                "suffix": "countries with 'D' status",
+                "indicator": "PP_SG_NHR_IMPLN",
+                "suffix": "countries in compliance with the Paris Principles",
                 "min_max": False,
                 # "data_provided": True,
             },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
-            "indicators": ["PP_SG_NHR_NOAPPLN"],
+            "indicators": ["PP_SG_NHR_IMPLN"],
             "default_graph": "map",
-            "default": "PP_SG_NHR_NOAPPLN",
+            "default": "PP_SG_NHR_IMPLN",
         },
     },
     "SPE": {
@@ -428,6 +414,7 @@ def apply_selections(theme, indicator):
 
 @callback(
     Output(f"{page_prefix}-main_title", "children"),
+    Output(f"{page_prefix}-info-tooltip", "children"),
     Output(f"{page_prefix}-themes", "children"),
     Input(f"{page_prefix}-store", "data"),
     State(f"{page_prefix}-indicators", "data"),
