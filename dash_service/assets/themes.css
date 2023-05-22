@@ -26,6 +26,10 @@
     background-color: white;
     border-color: #562061;
     border-width: 3px;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-crg-sub.focus,
@@ -76,7 +80,7 @@
     border-width: 3px;
     text-transform: capitalize;
     display: flex;
-    align-content: center;
+    justify-content: center;
     align-items: center;
 }
 
@@ -124,6 +128,10 @@
     color: #4c8cbb;
     background-color: white;
     border-color: #4c8cbb;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-pov-sub.focus,
@@ -171,6 +179,10 @@
     color: #37568f;
     background-color: white;
     border-color: #37568f;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-edu-sub.focus,
@@ -217,6 +229,10 @@
     color: #e5ae4c;
     background-color: white;
     border-color: #e5ae4c;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-chp-sub.focus,
@@ -263,6 +279,10 @@
     color: #861c3f;
     background-color: white;
     border-color: #861c3f;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-par-sub.focus,
@@ -309,6 +329,10 @@
     color: #ec5e24;
     background-color: white;
     border-color: #ec5e24;
+    text-transform: capitalize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme_buttons .btn-cci-sub.focus,

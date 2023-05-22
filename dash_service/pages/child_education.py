@@ -34,19 +34,6 @@ from dash_service.pages.transmonee import (
     download_data,
     update_country_selection,
     fa,
-    unicef_country_prog,
-    countries,
-    years,
-    countries_iso3_dict,
-    get_filtered_dataset,
-    df_sources,
-    indicator_names,
-    indicators_config,
-    EMPTY_CHART,
-    DEFAULT_LABELS,
-    dimension_names,
-    get_card_popover_body,
-    colours,
 )
 
 
@@ -382,6 +369,7 @@ def apply_selections(theme, indicator):
 
 @callback(
     Output(f"{page_prefix}-main_title", "children"),
+    Output(f"{page_prefix}-info-tooltip", "children"),
     Output(f"{page_prefix}-themes", "children"),
     Input(f"{page_prefix}-store", "data"),
     State(f"{page_prefix}-indicators", "data"),

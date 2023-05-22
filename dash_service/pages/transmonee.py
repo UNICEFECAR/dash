@@ -135,7 +135,7 @@ dimension_names = {
     "WEALTH_QUINTILE": "Wealth_name",
 }
 
-years = list(range(2000, 2023))
+years = list(range(2000, 2024))
 
 # a key:value dictionary of countries where the 'key' is the country name as displayed in the selection
 # tree whereas the 'value' is the country name as returned by the sdmx list: https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/codelist/UNICEF/CL_COUNTRY/1.0
@@ -261,74 +261,6 @@ countries = list(countries_iso3_dict.keys())
 
 # create a list of country names in the same order as the countries_iso3_dict
 country_codes = list(reversed_countries_iso3_dict.keys())
-
-country_selections = [
-    {
-        "label": "Eastern Europe and Central Asia",
-        "value": [
-            "Albania",
-            "Armenia",
-            "Azerbaijan",
-            "Belarus",
-            "Bosnia and Herzegovina",
-            "Bulgaria",
-            "Croatia",
-            "Georgia",
-            "Kazakhstan",
-            "Kosovo (UN SC resolution 1244)",
-            "Kyrgyzstan",
-            "Montenegro",
-            "North Macedonia",
-            "Republic of Moldova",
-            "Romania",
-            "Russian Federation",
-            "Serbia",
-            "Tajikistan",
-            "Türkiye",
-            "Turkmenistan",
-            "Uzbekistan",
-            "Ukraine",
-        ],
-    },
-    {
-        "label": "Western Europe",
-        "value": [
-            "Andorra",
-            "Austria",
-            "Belgium",
-            "Cyprus",
-            "Czech Republic",
-            "Denmark",
-            "Estonia",
-            "Finland",
-            "France",
-            "Germany",
-            "Greece",
-            "Holy See",
-            "Hungary",
-            "Iceland",
-            "Ireland",
-            "Italy",
-            "Latvia",
-            "Liechtenstein",
-            "Lithuania",
-            "Luxembourg",
-            "Malta",
-            "Monaco",
-            "Netherlands",
-            "Norway",
-            "Poland",
-            "Portugal",
-            "San Marino",
-            "Slovakia",
-            "Slovenia",
-            "Spain",
-            "Sweden",
-            "Switzerland",
-            "United Kingdom",
-        ],
-    },
-]
 
 
 unicef_country_prog = [
@@ -555,20 +487,48 @@ def get_card_popover_body(sources):
 
 
 def get_search_countries(add_all):
-    all_countries = {"label": "All", "value": "All"}
+    """
+    Get a list of countries for search, optionally including an "All" option.
+
+    Args:
+        add_all (bool): If True, include an "All" option in the list.
+
+    Returns:
+        list: A list of dictionaries, where each dictionary represents a country
+              with 'label' as the country name and 'value' as the ISO3 code.
+
+    """
+    all_countries = {"label": "All", "value": "All"}  # Dictionary for "All" option
     countries_list = [
         {
             "label": key,
             "value": countries_iso3_dict[key],
         }
         for key in countries_iso3_dict.keys()
-    ]
+    ]  # List comprehension to create a list of country dictionaries
+
     if add_all:
-        countries_list.insert(0, all_countries)
+        countries_list.insert(
+            0, all_countries
+        )  # Insert "All" option at the beginning of the list
+
     return countries_list
 
 
 def update_country_dropdown(country_group):
+    """
+    Update the country dropdown options based on the selected country group.
+
+    Args:
+        country_group (str): The selected country group ("unicef", "eu", "efta", or any other value).
+
+    Returns:
+        tuple: A tuple containing two elements:
+               - A list of dictionaries representing the country dropdown options,
+                 where each dictionary has 'label' as the country name and 'value' as the country name.
+               - The default value to be selected in the dropdown.
+
+    """
     if country_group == "unicef":
         options = [
             {"label": country, "value": country} for country in unicef_country_prog
@@ -591,24 +551,42 @@ def update_country_dropdown(country_group):
 
 
 def update_country_selection(country_group, country_selection):
+    """
+    Update the country selection based on the selected country group and the current country selection.
+
+    Args:
+        country_group (str): The selected country group ("unicef", "eu", "efta", or any other value).
+        country_selection (list): The current selected country values in the dropdown.
+
+    Returns:
+        tuple: A tuple containing two elements:
+               - If the callback was not triggered by a dropdown item selection, return the updated
+                 country dropdown options and the default selected value.
+               - If the callback was triggered by a dropdown item selection, return no updates to the
+                 dropdown options and the country selection value.
+
+    """
     # Assign callback context to identify which input was triggered
     ctx = callback_context
     # Get input id
-    # As well as the explicitly defined input there is an initial call when app first loads with an empty trigger id
+    # As well as the explicitly defined input there is an initial call when the app first loads with an empty trigger id
     inputId = ctx.triggered[0]["prop_id"].split(".")[0]
-    # Check callback not triggered by dropdown item selection
+
+    # Check if the callback was not triggered by dropdown item selection
     if "country-filter" not in inputId:
-        return update_country_dropdown(country_group)
+        return update_country_dropdown(
+            country_group
+        )  # Update the country dropdown options
+
     # Callback triggered by dropdown item selection
     else:
-        # Check if:
-        # all_values has been added and other items still in selection
+        # Check if "all_values" has been added and other items are still in the selection
         if country_selection[-1] == "all_values" and len(country_selection) > 1:
-            # No update to dropdown options, return only all_values
+            # No update to dropdown options, return only "all_values" in the selection
             return no_update, ["all_values"]
-        # Additional item has been added and all_values still in selection
+        # Check if an additional item has been added and "all_values" is still in the selection
         elif country_selection[0] == "all_values" and len(country_selection) > 1:
-            # No update to dropdown options, return only newly selected item
+            # No update to dropdown options, return only the newly selected item in the selection
             return no_update, [country_selection[1]]
         else:
             # No update to dropdown options or value
@@ -616,6 +594,13 @@ def update_country_selection(country_group, country_selection):
 
 
 def get_sector(subtopic):
+    """
+    Get the sector based on the given subtopic.
+    Args:
+        subtopic (str): The subtopic to match and find the corresponding sector.
+    Returns:
+        str: The sector that corresponds to the given subtopic. If no sector is found, an empty string is returned.
+    """
     for key in dict_topics_subtopics.keys():
         if subtopic.strip() in dict_topics_subtopics.get(key):
             return key
@@ -632,7 +617,6 @@ def nominal_data(config):
     return only_dtype(config) and config["NOMINAL"]
 
 
-# alternative way to read in data, uses Daniels' data_access_sdmx class and json parser
 def get_data(
     indicators: list,
     years: list,
@@ -641,11 +625,25 @@ def get_data(
     dimensions: dict = {},
     latest_data: bool = True,
 ):
+    """
+    Get data based on the given parameters.
+
+    Args:
+        indicators (list): A list of indicators.
+        years (list): A list of years.
+        selected_countries (list): A list of selected countries.
+        breakdown (str, optional): The breakdown parameter. Defaults to "TOTAL".
+        dimensions (dict, optional): Additional dimensions for the data query. Defaults to an empty dictionary.
+        latest_data (bool, optional): Flag to determine whether to retrieve the latest data. Defaults to True.
+
+    Returns:
+        pandas.DataFrame: The retrieved data.
+
+    """
     data_endpoint_id = "ECARO"
     data_endpoint_url = "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/"
     api_access = data_access_sdmx.DataAccess_SDMX(data_endpoint_id, data_endpoint_url)
 
-    # start_time = time.time()
     keys = {
         "REF_AREA": selected_countries,
         "INDICATOR": indicators,
@@ -653,32 +651,25 @@ def get_data(
         "AGE": [],
         "RESIDENCE": [],
         "WEALTH_QUINTILE": [],
+        **dimensions,
     }
 
-    # get the first indicator of the list... we have more than one indicator in the cards
     indicator_config = indicators_config.get(indicators[0], {})
 
-    # check if the indicator has special config, update the keys from the config
     if indicator_config and not only_dtype(indicator_config):
-        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown].copy()
-        if (
-            dimensions
-        ):  # if we are sending cards related filters, update the keys with the set values
-            card_keys.update(dimensions)
-        keys.update(card_keys)  # update the keys with the sent values
+        card_keys = indicator_config.get(breakdown, {})
+        card_keys.update(dimensions)
+        keys.update(card_keys)
 
-    # build data query string
+    # Build data query string
     data_query = "".join(
         ["+".join(keys[param]) + "." if keys[param] else "." for param in keys]
     )
 
-    start_period, end_period = years[0], years[-1] if years is not None else (
-        None,
-        None,
-    )
+    start_period = years[0] if years else 2000
+    end_period = years[-1] if years else 2023
 
-    # function that uses Daniele's json parser
+    # Get data using the API access
     data = api_access.get_data(
         agency="ECARO",
         id="TRANSMONEE",
@@ -691,190 +682,55 @@ def get_data(
         print_stats=True,
     )
 
-    # rest of code adapted from Alberto's get_filtered_dataset()
+    # Convert data types and perform data transformations
     dtype = (
-        eval(indicator_config["DTYPE"]) if "DTYPE" in indicator_config else np.float64
+        eval(indicator_config.get("DTYPE"))
+        if indicator_config and "DTYPE" in indicator_config
+        else np.float64
     )
     data = data.astype({"OBS_VALUE": dtype, "TIME_PERIOD": "int32"})
-    data = data.sort_values(by=["TIME_PERIOD"]).reset_index()
+    data = data.sort_values(by=["TIME_PERIOD"]).reset_index(drop=True)
 
-    # replace Yes by 1 and No by 0
+    data = data.rename(columns={"INDICATOR": "CODE"})
+
+    footnote_mask = data.OBS_VALUE.astype(str).str.contains("[<>]")
+    data.loc[footnote_mask, "OBS_FOOTNOTE"] += (
+        "<br>Note: The estimated value is "
+        + data.loc[footnote_mask, "OBS_VALUE"].astype(str)
+        + "<br>"
+    )
+
     data.OBS_VALUE.replace(
         {"(?i)Yes": "1", "(?i)No": "0", "<": "", ">": ""}, inplace=True, regex=True
     )
 
-    data = data.rename(columns={"INDICATOR": "CODE"})
-
-    # convert to numeric
     data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
     data.dropna(subset=["OBS_VALUE"], inplace=True)
 
-    # if unit multiplier thousands modify obs value
     if "3" in data.UNIT_MULTIPLIER.values:
-        data["UNIT_MULTIPLIER"] = pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
-        data["OBS_VALUE"] = data["OBS_VALUE"] * 10 ** data["UNIT_MULTIPLIER"]
+        data["OBS_VALUE"] *= 10 ** pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
 
     data.replace(np.nan, "N/A", inplace=True)
 
-    data["OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
-        lambda x: x.replace("\n", "<br>")
-    )
-    data["DATA_SOURCE"] = data.DATA_SOURCE.str.wrap(70).apply(
-        lambda x: x.replace("\n", "<br>")
-    )
+    data["OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).str.replace("\n", "<br>")
+    data["DATA_SOURCE"] = data.DATA_SOURCE.str.wrap(70).str.replace("\n", "<br>")
 
-    # keep three decimals for indexes
     if "IDX" in data.UNIT_MEASURE.values or "HVA_EPI_INF_RT_0-14" in data.CODE.values:
         data.OBS_VALUE = data.OBS_VALUE.round(3)
-    # keep one decimal for fertility rate
     elif "DM_FRATE_TOT" in data.CODE.values:
         data.OBS_VALUE = data.OBS_VALUE.round(1)
-    # round to whole number if values greater than one
     else:
         data.OBS_VALUE = data.OBS_VALUE.round(1)
         data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
             data.OBS_VALUE > 1
         ].OBS_VALUE.round()
 
-    # map binary data back to yes/no in new column
     if "YES_NO" in data.UNIT_MEASURE.values:
         data["Status"] = data["OBS_VALUE"].map({1: "Yes", 0: "No"})
 
     data["Country_name"] = data["REF_AREA"].map(reversed_countries_iso3_dict)
 
     def create_labels(row):
-        row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
-        row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
-        row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
-        row["Wealth_name"] = str(wealth_names.get(str(row["WEALTH_QUINTILE"]), ""))
-        row["Age_name"] = str(age_groups_names.get(str(row["AGE"]), ""))
-        return row
-
-    data = data.apply(create_labels, axis="columns")
-
-    # print("get_data: %s seconds" % (time.time() - start_time))
-    return data
-
-
-# the original function to get data, keeping for the moment in case we revert back to this
-def get_filtered_dataset(
-    indicators: list,
-    years: list,
-    country_codes: list,
-    breakdown: str = "TOTAL",  # send default breakdown as Total
-    dimensions: dict = {},
-    latest_data: bool = True,
-) -> pd.DataFrame:
-    # TODO: This is temporary, need to move to config
-    # Add all dimensions by default to the keys
-    keys = {
-        "REF_AREA": country_codes,
-        "INDICATOR": indicators,
-        "SEX": [],
-        "AGE": [],
-        "RESIDENCE": [],
-        "WEALTH_QUINTILE": [],
-    }
-
-    # get the first indicator of the list... we have more than one indicator in the cards
-    indicator_config = (
-        indicators_config[indicators[0]] if indicators[0] in indicators_config else {}
-    )
-    # check if the indicator has special config, update the keys from the config
-    if indicator_config and not only_dtype(indicator_config):
-        # TODO: need to confirm that a TOTAL is always available when a config is available for the indicator
-        card_keys = indicator_config[breakdown].copy()
-        if (
-            dimensions
-        ):  # if we are sending cards related filters, update the keys with the set values
-            card_keys.update(dimensions)
-        keys.update(card_keys)  # update the keys with the sent values
-
-    try:
-        data = unicef.data(
-            "TRANSMONEE",
-            provider="ECARO",
-            key=keys,
-            params=dict(
-                startPeriod=years[0],
-                endPeriod=years[-1],
-                lastNObservations=1 if latest_data else 0,
-            ),
-            dsd=dsd,
-        )
-        logging.debug(f"URL: {data.response.url} CACHED: {data.response.from_cache}")
-    except Exception as e:
-        print(f"Requests error: {e}")
-        logging.exception(f"URL: {e.response}", e)
-        # TODO: Maybe do something better here
-        return pd.DataFrame()
-
-    # lbassil: add sorting by Year to display the years in proper order on the x-axis
-    dtype = (
-        eval(indicator_config["DTYPE"]) if "DTYPE" in indicator_config else np.float64
-    )
-    data = (
-        data.to_pandas(attributes="o", rtype="rows", dtype=dtype)
-        .sort_values(by=["TIME_PERIOD"])
-        .reset_index()
-    )
-    # if data has no footnotes or data source then pdsdmx erases column
-    if "OBS_FOOTNOTE" in data.columns:
-        data = data.astype({"OBS_FOOTNOTE": str})
-        data.loc[:, "OBS_FOOTNOTE"] = data.OBS_FOOTNOTE.str.wrap(70).apply(
-            lambda x: x.replace("\n", "<br>")
-        )
-    else:
-        data["OBS_FOOTNOTE"] = "NA"
-
-    if "DATA_SOURCE" in data.columns:
-        data = data.astype({"DATA_SOURCE": str})
-        data.loc[:, "DATA_SOURCE"] = data.DATA_SOURCE.str.wrap(70).apply(
-            lambda x: x.replace("\n", "<br>")
-        )
-    else:
-        data["DATA_SOURCE"] = "NA"
-
-    # if unit multiplier present convert to integer
-    if "UNIT_MULTIPLIER" in data.columns:
-        data = data.astype({"UNIT_MULTIPLIER": str})
-        # unit multiplier thousands flag (requested by siraj)
-        is_thousand = "3" in data.UNIT_MULTIPLIER.values
-    else:
-        is_thousand = False
-
-    data.rename(columns={"value": "OBS_VALUE", "INDICATOR": "CODE"}, inplace=True)
-
-    # replace Yes by 1 and No by 0
-    data.OBS_VALUE.replace(
-        {"(?i)Yes": "1", "(?i)No": "0", "<": "", ">": ""}, inplace=True, regex=True
-    )
-
-    # convert to numeric
-    data["OBS_VALUE"] = pd.to_numeric(data.OBS_VALUE, errors="coerce")
-    data.dropna(subset=["OBS_VALUE"], inplace=True)
-
-    # if unit multiplier thousands modify obs value (requested by siraj)
-    if is_thousand:
-        data["UNIT_MULTIPLIER"] = pd.to_numeric(data.UNIT_MULTIPLIER, errors="coerce")
-        data["OBS_VALUE"] = data["OBS_VALUE"] * 10 ** data["UNIT_MULTIPLIER"]
-
-    # round based on indicator unit: index takes 3 decimals
-    ind_unit = data.UNIT_MEASURE.iloc[0].value
-    data = data.round({"OBS_VALUE": 3 if ind_unit == "IDX" else 1})
-    # round to whole number if values greater than one (and not index)
-    if ind_unit != "IDX":
-        data.loc[data.OBS_VALUE > 1, "OBS_VALUE"] = data[
-            data.OBS_VALUE > 1
-        ].OBS_VALUE.round()
-    # converting TIME_PERIOD to numeric: we should get integers by default
-    data["TIME_PERIOD"] = pd.to_numeric(data.TIME_PERIOD)
-
-    # lbassil: add the code to fill the country names
-    countries_val_list = list(countries_iso3_dict.values())
-
-    def create_labels(row):
-        row["Country_name"] = countries[countries_val_list.index(row["REF_AREA"])]
         row["Unit_name"] = str(units_names.get(str(row["UNIT_MEASURE"]), ""))
         row["Sex_name"] = str(gender_names.get(str(row["SEX"]), ""))
         row["Residence_name"] = str(residence_names.get(str(row["RESIDENCE"]), ""))
@@ -977,17 +833,51 @@ def get_base_layout(**kwargs):
                                                 className="heading-subtitle",
                                                 style={
                                                     "marginBottom": "0px",
+                                                    "textAlign": "center",
                                                 },
                                                 clearable=False,
                                                 maxHeight=100,
                                             ),
-                                            html.H2(
-                                                id=f"{page_prefix}-main_title",
-                                                className="heading-title",
-                                                style={
-                                                    "color": domain_colour,
-                                                    "marginTop": "5px",
-                                                },
+                                            html.Div(
+                                                [
+                                                    html.H2(
+                                                        id=f"{page_prefix}-main_title",
+                                                        className="heading-title",
+                                                        style={
+                                                            "color": domain_colour,
+                                                            "marginTop": "10px",
+                                                            "marginBottom": "0px",
+                                                        },
+                                                    ),
+                                                    html.I(
+                                                        className="fas fa-info-circle info-icon",
+                                                        id=f"{page_prefix}-info-icon",
+                                                        style={
+                                                            "color": domain_colour,
+                                                            "display": "flex",
+                                                            "alignContent": "center",
+                                                            "flexWrap": "wrap",
+                                                            "paddingLeft": "5px",
+                                                        },
+                                                    ),
+                                                    dbc.Popover(
+                                                        [
+                                                            dbc.PopoverBody(
+                                                                id=f"{page_prefix}-info-tooltip",
+                                                                style={
+                                                                    "height": "200px",
+                                                                    "overflowY": "auto",
+                                                                    "whiteSpace": "pre-wrap",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        id=f"{page_prefix}-subdomain-hover",
+                                                        target=f"{page_prefix}-info-icon",
+                                                        # placement="top-start",
+                                                        trigger="hover",
+                                                    ),
+                                                ],
+                                                style={"display": "inline-flex"},
                                             ),
                                         ],
                                     ),
@@ -1004,7 +894,7 @@ def get_base_layout(**kwargs):
                             html.A(
                                 html.Img(
                                     id="wheel-icon",
-                                    src=get_asset_url("SOCR_Diagram_Oct_2022_href.svg"),
+                                    src=get_asset_url("SOCR_Diagram RES 120x120.png"),
                                     style={"backgroundColor": "white"},
                                 ),
                                 href="/transmonee",
@@ -1150,7 +1040,13 @@ def get_base_layout(**kwargs):
                                     dbc.Col(
                                         [
                                             html.Button(
-                                                "Download data",
+                                                [
+                                                    # html.I(
+                                                    #   className="fas fa-download mr-2",
+                                                    #  style={"marginRight": "3px"},
+                                                    # ),  # Download icon
+                                                    "Download data",  # Button text
+                                                ],
                                                 id=f"{page_prefix}-download_btn",
                                             ),
                                             dcc.Download(
@@ -1303,7 +1199,7 @@ def get_base_layout(**kwargs):
                                                                 [
                                                                     dbc.PopoverHeader(
                                                                         html.P(
-                                                                            "     Countries with data for selected years"
+                                                                            "Countries with data for selected years"
                                                                         )
                                                                     ),
                                                                     dbc.PopoverBody(
@@ -1331,7 +1227,7 @@ def get_base_layout(**kwargs):
                                                                 [
                                                                     dbc.PopoverHeader(
                                                                         html.P(
-                                                                            "     Countries without data for selected years"
+                                                                            "Countries without data for selected years"
                                                                         )
                                                                     ),
                                                                     dbc.PopoverBody(
@@ -1635,7 +1531,41 @@ def indicator_card(
 def download_data(n_clicks, data):
     download_df = pd.DataFrame.from_dict(data)
     download_df["Indicator_name"] = download_df["CODE"].map(indicator_names)
-    return dcc.send_data_frame(download_df.to_csv, f"{download_df.CODE[0]}.csv")
+
+    # Rename columns
+    download_df = download_df.rename(
+        columns={
+            "REF_AREA": "Country_code",
+            "CODE": "Indicator_Code",
+            "Sex_name": "Sex",
+            "Residence_name": "Residence",
+            "Wealth_name": "Wealth_quintile",
+            "Age_name": "Age",
+        }
+    )
+
+    # Select desired columns in the specified order
+    columns_to_keep = [
+        "Country_code",
+        "Country_name",
+        "Indicator_Code",
+        "Indicator_name",
+        "OBS_VALUE",
+        "TIME_PERIOD",
+        "Sex",
+        "Residence",
+        "Wealth_quintile",
+        "Age",
+        "OBS_FOOTNOTE",
+        "FREQ",
+        "DATA_SOURCE",
+    ]
+    download_df = download_df[columns_to_keep]
+
+    # Return the downloadable CSV file
+    return dcc.send_data_frame(
+        download_df.to_csv, f"{download_df['Indicator_Code'][0]}.csv"
+    )
 
 
 graphs_dict = {
@@ -1777,12 +1707,19 @@ def get_filters(years_slider, countries, country_group):
 
 
 def themes(selections, indicators_dict, page_prefix):
-    # start_time = time.time()
-    title = indicators_dict[selections["theme"]].get("NAME")
+    subdomain = indicators_dict[selections["theme"]].get("NAME")
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
-    # hide the buttons when only one option is available
+
+    # Load the descriptions from the JSON file
+    with open(parent / "../static/Subdomain_descriptions.json") as indicator_file:
+        descriptions = json.load(indicator_file)
+
+    # Get the description for the current subdomain
+    description = descriptions.get(subdomain, "")
+
     if len(indicators_dict.items()) == 1:
-        return title, []
+        return subdomain, description, []
+
     buttons = [
         dbc.Button(
             value["NAME"],
@@ -1794,8 +1731,9 @@ def themes(selections, indicators_dict, page_prefix):
         )
         for num, (key, value) in enumerate(indicators_dict.items())
     ]
+
     # print("themes: %s seconds" % (time.time() - start_time))
-    return title, buttons
+    return subdomain, description, buttons
 
 
 def aio_options(theme, indicators_dict, page_prefix):
