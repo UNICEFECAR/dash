@@ -115,6 +115,10 @@ if (browserOk) {
         if (el){
             el[0].classList.remove("embed-small");
         }
+        el = document.querySelector(".container-content .container");
+        if (el){
+            el.style.maxWidth="100%";
+        }
     }
 
     //load the json and adds to the page in the callback function
