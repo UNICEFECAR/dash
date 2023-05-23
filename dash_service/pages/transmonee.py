@@ -861,20 +861,28 @@ def get_base_layout(**kwargs):
                                                         },
                                                     ),
                                                     dbc.Popover(
-                                                        [
-                                                            dbc.PopoverBody(
-                                                                id=f"{page_prefix}-info-tooltip",
-                                                                style={
-                                                                    "height": "200px",
-                                                                    "overflowY": "auto",
-                                                                    "whiteSpace": "pre-wrap",
-                                                                },
-                                                            ),
-                                                        ],
-                                                        #id=f"{page_prefix}-subdomain-hover",
+                                                        # [
+                                                        #     dbc.PopoverBody(
+                                                        #         id=f"{page_prefix}-info-tooltip",
+                                                        #         style={
+                                                        #             "height": "200px",
+                                                        #             "overflowY": "auto",
+                                                        #             "whiteSpace": "pre-wrap",
+                                                        #         },
+                                                        #     ),
+                                                        # ],
+                                                        # id=f"{page_prefix}-subdomain-hover",
+                                                        id=f"{page_prefix}-info-tooltip",
                                                         target=f"{page_prefix}-info-icon",
                                                         # placement="top-start",
                                                         trigger="hover",
+                                                        style={
+                                                            "height": "200px",
+                                                            "overflowY": "auto",
+                                                            "whiteSpace": "pre-wrap",
+                                                            "padding":"8px"
+                                                            
+                                                        },
                                                     ),
                                                 ],
                                                 style={"display": "inline-flex"},
