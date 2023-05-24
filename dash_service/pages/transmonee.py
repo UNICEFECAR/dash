@@ -925,7 +925,7 @@ def get_base_layout(**kwargs):
                                     # src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
                                     src=home_icon_file_path,
                                     style={"backgroundColor": "white"},
-                                    width=80, height=80
+                                    width=120, height=120
                                 ),
                                 #href="/transmonee",
                                 href=home_icon_href
@@ -937,6 +937,7 @@ def get_base_layout(**kwargs):
                         width={"size": 1, "offset": 0},
                         style={
                             "paddingTop": 15,
+                            "justifyContent":"normal"
                         },
                     ),
                     dbc.Col(
