@@ -1729,7 +1729,7 @@ def themes(selections, indicators_dict, page_prefix):
 
     # Load the descriptions from the JSON file
     descriptions_file_path = (
-            f"{pathlib.Path(__file__).parent.parent.absolute()}/static/Subdomain_descriptions.json"
+            f"{pathlib.Path(__file__).parent.parent.absolute()}/static/subdomain_descriptions.json"
         )
     # with open(parent / "../static/Subdomain_descriptions.json") as indicator_file:
     #     descriptions = json.load(indicator_file)
