@@ -3,6 +3,7 @@ import json
 import logging
 from io import BytesIO
 from pathlib import Path
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -70,9 +71,17 @@ EMPTY_CHART = {
 
 # TODO: Move all of these to env/setting vars from production
 
-parent = Path(__file__).resolve().parent
-with open(parent / "../static/indicator_config.json") as config_file:
-    indicators_config = json.load(config_file)
+# parent = Path(__file__).resolve().parent
+# with open(parent / "../static/indicator_config.json") as config_file:
+#     indicators_config = json.load(config_file)
+
+config_file_path = (
+        f"{pathlib.Path(__file__).parent.parent.absolute()}/static/indicator_config.json"
+    )
+with open(config_file_path) as config_file:
+     indicators_config = json.load(config_file)
+
+
 
 geo_json_countries = get_geo_file("ecaro.geo.json")
 
@@ -1719,7 +1728,12 @@ def themes(selections, indicators_dict, page_prefix):
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
 
     # Load the descriptions from the JSON file
-    with open(parent / "../static/Subdomain_descriptions.json") as indicator_file:
+    descriptions_file_path = (
+            f"{pathlib.Path(__file__).parent.parent.absolute()}/static/Subdomain_descriptions.json"
+        )
+    # with open(parent / "../static/Subdomain_descriptions.json") as indicator_file:
+    #     descriptions = json.load(indicator_file)
+    with open(descriptions_file_path) as indicator_file:
         descriptions = json.load(indicator_file)
 
     # Get the description for the current subdomain
