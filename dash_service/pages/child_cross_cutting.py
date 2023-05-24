@@ -40,53 +40,6 @@ min_max_card_suffix = "min - max values"
 min_max_girls_suffix = "min - max values for girls"
 
 page_config = {
-    "ECD": {
-        "NAME": "Early childhood development",
-        "CARDS": [
-            {
-                "name": "",
-                "indicator": "ECD_CHLD_36-59M_LMPSL",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "CME_MRM0",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "NT_BF_EXBF",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "ECD_CHLD_36-59M_ADLT_SRC",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-            {
-                "name": "",
-                "indicator": "EDUNF_NERA_L1_UNDER1",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
-        ],
-        "AIO_AREA": {
-            "graphs": graphs_dict,
-            "indicators": [
-                "ECD_CHLD_36-59M_LMPSL",
-                "CME_MRM0",
-                "NT_BF_EXBF",
-                "ECD_CHLD_36-59M_ADLT_SRC",
-                "EDUNF_NERA_L1_UNDER1",
-            ],
-            "default_graph": "bar",
-            "default": "ECD_CHLD_36-59M_LMPSL",
-        },
-    },
     "GND": {
         "NAME": "Gender",
         "CARDS": [
@@ -132,6 +85,114 @@ page_config = {
             ],
             "default_graph": "bar",
             "default": "EC_GDI",
+        },
+    },
+    "DIS": {
+        "NAME": "Disability",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "HT_REG_CHLD_DISAB",
+                "suffix": "children with disabilities",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_CHLD_DISAB_GENERAL",
+                "suffix": "children with disabilities",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_CHLD_DISAB_SPECIAL",
+                "suffix": "children with disabilities",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "EDU_SDG_SCH_L1",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "PT_CHLD_DISAB_INRESIDENTIAL",
+                "suffix": "children with disabilities",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "SP_CHLD_DISAB_CASH",
+                "suffix": "children with disabilities",
+                "min_max": False,
+            },
+            {
+                "name": "",
+                "indicator": "PV_SI_COV_DISAB",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": graphs_dict,
+            "indicators": [
+                "HT_REG_CHLD_DISAB",
+                "EDU_CHLD_DISAB_GENERAL",
+                "EDU_CHLD_DISAB_SPECIAL",
+                "EDU_SDG_SCH_L1",
+                "PT_CHLD_DISAB_INRESIDENTIAL",
+                "SP_CHLD_DISAB_CASH",
+                "PV_SI_COV_DISAB",
+            ],
+            "default_graph": "bar",
+            "default": "HT_REG_CHLD_DISAB",
+        },
+    },
+    "ECD": {
+        "NAME": "Early childhood development",
+        "CARDS": [
+            {
+                "name": "",
+                "indicator": "ECD_CHLD_36-59M_LMPSL",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "CME_MRM0",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "NT_BF_EXBF",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "ECD_CHLD_36-59M_ADLT_SRC",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+            {
+                "name": "",
+                "indicator": "EDUNF_NERA_L1_UNDER1",
+                "suffix": min_max_card_suffix,
+                "min_max": True,
+            },
+        ],
+        "AIO_AREA": {
+            "graphs": graphs_dict,
+            "indicators": [
+                "ECD_CHLD_36-59M_LMPSL",
+                "CME_MRM0",
+                "NT_BF_EXBF",
+                "ECD_CHLD_36-59M_ADLT_SRC",
+                "EDUNF_NERA_L1_UNDER1",
+            ],
+            "default_graph": "bar",
+            "default": "ECD_CHLD_36-59M_LMPSL",
         },
     },
     "ODA": {
@@ -330,7 +391,7 @@ def layout(page_slug=None, **query_parmas):
                     page_prefix=page_prefix,
                     page_path=page_path,
                     domain_colour=domain_colour,
-                    query_params=query_parmas
+                    query_params=query_parmas,
                 ),
             ),
             html.Br(),
