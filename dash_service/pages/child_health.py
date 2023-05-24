@@ -415,6 +415,7 @@ def layout(page_slug=None, **query_parmas):
                     page_prefix=page_prefix,
                     page_path=page_path,
                     domain_colour=domain_colour,
+                    query_params=query_parmas
                 ),
             ),
             html.Br(),

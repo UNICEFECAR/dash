@@ -4,6 +4,8 @@ import logging
 from io import BytesIO
 from pathlib import Path
 import pathlib
+from flask import request
+from urllib.parse import urlsplit, urlunsplit
 
 import numpy as np
 import pandas as pd
@@ -76,11 +78,10 @@ EMPTY_CHART = {
 #     indicators_config = json.load(config_file)
 
 config_file_path = (
-        f"{pathlib.Path(__file__).parent.parent.absolute()}/static/indicator_config.json"
-    )
+    f"{pathlib.Path(__file__).parent.parent.absolute()}/static/indicator_config.json"
+)
 with open(config_file_path) as config_file:
-     indicators_config = json.load(config_file)
-
+    indicators_config = json.load(config_file)
 
 
 geo_json_countries = get_geo_file("ecaro.geo.json")
@@ -814,6 +815,17 @@ def get_base_layout(**kwargs):
     page_prefix = kwargs.get("page_prefix")
     page_path = kwargs.get("page_path")
     domain_colour = kwargs.get("domain_colour")
+    qparams = kwargs.get("query_params")
+
+    home_icon_file_path = f"{request.root_url}assets/SOCR_Diagram_RES_120x120.png"
+
+    params = ["prj=tm"]
+    for k, v in qparams.items():
+        print(k, v)
+        if k not in ["prj", "page", "hash"]:
+            params.append(f"{k}={v}")
+
+    home_icon_href = "?" + "&".join(params)
 
     return html.Div(
         [
@@ -889,8 +901,7 @@ def get_base_layout(**kwargs):
                                                             "height": "200px",
                                                             "overflowY": "auto",
                                                             "whiteSpace": "pre-wrap",
-                                                            "padding":"8px"
-                                                            
+                                                            "padding": "8px",
                                                         },
                                                     ),
                                                 ],
@@ -911,10 +922,12 @@ def get_base_layout(**kwargs):
                             html.A(
                                 html.Img(
                                     id="wheel-icon",
-                                    src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
+                                    # src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
+                                    src=home_icon_file_path,
                                     style={"backgroundColor": "white"},
                                 ),
-                                href="/transmonee",
+                                #href="/transmonee",
+                                href=home_icon_href
                             ),
                             dbc.Tooltip(
                                 "Return to ECA CRM Framework", target="wheel-icon"
@@ -1728,9 +1741,7 @@ def themes(selections, indicators_dict, page_prefix):
     url_hash = "#{}".format((next(iter(selections.items())))[1].lower())
 
     # Load the descriptions from the JSON file
-    descriptions_file_path = (
-            f"{pathlib.Path(__file__).parent.parent.absolute()}/static/subdomain_descriptions.json"
-        )
+    descriptions_file_path = f"{pathlib.Path(__file__).parent.parent.absolute()}/static/subdomain_descriptions.json"
     # with open(parent / "../static/Subdomain_descriptions.json") as indicator_file:
     #     descriptions = json.load(indicator_file)
     with open(descriptions_file_path) as indicator_file:
