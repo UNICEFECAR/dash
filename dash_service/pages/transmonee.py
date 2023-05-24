@@ -911,7 +911,7 @@ def get_base_layout(**kwargs):
                             html.A(
                                 html.Img(
                                     id="wheel-icon",
-                                    src=get_asset_url("SOCR_Diagram RES 120x120.png"),
+                                    src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
                                     style={"backgroundColor": "white"},
                                 ),
                                 href="/transmonee",
