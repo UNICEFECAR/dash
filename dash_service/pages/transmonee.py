@@ -925,6 +925,7 @@ def get_base_layout(**kwargs):
                                     # src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
                                     src=home_icon_file_path,
                                     style={"backgroundColor": "white"},
+                                    width=80, height=80
                                 ),
                                 #href="/transmonee",
                                 href=home_icon_href
