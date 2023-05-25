@@ -819,13 +819,20 @@ def get_base_layout(**kwargs):
 
     home_icon_file_path = f"{request.root_url}assets/SOCR_Diagram_RES_120x120.png"
 
-    params = ["prj=tm"]
+    pass_trhough_params = ["prj=tm"]
     for k, v in qparams.items():
-        print(k, v)
         if k not in ["prj", "page", "hash"]:
-            params.append(f"{k}={v}")
+            pass_trhough_params.append(f"{k}={v}")
 
-    home_icon_href = "?" + "&".join(params)
+    home_icon_href = "?" + "&".join(pass_trhough_params)
+
+    domain_pages_links = []
+    for k, v in domain_pages.items():
+        domain_pages_params = pass_trhough_params + ["page=" + v]
+        domain_pages_params = "?" + "&".join(domain_pages_params)
+        domain_pages_links.append({"label": k, "value": domain_pages_params})
+        if "page" in qparams and v == qparams["page"]:
+            current_page_ddl_value = domain_pages_params
 
     return html.Div(
         [
@@ -846,11 +853,13 @@ def get_base_layout(**kwargs):
                                         children=[
                                             dcc.Dropdown(
                                                 id=f"{page_prefix}-topic-dropdown",
-                                                options=[
-                                                    {"label": key, "value": value}
-                                                    for key, value in domain_pages.items()
-                                                ],
-                                                value=page_path,
+                                                # options=[
+                                                #     {"label": key, "value": value}
+                                                #     for key, value in domain_pages.items()
+                                                # ],
+                                                options=domain_pages_links,
+                                                # value=page_path,
+                                                value=current_page_ddl_value,
                                                 className="heading-subtitle",
                                                 style={
                                                     "marginBottom": "0px",
