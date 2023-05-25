@@ -61,24 +61,35 @@ _color_maps = {
 
 
 def _create_button(link, color=None):
-    icon_class = link["icon"] + " fa-lg mt-2 mb-3"
+    # icon_class = link["icon"] + " fa-lg mt-2 mb-3"
+    # icon_class = "fa-id-card" + " fa-2xl mt-2 mb-3"
+    # icon_class = link["icon"] + " fa-regular fa-2xl mt-3 mb-4"
+    # icon_class = "fa-solid fa-landmark fa-2xl"
+    # icon_class = "fas fa-landmark fa-2xl"
+    # icon_class = "fa-regular fa-landmark fa-2xl"
+    # <i class="fa-regular fa-landmark fa-2xl"></i>
+    icon_class = link["icon"] + " fa-2xl"
+    # icon_class = "fas fa-bowl-food fa-2xl"
+    print(icon_class)
+
+
     href = ""
     if "link" in link:
-        href=link["link"]
+        href = link["link"]
 
     btn = html.A(
         className="btn p-2 m-3 text-white",
         style={
-            "width":"170px",
-            "height":"130px",
+            "width": "170px",
+            "height": "130px",
             "backgroundColor": color,
         },
         children=[
-            html.I(className=icon_class),
+            html.Div(className="mt-2 mb-3", children=html.I(className=icon_class)),
             # html.Div(className="text-truncate", children=link["title"]),
             html.Div(children=link["title"]),
         ],
-        href=href
+        href=href,
     )
     ret = html.Div(className="m-2 d-inline", children=btn)
     return ret
@@ -107,7 +118,7 @@ def create_links_row(row):
             lnk = _create_button(l, color)
             links_div.append(lnk)
         ch.append(
-            #html.Div(className="row col-sm-12 col-md-8 d-inline", children=links_div)
+            # html.Div(className="row col-sm-12 col-md-8 d-inline", children=links_div)
             html.Div(className="text-center", children=links_div)
         )
 
@@ -143,7 +154,12 @@ def render_page_template(
         row_div = create_links_row(row)
         row_elems.append(row_div)
 
-    #template = html.Div(className="row col-sm-12",children=[elem_main_title] + row_elems)
-    template = html.Div(className="row justify-content-center",children=html.Div(className="col-sm-12 col-xxl-10",children=[elem_main_title] + row_elems))
+    # template = html.Div(className="row col-sm-12",children=[elem_main_title] + row_elems)
+    template = html.Div(
+        className="row justify-content-center",
+        children=html.Div(
+            className="col-sm-12 col-xxl-10", children=[elem_main_title] + row_elems
+        ),
+    )
 
     return template
