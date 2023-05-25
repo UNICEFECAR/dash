@@ -402,13 +402,13 @@ def layout(page_slug=None, **query_parmas):
 
 # callback to navigate to different domain
 @callback(
-    Output(f"{page_prefix}-theme", "pathname"),
+    Output(f"{page_prefix}-theme", "search"),
     Output(f"{page_prefix}-theme", "hash"),
     [Input(f"{page_prefix}-topic-dropdown", "value")],
     prevent_initial_call=True,
 )
 def update_url(value):
-    return f"/transmonee/{value}", ""
+    return value, ""
 
 
 @callback(
