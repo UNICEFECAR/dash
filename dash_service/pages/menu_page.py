@@ -61,17 +61,7 @@ _color_maps = {
 
 
 def _create_button(link, color=None):
-    # icon_class = link["icon"] + " fa-lg mt-2 mb-3"
-    # icon_class = "fa-id-card" + " fa-2xl mt-2 mb-3"
-    # icon_class = link["icon"] + " fa-regular fa-2xl mt-3 mb-4"
-    # icon_class = "fa-solid fa-landmark fa-2xl"
-    # icon_class = "fas fa-landmark fa-2xl"
-    # icon_class = "fa-regular fa-landmark fa-2xl"
-    # <i class="fa-regular fa-landmark fa-2xl"></i>
     icon_class = link["icon"] + " fa-2xl"
-    # icon_class = "fas fa-bowl-food fa-2xl"
-    print(icon_class)
-
 
     href = ""
     if "link" in link:
