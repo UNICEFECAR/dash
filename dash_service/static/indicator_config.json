@@ -5910,6 +5910,86 @@
             ]
         }
     },
+    "NT_ANT_WHZ_NE2": {
+        "AGE": {
+            "AGE": [
+                "Y0T4",
+                "M0T23",
+                "M24T59"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "RESIDENCE": {
+            "AGE": [
+                "Y0T4"
+            ],
+            "RESIDENCE": [
+                "R",
+                "U"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "Y0T4"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "Y0T4"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "WEALTH_QUINTILE": {
+            "AGE": [
+                "Y0T4"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4",
+                "Q5"
+            ]
+        }
+    },
     "NT_ANT_WHZ_PO2": {
         "AGE": {
             "AGE": [
@@ -6203,6 +6283,84 @@
             ]
         }
     },
+    "NT_CF_ISSSF_FL": {
+        "AGE": {
+            "AGE": [
+                "M6T23"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "RESIDENCE": {
+            "AGE": [
+                "M6T23"
+            ],
+            "RESIDENCE": [
+                "R",
+                "U"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "SEX": {
+            "AGE": [
+                "M6T23"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "M6T23"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "_T"
+            ]
+        },
+        "WEALTH_QUINTILE": {
+            "AGE": [
+                "M6T23"
+            ],
+            "RESIDENCE": [
+                "_T"
+            ],
+            "SEX": [
+                "_T"
+            ],
+            "WEALTH_QUINTILE": [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4",
+                "Q5"
+            ]
+        }
+    },
     "PP_IT_MOB_OWN": {
         "SEX": {
             "SEX": [
@@ -6229,14 +6387,39 @@
             ]
         }
     },
-    "PP_SE_ADT_ACTS_ATCH": {
+    "PP_SE_ADT_ACTS_PRGM": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
+            "SEX": [
+                "_T"
+            ]
+        }
+    },
+    "PP_SE_ADT_ACTS_ATCH": {
+        "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
+            "SEX": [
+                "F",
+                "M"
+            ]
+        },
+        "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6244,12 +6427,18 @@
     },
     "PP_SE_ADT_ACTS_CDV": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6257,12 +6446,18 @@
     },
     "PP_SE_ADT_ACTS_CMFL": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6270,25 +6465,18 @@
     },
     "PP_SE_ADT_ACTS_CPT": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
-            "SEX": [
-                "_T"
-            ]
-        }
-    },
-    "PP_SE_ADT_ACTS_PRGM": {
-        "SEX": {
-            "SEX": [
-                "F",
-                "M"
-            ]
-        },
-        "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6296,12 +6484,18 @@
     },
     "PP_SE_ADT_ACTS_PST": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6309,12 +6503,18 @@
     },
     "PP_SE_ADT_ACTS_SFWR": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6322,12 +6522,18 @@
     },
     "PP_SE_ADT_ACTS_SSHT": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]
@@ -6335,12 +6541,18 @@
     },
     "PP_SE_ADT_ACTS_TRFF": {
         "SEX": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "F",
                 "M"
             ]
         },
         "TOTAL": {
+            "AGE": [
+                "Y15T24"
+            ],
             "SEX": [
                 "_T"
             ]

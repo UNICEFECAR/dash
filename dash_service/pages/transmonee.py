@@ -429,7 +429,7 @@ dict_topics_subtopics = {
         "HIV/AIDS",
         "Water, sanitation and hygiene",
     ],
-    "Education, Leisure, and Culture": [
+    "Education, Leisure and Culture": [
         "Education access and participation",
         "Learning quality and skills",
         "Education system",
@@ -451,10 +451,10 @@ dict_topics_subtopics = {
         "Social protection system",
     ],
     "Cross-Cutting": [
+        "Gender",
         "Disability",
         "Early childhood development",
         "Adolescents",
-        "Gender",
         "Environment and climate change",
         "Disaster, conflict and displacement",
     ],
@@ -463,7 +463,7 @@ dict_topics_subtopics = {
 domain_pages = {
     "Child Rights Landscape and Governance": "child-rights",
     "Health and Nutrition": "child-health",
-    "Education, Leisure, and Culture": "child-education",
+    "Education, Leisure and Culture": "child-education",
     "Family Environment and Protection": "child-protection",
     "Participation and Civil Rights": "child-participation",
     "Poverty and Adequate Standard of Living": "child-poverty",
@@ -925,20 +925,18 @@ def get_base_layout(**kwargs):
                                     # src=get_asset_url("SOCR_Diagram_RES_120x120.png"),
                                     src=home_icon_file_path,
                                     style={"backgroundColor": "white"},
-                                    width=120, height=120
+                                    width=120,
+                                    height=120,
                                 ),
-                                #href="/transmonee",
-                                href=home_icon_href
+                                # href="/transmonee",
+                                href=home_icon_href,
                             ),
                             dbc.Tooltip(
                                 "Return to ECA CRM Framework", target="wheel-icon"
                             ),
                         ],
                         width={"size": 1, "offset": 0},
-                        style={
-                            "paddingTop": 15,
-                            "justifyContent":"normal"
-                        },
+                        style={"paddingTop": 15, "justifyContent": "normal"},
                     ),
                     dbc.Col(
                         [

@@ -84,7 +84,7 @@ page_config = {
             },
             {
                 "name": "",
-                "indicator": "PP_SE_ADT_ACTS_CMFL",
+                "indicator": "PP_SE_ADT_ACTS_PRGM",
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
@@ -100,21 +100,14 @@ page_config = {
                 "suffix": min_max_card_suffix,
                 "min_max": True,
             },
-            {
-                "name": "",
-                "indicator": "PP_SE_ADT_ACTS_PRGM",
-                "suffix": min_max_card_suffix,
-                "min_max": True,
-            },
         ],
         "AIO_AREA": {
             "graphs": graphs_dict,
             "indicators": [
                 "PP_IT_USE_ii99",
-                "PP_SE_ADT_ACTS_CMFL",
+                "PP_SE_ADT_ACTS_PRGM",
                 "PP_SE_ADT_ACTS_ATCH",
                 "PP_SE_ADT_ACTS_SFWR",
-                "PP_SE_ADT_ACTS_PRGM",
             ],
             "default_graph": "bar",
             "default": "PP_IT_USE_ii99",
@@ -154,7 +147,7 @@ def layout(page_slug=None, **query_parmas):
                     page_prefix=page_prefix,
                     page_path=page_path,
                     domain_colour=domain_colour,
-                    query_params=query_parmas
+                    query_params=query_parmas,
                 ),
             ),
             html.Br(),

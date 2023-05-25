@@ -26,7 +26,7 @@
     background-color: white;
     border-color: #562061;
     border-width: 3px;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,7 +78,7 @@
     border-color: #3e7c49;
     border-style: solid;
     border-width: 3px;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -128,7 +128,7 @@
     color: #4c8cbb;
     background-color: white;
     border-color: #4c8cbb;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -179,7 +179,7 @@
     color: #37568f;
     background-color: white;
     border-color: #37568f;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -229,7 +229,7 @@
     color: #e5ae4c;
     background-color: white;
     border-color: #e5ae4c;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -279,7 +279,7 @@
     color: #861c3f;
     background-color: white;
     border-color: #861c3f;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -329,7 +329,7 @@
     color: #ec5e24;
     background-color: white;
     border-color: #ec5e24;
-    text-transform: capitalize;
+    text-transform: initial;
     display: flex;
     justify-content: center;
     align-items: center;
